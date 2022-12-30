@@ -1,0 +1,13 @@
+syntax = "proto3";
+package types;
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/vipernet-xyz/viper-network/types";
+
+message ProtoAddresses {
+	repeated bytes arr = 1 [(gogoproto.castrepeated) = "Addresses"];
+}
+
+message ProtoAddress {
+	bytes address = 1 [(gogoproto.casttype) = "Address"];
+}

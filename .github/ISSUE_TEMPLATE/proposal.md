@@ -1,0 +1,13 @@
+---
+name: 'Contribution Proposal'
+about: 'Submit a contribution proposal to Viper Core'
+title: "[CONTRIBUTION PROPOSAL]"
+labels: 'proposal'
+assignees: ''
+---
+
+**Please explain your change in detail.**
+
+**Please provide a justification for your change.**
+
+**Add aditional context regarding this proposal.**
