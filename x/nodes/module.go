@@ -129,10 +129,10 @@ func ActivateAdditionalParameters(ctx sdk.Ctx, am AppModule) {
 	if am.keeper.Cdc.IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
 		//on the height we set the default value
 		params := am.keeper.GetParams(ctx)
-		params.ServicerStakeFloorMultiplier = types.DefaultServicerStakeFloorMultiplier
-		params.ServicerStakeWeightMultiplier = types.DefaultServicerStakeWeightMultiplier
-		params.ServicerStakeWeightCeiling = types.DefaultServicerStakeWeightCeiling
-		params.ServicerStakeFloorMultiplierExponent = types.DefaultServicerStakeFloorMultiplierExponent
+		params.MinServicerStakeBinWidth = types.DefaultMinServicerStakeBinWidth
+		params.ServicerStakeWeight = types.DefaultServicerStakeWeight
+		params.MaxServicerStakeBin = types.DefaultMaxServicerStakeBin
+		params.ServicerStakeBinExponent = types.DefaultServicerStakeBinExponent
 		// custom logic for minSignedPerWindow
 		params.MinSignedPerWindow = params.MinSignedPerWindow.QuoInt64(params.SignedBlocksWindow)
 		am.keeper.SetParams(ctx, params)

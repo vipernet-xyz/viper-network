@@ -34,16 +34,16 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 
 		stake := validator.GetTokens()
 		//floorstake to the lowest bin multiple or take ceiling, whicherver is smaller
-		flooredStake := sdk.MinInt(stake.Sub(stake.Mod(k.ServicerStakeFloorMultiplier(ctx))), k.ServicerStakeWeightCeiling(ctx).Sub(k.ServicerStakeWeightCeiling(ctx).Mod(k.ServicerStakeFloorMultiplier(ctx))))
+		flooredStake := sdk.MinInt(stake.Sub(stake.Mod(k.MinServicerStakeBinWidth(ctx))), k.MaxServicerStakeBin(ctx).Sub(k.MaxServicerStakeBin(ctx).Mod(k.MinServicerStakeBinWidth(ctx))))
 		//Convert from tokens to a BIN number
-		bin := flooredStake.Quo(k.ServicerStakeFloorMultiplier(ctx))
+		bin := flooredStake.Quo(k.MinServicerStakeBinWidth(ctx))
 		//calculate the weight value, weight will be a floatng point number so cast to DEC here and then truncate back to big int
-		weight := bin.ToDec().FracPow(k.ServicerStakeFloorMultiplierExponent(ctx), ExponentDenominator).Quo(k.ServicerStakeWeightMultiplier(ctx))
-		coinsDecimal := k.RelaysToTokensMultiplier(ctx).ToDec().Mul(relays.ToDec()).Mul(weight)
+		weight := bin.ToDec().FracPow(k.ServicerStakeBinExponent(ctx), ExponentDenominator).Quo(k.ServicerStakeWeight(ctx))
+		coinsDecimal := k.TokenRewardFactor(ctx).ToDec().Mul(relays.ToDec()).Mul(weight)
 		//truncate back to int
 		coins = coinsDecimal.TruncateInt()
 	} else {
-		coins = k.RelaysToTokensMultiplier(ctx).Mul(relays)
+		coins = k.TokenRewardFactor(ctx).Mul(relays)
 	}
 
 	toNode, toFeeCollector := k.NodeReward(ctx, coins)
@@ -126,6 +126,8 @@ func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Re
 		Log: logString,
 	}
 }
+
+// MintRate = (total supply * inflation rate) / (30 day avg. of daily relays * 365 days)
 
 // GetPreviousProposer - Retrieve the proposer public key for this block
 func (k Keeper) GetPreviousProposer(ctx sdk.Ctx) (addr sdk.Address) {

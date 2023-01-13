@@ -146,7 +146,7 @@ func (k Keeper) CalculateAppRelays(ctx sdk.Ctx, application types.Application) s
 	stakingAdjustment := sdk.NewDec(k.StakingAdjustment(ctx))
 	participationRate := sdk.NewDec(1)
 	baseRate := sdk.NewInt(k.BaselineThroughputStakeRate(ctx))
-	if k.ParticipationRateOn(ctx) {
+	if k.ParticipationRate(ctx) {
 		appStakedCoins := k.GetStakedTokens(ctx)
 		nodeStakedCoins := k.POSKeeper.GetStakedTokens(ctx)
 		totalTokens := k.TotalTokens(ctx)
@@ -164,3 +164,5 @@ func (k Keeper) CalculateAppRelays(ctx sdk.Ctx, application types.Application) s
 
 	return result
 }
+
+// RelaysPerStakedVIPR = VIPR price(30 day avg.) / (USD relay target * Sessions/Day * Average days per month * ROI target)

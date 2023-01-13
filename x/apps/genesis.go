@@ -67,7 +67,7 @@ func ExportGenesis(ctx sdk.Ctx, keeper keeper.Keeper) types.GenesisState {
 // ValidateGenesis validates the provided staking genesis state to ensure the
 // expected invariants holds. (i.e. params in correct bounds, no duplicate applications)
 func ValidateGenesis(data types.GenesisState) error {
-	err := validateGenesisStateApplications(data.Applications, sdk.NewInt(data.Params.AppStakeMin))
+	err := validateGenesisStateApplications(data.Applications, sdk.NewInt(data.Params.MinAppStake))
 	if err != nil {
 		return err
 	}

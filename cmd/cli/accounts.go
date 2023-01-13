@@ -448,8 +448,8 @@ NOTE: THIS METHOD IS NOT RECOMMENDED FOR SECURITY REASONS, USE AT YOUR OWN RISK.
 // sendTxCmd represents the sendTx command
 var sendTxCmd = &cobra.Command{
 	Use:   "send-tx <fromAddr> <toAddr> <amount> <networkID> <fee> <memo>",
-	Short: "Send uvip",
-	Long: `Sends <amount> uvip <fromAddr> to <toAddr> with the specified <memo>.
+	Short: "Send uvipr",
+	Long: `Sends <amount> uvipr <fromAddr> to <toAddr> with the specified <memo>.
 Prompts the user for <fromAddr> account passphrase.`,
 	Args: cobra.ExactArgs(6),
 	Run: func(cmd *cobra.Command, args []string) {

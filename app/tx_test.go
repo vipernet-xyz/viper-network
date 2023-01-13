@@ -901,14 +901,14 @@ func TestChangeParamsSimpleTx(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "application/StabilityAdjustment", 100, "test", 1000000, false)
+			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "application/StabilityModulation", 100, "test", 1000000, false)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			select {
 			case _ = <-evtChan:
 				//fmt.Println(res)
 				assert.Nil(t, err)
-				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "application/StabilityAdjustment")
+				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "application/StabilityModulation")
 				assert.Equal(t, "100", o.Value)
 				cleanup()
 				stopCli()
@@ -989,18 +989,18 @@ func TestChangeinParamsBeforeActivationHeight(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
 			//Before Activation of the parameter ACL do not exist and the value and parameter should be 0 or nil
-			firstquery, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/ServicerStakeWeightMultiplier")
+			firstquery, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/ServicerStakeWeight")
 			assert.Equal(t, "", firstquery.Value)
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
 			//Tx wont modify anything as ACL is not configured (Txresult should be gov code 5)
-			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "pos/ServicerStakeWeightMultiplier", 1, "test", 10000, false)
+			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "pos/ServicerStakeWeight", 1, "test", 10000, false)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			select {
 			case _ = <-evtChan:
 				//fmt.Println(res)
 				assert.Nil(t, err)
-				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/ServicerStakeWeightMultiplier")
+				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/ServicerStakeWeight")
 				//value should be equal to the first query of the param
 				assert.Equal(t, firstquery.Value, o.Value)
 				cleanup()
@@ -1084,17 +1084,17 @@ func TestChangeinParamsafterActivationHeight(t *testing.T) {
 			<-evtChan // Wait for block
 			<-evtChan // Wait for another block
 			//After Activation of the parameter ACL should be created(allowing modifying the value) and parameter should have default value of 4000000
-			o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/ServicerStakeFloorMultiplier")
+			o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/MinServicerStakeBinWidth")
 			assert.Equal(t, "15000000000", o.Value)
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "pos/ServicerStakeFloorMultiplier", 16000000000, "test", 10000, false)
+			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "pos/MinServicerStakeBinWidth", 16000000000, "test", 10000, false)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			select {
 			case _ = <-evtChan:
 				//fmt.Println(res)
 				assert.Nil(t, err)
-				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/ServicerStakeFloorMultiplier")
+				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "pos/MinServicerStakeBinWidth")
 				assert.Equal(t, "16000000000", o.Value)
 				cleanup()
 				stopCli()

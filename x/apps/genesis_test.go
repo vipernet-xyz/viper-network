@@ -99,7 +99,7 @@ func TestPos_ValidateGeneis(t *testing.T) {
 			state := types.DefaultGenesisState()
 			state.Applications = tt.apps
 			if tt.params {
-				state.Params.AppStakeMin = 0
+				state.Params.MinAppStake = 0
 			}
 			if got := ValidateGenesis(state); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ValidateGenesis()= got %v, want %v", got, tt.want)

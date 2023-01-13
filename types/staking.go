@@ -7,7 +7,7 @@ import (
 // staking constants
 const (
 	// default stake denomination
-	DefaultStakeDenom = "uvip"
+	DefaultStakeDenom = "uvipr"
 
 	// Delay, in blocks, between when validator updates are returned to the
 	// consensus-engine and when they are applied. For example, if

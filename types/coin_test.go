@@ -37,7 +37,7 @@ func TestIsEqualCoin(t *testing.T) {
 	}{
 		{NewInt64Coin(testDenom1, 1), NewInt64Coin(testDenom1, 1), true, false},
 		{NewInt64Coin(testDenom1, 1), NewInt64Coin(testDenom2, 1), false, true},
-		{NewInt64Coin("uvip", 1), NewInt64Coin("uvip", 10), false, false},
+		{NewInt64Coin("uvipr", 1), NewInt64Coin("uvipr", 10), false, false},
 	}
 
 	for tcIndex, tc := range cases {

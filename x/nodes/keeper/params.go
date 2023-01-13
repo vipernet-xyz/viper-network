@@ -13,7 +13,7 @@ const (
 	//ExponentDenominator This is used as an input to the decimal power function used for
 	//By calculating the exponent, it avoids any overflows when taking the CthRoot of A by ensuring
 	//that the exponient is always devisable by 100 giving the effective range of
-	//ServicerStakeFloorMultiplierExponent 0-1 in steps of 0.01.
+	//ServicerStakeBinExponent 0-1 in steps of 0.01.
 	ExponentDenominator = 100
 )
 
@@ -93,36 +93,36 @@ func (k Keeper) SlashFractionDowntime(ctx sdk.Ctx) (res sdk.BigDec) {
 	return
 }
 
-// RelaysToTokensMultiplier - Retrieve relay token multipler
-func (k Keeper) RelaysToTokensMultiplier(ctx sdk.Ctx) sdk.BigInt {
+// TokenRewardFactor - Retrieve relay token multipler
+func (k Keeper) TokenRewardFactor(ctx sdk.Ctx) sdk.BigInt {
 	var multiplier int64
-	k.Paramstore.Get(ctx, types.KeyRelaysToTokensMultiplier, &multiplier)
+	k.Paramstore.Get(ctx, types.KeyTokenRewardFactor, &multiplier)
 	return sdk.NewInt(multiplier)
 }
 
-// ServicerStakeFloorMultiplier - Retrieve ServicerStakeFloorMultiplier
-func (k Keeper) ServicerStakeFloorMultiplier(ctx sdk.Ctx) sdk.BigInt {
+// MinServicerStakeBinWidth - Retrieve MinServicerStakeBinWidth
+func (k Keeper) MinServicerStakeBinWidth(ctx sdk.Ctx) sdk.BigInt {
 	var multiplier int64
-	k.Paramstore.Get(ctx, types.KeyServicerStakeFloorMultiplier, &multiplier)
+	k.Paramstore.Get(ctx, types.KeyMinServicerStakeBinWidth, &multiplier)
 	return sdk.NewInt(multiplier)
 }
 
-// ServicerStakeWeightMultiplier - Retrieve ServicerStakeWeightMultiplier
-func (k Keeper) ServicerStakeWeightMultiplier(ctx sdk.Ctx) (res sdk.BigDec) {
-	k.Paramstore.Get(ctx, types.KeyServicerStakeWeightMultiplier, &res)
+// ServicerStakeWeight - Retrieve ServicerStakeWeight
+func (k Keeper) ServicerStakeWeight(ctx sdk.Ctx) (res sdk.BigDec) {
+	k.Paramstore.Get(ctx, types.KeyServicerStakeWeight, &res)
 	return
 }
 
-// ServicerStakeWeightCeiling - Retrieve ServicerStakeWeightCeiling
-func (k Keeper) ServicerStakeWeightCeiling(ctx sdk.Ctx) sdk.BigInt {
+// MaxServicerStakeBin - Retrieve MaxServicerStakeBin
+func (k Keeper) MaxServicerStakeBin(ctx sdk.Ctx) sdk.BigInt {
 	var multiplier int64
-	k.Paramstore.Get(ctx, types.KeyServicerStakeWeightCeiling, &multiplier)
+	k.Paramstore.Get(ctx, types.KeyMaxServicerStakeBin, &multiplier)
 	return sdk.NewInt(multiplier)
 }
 
-// ServicerStakeFloorMultiplierExponent - Retrieve ServicerStakeFloorMultiplierExponent
-func (k Keeper) ServicerStakeFloorMultiplierExponent(ctx sdk.Ctx) (res sdk.BigDec) {
-	k.Paramstore.Get(ctx, types.KeyServicerStakeFloorMultiplierExponent, &res)
+// ServicerStakeBinExponent - Retrieve ServicerStakeBinExponent
+func (k Keeper) ServicerStakeBinExponent(ctx sdk.Ctx) (res sdk.BigDec) {
+	k.Paramstore.Get(ctx, types.KeyServicerStakeBinExponent, &res)
 	return
 }
 
@@ -136,7 +136,7 @@ func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (nodeReward sdk.BigIn
 	// the dao and proposer allocations go to the fee collector
 	daoAllocation := r.Mul(daoAllocationPercentage)
 	proposerAllocation := r.Mul(proposerAllocationPercentage)
-	// truncate int ex 1.99 uvip goes to 1 uvip
+	// truncate int ex 1.99 uvipr goes to 1 uvipr
 	feesCollected = daoAllocation.Add(proposerAllocation).TruncateInt()
 	//appAllocation go to the app
 	appAllocation := r.Mul(appAllocationPercentage).TruncateInt()
@@ -183,27 +183,27 @@ func (k Keeper) MaxJailedBlocks(ctx sdk.Ctx) (res int64) {
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
-		RelaysToTokensMultiplier:             k.RelaysToTokensMultiplier(ctx).Int64(),
-		UnstakingTime:                        k.UnStakingTime(ctx),
-		MaxValidators:                        k.MaxValidators(ctx),
-		StakeDenom:                           k.StakeDenom(ctx),
-		StakeMinimum:                         k.MinimumStake(ctx),
-		SessionBlockFrequency:                k.BlocksPerSession(ctx),
-		DAOAllocation:                        k.DAOAllocation(ctx),
-		AppAllocation:                        k.AppAllocation(ctx),
-		ProposerAllocation:                   k.ProposerAllocation(ctx),
-		MaximumChains:                        k.MaxChains(ctx),
-		MaxJailedBlocks:                      k.MaxJailedBlocks(ctx),
-		MaxEvidenceAge:                       k.MaxEvidenceAge(ctx),
-		SignedBlocksWindow:                   k.SignedBlocksWindow(ctx),
-		MinSignedPerWindow:                   sdk.NewDec(k.MinSignedPerWindow(ctx)),
-		DowntimeJailDuration:                 k.DowntimeJailDuration(ctx),
-		SlashFractionDoubleSign:              k.SlashFractionDoubleSign(ctx),
-		SlashFractionDowntime:                k.SlashFractionDowntime(ctx),
-		ServicerStakeFloorMultiplier:         k.ServicerStakeFloorMultiplier(ctx).Int64(),
-		ServicerStakeWeightMultiplier:        k.ServicerStakeWeightMultiplier(ctx),
-		ServicerStakeWeightCeiling:           k.ServicerStakeWeightCeiling(ctx).Int64(),
-		ServicerStakeFloorMultiplierExponent: k.ServicerStakeFloorMultiplierExponent(ctx),
+		TokenRewardFactor:        k.TokenRewardFactor(ctx).Int64(),
+		UnstakingTime:            k.UnStakingTime(ctx),
+		MaxValidators:            k.MaxValidators(ctx),
+		StakeDenom:               k.StakeDenom(ctx),
+		StakeMinimum:             k.MinimumStake(ctx),
+		SessionBlockFrequency:    k.BlocksPerSession(ctx),
+		DAOAllocation:            k.DAOAllocation(ctx),
+		AppAllocation:            k.AppAllocation(ctx),
+		ProposerAllocation:       k.ProposerAllocation(ctx),
+		MaximumChains:            k.MaxChains(ctx),
+		MaxJailedBlocks:          k.MaxJailedBlocks(ctx),
+		MaxEvidenceAge:           k.MaxEvidenceAge(ctx),
+		SignedBlocksWindow:       k.SignedBlocksWindow(ctx),
+		MinSignedPerWindow:       sdk.NewDec(k.MinSignedPerWindow(ctx)),
+		DowntimeJailDuration:     k.DowntimeJailDuration(ctx),
+		SlashFractionDoubleSign:  k.SlashFractionDoubleSign(ctx),
+		SlashFractionDowntime:    k.SlashFractionDowntime(ctx),
+		MinServicerStakeBinWidth: k.MinServicerStakeBinWidth(ctx).Int64(),
+		ServicerStakeWeight:      k.ServicerStakeWeight(ctx),
+		MaxServicerStakeBin:      k.MaxServicerStakeBin(ctx).Int64(),
+		ServicerStakeBinExponent: k.ServicerStakeBinExponent(ctx),
 	}
 }
 

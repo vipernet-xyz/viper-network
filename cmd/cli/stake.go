@@ -49,7 +49,7 @@ If no changes are desired for the parameter, just enter the current param value 
 		}
 		am := types.NewInt(int64(amount))
 		if am.LT(types.NewInt(15100000000)) {
-			fmt.Println("The amount you are staking for is below the recommendation of 15100 VIP, would you still like to continue? y|n")
+			fmt.Println("The amount you are staking for is below the recommendation of 15100 VIPR, would you still like to continue? y|n")
 			if !app.Confirmation(pwd) {
 				return
 			}
@@ -112,7 +112,7 @@ The signer may be the operator or the output address.`,
 		}
 		am := types.NewInt(int64(amount))
 		if am.LT(types.NewInt(15100000000)) {
-			fmt.Println("The amount you are staking for is below the recommendation of 15100 VIP, would you still like to continue? y|n")
+			fmt.Println("The amount you are staking for is below the recommendation of 15100 VIPR, would you still like to continue? y|n")
 			if !app.Confirmation("") {
 				return
 			}

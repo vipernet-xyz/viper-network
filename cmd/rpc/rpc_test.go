@@ -300,14 +300,14 @@ func TestRPC_QueryAccount(t *testing.T) {
 	rec := httptest.NewRecorder()
 	Account(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
-	assert.Regexp(t, "uvip", string(resp))
+	assert.Regexp(t, "uvipr", string(resp))
 
 	<-evtChan
 	q = newQueryRequest("account", newBody(params))
 	rec = httptest.NewRecorder()
 	Account(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
-	assert.Regexp(t, "uvip", string(resp))
+	assert.Regexp(t, "uvipr", string(resp))
 
 	cleanup()
 	stopCli()

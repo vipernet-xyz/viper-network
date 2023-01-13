@@ -30,7 +30,7 @@ const (
 	SessionsCountName       = "sessions_count_for_"
 	SessionsCountHelp       = "the number of unique sessions generated for: "
 	uvipCountName           = "tokens_earned_for_"
-	uvipCountHelp           = "the number of tokens earned in uvip for : "
+	uvipCountHelp           = "the number of tokens earned in uvipr for : "
 )
 
 type ServiceMetrics struct {

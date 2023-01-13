@@ -1,8 +1,8 @@
 package types
 
 const (
-	ClaimFee = 10000 // fee for claim message (in uvip)
-	ProofFee = 10000 // fee for proof message (in uvip)
+	ClaimFee = 10000 // fee for claim message (in uvipr)
+	ProofFee = 10000 // fee for proof message (in uvipr)
 )
 
 var (

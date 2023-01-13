@@ -23,21 +23,21 @@ func (k Keeper) UnStakingTime(ctx sdk.Ctx) (res time.Duration) {
 	return
 }
 
-// BaselineThroughputStakeRate - Retrieve base relays per VIP
+// BaselineThroughputStakeRate - Retrieve base relays per VIPR
 func (k Keeper) BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64) {
-	k.Paramstore.Get(ctx, types.BaseRelaysPerVIP, &base)
+	k.Paramstore.Get(ctx, types.BaseRelaysPerVIPR, &base)
 	return
 }
 
-// ParticipationRateOn - Retrieve participation rate
-func (k Keeper) ParticipationRateOn(ctx sdk.Ctx) (isOn bool) {
-	k.Paramstore.Get(ctx, types.ParticipationRateOn, &isOn)
+// ParticipationRate - Retrieve participation rate
+func (k Keeper) ParticipationRate(ctx sdk.Ctx) (isOn bool) {
+	k.Paramstore.Get(ctx, types.ParticipationRate, &isOn)
 	return
 }
 
 // StakingAdjustment - Retrieve stability adjustment
 func (k Keeper) StakingAdjustment(ctx sdk.Ctx) (adjustment int64) {
-	k.Paramstore.Get(ctx, types.StabilityAdjustment, &adjustment)
+	k.Paramstore.Get(ctx, types.StabilityModulation, &adjustment)
 	return
 }
 
@@ -49,7 +49,7 @@ func (k Keeper) MaxApplications(ctx sdk.Ctx) (res int64) {
 
 // MinimumStake - Retrieve minimum stake
 func (k Keeper) MinimumStake(ctx sdk.Ctx) (res int64) {
-	k.Paramstore.Get(ctx, types.KeyApplicationMinStake, &res)
+	k.Paramstore.Get(ctx, types.KeyMinApplicationStake, &res)
 	return
 }
 
@@ -64,10 +64,10 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
 		UnstakingTime:       k.UnStakingTime(ctx),
 		MaxApplications:     k.MaxApplications(ctx),
-		AppStakeMin:         k.MinimumStake(ctx),
-		BaseRelaysPerVIP:    k.BaselineThroughputStakeRate(ctx),
-		ParticipationRateOn: k.ParticipationRateOn(ctx),
-		StabilityAdjustment: k.StakingAdjustment(ctx),
+		MinAppStake:         k.MinimumStake(ctx),
+		BaseRelaysPerVIPR:   k.BaselineThroughputStakeRate(ctx),
+		ParticipationRate:   k.ParticipationRate(ctx),
+		StabilityModulation: k.StakingAdjustment(ctx),
 		MaxChains:           k.MaxChains(ctx),
 	}
 }

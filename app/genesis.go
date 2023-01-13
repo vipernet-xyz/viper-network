@@ -47,7 +47,7 @@ var mainnetGenesis = `{
                 "relays_to_tokens_multiplier": "1000",
                 "unstaking_time": "1814400000000000",
                 "max_validators": "5000",
-                "stake_denom": "uvip",
+                "stake_denom": "uvipr",
                 "stake_minimum": "15000000000",
                 "session_block_frequency": "4",
                 "dao_allocation": "8",
@@ -105,9 +105,9 @@ var mainnetGenesis = `{
             "params": {
                 "unstaking_time": "1814400000000000",
                 "max_applications": "9223372036854775807",
-                "app_stake_minimum": "1000000",
+                "minimum_app_stake": "1000000",
                 "base_relays_per_vip": "100",
-                "stability_adjustment": "0",
+                "stability_modulation": "0",
                 "participation_rate_on": false,
                 "maximum_chains": "15"
             },
@@ -143,7 +143,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8",
                         "coins": [
                             {
-                                "denom": "uvip",
+                                "denom": "uvipr",
                                 "amount": "6000000000000"
                             }
                         ],
@@ -159,7 +159,7 @@ var mainnetGenesis = `{
                         "address": "cb0c04268ef1acb93ac2143879ec619dcb3f3fbe",
                         "coins": [
                             {
-                                "denom": "uvip",
+                                "denom": "uvipr",
                                 "amount": "15000000000"
                             }
                         ],
@@ -176,7 +176,7 @@ var mainnetGenesis = `{
             "params": {
                 "acl": [
                     {
-                        "acl_key": "application/ApplicationStakeMinimum",
+                        "acl_key": "application/MinimumApplicationStake",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -184,7 +184,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "application/BaseRelaysPerVIP",
+                        "acl_key": "application/BaseRelaysPerVIPR",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -196,11 +196,11 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "application/ParticipationRateOn",
+                        "acl_key": "application/ParticipationRate",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "application/StabilityAdjustment",
+                        "acl_key": "application/StabilityModulation",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -292,7 +292,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "pos/RelaysToTokensMultiplier",
+                        "acl_key": "pos/TokenRewardFactor",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -447,13 +447,13 @@ func createDummyACL(kp crypto.PublicKey) govTypes.ACL {
 	addr := sdk.Address(kp.Address())
 	acl := govTypes.ACL{}
 	acl = make([]govTypes.ACLPair, 0)
-	acl.SetOwner("application/ApplicationStakeMinimum", addr)
+	acl.SetOwner("application/MinimumApplicationStake", addr)
 	acl.SetOwner("application/AppUnstakingTime", addr)
-	acl.SetOwner("application/BaseRelaysPerVIP", addr)
+	acl.SetOwner("application/BaseRelaysPerVIPR", addr)
 	acl.SetOwner("application/MaxApplications", addr)
 	acl.SetOwner("application/MaximumChains", addr)
-	acl.SetOwner("application/ParticipationRateOn", addr)
-	acl.SetOwner("application/StabilityAdjustment", addr)
+	acl.SetOwner("application/ParticipationRate", addr)
+	acl.SetOwner("application/StabilityModulation", addr)
 	acl.SetOwner("auth/MaxMemoCharacters", addr)
 	acl.SetOwner("auth/TxSigLimit", addr)
 	acl.SetOwner("gov/acl", addr)
@@ -477,7 +477,7 @@ func createDummyACL(kp crypto.PublicKey) govTypes.ACL {
 	acl.SetOwner("pos/MaxJailedBlocks", addr)
 	acl.SetOwner("pos/MaxValidators", addr)
 	acl.SetOwner("pos/MinSignedPerWindow", addr)
-	acl.SetOwner("pos/RelaysToTokensMultiplier", addr)
+	acl.SetOwner("pos/TokenRewardFactor", addr)
 	acl.SetOwner("pos/SignedBlocksWindow", addr)
 	acl.SetOwner("pos/SlashFractionDoubleSign", addr)
 	acl.SetOwner("pos/SlashFractionDowntime", addr)
