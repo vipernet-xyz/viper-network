@@ -19,7 +19,7 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	nodeTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
 	rand2 "github.com/tendermint/tendermint/libs/rand"
@@ -943,18 +943,18 @@ func TestChangeParamsMaxBlocksizeBeforeActivationHeight(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
 			//Before Activation of the parameter ACL do not exist and the value and parameter should be 0 or nil
-			firstquery, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipercore/BlockByteSize")
+			firstquery, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipernet/BlockByteSize")
 			assert.Equal(t, "", firstquery.Value)
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
 			//Tx wont modify anything as ACL is not configured (Txresult should be gov code 5)
-			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "vipercore/BlockByteSize", 9000000, "test", 10000, false)
+			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "vipernet/BlockByteSize", 9000000, "test", 10000, false)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			select {
 			case _ = <-evtChan:
 				//fmt.Println(res)
 				assert.Nil(t, err)
-				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipercore/BlockByteSize")
+				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipernet/BlockByteSize")
 				//value should be equal to the first query of the param
 				assert.Equal(t, firstquery.Value, o.Value)
 				cleanup()
@@ -1038,17 +1038,17 @@ func TestChangeParamsMaxBlocksizeAfterActivationHeight(t *testing.T) {
 			<-evtChan // Wait for block
 			<-evtChan // Wait for another block
 			//After Activation of the parameter ACL should be created(allowing modifying the value) and parameter should have default value of 4000000
-			o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipercore/BlockByteSize")
+			o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipernet/BlockByteSize")
 			assert.Equal(t, "4000000", o.Value)
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "vipercore/BlockByteSize", 9000000, "test", 10000, false)
+			tx, err := gov.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "vipernet/BlockByteSize", 9000000, "test", 10000, false)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			select {
 			case _ = <-evtChan:
 				//fmt.Println(res)
 				assert.Nil(t, err)
-				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipercore/BlockByteSize")
+				o, _ := PCA.QueryParam(PCA.LastBlockHeight(), "vipernet/BlockByteSize")
 				assert.Equal(t, "9000000", o.Value)
 				cleanup()
 				stopCli()

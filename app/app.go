@@ -16,9 +16,9 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	nodesKeeper "github.com/vipernet-xyz/viper-network/x/nodes/keeper"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipercore"
-	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipercore/keeper"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
+	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"

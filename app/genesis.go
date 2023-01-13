@@ -18,8 +18,8 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipercore"
-	"github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
+	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
 var mainnetGenesis = `{
@@ -88,7 +88,7 @@ var mainnetGenesis = `{
             "missed_blocks": {},
             "previous_proposer": ""
         },
-        "vipercore": {
+        "vipernet": {
             "params": {
                 "session_node_count": "1",
                 "proof_waiting_period": "3",
@@ -224,7 +224,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "vipercore/ClaimExpiration",
+                        "acl_key": "vipernet/ClaimExpiration",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -232,7 +232,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "vipercore/ReplayAttackBurnMultiplier",
+                        "acl_key": "vipernet/ReplayAttackBurnMultiplier",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -244,19 +244,19 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "vipercore/ClaimSubmissionWindow",
+                        "acl_key": "vipernet/ClaimSubmissionWindow",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "vipercore/MinimumNumberOfProofs",
+                        "acl_key": "vipernet/MinimumNumberOfProofs",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "vipercore/SessionNodeCount",
+                        "acl_key": "vipernet/SessionNodeCount",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "vipercore/SupportedBlockchains",
+                        "acl_key": "vipernet/SupportedBlockchains",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -459,15 +459,15 @@ func createDummyACL(kp crypto.PublicKey) govTypes.ACL {
 	acl.SetOwner("gov/acl", addr)
 	acl.SetOwner("gov/daoOwner", addr)
 	acl.SetOwner("gov/upgrade", addr)
-	acl.SetOwner("vipercore/ClaimExpiration", addr)
+	acl.SetOwner("vipernet/ClaimExpiration", addr)
 	acl.SetOwner("auth/FeeMultipliers", addr)
-	acl.SetOwner("vipercore/ReplayAttackBurnMultiplier", addr)
+	acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", addr)
 	acl.SetOwner("pos/ProposerPercentage", addr)
 	acl.SetOwner("pos/AppAllocation", addr)
-	acl.SetOwner("vipercore/ClaimSubmissionWindow", addr)
-	acl.SetOwner("vipercore/MinimumNumberOfProofs", addr)
-	acl.SetOwner("vipercore/SessionNodeCount", addr)
-	acl.SetOwner("vipercore/SupportedBlockchains", addr)
+	acl.SetOwner("vipernet/ClaimSubmissionWindow", addr)
+	acl.SetOwner("vipernet/MinimumNumberOfProofs", addr)
+	acl.SetOwner("vipernet/SessionNodeCount", addr)
+	acl.SetOwner("vipernet/SupportedBlockchains", addr)
 	acl.SetOwner("pos/BlocksPerSession", addr)
 	acl.SetOwner("pos/DAOAllocation", addr)
 	acl.SetOwner("pos/AppAllocation", addr)

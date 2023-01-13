@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
 

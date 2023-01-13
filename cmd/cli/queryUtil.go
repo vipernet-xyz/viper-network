@@ -10,7 +10,7 @@ import (
 	"time"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/cmd/rpc"

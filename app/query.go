@@ -16,7 +16,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/auth/util"
 	"github.com/vipernet-xyz/viper-network/x/gov/types"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	core_types "github.com/tendermint/tendermint/rpc/core/types"
 )
@@ -337,7 +337,7 @@ func (app ViperCoreApp) QueryAllParams(height int64) (r AllParamsReturn, err err
 				Key:   k,
 				Value: s,
 			})
-		case "vipercore":
+		case "vipernet":
 			r.ViperParams = append(r.ViperParams, SingleParamReturn{
 				Key:   k,
 				Value: s,

@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/tendermint/privval"
 
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/tendermint/tendermint/rpc/client/http"
 	"github.com/tendermint/tendermint/rpc/client/local"
@@ -32,7 +32,7 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipercore"
+	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 
 	"github.com/stretchr/testify/assert"
 	tmCfg "github.com/tendermint/tendermint/config"
@@ -524,12 +524,12 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("gov/acl", kp.GetAddress())
 		acl.SetOwner("gov/daoOwner", kp.GetAddress())
 		acl.SetOwner("gov/upgrade", kp.GetAddress())
-		acl.SetOwner("vipercore/ClaimExpiration", kp.GetAddress())
-		acl.SetOwner("vipercore/ClaimSubmissionWindow", kp.GetAddress())
-		acl.SetOwner("vipercore/MinimumNumberOfProofs", kp.GetAddress())
-		acl.SetOwner("vipercore/ReplayAttackBurnMultiplier", kp.GetAddress())
-		acl.SetOwner("vipercore/SessionNodeCount", kp.GetAddress())
-		acl.SetOwner("vipercore/SupportedBlockchains", kp.GetAddress())
+		acl.SetOwner("vipernet/ClaimExpiration", kp.GetAddress())
+		acl.SetOwner("vipernet/ClaimSubmissionWindow", kp.GetAddress())
+		acl.SetOwner("vipernet/MinimumNumberOfProofs", kp.GetAddress())
+		acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", kp.GetAddress())
+		acl.SetOwner("vipernet/SessionNodeCount", kp.GetAddress())
+		acl.SetOwner("vipernet/SupportedBlockchains", kp.GetAddress())
 		acl.SetOwner("pos/BlocksPerSession", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())
 		acl.SetOwner("pos/DowntimeJailDuration", kp.GetAddress())

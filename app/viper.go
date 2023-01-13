@@ -18,8 +18,8 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
 	nodesKeeper "github.com/vipernet-xyz/viper-network/x/nodes/keeper"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipercore/keeper"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"

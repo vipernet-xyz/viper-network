@@ -12,7 +12,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/auth"
 	"github.com/vipernet-xyz/viper-network/x/auth/types"
-	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipercore/keeper"
+	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 )
 
 func GenerateAAT(appPubKey, clientPubKey string, key crypto.PrivateKey) (aatjson []byte, err error) {

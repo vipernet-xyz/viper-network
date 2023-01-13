@@ -20,7 +20,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/gov"
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	types2 "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	"github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tendermint/tendermint/node"
@@ -891,7 +891,7 @@ func TestQueryParam(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			resetTestACL()
 			_, _, cleanup := tc.memoryNodeFn(t, oneAppTwoNodeGenesis())
-			res, err := PCA.QueryParam(0, "vipercore/SupportedBlockchains")
+			res, err := PCA.QueryParam(0, "vipernet/SupportedBlockchains")
 			assert.Nil(t, err)
 			assert.NotNil(t, res)
 

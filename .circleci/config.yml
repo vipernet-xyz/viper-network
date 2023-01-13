@@ -23,7 +23,7 @@ jobs:
       # static analyzer
       # - run: go vet ./...
       # Build the binary
-      - run: go build app/cmd/viper_core/main.go
+      - run: go build app/cmd/viper_main/main.go
       # Cache build
       - save_cache:
           key: viper-core-build-{{ .Environment.CIRCLE_SHA1 }}

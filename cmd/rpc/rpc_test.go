@@ -29,7 +29,7 @@ import (
 	authTypes "github.com/vipernet-xyz/viper-network/x/auth/types"
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	types2 "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/assert"

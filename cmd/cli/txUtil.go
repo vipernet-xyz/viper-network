@@ -13,7 +13,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	appsType "github.com/vipernet-xyz/viper-network/x/apps/types"
 	nodeTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/tendermint/tendermint/libs/rand"
 

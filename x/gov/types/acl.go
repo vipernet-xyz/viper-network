@@ -10,7 +10,7 @@ import (
 const (
 	ACLKeySep         = "/"
 	NodesSubspace     = "pos"
-	VipercoreSubspace = "vipercore"
+	VipercoreSubspace = "vipernet"
 )
 
 func NewACLKey(subspaceName, paramName string) string {

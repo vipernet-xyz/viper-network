@@ -32,8 +32,8 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipercore"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
 	tmCfg "github.com/tendermint/tendermint/config"
@@ -375,16 +375,16 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("gov/daoOwner", kp.GetAddress())
 		acl.SetOwner("gov/acl", kp.GetAddress())
 		acl.SetOwner("pos/StakeDenom", kp.GetAddress())
-		acl.SetOwner("vipercore/SupportedBlockchains", kp.GetAddress())
+		acl.SetOwner("vipernet/SupportedBlockchains", kp.GetAddress())
 		acl.SetOwner("pos/DowntimeJailDuration", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDoubleSign", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDowntime", kp.GetAddress())
 		acl.SetOwner("auth/FeeMultipliers", kp.GetAddress())
 		acl.SetOwner("application/MinimumApplicationStake", kp.GetAddress())
-		acl.SetOwner("vipercore/ClaimExpiration", kp.GetAddress())
-		acl.SetOwner("vipercore/SessionNodeCount", kp.GetAddress())
-		acl.SetOwner("vipercore/MinimumNumberOfProofs", kp.GetAddress())
-		acl.SetOwner("vipercore/ReplayAttackBurnMultiplier", kp.GetAddress())
+		acl.SetOwner("vipernet/ClaimExpiration", kp.GetAddress())
+		acl.SetOwner("vipernet/SessionNodeCount", kp.GetAddress())
+		acl.SetOwner("vipernet/MinimumNumberOfProofs", kp.GetAddress())
+		acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", kp.GetAddress())
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
 		acl.SetOwner("pos/AppAllocation", kp.GetAddress())
@@ -397,7 +397,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
 		acl.SetOwner("pos/TokenRewardFactor", kp.GetAddress())
 		acl.SetOwner("application/BaseRelaysPerVIPR", kp.GetAddress())
-		acl.SetOwner("vipercore/ClaimSubmissionWindow", kp.GetAddress())
+		acl.SetOwner("vipernet/ClaimSubmissionWindow", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())
 		acl.SetOwner("pos/SignedBlocksWindow", kp.GetAddress())
 		acl.SetOwner("pos/BlocksPerSession", kp.GetAddress())

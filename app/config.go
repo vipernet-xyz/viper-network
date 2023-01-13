@@ -27,8 +27,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/gov"
 	"github.com/vipernet-xyz/viper-network/x/nodes"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipercore"
-	"github.com/vipernet-xyz/viper-network/x/vipercore/types"
+	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
+	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	kitlevel "github.com/go-kit/kit/log/level"
 	"github.com/go-kit/kit/log/term"
