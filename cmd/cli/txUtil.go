@@ -61,7 +61,7 @@ func SendTransaction(fromAddr, toAddr, passphrase, chainID string, amount sdk.Bi
 }
 
 // LegacyStakeNode - Deliver Stake message to node
-func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64, isBefore8 bool) (*rpc.SendRawTxParams, error) {
+func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,6 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 	if err != nil {
 		return nil, err
 	}
-	kp, err := kb.Get(fa)
 	if err != nil {
 		return nil, err
 	}
@@ -95,22 +94,6 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
-	if isBefore8 {
-		msg = &nodeTypes.LegacyMsgStake{
-			PublicKey:  kp.PublicKey,
-			Chains:     chains,
-			Value:      amount,
-			ServiceUrl: serviceURL,
-		}
-	} else {
-		msg = &nodeTypes.MsgStake{
-			PublicKey:  kp.PublicKey,
-			Chains:     chains,
-			Value:      amount,
-			ServiceUrl: serviceURL,
-			Output:     fa,
-		}
-	}
 	err = msg.ValidateBasic()
 	if err != nil {
 		return nil, err
@@ -126,7 +109,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 }
 
 // StakeNode - Deliver Stake message to node
-func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, amount sdk.BigInt, fees int64, isBefore8 bool) (*rpc.SendRawTxParams, error) {
+func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	var operatorPublicKey crypto.PublicKey
 	var operatorAddress sdk.Address
 	var fromAddress sdk.Address
@@ -181,22 +164,6 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
-	if isBefore8 {
-		msg = &nodeTypes.LegacyMsgStake{
-			PublicKey:  operatorPublicKey,
-			Chains:     chains,
-			Value:      amount,
-			ServiceUrl: serviceURL,
-		}
-	} else {
-		msg = &nodeTypes.MsgStake{
-			PublicKey:  operatorPublicKey,
-			Chains:     chains,
-			Value:      amount,
-			ServiceUrl: serviceURL,
-			Output:     outputAddress,
-		}
-	}
 	err = msg.ValidateBasic()
 	if err != nil {
 		return nil, err
@@ -212,26 +179,15 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 }
 
 // UnstakeNode - start unstaking message to node
-func UnstakeNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64, isBefore8 bool) (*rpc.SendRawTxParams, error) {
+func UnstakeNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
 	}
-	oa, err := sdk.AddressFromHex(operatorAddr)
 	if err != nil {
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
-	if isBefore8 {
-		msg = &nodeTypes.LegacyMsgBeginUnstake{
-			Address: oa,
-		}
-	} else {
-		msg = &nodeTypes.MsgBeginUnstake{
-			Address: oa,
-			Signer:  fa,
-		}
-	}
 	kb, err := app.GetKeybase()
 	if err != nil {
 		return nil, err
@@ -251,26 +207,15 @@ func UnstakeNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64,
 }
 
 // UnjailNode - Remove node from jail
-func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64, isBefore8 bool) (*rpc.SendRawTxParams, error) {
+func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
 	}
-	oa, err := sdk.AddressFromHex(operatorAddr)
 	if err != nil {
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
-	if isBefore8 {
-		msg = &nodeTypes.LegacyMsgUnjail{
-			ValidatorAddr: oa,
-		}
-	} else {
-		msg = &nodeTypes.MsgUnjail{
-			ValidatorAddr: oa,
-			Signer:        fa,
-		}
-	}
 	kb, err := app.GetKeybase()
 	if err != nil {
 		return nil, err
