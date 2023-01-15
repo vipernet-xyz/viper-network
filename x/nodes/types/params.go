@@ -21,8 +21,8 @@ const (
 	DefaultDowntimeJailDuration           = 60 * 10 * time.Second
 	DefaultSessionBlocktime               = 4
 	DefaultProposerAllocation             = 5
-	DefaultDAOAllocation                  = 8
-	DefaultAppAllocation                  = 2
+	DefaultDAOAllocation                  = 10
+	DefaultAppAllocation                  = 5
 	DefaultMaxChains                      = 15
 	DefaultMaxJailedBlocks                = 2000
 	DefaultMinServicerStakeBinWidth int64 = 15000000000

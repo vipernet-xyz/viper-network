@@ -68,7 +68,7 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	if feesCollected.IsZero() {
 		return
 	}
-	// get the dao and proposer % ex DAO .08 or 8% Proposer .01 or 1%
+	// get the dao and proposer % ex DAO .1 or 10% Proposer .05 or 5%
 	daoAllocation := sdk.NewDec(k.DAOAllocation(ctx))
 	proposerAllocation := sdk.NewDec(k.ProposerAllocation(ctx))
 	appAllocation := sdk.NewDec(k.AppAllocation(ctx))
