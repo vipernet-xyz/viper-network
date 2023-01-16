@@ -8,15 +8,15 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/auth/util"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
 // "SendClaimTx" - Automatically sends a claim of work/challenge based on relays or challenges stored.
-func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx func(pk crypto.PrivateKey, cliCtx util.CLIContext, txBuilder auth.TxBuilder, header vc.SessionHeader, totalProofs int64, root vc.HashRange, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
+func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx func(pk crypto.PrivateKey, cliCtx util.CLIContext, txBuilder authentication.TxBuilder, header vc.SessionHeader, totalProofs int64, root vc.HashRange, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
 	// get the private val key (main) account from the keybase
 	kp, err := k.GetPKFromFile(ctx)
 	if err != nil {
@@ -53,7 +53,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 			ctx.Logger().Info("the session is ongoing, so will not send the claim-tx yet")
 			continue
 		}
-		// if the blockchain in the evidence is not supported then delete it because nodes don't get paid/challenged for unsupported blockchains
+		// if the blockchain in the evidence is not supported then delete it because providers don't get paid/challenged for unsupported blockchains
 		if !k.IsViperSupportedBlockchain(sessionCtx.WithBlockHeight(evidence.SessionHeader.SessionBlockHeight), evidence.SessionHeader.Chain) {
 			ctx.Logger().Info(fmt.Sprintf("claim for %s blockchain isn't viper supported, so will not send. Deleting evidence\n", evidence.SessionHeader.Chain))
 			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType); err != nil {

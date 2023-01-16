@@ -13,11 +13,11 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	apps "github.com/vipernet-xyz/viper-network/x/apps"
 	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/gov"
-	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
-	"github.com/vipernet-xyz/viper-network/x/nodes"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/governance"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	"github.com/vipernet-xyz/viper-network/x/providers"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
@@ -127,7 +127,7 @@ var mainnetGenesis = `{
             ],
             "exported": false
         },
-        "auth": {
+        "authentication": {
             "params": {
                 "max_memo_characters": "256",
                 "tx_sig_limit": "7",
@@ -172,7 +172,7 @@ var mainnetGenesis = `{
             ],
             "supply": []
         },
-        "gov": {
+        "governance": {
             "params": {
                 "acl": [
                     {
@@ -204,23 +204,23 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "auth/MaxMemoCharacters",
+                        "acl_key": "authentication/MaxMemoCharacters",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "auth/TxSigLimit",
+                        "acl_key": "authentication/TxSigLimit",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "gov/acl",
+                        "acl_key": "governance/acl",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "gov/daoOwner",
+                        "acl_key": "governance/daoOwner",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "gov/upgrade",
+                        "acl_key": "governance/upgrade",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -228,7 +228,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "auth/FeeMultipliers",
+                        "acl_key": "authentication/FeeMultipliers",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -356,22 +356,22 @@ func newDefaultGenesisState() []byte {
 	pubKey := cb.PublicKey
 	defaultGenesis := module.NewBasicManager(
 		apps.AppModuleBasic{},
-		auth.AppModuleBasic{},
-		gov.AppModuleBasic{},
-		nodes.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		providers.AppModuleBasic{},
 		viper.AppModuleBasic{},
 	).DefaultGenesis()
 	// setup account genesis
-	rawAuth := defaultGenesis[auth.ModuleName]
-	var accountGenesis auth.GenesisState
+	rawAuth := defaultGenesis[authentication.ModuleName]
+	var accountGenesis authentication.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawAuth, &accountGenesis)
-	accountGenesis.Accounts = append(accountGenesis.Accounts, &auth.BaseAccount{
+	accountGenesis.Accounts = append(accountGenesis.Accounts, &authentication.BaseAccount{
 		Address: cb.GetAddress(),
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(1000000))),
 		PubKey:  pubKey,
 	})
 	res := Codec().MustMarshalJSON(accountGenesis)
-	defaultGenesis[auth.ModuleName] = res
+	defaultGenesis[authentication.ModuleName] = res
 	// set address as application too
 	rawApps := defaultGenesis[appsTypes.ModuleName]
 	var appsGenesis appsTypes.GenesisState
@@ -454,13 +454,13 @@ func createDummyACL(kp crypto.PublicKey) govTypes.ACL {
 	acl.SetOwner("application/MaximumChains", addr)
 	acl.SetOwner("application/ParticipationRate", addr)
 	acl.SetOwner("application/StabilityModulation", addr)
-	acl.SetOwner("auth/MaxMemoCharacters", addr)
-	acl.SetOwner("auth/TxSigLimit", addr)
-	acl.SetOwner("gov/acl", addr)
-	acl.SetOwner("gov/daoOwner", addr)
-	acl.SetOwner("gov/upgrade", addr)
+	acl.SetOwner("authentication/MaxMemoCharacters", addr)
+	acl.SetOwner("authentication/TxSigLimit", addr)
+	acl.SetOwner("governance/acl", addr)
+	acl.SetOwner("governance/daoOwner", addr)
+	acl.SetOwner("governance/upgrade", addr)
 	acl.SetOwner("vipernet/ClaimExpiration", addr)
-	acl.SetOwner("auth/FeeMultipliers", addr)
+	acl.SetOwner("authentication/FeeMultipliers", addr)
 	acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", addr)
 	acl.SetOwner("pos/ProposerPercentage", addr)
 	acl.SetOwner("pos/AppAllocation", addr)

@@ -80,8 +80,8 @@ type Store struct {
 	// See https://github.com/tendermint/tendermint/issues/828
 	// A value of 1 means store every state.
 	// A value of 0 means store no waypoints. (node cannot assist in state-sync)
-	// By default this value should be set the same across all nodes,
-	// so that nodes can know the waypoints their peers store.
+	// By default this value should be set the same across all providers,
+	// so that providers can know the waypoints their peers store.
 	storeEvery int64
 
 	cache types.SingleStoreCache

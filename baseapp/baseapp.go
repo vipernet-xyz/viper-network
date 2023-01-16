@@ -21,7 +21,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	types2 "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
 
 	"github.com/tendermint/tendermint/evidence"
 	"github.com/tendermint/tendermint/node"
@@ -65,7 +65,7 @@ const (
 	MainStoreKey = "main"
 
 	codeDuplicateTransaction = 6
-	authCodespace            = "auth"
+	authCodespace            = "authentication"
 )
 
 // BaseApp reflects the ABCI application implementation.
@@ -88,7 +88,7 @@ type BaseApp struct {
 	// set upon RollbackVersion or LoadLatestVersion.
 	baseKey *sdk.KVStoreKey // Main KVStore in cms
 
-	anteHandler    sdk.AnteHandler  // ante handler for fee and auth
+	anteHandler    sdk.AnteHandler  // ante handler for fee and authentication
 	initChainer    sdk.InitChainer  // initialize state with validators and state blob
 	beginBlocker   sdk.BeginBlocker // logic to run before any txs
 	endBlocker     sdk.EndBlocker   // logic to run after all txs, and to determine valset changes
@@ -624,7 +624,7 @@ func handleQueryCustom(app *BaseApp, path []string, req abci.RequestQuery) (res 
 	// queries.
 	//
 	// The queryRouter routes using path[1]. For example, in the path
-	// "custom/gov/proposal", queryRouter routes using "gov".
+	// "custom/governance/proposal", queryRouter routes using "governance".
 	if len(path) < 2 || path[1] == "" {
 		return sdk.ErrUnknownRequest("No route for custom query specified").QueryResult()
 	}
@@ -668,7 +668,7 @@ func handleQueryCustom(app *BaseApp, path []string, req abci.RequestQuery) (res 
 
 	// Passes the rest of the path as an argument to the querier.
 	//
-	// For example, in the path "custom/gov/proposal/test", the gov querier gets
+	// For example, in the path "custom/governance/proposal/test", the governance querier gets
 	// []string{"proposal", "test"} as the path.
 	resBytes, queryErr := querier(ctx, path[2:], req)
 	if queryErr != nil {
@@ -704,7 +704,7 @@ func (app *BaseApp) validateHeight(req abci.RequestBeginBlock) error {
 func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeginBlock) {
 	if req.Header.Height == codec.GetCodecUpgradeHeight() {
 		app.cdc.SetUpgradeOverride(true)
-		app.txDecoder = auth.DefaultTxDecoder(app.cdc)
+		app.txDecoder = authentication.DefaultTxDecoder(app.cdc)
 	}
 	if app.cms.TracingEnabled() {
 		app.cms.SetTracingContext(sdk.TraceContext(

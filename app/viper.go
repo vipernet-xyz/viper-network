@@ -12,12 +12,12 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	appsKeeper "github.com/vipernet-xyz/viper-network/x/apps/keeper"
 	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/gov"
-	govKeeper "github.com/vipernet-xyz/viper-network/x/gov/keeper"
-	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
-	nodesKeeper "github.com/vipernet-xyz/viper-network/x/nodes/keeper"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/governance"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -39,7 +39,7 @@ type ViperCoreApp struct {
 	Keys  map[string]*sdk.KVStoreKey
 	Tkeys map[string]*sdk.TransientStoreKey
 	// Keepers for each module
-	accountKeeper auth.Keeper
+	accountKeeper authentication.Keeper
 	appsKeeper    appsKeeper.Keeper
 	nodesKeeper   nodesKeeper.Keeper
 	govKeeper     govKeeper.Keeper
@@ -53,13 +53,13 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	cdc = Codec()
 	bam.SetABCILogging(GlobalConfig.ViperConfig.ABCILogging)
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
-	bApp := bam.NewBaseApp(appName, logger, db, cache, iavlCacheSize, auth.DefaultTxDecoder(cdc), cdc, options...)
+	bApp := bam.NewBaseApp(appName, logger, db, cache, iavlCacheSize, authentication.DefaultTxDecoder(cdc), cdc, options...)
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, nodesTypes.StoreKey, appsTypes.StoreKey, gov.StoreKey, viperTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, nodesTypes.StoreKey, appsTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
 	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(nodesTypes.TStoreKey, appsTypes.TStoreKey, viperTypes.TStoreKey, gov.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(nodesTypes.TStoreKey, appsTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -105,7 +105,7 @@ func (app *ViperCoreApp) EndBlocker(ctx sdk.Ctx, req abci.RequestEndBlock) abci.
 func (app *ViperCoreApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range moduleAccountPermissions {
-		modAccAddrs[auth.NewModuleAddress(acc).String()] = true
+		modAccAddrs[authentication.NewModuleAddress(acc).String()] = true
 	}
 
 	return modAccAddrs
@@ -198,12 +198,12 @@ func (app *ViperCoreApp) GetClient() client.Client {
 var (
 	// module account permissions
 	moduleAccountPermissions = map[string][]string{
-		auth.FeeCollectorName:     {auth.Burner, auth.Minter, auth.Staking},
-		nodesTypes.StakedPoolName: {auth.Burner, auth.Minter, auth.Staking},
-		appsTypes.StakedPoolName:  {auth.Burner, auth.Minter, auth.Staking},
-		govTypes.DAOAccountName:   {auth.Burner, auth.Minter, auth.Staking},
-		nodesTypes.ModuleName:     {auth.Burner, auth.Minter, auth.Staking},
-		appsTypes.ModuleName:      nil,
+		authentication.FeeCollectorName: {authentication.Burner, authentication.Minter, authentication.Staking},
+		nodesTypes.StakedPoolName:       {authentication.Burner, authentication.Minter, authentication.Staking},
+		appsTypes.StakedPoolName:        {authentication.Burner, authentication.Minter, authentication.Staking},
+		govTypes.DAOAccountName:         {authentication.Burner, authentication.Minter, authentication.Staking},
+		nodesTypes.ModuleName:           {authentication.Burner, authentication.Minter, authentication.Staking},
+		appsTypes.ModuleName:            nil,
 	}
 )
 

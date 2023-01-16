@@ -11,7 +11,7 @@ import (
 	types2 "github.com/vipernet-xyz/viper-network/x/apps/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	nodeTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/spf13/cobra"
 )
@@ -343,7 +343,7 @@ var nodeLimit int
 func init() {
 	queryNodes.Flags().StringVar(&nodeStakingStatus, "staking-status", "", "the staking status of the node")
 	queryNodes.Flags().StringVar(&nodeJailedStatus, "jailed-status", "", "the jailed status of the node")
-	queryNodes.Flags().StringVar(&blockchain, "blockchain", "", "the relay chain identifiers these nodes support")
+	queryNodes.Flags().StringVar(&blockchain, "blockchain", "", "the relay chain identifiers these providers support")
 	queryNodes.Flags().IntVar(&nodePage, "nodePage", 1, "mark the nodePage you want")
 	queryNodes.Flags().IntVar(&nodeLimit, "nodeLimit", 10000, "reduce the amount of results")
 }
@@ -351,9 +351,9 @@ func init() {
 // NOTE: flag "blockchain" is defined but not implemented at this time 2020/10/03
 
 var queryNodes = &cobra.Command{
-	Use:   "nodes [--staking-status (staked | unstaking)] [--jailed-status (jailed | unjailed)] [--blockchain <relayChainID>] [--nodePage=<nodePage>] [--nodeLimit=<nodeLimit>] [<height>]",
-	Short: "Gets nodes",
-	Long:  `Retrieves the list of all nodes known at the specified <height>.`,
+	Use:   "providers [--staking-status (staked | unstaking)] [--jailed-status (jailed | unjailed)] [--blockchain <relayChainID>] [--nodePage=<nodePage>] [--nodeLimit=<nodeLimit>] [<height>]",
+	Short: "Gets providers",
+	Long:  `Retrieves the list of all providers known at the specified <height>.`,
 	// Args:  cobra.ExactArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
@@ -831,7 +831,7 @@ var queryDAOOwner = &cobra.Command{
 
 var queryACL = &cobra.Command{
 	Use:   "acl [<height>]",
-	Short: "Gets the gov acl",
+	Short: "Gets the governance acl",
 	Long:  `Retrieves the access control list of governance params (which account can change the param)`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
@@ -934,7 +934,7 @@ var queryParam = &cobra.Command{
 
 var queryUpgrade = &cobra.Command{
 	Use:   "upgrade [<height>]",
-	Short: "Gets the latest gov upgrade",
+	Short: "Gets the latest governance upgrade",
 	Long:  `Retrieves the latest protocol upgrade by governance`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)

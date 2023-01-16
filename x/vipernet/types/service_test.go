@@ -10,13 +10,13 @@ import (
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	exported2 "github.com/vipernet-xyz/viper-network/x/apps/exported"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/gov"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/governance"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	appsType "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/nodes/exported"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/providers/exported"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
@@ -120,7 +120,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		hasError bool
 	}{
 		{
-			name:     "invalid relay: not enough service nodes",
+			name:     "invalid relay: not enough service providers",
 			relay:    validRelay,
 			node:     selfNode,
 			app:      app,
@@ -400,8 +400,8 @@ func (m MockPosKeeper) StakeDenom(ctx sdk.Ctx) (res string) {
 
 func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
-	auth.RegisterCodec(cdc)
-	gov.RegisterCodec(cdc)
+	authentication.RegisterCodec(cdc)
+	governance.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	return cdc

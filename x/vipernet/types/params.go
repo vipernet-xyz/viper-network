@@ -12,9 +12,9 @@ import (
 const (
 	// DefaultParamspace for params keeper
 	DefaultParamspace                 = ModuleName
-	DefaultSessionNodeCount           = int64(5)       // default number of nodes in a session
+	DefaultSessionNodeCount           = int64(5)       // default number of providers in a session
 	DefaultClaimSubmissionWindow      = int64(3)       // default sessions to submit a claim
-	DefaultClaimExpiration            = int64(24)      // default nodes to exprie claims
+	DefaultClaimExpiration            = int64(24)      // default providers to exprie claims
 	DefaultReplayAttackBurnMultiplier = int64(3)       // default replay attack burn multiplier
 	DefaultMinimumNumberOfProofs      = int64(10)      // default minimum number of proofs
 	DefaultBlockByteSize              = int64(4000000) // default block size in bytes

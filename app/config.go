@@ -23,10 +23,10 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	apps "github.com/vipernet-xyz/viper-network/x/apps"
 	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/gov"
-	"github.com/vipernet-xyz/viper-network/x/nodes"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/governance"
+	"github.com/vipernet-xyz/viper-network/x/providers"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -725,9 +725,9 @@ func MakeCodec() {
 	// register all the app module types
 	module.NewBasicManager(
 		apps.AppModuleBasic{},
-		auth.AppModuleBasic{},
-		gov.AppModuleBasic{},
-		nodes.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		providers.AppModuleBasic{},
 		viper.AppModuleBasic{},
 	).RegisterCodec(cdc)
 	// register the sdk types
@@ -870,7 +870,7 @@ func GetDefaultConfig(datadir string) string {
 }
 
 func InitAuthToken(generateToken bool) {
-	//Example auth.json located in the config folder
+	//Example authentication.json located in the config folder
 	//{
 	//	"Value": "S6fvg51BOeUO89HafOhF6jPuT",
 	//	"Issued": "2022-06-20T16:06:47.419153-04:00"
@@ -880,8 +880,8 @@ func InitAuthToken(generateToken bool) {
 		//default behaviour: generate a new token on each start.
 		GenerateToken()
 	} else {
-		//new: if config is set to false use existing auth.json and do not generate
-		//User should make sure file exist, else execution will end with error ("cannot open/create auth token json file:"...)
+		//new: if config is set to false use existing authentication.json and do not generate
+		//User should make sure file exist, else execution will end with error ("cannot open/create authentication token json file:"...)
 		t := GetAuthTokenFromFile()
 		AuthToken = t
 	}
@@ -900,18 +900,18 @@ func GenerateToken() {
 
 	jsonFile, err := os.OpenFile(configFilepath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		log2.Fatalf("cannot open/create auth token json file: " + err.Error())
+		log2.Fatalf("cannot open/create authentication token json file: " + err.Error())
 	}
 	err = jsonFile.Truncate(0)
 
 	b, err := json.MarshalIndent(t, "", "    ")
 	if err != nil {
-		log2.Fatalf("cannot marshal auth token into json: " + err.Error())
+		log2.Fatalf("cannot marshal authentication token into json: " + err.Error())
 	}
 	// write to the file
 	_, err = jsonFile.Write(b)
 	if err != nil {
-		log2.Fatalf("cannot write auth token to json file: " + err.Error())
+		log2.Fatalf("cannot write authentication token to json file: " + err.Error())
 	}
 
 	AuthToken = t
@@ -928,15 +928,15 @@ func GetAuthTokenFromFile() sdk.AuthToken {
 	if _, err := os.Stat(configFilepath); err == nil {
 		jsonFile, err = os.OpenFile(configFilepath, os.O_RDONLY, os.ModePerm)
 		if err != nil {
-			log2.Fatalf("cannot open auth token json file: " + err.Error())
+			log2.Fatalf("cannot open authentication token json file: " + err.Error())
 		}
 		b, err := ioutil.ReadAll(jsonFile)
 		if err != nil {
-			log2.Fatalf("cannot read auth token json file: " + err.Error())
+			log2.Fatalf("cannot read authentication token json file: " + err.Error())
 		}
 		err = json.Unmarshal(b, &t)
 		if err != nil {
-			log2.Fatalf("cannot read auth token json file into json: " + err.Error())
+			log2.Fatalf("cannot read authentication token json file into json: " + err.Error())
 		}
 	}
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/types"
-	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
 	"github.com/spf13/cobra"
 )
@@ -24,9 +24,9 @@ func init() {
 }
 
 var govCmd = &cobra.Command{
-	Use:   "gov",
+	Use:   "governance",
 	Short: "governance management",
-	Long: `The gov namespace handles all governance related interactions,
+	Long: `The governance namespace handles all governance related interactions,
 from DAOTransfer, change parameters; to performing protocol Upgrades. `,
 }
 

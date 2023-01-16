@@ -256,7 +256,7 @@ func (proof *RangeProof) _computeRootHash() (rootHash []byte, treeEnd bool, err 
 		// Prove along path (until we run out of leaves).
 		for len(path) > 0 {
 
-			// Drop the leaf-most (last-most) inner nodes from path
+			// Drop the leaf-most (last-most) inner providers from path
 			// until we encounter one with a left hash.
 			// We assume that the left side is already verified.
 			// rpath: rest of path
@@ -426,7 +426,7 @@ func (t *ImmutableTree) getRangeProof(keyStart, keyEnd []byte, limit int) (proof
 			} else if pathCount < 0 { // Inner node.
 				// Only store if the node is not stored in currentPathToLeaf already. We track if we are
 				// still going through PathToLeaf using pathCount. When pathCount goes to -1, we
-				// start storing the other paths we took to get to the leaf nodes. Also we skip
+				// start storing the other paths we took to get to the leaf providers. Also we skip
 				// storing the left node, since we are traversing the tree starting from the left
 				// and don't need to store unnecessary info as we only need to go down the right
 				// path.

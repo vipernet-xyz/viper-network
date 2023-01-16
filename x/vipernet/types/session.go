@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	appexported "github.com/vipernet-xyz/viper-network/x/apps/exported"
-	"github.com/vipernet-xyz/viper-network/x/nodes/exported"
+	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
 // "Session" - The relationship between an application and the viper network
@@ -28,7 +28,7 @@ func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader Session
 	if err != nil {
 		return Session{}, err
 	}
-	// then generate the service nodes for that session
+	// then generate the service providers for that session
 	sessionNodes, err := NewSessionNodes(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionKey, sessionNodesCount)
 	if err != nil {
 		return Session{}, err
@@ -98,10 +98,10 @@ func (s Session) Key() ([]byte, error) {
 	return s.SessionHeader.Hash(), nil
 }
 
-// "SessionNodes" - Service nodes in a session
+// "SessionNodes" - Service providers in a session
 type SessionNodes []sdk.Address
 
-// "NewSessionNodes" - Generates nodes for the session
+// "NewSessionNodes" - Generates providers for the session
 func NewSessionNodes(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, sessionKey SessionKey, sessionNodesCount int) (sessionNodes SessionNodes, err sdk.Error) {
 	// all nodesAddrs at session genesis
 	nodesAddrs, totalNodes := keeper.GetValidatorsByChain(sessionCtx, chain)
@@ -115,7 +115,7 @@ func NewSessionNodes(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, se
 	m := make(map[string]struct{})
 	// only select the nodesAddrs if not jailed
 	for i, numOfNodes := 0, 0; ; i++ {
-		//if this is true we already checked all nodes we got on getValidatorsBychain
+		//if this is true we already checked all providers we got on getValidatorsBychain
 		if len(m) >= totalNodes {
 			return nil, NewInsufficientNodesError(ModuleName)
 		}
@@ -164,13 +164,13 @@ func (sn SessionNodes) Validate(sessionNodesCount int) sdk.Error {
 	return nil
 }
 
-// "Contains" - Verifies if the session nodes contains the node using the address
+// "Contains" - Verifies if the session providers contains the node using the address
 func (sn SessionNodes) Contains(addr sdk.Address) bool {
 	// if nil return
 	if addr == nil {
 		return false
 	}
-	// loop over the nodes
+	// loop over the providers
 	for _, node := range sn {
 		if node == nil {
 			continue
@@ -269,7 +269,7 @@ func BlockHash(ctx sdk.Context) string {
 // "MaxPossibleRelays" - Returns the maximum possible amount of relays for an App on a sessions
 func MaxPossibleRelays(app appexported.ApplicationI, sessionNodeCount int64) sdk.BigInt {
 	//GetMaxRelays Max value is bound to math.MaxUint64,
-	//current worse case is 1 chain and 5 nodes per session with a result of 3689348814741910323 which can be used safely as int64
+	//current worse case is 1 chain and 5 providers per session with a result of 3689348814741910323 which can be used safely as int64
 	return app.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(app.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
 }
 

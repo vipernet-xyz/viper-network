@@ -2,7 +2,7 @@ package app
 
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/auth/util"
+	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 )
 
 // SendRawTx - Deliver tx bytes to node

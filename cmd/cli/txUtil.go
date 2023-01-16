@@ -12,16 +12,16 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	appsType "github.com/vipernet-xyz/viper-network/x/apps/types"
-	nodeTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/tendermint/tendermint/libs/rand"
 
 	//"github.com/vipernet-xyz/viper-network/crypto/keys/mintkey"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	authTypes "github.com/vipernet-xyz/viper-network/x/auth/types"
-	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 )
 
 // SendTransaction - Deliver Transaction to node
@@ -234,7 +234,7 @@ func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) 
 	}, nil
 }
 
-func StakeApp(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -276,7 +276,7 @@ func StakeApp(chains []string, fromAddr, passphrase, chainID string, amount sdk.
 	}, nil
 }
 
-func UnstakeApp(fromAddr, passphrase, chainID string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+func UnstakeClient(fromAddr, passphrase, chainID string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -401,7 +401,7 @@ func newTxBz(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, chainID s
 	fees := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(fee)))
 	// entroyp
 	entropy := rand.Int64()
-	signBytes, err := auth.StdSignBytes(chainID, entropy, fees, msg, memo)
+	signBytes, err := authentication.StdSignBytes(chainID, entropy, fees, msg, memo)
 	if err != nil {
 		return nil, err
 	}
@@ -412,7 +412,7 @@ func newTxBz(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, chainID s
 	s := authTypes.StdSignature{PublicKey: pubKey, Signature: sig}
 	tx := authTypes.NewTx(msg, fees, s, memo, entropy)
 	if legacyCodec {
-		return auth.DefaultTxEncoder(cdc)(tx, 0)
+		return authentication.DefaultTxEncoder(cdc)(tx, 0)
 	}
-	return auth.DefaultTxEncoder(cdc)(tx, -1)
+	return authentication.DefaultTxEncoder(cdc)(tx, -1)
 }

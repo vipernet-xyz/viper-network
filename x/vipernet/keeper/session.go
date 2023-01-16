@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/nodes/exported"
+	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 

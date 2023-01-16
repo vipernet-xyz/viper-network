@@ -113,7 +113,7 @@ func GetRoutes() Routes {
 		Route{Name: "QueryNodeClaim", Method: "POST", Path: "/v1/query/nodeclaim", HandlerFunc: NodeClaim},
 		Route{Name: "QueryNodeClaims", Method: "POST", Path: "/v1/query/nodeclaims", HandlerFunc: NodeClaims},
 		Route{Name: "QueryNodeParams", Method: "POST", Path: "/v1/query/nodeparams", HandlerFunc: NodeParams},
-		Route{Name: "QueryNodes", Method: "POST", Path: "/v1/query/nodes", HandlerFunc: Nodes},
+		Route{Name: "QueryNodes", Method: "POST", Path: "/v1/query/providers", HandlerFunc: Nodes},
 		Route{Name: "QueryParam", Method: "POST", Path: "/v1/query/param", HandlerFunc: Param},
 		Route{Name: "QueryViperParams", Method: "POST", Path: "/v1/query/viperparams", HandlerFunc: ViperParams},
 		Route{Name: "QueryState", Method: "POST", Path: "/v1/query/state", HandlerFunc: State},

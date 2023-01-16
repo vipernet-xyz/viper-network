@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	appexported "github.com/vipernet-xyz/viper-network/x/apps/exported"
-	authexported "github.com/vipernet-xyz/viper-network/x/auth/exported"
+	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
 )
 
 type PosKeeper interface {

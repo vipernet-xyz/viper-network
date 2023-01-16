@@ -67,7 +67,7 @@ var xxx_messageInfo_SessionHeader proto.InternalMessageInfo
 type Session struct {
 	SessionHeader SessionHeader `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
 	SessionKey    SessionKey    `protobuf:"bytes,2,opt,name=sessionKey,proto3,casttype=SessionKey" json:"key"`
-	SessionNodes  SessionNodes  `protobuf:"bytes,3,rep,name=sessionNodes,proto3,castrepeated=SessionNodes" json:"nodes"`
+	SessionNodes  SessionNodes  `protobuf:"bytes,3,rep,name=sessionNodes,proto3,castrepeated=SessionNodes" json:"providers"`
 }
 
 func (m *Session) Reset()         { *m = Session{} }

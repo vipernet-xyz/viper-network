@@ -29,8 +29,8 @@ const (
 	AvgrelayHistHelp        = "the average relay time in ms executed against: "
 	SessionsCountName       = "sessions_count_for_"
 	SessionsCountHelp       = "the number of unique sessions generated for: "
-	uvipCountName           = "tokens_earned_for_"
-	uvipCountHelp           = "the number of tokens earned in uvipr for : "
+	uviprCountName          = "tokens_earned_for_"
+	uviprCountHelp          = "the number of tokens earned in uvipr for : "
 )
 
 type ServiceMetrics struct {
@@ -177,7 +177,7 @@ func (sm *ServiceMetrics) AddSessionFor(networkID string) {
 	sm.NonNativeChains[networkID] = nnc
 }
 
-func (sm *ServiceMetrics) AdduvipEarnedFor(networkID string, uvipEarned float64) {
+func (sm *ServiceMetrics) AdduviprEarnedFor(networkID string, uviprEarned float64) {
 	sm.l.Lock()
 	defer sm.l.Unlock()
 	// attempt to locate nn chain
@@ -188,9 +188,9 @@ func (sm *ServiceMetrics) AdduvipEarnedFor(networkID string, uvipEarned float64)
 		return
 	}
 	// add to accumulated count
-	sm.uvipEarned.Add(1)
+	sm.uviprEarned.Add(1)
 	// add to individual count
-	nnc.uvipEarned.Add(1)
+	nnc.uviprEarned.Add(1)
 	// update nnc
 	sm.NonNativeChains[networkID] = nnc
 }
@@ -221,7 +221,7 @@ type ServiceMetric struct {
 	ErrCount         metrics.Counter   `json:"err_count"`
 	AverageRelayTime metrics.Histogram `json:"avg_relay_time"`
 	TotalSessions    metrics.Counter   `json:"total_sessions"`
-	uvipEarned       metrics.Counter   `json:"uvip_earned"`
+	uviprEarned      metrics.Counter   `json:"uvipr_earned"`
 }
 
 func NewServiceMetricsFor(networkID string) ServiceMetric {
@@ -264,11 +264,11 @@ func NewServiceMetricsFor(networkID string) ServiceMetric {
 		Help:      SessionsCountHelp + networkID,
 	}, nil)
 	// tokens earned metric
-	uvipEarned := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
+	uviprEarned := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
 		Namespace: ModuleName,
 		Subsystem: ServiceMetricsNamespace,
-		Name:      uvipCountName + networkID,
-		Help:      uvipCountHelp + networkID,
+		Name:      uviprCountName + networkID,
+		Help:      uviprCountHelp + networkID,
 	}, nil)
 	return ServiceMetric{
 		RelayCount:       relayCounter,
@@ -276,6 +276,6 @@ func NewServiceMetricsFor(networkID string) ServiceMetric {
 		ErrCount:         errCounter,
 		AverageRelayTime: avgRelayTime,
 		TotalSessions:    totalSessions,
-		uvipEarned:       uvipEarned,
+		uviprEarned:      uviprEarned,
 	}
 }

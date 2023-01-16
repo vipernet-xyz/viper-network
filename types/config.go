@@ -96,7 +96,7 @@ const (
 	DefaultCtxCacheSize                = 20
 	DefaultABCILogging                 = false
 	DefaultRelayErrors                 = true
-	AuthFileName                       = "auth.json"
+	AuthFileName                       = "authentication.json"
 	DefaultIavlCacheSize               = 5000000
 	DefaultChainHotReload              = false
 	DefaultGenerateTokenOnStart        = true

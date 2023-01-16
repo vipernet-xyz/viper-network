@@ -19,7 +19,7 @@ message Session {
 
 	SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "header", (gogoproto.nullable) = false];
 	bytes sessionKey = 2 [(gogoproto.jsontag) = "key", (gogoproto.casttype) = "SessionKey"];
-	repeated bytes sessionNodes = 3 [(gogoproto.jsontag) = "nodes", (gogoproto.castrepeated) = "SessionNodes"];
+	repeated bytes sessionNodes = 3 [(gogoproto.jsontag) = "providers", (gogoproto.castrepeated) = "SessionNodes"];
 }
 
 message MsgClaim {

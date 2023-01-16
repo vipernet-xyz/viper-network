@@ -1,9 +1,9 @@
 syntax = "proto3";
-package x.gov;
+package x.governance;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/vipernet-xyz/viper-network/x/gov/types";
+option go_package = "github.com/vipernet-xyz/viper-network/x/governance/types";
 
 message MsgChangeParam {
 	option (gogoproto.messagename) = true;

@@ -10,15 +10,15 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/auth/util"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
 // auto sends a proof transaction for the claim
-func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx util.CLIContext, txBuilder auth.TxBuilder, merkleProof vc.MerkleProof, leafNode vc.Proof, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
+func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx util.CLIContext, txBuilder authentication.TxBuilder, merkleProof vc.MerkleProof, leafNode vc.Proof, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
 	kp, err := k.GetPKFromFile(ctx)
 	if err != nil {
 		ctx.Logger().Error(fmt.Sprintf("an error occured retrieving the pk from the file for the Proof Transaction:\n%v", err))
@@ -236,7 +236,7 @@ func (k Keeper) HandleReplayAttack(ctx sdk.Ctx, address sdk.Address, numberOfCha
 	k.posKeeper.BurnForChallenge(ctx, numberOfChallenges.Mul(sdk.NewInt(k.ReplayAttackBurnMultiplier(ctx))), address)
 }
 
-func newTxBuilderAndCliCtx(ctx sdk.Ctx, msg sdk.ProtoMsg, n client.Client, key crypto.PrivateKey, k Keeper) (txBuilder auth.TxBuilder, cliCtx util.CLIContext, err error) {
+func newTxBuilderAndCliCtx(ctx sdk.Ctx, msg sdk.ProtoMsg, n client.Client, key crypto.PrivateKey, k Keeper) (txBuilder authentication.TxBuilder, cliCtx util.CLIContext, err error) {
 	// get the from address from the pkf
 	fromAddr := sdk.Address(key.PublicKey().Address())
 	// create a client context for sending
@@ -260,9 +260,9 @@ func newTxBuilderAndCliCtx(ctx sdk.Ctx, msg sdk.ProtoMsg, n client.Client, key c
 		return txBuilder, cliCtx, fmt.Errorf("insufficient funds for the auto %s transaction: the fee needed is %v ", msg.Type(), fee)
 	}
 	// ensure that the tx builder has the correct tx encoder, chainID, fee
-	txBuilder = auth.NewTxBuilder(
-		auth.DefaultTxEncoder(k.Cdc),
-		auth.DefaultTxDecoder(k.Cdc),
+	txBuilder = authentication.NewTxBuilder(
+		authentication.DefaultTxEncoder(k.Cdc),
+		authentication.DefaultTxDecoder(k.Cdc),
 		ctx.ChainID(),
 		"",
 		sdk.NewCoins(sdk.NewCoin(k.posKeeper.StakeDenom(ctx), fee)),

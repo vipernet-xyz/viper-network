@@ -10,7 +10,7 @@ import (
 type HostedBlockchain struct {
 	ID        string    `json:"id"`         // network identifier of the hosted blockchain
 	URL       string    `json:"url"`        // url of the hosted blockchain
-	BasicAuth BasicAuth `json:"basic_auth"` // basic http auth optinal
+	BasicAuth BasicAuth `json:"basic_auth"` // basic http authentication optinal
 }
 
 type BasicAuth struct {

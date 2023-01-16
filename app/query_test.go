@@ -17,9 +17,9 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	apps "github.com/vipernet-xyz/viper-network/x/apps"
 	types3 "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/gov"
-	"github.com/vipernet-xyz/viper-network/x/nodes"
-	types2 "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/governance"
+	"github.com/vipernet-xyz/viper-network/x/providers"
+	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
@@ -103,7 +103,7 @@ func TestQueryTx(t *testing.T) {
 			var tx *sdk.TxResponse
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = nodes.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = providers.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -145,7 +145,7 @@ func TestQueryAminoTx(t *testing.T) {
 			var tx *sdk.TxResponse
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = nodes.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = providers.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -314,7 +314,7 @@ func TestQueryDaoBalance(t *testing.T) {
 			_, _, cleanup := tc.memoryNodeFn(t, oneAppTwoNodeGenesis())
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			got, err := gov.QueryDAO(memCodec(), memCli, PCA.LastBlockHeight())
+			got, err := governance.QueryDAO(memCodec(), memCli, PCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.Equal(t, big.NewInt(1000), got.BigInt())
 
@@ -342,7 +342,7 @@ func TestQueryACL(t *testing.T) {
 			_, _, cleanup := tc.memoryNodeFn(t, oneAppTwoNodeGenesis())
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			got, err := gov.QueryACL(memCodec(), memCli, PCA.LastBlockHeight())
+			got, err := governance.QueryACL(memCodec(), memCli, PCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.Equal(t, got, testACL)
 
@@ -375,7 +375,7 @@ func TestQueryDaoOwner(t *testing.T) {
 			}
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			got, err := gov.QueryDAOOwner(memCodec(), memCli, PCA.LastBlockHeight())
+			got, err := governance.QueryDAOOwner(memCodec(), memCli, PCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.Equal(t, got.String(), cb.GetAddress().String())
 
@@ -404,7 +404,7 @@ func TestQueryUpgrade(t *testing.T) {
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
 			var err error
-			got, err := gov.QueryUpgrade(memCodec(), memCli, PCA.LastBlockHeight())
+			got, err := governance.QueryUpgrade(memCodec(), memCli, PCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.Equal(t, got.UpgradeHeight(), int64(10000))
 

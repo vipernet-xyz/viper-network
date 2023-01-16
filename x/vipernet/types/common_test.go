@@ -8,7 +8,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/store"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -29,7 +29,7 @@ func getTestSupportedBlockchain() string {
 }
 
 func newContext(t *testing.T, isCheckTx bool) sdk.Context {
-	keyAcc := sdk.NewKVStoreKey(auth.StoreKey)
+	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 

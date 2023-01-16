@@ -7,7 +7,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth/util"
+	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )

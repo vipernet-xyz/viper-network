@@ -16,7 +16,7 @@ func (k Keeper) GetAppStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
 	return
 }
 
-// "GetNodeStakedTokens" - Returns the total number of staked tokens in the nodes module
+// "GetNodeStakedTokens" - Returns the total number of staked tokens in the providers module
 func (k Keeper) GetNodesStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
 	res = k.posKeeper.GetStakedTokens(ctx)
 	return

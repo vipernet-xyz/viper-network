@@ -1,11 +1,11 @@
 syntax = "proto3";
-package x.nodes;
+package x.providers;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
-option go_package = "github.com/vipernet-xyz/viper-network/x/nodes/types";
+option go_package = "github.com/vipernet-xyz/viper-network/x/providers/types";
 
 message ProtoValidator {
 	option (gogoproto.equal) = true;

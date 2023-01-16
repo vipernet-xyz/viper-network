@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"

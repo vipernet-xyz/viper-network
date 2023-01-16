@@ -38,7 +38,7 @@ func TestParams_Validate(t *testing.T) {
 		hasError bool
 	}{
 		{
-			name:     "Invalid Params, session nodes",
+			name:     "Invalid Params, session providers",
 			params:   invalidParamsSessionNodes,
 			hasError: true,
 		},

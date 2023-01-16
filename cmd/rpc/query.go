@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	types2 "github.com/vipernet-xyz/viper-network/x/auth/types"
+	types2 "github.com/vipernet-xyz/viper-network/x/authentication/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/bytes"
@@ -17,7 +17,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/app"
 	appTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
-	nodeTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/julienschmidt/httprouter"
 	core_types "github.com/tendermint/tendermint/rpc/core/types"

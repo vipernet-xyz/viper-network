@@ -25,10 +25,10 @@ import (
 	types3 "github.com/vipernet-xyz/viper-network/x/apps/types"
 
 	"github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	authTypes "github.com/vipernet-xyz/viper-network/x/auth/types"
-	"github.com/vipernet-xyz/viper-network/x/nodes"
-	types2 "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"
+	"github.com/vipernet-xyz/viper-network/x/providers"
+	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/julienschmidt/httprouter"
@@ -91,7 +91,7 @@ func TestRPC_QueryTX(t *testing.T) {
 	kb := getInMemoryKeybase()
 	cb, err := kb.GetCoinbase()
 	assert.Nil(t, err)
-	tx, err = nodes.Send(memCodec(), memCLI, kb, cb.GetAddress(), cb.GetAddress(), "test", types.NewInt(100), true)
+	tx, err = providers.Send(memCodec(), memCLI, kb, cb.GetAddress(), cb.GetAddress(), "test", types.NewInt(100), true)
 	assert.Nil(t, err)
 
 	<-evtChan // Wait for tx
@@ -138,7 +138,7 @@ func TestRPC_QueryAccountTXs(t *testing.T) {
 	kb := getInMemoryKeybase()
 	cb, err := kb.GetCoinbase()
 	assert.Nil(t, err)
-	tx, err = nodes.Send(memCodec(), memCLI, kb, cb.GetAddress(), cb.GetAddress(), "test", types.NewInt(100), true)
+	tx, err = providers.Send(memCodec(), memCLI, kb, cb.GetAddress(), cb.GetAddress(), "test", types.NewInt(100), true)
 	assert.Nil(t, err)
 	assert.NotNil(t, tx)
 
@@ -188,7 +188,7 @@ func TestRPC_QueryBlockTXs(t *testing.T) {
 	kb := getInMemoryKeybase()
 	cb, err := kb.GetCoinbase()
 	assert.Nil(t, err)
-	tx, err = nodes.Send(memCodec(), memCLI, kb, cb.GetAddress(), cb.GetAddress(), "test", types.NewInt(100), true)
+	tx, err = providers.Send(memCodec(), memCLI, kb, cb.GetAddress(), cb.GetAddress(), "test", types.NewInt(100), true)
 	assert.Nil(t, err)
 
 	<-evtChan // Wait for tx
@@ -352,7 +352,7 @@ func TestRPC_QueryNodes(t *testing.T) {
 			Limit:         1,
 		},
 	}
-	q := newQueryRequest("nodes", newBody(params))
+	q := newQueryRequest("providers", newBody(params))
 	rec := httptest.NewRecorder()
 	Nodes(rec, q, httprouter.Params{})
 	body := rec.Body.String()
@@ -360,7 +360,7 @@ func TestRPC_QueryNodes(t *testing.T) {
 	assert.True(t, strings.Contains(body, address))
 
 	<-evtChan // Wait for block
-	q = newQueryRequest("nodes", newBody(params))
+	q = newQueryRequest("providers", newBody(params))
 	rec = httptest.NewRecorder()
 	Nodes(rec, q, httprouter.Params{})
 	body = rec.Body.String()
@@ -789,7 +789,7 @@ func TestRPCQueryParam(t *testing.T) {
 	<-evtChan // Wait for block
 	var params = HeightAndKeyParams{
 		Height: 0,
-		Key:    "gov/upgrade",
+		Key:    "governance/upgrade",
 	}
 	q := newQueryRequest("param", newBody(params))
 	rec := httptest.NewRecorder()
@@ -1054,7 +1054,7 @@ func TestRPC_RawTX(t *testing.T) {
 	assert.Nil(t, err)
 	_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 	// create the transaction
-	txBz, err := auth.DefaultTxEncoder(memCodec())(authTypes.NewTestTx(types.Context{}.WithChainID("viper-test"),
+	txBz, err := authentication.DefaultTxEncoder(memCodec())(authTypes.NewTestTx(types.Context{}.WithChainID("viper-test"),
 		&types2.MsgSend{
 			FromAddress: cb.GetAddress(),
 			ToAddress:   kp.GetAddress(),
@@ -1066,7 +1066,7 @@ func TestRPC_RawTX(t *testing.T) {
 	assert.Nil(t, err)
 
 	_ = memCodecMod(true)
-	txBz2, err := auth.DefaultTxEncoder(memCodec())(authTypes.NewTestTx(types.Context{}.WithChainID("viper-test"),
+	txBz2, err := authentication.DefaultTxEncoder(memCodec())(authTypes.NewTestTx(types.Context{}.WithChainID("viper-test"),
 		&types2.MsgSend{
 			FromAddress: cb.GetAddress(),
 			ToAddress:   kp.GetAddress(),

@@ -58,7 +58,7 @@ func (t *ImmutableTree) RenderShape(indent string, encoder NodeEncoder) []string
 	return t.renderNode(t.root, indent, 0, encoder)
 }
 
-// NodeEncoder will take an id (hash, or key for leaf nodes), the depth of the node,
+// NodeEncoder will take an id (hash, or key for leaf providers), the depth of the node,
 // and whether or not this is a leaf node.
 // It returns the string we wish to print, for iaviwer
 type NodeEncoder func(id []byte, depth int, isLeaf bool) string
@@ -96,7 +96,7 @@ func (t *ImmutableTree) renderNode(node *Node, indent string, depth int, encoder
 	return result
 }
 
-// Size returns the number of leaf nodes in the tree.
+// Size returns the number of leaf providers in the tree.
 func (t *ImmutableTree) Size() int64 {
 	if t.root == nil {
 		return 0
@@ -174,7 +174,7 @@ func (t *ImmutableTree) Iterate(fn func(key []byte, value []byte) bool) (stopped
 	})
 }
 
-// IterateRange makes a callback for all nodes with key between start and end non-inclusive.
+// IterateRange makes a callback for all providers with key between start and end non-inclusive.
 // If either are nil, then it is open on that side (nil, nil is the same as Iterate). The keys and
 // values must not be modified, since they may point to data stored within IAVL.
 func (t *ImmutableTree) IterateRange(start, end []byte, ascending bool, fn func(key []byte, value []byte) bool) (stopped bool) {
@@ -189,7 +189,7 @@ func (t *ImmutableTree) IterateRange(start, end []byte, ascending bool, fn func(
 	})
 }
 
-// IterateRangeInclusive makes a callback for all nodes with key between start and end inclusive.
+// IterateRangeInclusive makes a callback for all providers with key between start and end inclusive.
 // If either are nil, then it is open on that side (nil, nil is the same as Iterate). The keys and
 // values must not be modified, since they may point to data stored within IAVL.
 func (t *ImmutableTree) IterateRangeInclusive(start, end []byte, ascending bool, fn func(key, value []byte, version int64) bool) (stopped bool) {
@@ -214,7 +214,7 @@ func (t *ImmutableTree) clone() *ImmutableTree {
 	}
 }
 
-// nodeSize is like Size, but includes inner nodes too.
+// nodeSize is like Size, but includes inner providers too.
 func (t *ImmutableTree) nodeSize() int {
 	size := 0
 	t.root.traverse(t, true, func(n *Node) bool {

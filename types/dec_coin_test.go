@@ -279,17 +279,17 @@ func TestParseDecCoins(t *testing.T) {
 		expectedErr    bool
 	}{
 		{"", nil, false},
-		{"4uvip", nil, true},
-		{"5.5atom,4uvip", nil, true},
-		{"0.0uvip", nil, true},
+		{"4uvipr", nil, true},
+		{"5.5atom,4uvipr", nil, true},
+		{"0.0uvipr", nil, true},
 		{"0.004Uvip", nil, true},
 		{
-			"0.004uvip",
+			"0.004uvipr",
 			DecCoins{NewDecCoinFromDec("uvipr", NewDecWithPrec(4000000000000000, Precision))},
 			false,
 		},
 		{
-			"5.04atom,0.004uvip",
+			"5.04atom,0.004uvipr",
 			DecCoins{
 				NewDecCoinFromDec("atom", NewDecWithPrec(5040000000000000000, Precision)),
 				NewDecCoinFromDec("uvipr", NewDecWithPrec(4000000000000000, Precision)),
@@ -320,7 +320,7 @@ func TestDecCoinsString(t *testing.T) {
 				NewDecCoinFromDec("atom", NewDecWithPrec(5040000000000000000, Precision)),
 				NewDecCoinFromDec("uvipr", NewDecWithPrec(4000000000000000, Precision)),
 			},
-			"5.040000000000000000atom,0.004000000000000000uvip",
+			"5.040000000000000000atom,0.004000000000000000uvipr",
 		},
 	}
 
@@ -337,16 +337,16 @@ func TestDecCoinsIntersect(t *testing.T) {
 		expectedResult string
 	}{
 		{"", "", ""},
-		{"1.0uvip", "", ""},
-		{"1.0uvip", "1.0uvip", "1.0uvip"},
-		{"", "1.0uvip", ""},
-		{"1.0uvip", "", ""},
-		{"2.0uvip,1.0trope", "1.9uvip", "1.9uvip"},
-		{"2.0uvip,1.0trope", "2.1uvip", "2.0uvip"},
-		{"2.0uvip,1.0trope", "0.9trope", "0.9trope"},
-		{"2.0uvip,1.0trope", "1.9uvip,0.9trope", "1.9uvip,0.9trope"},
-		{"2.0uvip,1.0trope", "1.9uvip,0.9trope,20.0other", "1.9uvip,0.9trope"},
-		{"2.0uvip,1.0trope", "1.0other", ""},
+		{"1.0uvipr", "", ""},
+		{"1.0uviprr", "1.0uvipr", "1.0uvipr"},
+		{"", "1.0uvipr", ""},
+		{"1.0uvipr", "", ""},
+		{"2.0uvipr,1.0trope", "1.9uvipr", "1.9uvipr"},
+		{"2.0uvipr,1.0trope", "2.1uvipr", "2.0uvipr"},
+		{"2.0uvipr,1.0trope", "0.9trope", "0.9trope"},
+		{"2.0uvipr,1.0trope", "1.9uvipr,0.9trope", "1.9uvipr,0.9trope"},
+		{"2.0uvipr,1.0trope", "1.9uvipr,0.9trope,20.0other", "1.9uvipr,0.9trope"},
+		{"2.0uvipr,1.0trope", "1.0other", ""},
 	}
 
 	for i, tc := range testCases {

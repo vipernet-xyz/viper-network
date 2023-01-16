@@ -8,8 +8,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto/keys/mintkey"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/auth/util"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 
 	"github.com/tendermint/tendermint/rpc/client"
 )
@@ -45,7 +45,7 @@ func UnstakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, add
 	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, legacyCodec)
 }
 
-func newTx(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, tmNode client.Client, keybase keys.Keybase, passphrase string) (txBuilder auth.TxBuilder, cliCtx util.CLIContext, err error) {
+func newTx(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, tmNode client.Client, keybase keys.Keybase, passphrase string) (txBuilder authentication.TxBuilder, cliCtx util.CLIContext, err error) {
 	genDoc, err := tmNode.Genesis()
 	if err != nil {
 		return
@@ -71,9 +71,9 @@ func newTx(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, tmNode clie
 		_ = fmt.Errorf("insufficient funds: the fee needed is %v", fee)
 		return
 	}
-	txBuilder = auth.NewTxBuilder(
-		auth.DefaultTxEncoder(cdc),
-		auth.DefaultTxDecoder(cdc),
+	txBuilder = authentication.NewTxBuilder(
+		authentication.DefaultTxEncoder(cdc),
+		authentication.DefaultTxDecoder(cdc),
 		chainID,
 		"",
 		sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, fee))).WithKeybase(keybase)

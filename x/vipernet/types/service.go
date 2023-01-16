@@ -13,7 +13,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/nodes/exported"
+	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
 const DEFAULTHTTPMETHOD = "POST"
@@ -237,7 +237,7 @@ func (rr RelayResponse) Validate() sdk.Error {
 	if rr.Response == "" {
 		return NewEmptyResponseError(ModuleName)
 	}
-	// cannot contain empty signature (nodes must be accountable)
+	// cannot contain empty signature (providers must be accountable)
 	if rr.Signature == "" || len(rr.Signature) == crypto.Ed25519SignatureSize {
 		return NewResponseSignatureError(ModuleName)
 	}
@@ -283,7 +283,7 @@ type DispatchResponse struct {
 type DispatchSession struct {
 	SessionHeader `json:"header"`
 	SessionKey    `json:"key"`
-	SessionNodes  []exported.ValidatorI `json:"nodes"`
+	SessionNodes  []exported.ValidatorI `json:"providers"`
 }
 
 // "executeHTTPRequest" takes in the raw json string and forwards it to the RPC endpoint

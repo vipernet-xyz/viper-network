@@ -9,13 +9,13 @@ import (
 	apps "github.com/vipernet-xyz/viper-network/x/apps"
 	appsKeeper "github.com/vipernet-xyz/viper-network/x/apps/keeper"
 	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/gov"
-	govKeeper "github.com/vipernet-xyz/viper-network/x/gov/keeper"
-	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
-	"github.com/vipernet-xyz/viper-network/x/nodes"
-	nodesKeeper "github.com/vipernet-xyz/viper-network/x/nodes/keeper"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/governance"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	"github.com/vipernet-xyz/viper-network/x/providers"
+	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -35,18 +35,18 @@ const (
 func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient client.Client, hostedChains *viperTypes.HostedBlockchains, logger log.Logger, db dbm.DB, cache bool, iavlCacheSize int64, baseAppOptions ...func(*bam.BaseApp)) *ViperCoreApp {
 	app := NewViperBaseApp(logger, db, cache, iavlCacheSize, baseAppOptions...)
 	// setup subspaces
-	authSubspace := sdk.NewSubspace(auth.DefaultParamspace)
+	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	nodesSubspace := sdk.NewSubspace(nodesTypes.DefaultParamspace)
 	appsSubspace := sdk.NewSubspace(appsTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	// The AuthKeeper handles address -> account lookups
-	app.accountKeeper = auth.NewKeeper(
+	app.accountKeeper = authentication.NewKeeper(
 		app.cdc,
-		app.Keys[auth.StoreKey],
+		app.Keys[authentication.StoreKey],
 		authSubspace,
 		moduleAccountPermissions,
 	)
-	// The nodesKeeper keeper handles viper core nodes
+	// The nodesKeeper keeper handles viper core providers
 	app.nodesKeeper = nodesKeeper.NewKeeper(
 		app.cdc,
 		app.Keys[nodesTypes.StoreKey],
@@ -85,27 +85,27 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	)
 	// add the keybase to the viper core keeper
 	app.viperKeeper.TmNode = tmClient
-	// give viper keeper to nodes module for easy cache clearing
+	// give viper keeper to providers module for easy cache clearing
 	app.nodesKeeper.ViperKeeper = app.viperKeeper
 	app.appsKeeper.ViperKeeper = app.viperKeeper
 	// setup module manager
 	app.mm = module.NewManager(
-		auth.NewAppModule(app.accountKeeper),
-		nodes.NewAppModule(app.nodesKeeper),
+		authentication.NewAppModule(app.accountKeeper),
+		providers.NewAppModule(app.nodesKeeper),
 		apps.NewAppModule(app.appsKeeper),
 		viper.NewAppModule(app.viperKeeper),
-		gov.NewAppModule(app.govKeeper),
+		governance.NewAppModule(app.govKeeper),
 	)
 	// setup the order of begin and end blockers
 	app.mm.SetOrderBeginBlockers(nodesTypes.ModuleName, appsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
 	app.mm.SetOrderEndBlockers(nodesTypes.ModuleName, appsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
-		auth.ModuleName,
+		authentication.ModuleName,
 		nodesTypes.ModuleName,
 		appsTypes.ModuleName,
 		viperTypes.ModuleName,
-		gov.ModuleName,
+		governance.ModuleName,
 	)
 	// register all module routes and module queriers
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
@@ -115,7 +115,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	} else {
 		app.SetInitChainer(app.InitChainerWithGenesis)
 	}
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper))
+	app.SetAnteHandler(authentication.NewAnteHandler(app.accountKeeper))
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 	// initialize stores

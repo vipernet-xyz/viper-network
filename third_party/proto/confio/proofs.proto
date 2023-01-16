@@ -131,7 +131,7 @@ The result of applying InnerOp should be:
 and child is the result of hashing all the tree below this step.
 
 Any special data, like prepending child with the length, or prepending the entire operation with
-some value to differentiate from leaf nodes, should be included in prefix and suffix.
+some value to differentiate from leaf providers, should be included in prefix and suffix.
 If either of prefix or suffix is empty, we just treat it as an empty string
 */
 message InnerOp {

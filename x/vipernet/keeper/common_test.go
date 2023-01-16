@@ -23,12 +23,12 @@ import (
 	apps "github.com/vipernet-xyz/viper-network/x/apps"
 	appsKeeper "github.com/vipernet-xyz/viper-network/x/apps/keeper"
 	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/gov"
-	govTypes "github.com/vipernet-xyz/viper-network/x/gov/types"
-	"github.com/vipernet-xyz/viper-network/x/nodes"
-	nodesKeeper "github.com/vipernet-xyz/viper-network/x/nodes/keeper"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/governance"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	"github.com/vipernet-xyz/viper-network/x/providers"
+	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
@@ -45,8 +45,8 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		auth.AppModuleBasic{},
-		gov.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
 	)
 )
 
@@ -71,15 +71,15 @@ func NewTestKeybase() keys.Keybase {
 // create a codec used only for testing
 func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
-	auth.RegisterCodec(cdc)
-	gov.RegisterCodec(cdc)
+	authentication.RegisterCodec(cdc)
+	governance.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	return cdc
 }
 
 // : deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Validator, []appsTypes.Application, []auth.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
+func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Validator, []appsTypes.Application, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
 	sdk.VbCCache = sdk.NewCache(1)
 	initPower := int64(100000000000)
 	nAccs := int64(5)
@@ -96,7 +96,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 		PubKey:  cb.PublicKey,
 		PrivKey: pk,
 	})
-	keyAcc := sdk.NewKVStoreKey(auth.StoreKey)
+	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 	nodesKey := sdk.NewKVStoreKey(nodesTypes.StoreKey)
@@ -137,15 +137,15 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 	cdc := makeTestCodec()
 
 	maccPerms := map[string][]string{
-		auth.FeeCollectorName:     nil,
-		appsTypes.StakedPoolName:  {auth.Burner, auth.Staking, auth.Minter},
-		nodesTypes.StakedPoolName: {auth.Burner, auth.Staking},
-		govTypes.DAOAccountName:   {auth.Burner, auth.Staking},
+		authentication.FeeCollectorName: nil,
+		appsTypes.StakedPoolName:        {authentication.Burner, authentication.Staking, authentication.Minter},
+		nodesTypes.StakedPoolName:       {authentication.Burner, authentication.Staking},
+		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
 	}
 
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		modAccAddrs[auth.NewModuleAddress(acc).String()] = true
+		modAccAddrs[authentication.NewModuleAddress(acc).String()] = true
 	}
 	valTokens := sdk.TokensFromConsensusPower(initPower)
 
@@ -158,11 +158,11 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 		}},
 	}
 	types.InitConfig(&hb, log.NewTMLogger(os.Stdout), sdk.DefaultTestingViperConfig())
-	authSubspace := sdk.NewSubspace(auth.DefaultParamspace)
+	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	nodesSubspace := sdk.NewSubspace(nodesTypes.DefaultParamspace)
 	appSubspace := sdk.NewSubspace(appsTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(types.DefaultParamspace)
-	ak := auth.NewKeeper(cdc, keyAcc, authSubspace, maccPerms)
+	ak := authentication.NewKeeper(cdc, keyAcc, authSubspace, maccPerms)
 	nk := nodesKeeper.NewKeeper(cdc, nodesKey, ak, nodesSubspace, nodesTypes.ModuleName)
 	appk := appsKeeper.NewKeeper(cdc, appsKey, nk, ak, nil, appSubspace, appsTypes.ModuleName)
 	appk.SetApplication(ctx, getTestApplication())
@@ -170,8 +170,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 	appk.ViperKeeper = keeper
 	assert.Nil(t, err)
 	moduleManager := module.NewManager(
-		auth.NewAppModule(ak),
-		nodes.NewAppModule(nk),
+		authentication.NewAppModule(ak),
+		providers.NewAppModule(nk),
 		apps.NewAppModule(appk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
@@ -226,12 +226,12 @@ func getTestApplication() appsTypes.Application {
 }
 
 // : unparam deadcode unused
-func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *auth.Keeper) (accs []auth.BaseAccount) {
+func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *authentication.Keeper) (accs []authentication.BaseAccount) {
 	for i := 0; i < numAccs; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey := privKey.PublicKey()
 		addr := sdk.Address(pubKey.Address())
-		acc := auth.NewBaseAccountWithAddress(addr)
+		acc := authentication.NewBaseAccountWithAddress(addr)
 		acc.Coins = initialCoins
 		acc.PubKey = pubKey
 		ak.SetAccount(ctx, &acc)
@@ -240,7 +240,7 @@ func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *auth.K
 	return
 }
 
-func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *nodesKeeper.Keeper, ak auth.Keeper, kb keys.Keybase) (accs nodesTypes.Validators) {
+func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *nodesKeeper.Keeper, ak authentication.Keeper, kb keys.Keybase) (accs nodesTypes.Validators) {
 	ethereum := hex.EncodeToString([]byte{01})
 	for i := 0; i < numAccs-1; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
@@ -310,7 +310,7 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *nod
 	return
 }
 
-func createTestApps(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak appsKeeper.Keeper, sk auth.Keeper) (accs appsTypes.Applications) {
+func createTestApps(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak appsKeeper.Keeper, sk authentication.Keeper) (accs appsTypes.Applications) {
 	ethereum := hex.EncodeToString([]byte{01})
 	for i := 0; i < numAccs; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()

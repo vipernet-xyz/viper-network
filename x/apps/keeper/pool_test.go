@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth/exported"
+	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 
 	"github.com/stretchr/testify/assert"
 )

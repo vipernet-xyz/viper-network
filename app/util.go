@@ -10,8 +10,8 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/auth/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/authentication/types"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 )
 
@@ -41,9 +41,9 @@ func BuildMultisig(fromAddr, jsonMessage, passphrase, chainID string, pk crypto.
 	if err != nil {
 		return nil, err
 	}
-	txBuilder := auth.NewTxBuilder(
-		auth.DefaultTxEncoder(cdc),
-		auth.DefaultTxDecoder(cdc),
+	txBuilder := authentication.NewTxBuilder(
+		authentication.DefaultTxEncoder(cdc),
+		authentication.DefaultTxDecoder(cdc),
 		chainID,
 		"", nil).WithKeybase(kb)
 	return txBuilder.BuildAndSignMultisigTransaction(fa, pk, protoMsg, passphrase, fees, legacyCodec)
@@ -62,9 +62,9 @@ func SignMultisigNext(fromAddr, txHex, passphrase, chainID string, legacyCodec b
 	if err != nil {
 		return nil, err
 	}
-	txBuilder := auth.NewTxBuilder(
-		auth.DefaultTxEncoder(cdc),
-		auth.DefaultTxDecoder(cdc),
+	txBuilder := authentication.NewTxBuilder(
+		authentication.DefaultTxEncoder(cdc),
+		authentication.DefaultTxDecoder(cdc),
 		chainID,
 		"", nil).WithKeybase(kb)
 	return txBuilder.SignMultisigTransaction(fa, nil, passphrase, bz, legacyCodec)
@@ -83,9 +83,9 @@ func SignMultisigOutOfOrder(fromAddr, txHex, passphrase, chainID string, keys []
 	if err != nil {
 		return nil, err
 	}
-	txBuilder := auth.NewTxBuilder(
-		auth.DefaultTxEncoder(cdc),
-		auth.DefaultTxDecoder(cdc),
+	txBuilder := authentication.NewTxBuilder(
+		authentication.DefaultTxEncoder(cdc),
+		authentication.DefaultTxDecoder(cdc),
 		chainID,
 		"", nil).WithKeybase(kb)
 	return txBuilder.SignMultisigTransaction(fa, keys, passphrase, bz, legacyCodec)
@@ -113,10 +113,10 @@ func UnmarshalTxStr(txStr string, height int64) (types.StdTx, error) {
 }
 
 func UnmarshalTx(txBytes []byte, height int64) (types.StdTx, error) {
-	defaultTxDecoder := auth.DefaultTxDecoder(cdc)
+	defaultTxDecoder := authentication.DefaultTxDecoder(cdc)
 	tx, err := defaultTxDecoder(txBytes, height)
 	if err != nil {
 		return types.StdTx{}, fmt.Errorf("Could not decode transaction: " + err.Error())
 	}
-	return tx.(auth.StdTx), nil
+	return tx.(authentication.StdTx), nil
 }

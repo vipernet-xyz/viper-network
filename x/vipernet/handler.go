@@ -106,7 +106,7 @@ func processSelf(ctx sdk.Ctx, k keeper.Keeper, signer sdk.Address, header types.
 			ctx.Logger().Error("Unable to delete evidence: " + err.Error())
 		}
 		if !tokens.IsZero() {
-			types.GlobalServiceMetric().AdduvipEarnedFor(header.Chain, float64(tokens.Int64()))
+			types.GlobalServiceMetric().AdduviprEarnedFor(header.Chain, float64(tokens.Int64()))
 		}
 	}
 }

@@ -30,7 +30,7 @@ var (
 	// of the node being orphaned.
 	orphanKeyFormat = NewKeyFormat('o', int64Size, int64Size, hashSize) // o<last-version><first-version><hash>
 
-	// Root nodes are indexed separately by their version
+	// Root providers are indexed separately by their version
 	rootKeyFormat = NewKeyFormat('r', int64Size) // r<version>
 )
 
@@ -205,7 +205,7 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 		}
 	}
 
-	// First, delete all active nodes in the current (latest) version whose node version is after
+	// First, delete all active providers in the current (latest) version whose node version is after
 	// the given version.
 	err = ndb.deleteNodesFrom(version, root)
 	if err != nil {
@@ -213,7 +213,7 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 	}
 
 	// Next, delete orphans:
-	// - Remove orphan entries *and referred nodes* with fromVersion >= version
+	// - Remove orphan entries *and referred providers* with fromVersion >= version
 	// - Remove orphan entries with toVersion >= version-1 (since orphans at latest are not orphans)
 	ndb.traverseOrphans(func(key, hash []byte) {
 		var fromVersion, toVersion int64
@@ -263,9 +263,9 @@ func (ndb *nodeDB) deleteNodesFrom(version int64, hash []byte) error {
 	return nil
 }
 
-// Saves orphaned nodes to disk under a special prefix.
+// Saves orphaned providers to disk under a special prefix.
 // version: the new version being saved.
-// orphans: the orphan nodes created since version-1
+// orphans: the orphan providers created since version-1
 func (ndb *nodeDB) SaveOrphans(version int64, orphans map[string]int64) {
 	ndb.mtx.Lock()
 	defer ndb.mtx.Unlock()
@@ -286,7 +286,7 @@ func (ndb *nodeDB) saveOrphan(hash []byte, fromVersion, toVersion int64) {
 	ndb.batch.Set(key, hash)
 }
 
-// deleteOrphans deletes orphaned nodes from disk, and the associated orphan
+// deleteOrphans deletes orphaned providers from disk, and the associated orphan
 // entries.
 func (ndb *nodeDB) deleteOrphans(version int64) {
 	// Will be zero if there is no previous version.
@@ -527,13 +527,13 @@ func (ndb *nodeDB) leafNodes() []*Node {
 	return leaves
 }
 
-func (ndb *nodeDB) nodes() []*Node {
-	nodes := []*Node{}
+func (ndb *nodeDB) providers() []*Node {
+	providers := []*Node{}
 
 	ndb.traverseNodes(func(hash []byte, node *Node) {
-		nodes = append(nodes, node)
+		providers = append(providers, node)
 	})
-	return nodes
+	return providers
 }
 
 func (ndb *nodeDB) orphans() [][]byte {
@@ -562,7 +562,7 @@ func (ndb *nodeDB) size() int {
 }
 
 func (ndb *nodeDB) traverseNodes(fn func(hash []byte, node *Node)) {
-	nodes := []*Node{}
+	providers := []*Node{}
 
 	ndb.traversePrefix(nodeKeyFormat.Key(), func(key, value []byte) {
 		node, err := MakeNode(value)
@@ -570,14 +570,14 @@ func (ndb *nodeDB) traverseNodes(fn func(hash []byte, node *Node)) {
 			panic(fmt.Sprintf("Couldn't decode node from database: %v", err))
 		}
 		nodeKeyFormat.Scan(key, &node.hash)
-		nodes = append(nodes, node)
+		providers = append(providers, node)
 	})
 
-	sort.Slice(nodes, func(i, j int) bool {
-		return bytes.Compare(nodes[i].key, nodes[j].key) < 0
+	sort.Slice(providers, func(i, j int) bool {
+		return bytes.Compare(providers[i].key, providers[j].key) < 0
 	})
 
-	for _, n := range nodes {
+	for _, n := range providers {
 		fn(n.hash, n)
 	}
 }

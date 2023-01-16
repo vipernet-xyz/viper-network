@@ -3,8 +3,8 @@ package keeper
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth"
-	"github.com/vipernet-xyz/viper-network/x/auth/exported"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 )
 
 // StakedRatio - Retrieve the fraction of the staking tokens which are currently staked
@@ -68,5 +68,5 @@ func (k Keeper) burnStakedTokens(ctx sdk.Ctx, amt sdk.BigInt) sdk.Error {
 
 // getFeePool - Retrieve fee pool
 func (k Keeper) getFeePool(ctx sdk.Ctx) (feePool exported.ModuleAccountI) {
-	return k.AccountKeeper.GetModuleAccount(ctx, auth.FeeCollectorName)
+	return k.AccountKeeper.GetModuleAccount(ctx, authentication.FeeCollectorName)
 }

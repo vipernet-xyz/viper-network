@@ -12,10 +12,10 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
-	"github.com/vipernet-xyz/viper-network/x/auth/exported"
-	"github.com/vipernet-xyz/viper-network/x/auth/util"
-	"github.com/vipernet-xyz/viper-network/x/gov/types"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/nodes/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
+	"github.com/vipernet-xyz/viper-network/x/authentication/util"
+	"github.com/vipernet-xyz/viper-network/x/governance/types"
+	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	core_types "github.com/tendermint/tendermint/rpc/core/types"
@@ -176,8 +176,8 @@ func (app ViperCoreApp) QueryNodes(height int64, opts nodesTypes.QueryValidators
 		return
 	}
 	opts.Page, opts.Limit = checkPagination(opts.Page, opts.Limit)
-	nodes := app.nodesKeeper.GetAllValidatorsWithOpts(ctx, opts)
-	return paginate(opts.Page, opts.Limit, nodes, int(app.nodesKeeper.MaxValidators(ctx)))
+	providers := app.nodesKeeper.GetAllValidatorsWithOpts(ctx, opts)
+	return paginate(opts.Page, opts.Limit, providers, int(app.nodesKeeper.MaxValidators(ctx)))
 }
 
 func (app ViperCoreApp) QueryNode(addr string, height int64) (res nodesTypes.Validator, err error) {
@@ -315,7 +315,7 @@ func (app ViperCoreApp) QueryAllParams(height int64) (r AllParamsReturn, err err
 	if err != nil {
 		return
 	}
-	//get all the parameters from gov module
+	//get all the parameters from governance module
 	allmap := app.govKeeper.GetAllParamNameValue(ctx)
 
 	//transform for easy handling
@@ -342,12 +342,12 @@ func (app ViperCoreApp) QueryAllParams(height int64) (r AllParamsReturn, err err
 				Key:   k,
 				Value: s,
 			})
-		case "gov":
+		case "governance":
 			r.GovParams = append(r.GovParams, SingleParamReturn{
 				Key:   k,
 				Value: s,
 			})
-		case "auth":
+		case "authentication":
 			r.AuthParams = append(r.AuthParams, SingleParamReturn{
 				Key:   k,
 				Value: s,
@@ -364,7 +364,7 @@ func (app ViperCoreApp) QueryParam(height int64, paramkey string) (r SingleParam
 	if err != nil {
 		return
 	}
-	//get all the parameters from gov module
+	//get all the parameters from governance module
 	allmap := app.govKeeper.GetAllParamNameValue(ctx)
 
 	if val, ok := allmap[paramkey]; ok {

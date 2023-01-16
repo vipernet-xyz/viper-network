@@ -23,7 +23,7 @@ func NewQuerier(k Keeper) sdk.Querier {
 		// endpoint allowing a client to query a relay to a non-native blockchain
 		case types.QueryRelay:
 			return queryRelay(ctx, req, k)
-		// endpoint allowing a client to receive the nodes for their session
+		// endpoint allowing a client to receive the providers for their session
 		case types.QueryDispatch:
 			return queryDispatch(ctx, req, k)
 		// endpoint allowing a client to submit a challenge for an invalid relay-response
