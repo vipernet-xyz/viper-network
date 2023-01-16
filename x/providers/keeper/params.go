@@ -132,7 +132,7 @@ func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (nodeReward sdk.BigIn
 	// get the dao and proposer % ex DAO .08 or 8% Proposer .01 or 1%  App .02 or 2%
 	daoAllocationPercentage := sdk.NewDec(k.DAOAllocation(ctx)).QuoInt64(int64(100))           // dec percentage
 	proposerAllocationPercentage := sdk.NewDec(k.ProposerAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
-	platformAllocationPercentage := sdk.NewDec(k.AppAllocation(ctx)).QuoInt64(int64(100))      // dec percentage
+	platformAllocationPercentage := sdk.NewDec(k.PlatformAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
 	// the dao and proposer allocations go to the fee collector
 	daoAllocation := r.Mul(daoAllocationPercentage)
 	proposerAllocation := r.Mul(proposerAllocationPercentage)
@@ -145,10 +145,10 @@ func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (nodeReward sdk.BigIn
 	return
 }
 
-func (k Keeper) AppReward(ctx sdk.Ctx, reward sdk.BigInt) (platformReward sdk.BigInt) {
+func (k Keeper) PlatformReward(ctx sdk.Ctx, reward sdk.BigInt) (platformReward sdk.BigInt) {
 	// convert reward to dec
 	r := reward.ToDec()
-	platformAllocationPercentage := sdk.NewDec(k.AppAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
+	platformAllocationPercentage := sdk.NewDec(k.PlatformAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
 	platformAllocation := r.Mul(platformAllocationPercentage).TruncateInt()
 	platformReward = platformAllocation
 	return
@@ -160,9 +160,9 @@ func (k Keeper) DAOAllocation(ctx sdk.Ctx) (res int64) {
 	return
 }
 
-// AppAllocation - Retrieve App Allocation
-func (k Keeper) AppAllocation(ctx sdk.Ctx) (res int64) {
-	k.Paramstore.Get(ctx, types.KeyAppAllocation, &res)
+// PlatformAllocation - Retrieve Platform Allocation
+func (k Keeper) PlatformAllocation(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyPlatformAllocation, &res)
 	return
 }
 
@@ -190,7 +190,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		StakeMinimum:             k.MinimumStake(ctx),
 		SessionBlockFrequency:    k.BlocksPerSession(ctx),
 		DAOAllocation:            k.DAOAllocation(ctx),
-		AppAllocation:            k.AppAllocation(ctx),
+		PlatformAllocation:       k.PlatformAllocation(ctx),
 		ProposerAllocation:       k.ProposerAllocation(ctx),
 		MaximumChains:            k.MaxChains(ctx),
 		MaxJailedBlocks:          k.MaxJailedBlocks(ctx),

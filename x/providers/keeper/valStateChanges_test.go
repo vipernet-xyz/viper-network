@@ -56,11 +56,11 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 	val.StakedTokens = sdk.ZeroInt()
 	val.OutputAddress = val.Address
 	// updatedStakeAmount
-	updateStakeAmountApp := val
-	updateStakeAmountApp.StakedTokens = bumpStakeAmount
+	updateStakeAmountPlatform := val
+	updateStakeAmountPlatform.StakedTokens = bumpStakeAmount
 	// updatedStakeAmountFail
-	updateStakeAmountAppFail := val
-	updateStakeAmountAppFail.StakedTokens = stakeAmount.Sub(sdk.OneInt())
+	updateStakeAmountPlatformFail := val
+	updateStakeAmountPlatformFail.StakedTokens = stakeAmount.Sub(sdk.OneInt())
 	// updatedStakeAmountNotEnoughCoins
 	notEnoughCoinsAccount := stakeAmount
 	// updateChains
@@ -92,7 +92,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 	tests := []struct {
 		name          string
 		accountAmount sdk.BigInt
-		origApp       types.Validator
+		origPlatform  types.Validator
 		amount        sdk.BigInt
 		want          types.Validator
 		err           sdk.Error
@@ -101,24 +101,24 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 		{
 			name:          "edit stake amount of existing validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
-			want:          updateStakeAmountApp,
+			want:          updateStakeAmountPlatform,
 			Edit:          true,
 		},
 		{
 			name:          "FAIL edit stake amount of existing validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
-			want:          updateStakeAmountAppFail,
+			want:          updateStakeAmountPlatformFail,
 			err:           types.ErrMinimumEditStake("pos"),
 			Edit:          false,
 		},
 		{
 			name:          "edit stake the chains of the validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
 			want:          updateChainsVal,
 			Edit:          false,
@@ -126,7 +126,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 		{
 			name:          "edit stake the serviceurl of the validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
 			want:          updateChainsVal,
 			Edit:          false,
@@ -134,16 +134,16 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 		{
 			name:          "FAIL not enough coins to bump stake amount of existing validator",
 			accountAmount: notEnoughCoinsAccount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
-			want:          updateStakeAmountApp,
+			want:          updateStakeAmountPlatform,
 			err:           types.ErrNotEnoughCoins("pos"),
 			Edit:          false,
 		},
 		{
 			name:          "update nothing for the validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
 			want:          updateNothingval,
 			Edit:          false,
@@ -151,7 +151,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 		{
 			name:          " not enough to bump bin",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        sdk.NewInt(15001000000),
 			want:          fail,
 			err:           types.ErrSameBinEditStake("pos"),
@@ -160,7 +160,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 		{
 			name:          " update to next bin",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        sdk.NewInt(15001000000),
 			want:          passNextBin,
 			Edit:          true,
@@ -168,7 +168,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 		{
 			name:          " above ceil",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        sdk.NewInt(60000000000),
 			want:          passAboveCeil,
 			Edit:          true,
@@ -191,16 +191,16 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 			if err != nil {
 				t.Fail()
 			}
-			err = keeper.AccountKeeper.SendCoinsFromModuleToAccount(context, types.StakedPoolName, tt.origApp.Address, coins)
+			err = keeper.AccountKeeper.SendCoinsFromModuleToAccount(context, types.StakedPoolName, tt.origPlatform.Address, coins)
 			if err != nil {
 				t.Fail()
 			}
-			err = keeper.StakeValidator(context, tt.origApp, tt.amount, tt.origApp.PublicKey)
+			err = keeper.StakeValidator(context, tt.origPlatform, tt.amount, tt.origPlatform.PublicKey)
 			if err != nil {
 				t.Fail()
 			}
 			// test begins here
-			err = keeper.ValidateValidatorStaking(context, tt.want, tt.want.StakedTokens, sdk.Address(tt.origApp.PublicKey.Address()))
+			err = keeper.ValidateValidatorStaking(context, tt.want, tt.want.StakedTokens, sdk.Address(tt.origPlatform.PublicKey.Address()))
 			if err != nil {
 				if tt.err.Error() != err.Error() {
 					t.Fatalf("Got error %s wanted error %s", err, tt.err)
@@ -211,7 +211,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 			_ = keeper.StakeValidator(context, tt.want, tt.want.StakedTokens, tt.want.PublicKey)
 			tt.want.Status = sdk.Staked
 			// see if the changes stuck
-			got, _ := keeper.GetValidator(context, tt.origApp.Address)
+			got, _ := keeper.GetValidator(context, tt.origPlatform.Address)
 			if !got.Equals(tt.want) {
 				t.Fatalf("Got platform %s\nWanted platform %s", got.String(), tt.want.String())
 			}
@@ -228,11 +228,11 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 	val.StakedTokens = sdk.ZeroInt()
 	val.OutputAddress = val.Address
 	// updatedStakeAmount
-	updateStakeAmountApp := val
-	updateStakeAmountApp.StakedTokens = bumpStakeAmount
+	updateStakeAmountPlatform := val
+	updateStakeAmountPlatform.StakedTokens = bumpStakeAmount
 	// updatedStakeAmountFail
-	updateStakeAmountAppFail := val
-	updateStakeAmountAppFail.StakedTokens = stakeAmount.Sub(sdk.OneInt())
+	updateStakeAmountPlatformFail := val
+	updateStakeAmountPlatformFail.StakedTokens = stakeAmount.Sub(sdk.OneInt())
 	// updatedStakeAmountNotEnoughCoins
 	notEnoughCoinsAccount := stakeAmount
 	// updateChains
@@ -254,7 +254,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 	tests := []struct {
 		name          string
 		accountAmount sdk.BigInt
-		origApp       types.Validator
+		origPlatform  types.Validator
 		amount        sdk.BigInt
 		want          types.Validator
 		err           sdk.Error
@@ -262,44 +262,44 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 		{
 			name:          "edit stake amount of existing validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
-			want:          updateStakeAmountApp,
+			want:          updateStakeAmountPlatform,
 		},
 		{
 			name:          "FAIL edit stake amount of existing validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
-			want:          updateStakeAmountAppFail,
+			want:          updateStakeAmountPlatformFail,
 			err:           types.ErrMinimumEditStake("pos"),
 		},
 		{
 			name:          "edit stake the chains of the validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
 			want:          updateChainsVal,
 		},
 		{
 			name:          "edit stake the serviceurl of the validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
 			want:          updateChainsVal,
 		},
 		{
 			name:          "FAIL not enough coins to bump stake amount of existing validator",
 			accountAmount: notEnoughCoinsAccount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
-			want:          updateStakeAmountApp,
+			want:          updateStakeAmountPlatform,
 			err:           types.ErrNotEnoughCoins("pos"),
 		},
 		{
 			name:          "FAIL nil output address",
 			accountAmount: notEnoughCoinsAccount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
 			want:          nilOutputAddress,
 			err:           types.ErrNilOutputAddr("pos"),
@@ -307,7 +307,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 		{
 			name:          "update nothing for the validator",
 			accountAmount: accountAmount,
-			origApp:       val,
+			origPlatform:  val,
 			amount:        stakeAmount,
 			want:          updateNothingval,
 		},
@@ -323,16 +323,16 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 			if err != nil {
 				t.Fail()
 			}
-			err = keeper.AccountKeeper.SendCoinsFromModuleToAccount(context, types.StakedPoolName, tt.origApp.Address, coins)
+			err = keeper.AccountKeeper.SendCoinsFromModuleToAccount(context, types.StakedPoolName, tt.origPlatform.Address, coins)
 			if err != nil {
 				t.Fail()
 			}
-			err = keeper.StakeValidator(context, tt.origApp, tt.amount, tt.origApp.PublicKey)
+			err = keeper.StakeValidator(context, tt.origPlatform, tt.amount, tt.origPlatform.PublicKey)
 			if err != nil {
 				t.Fail()
 			}
 			// test begins here
-			err = keeper.ValidateValidatorStaking(context, tt.want, tt.want.StakedTokens, sdk.Address(tt.origApp.PublicKey.Address()))
+			err = keeper.ValidateValidatorStaking(context, tt.want, tt.want.StakedTokens, sdk.Address(tt.origPlatform.PublicKey.Address()))
 			if err != nil {
 				if tt.err.Error() != err.Error() {
 					t.Fatalf("Got error %s wanted error %s", err, tt.err)
@@ -343,7 +343,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 			_ = keeper.StakeValidator(context, tt.want, tt.want.StakedTokens, tt.want.PublicKey)
 			tt.want.Status = sdk.Staked
 			// see if the changes stuck
-			got, _ := keeper.GetValidator(context, tt.origApp.Address)
+			got, _ := keeper.GetValidator(context, tt.origPlatform.Address)
 			if !got.Equals(tt.want) {
 				t.Fatalf("Got platform %s\nWanted platform %s", got.String(), tt.want.String())
 			}

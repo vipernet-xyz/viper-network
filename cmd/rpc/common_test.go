@@ -387,7 +387,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", kp.GetAddress())
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
-		acl.SetOwner("pos/AppAllocation", kp.GetAddress())
+		acl.SetOwner("pos/PlatformAllocation", kp.GetAddress())
 		acl.SetOwner("application/StabilityModulation", kp.GetAddress())
 		acl.SetOwner("application/AppUnstakingTime", kp.GetAddress())
 		acl.SetOwner("application/ParticipationRate", kp.GetAddress())

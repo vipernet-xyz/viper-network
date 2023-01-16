@@ -22,7 +22,7 @@ const (
 	DefaultSessionBlocktime               = 4
 	DefaultProposerAllocation             = 5
 	DefaultDAOAllocation                  = 10
-	DefaultAppAllocation                  = 5
+	DefaultPlatformAllocation             = 5
 	DefaultMaxChains                      = 15
 	DefaultMaxJailedBlocks                = 2000
 	DefaultMinServicerStakeBinWidth int64 = 15000000000
@@ -44,7 +44,7 @@ var (
 	KeyTokenRewardFactor            = []byte("TokenRewardFactor")
 	KeySessionBlock                 = []byte("BlocksPerSession")
 	KeyDAOAllocation                = []byte("DAOAllocation")
-	KeyAppAllocation                = []byte("AppAllocation")
+	KeyPlatformAllocation           = []byte("PlatformAllocation")
 	KeyProposerAllocation           = []byte("ProposerPercentage")
 	KeyMaxChains                    = []byte("MaximumChains")
 	KeyMaxJailedBlocks              = []byte("MaxJailedBlocks")
@@ -71,7 +71,7 @@ type Params struct {
 	StakeMinimum             int64         `json:"stake_minimum" yaml:"stake_minimum"`                     // minimum amount of `uvipr` needed to stake in the network as a node
 	SessionBlockFrequency    int64         `json:"session_block_frequency" yaml:"session_block_frequency"` // how many blocks are in a session (viper network unit)
 	DAOAllocation            int64         `json:"dao_allocation" yaml:"dao_allocation"`
-	AppAllocation            int64         `json:"platform_allocation" yaml:"platform_allocation"`
+	PlatformAllocation       int64         `json:"platform_allocation" yaml:"platform_allocation"`
 	ProposerAllocation       int64         `json:"proposer_allocation" yaml:"proposer_allocation"`
 	MaximumChains            int64         `json:"maximum_chains" yaml:"maximum_chains"`
 	MaxJailedBlocks          int64         `json:"max_jailed_blocks" yaml:"max_jailed_blocks"`
@@ -102,7 +102,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeySlashFractionDowntime, Value: &p.SlashFractionDowntime},
 		{Key: KeySessionBlock, Value: &p.SessionBlockFrequency},
 		{Key: KeyDAOAllocation, Value: &p.DAOAllocation},
-		{Key: KeyAppAllocation, Value: &p.AppAllocation},
+		{Key: KeyPlatformAllocation, Value: &p.PlatformAllocation},
 		{Key: KeyProposerAllocation, Value: &p.ProposerAllocation},
 		{Key: KeyTokenRewardFactor, Value: &p.TokenRewardFactor},
 		{Key: KeyMaxChains, Value: &p.MaximumChains},
@@ -129,7 +129,7 @@ func DefaultParams() Params {
 		SlashFractionDowntime:   DefaultSlashFractionDowntime,
 		SessionBlockFrequency:   DefaultSessionBlocktime,
 		DAOAllocation:           DefaultDAOAllocation,
-		AppAllocation:           DefaultAppAllocation,
+		PlatformAllocation:      DefaultPlatformAllocation,
 		ProposerAllocation:      DefaultProposerAllocation,
 		TokenRewardFactor:       DefaultTokenRewardFactor,
 		MaximumChains:           DefaultMaxChains,
@@ -154,13 +154,13 @@ func (p Params) Validate() error {
 	if p.DAOAllocation < 0 {
 		return fmt.Errorf("the dao allocation must not be negative")
 	}
-	if p.AppAllocation < 0 {
+	if p.PlatformAllocation < 0 {
 		return fmt.Errorf("the platform allocation must not be negative")
 	}
 	if p.ProposerAllocation < 0 {
 		return fmt.Errorf("the proposer allication must not be negative")
 	}
-	if p.ProposerAllocation+p.DAOAllocation+p.AppAllocation > 100 {
+	if p.ProposerAllocation+p.DAOAllocation+p.PlatformAllocation > 100 {
 		return fmt.Errorf("the combo of proposer allocation, dao allocation and platform allocation must not be greater than 100")
 	}
 	return nil
@@ -187,7 +187,7 @@ func (p Params) String() string {
   BlocksPerSession         %d
   Proposer Allocation      %d
   DAO allocation           %d
-  App allocation           %d
+  Platform allocation           %d
   Maximum Chains           %d
   Max Jailed Blocks        %d`,
 		p.UnstakingTime,
@@ -203,7 +203,7 @@ func (p Params) String() string {
 		p.SessionBlockFrequency,
 		p.ProposerAllocation,
 		p.DAOAllocation,
-		p.AppAllocation,
+		p.PlatformAllocation,
 		p.MaximumChains,
 		p.MaxJailedBlocks)
 }

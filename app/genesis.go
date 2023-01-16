@@ -240,7 +240,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "pos/AppAllocation",
+                        "acl_key": "pos/PlatformAllocation",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -463,14 +463,14 @@ func createDummyACL(kp crypto.PublicKey) govTypes.ACL {
 	acl.SetOwner("authentication/FeeMultipliers", addr)
 	acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", addr)
 	acl.SetOwner("pos/ProposerPercentage", addr)
-	acl.SetOwner("pos/AppAllocation", addr)
+	acl.SetOwner("pos/PlatformAllocation", addr)
 	acl.SetOwner("vipernet/ClaimSubmissionWindow", addr)
 	acl.SetOwner("vipernet/MinimumNumberOfProofs", addr)
 	acl.SetOwner("vipernet/SessionNodeCount", addr)
 	acl.SetOwner("vipernet/SupportedBlockchains", addr)
 	acl.SetOwner("pos/BlocksPerSession", addr)
 	acl.SetOwner("pos/DAOAllocation", addr)
-	acl.SetOwner("pos/AppAllocation", addr)
+	acl.SetOwner("pos/PlatformAllocation", addr)
 	acl.SetOwner("pos/DowntimeJailDuration", addr)
 	acl.SetOwner("pos/MaxEvidenceAge", addr)
 	acl.SetOwner("pos/MaximumChains", addr)

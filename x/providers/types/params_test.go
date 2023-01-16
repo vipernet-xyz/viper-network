@@ -28,7 +28,7 @@ func TestDefaultParams(t *testing.T) {
 				SlashFractionDowntime:   DefaultSlashFractionDowntime,
 				SessionBlockFrequency:   DefaultSessionBlocktime,
 				DAOAllocation:           DefaultDAOAllocation,
-				AppAllocation:           DefaultAppAllocation,
+				PlatformAllocation:      DefaultPlatformAllocation,
 				ProposerAllocation:      DefaultProposerAllocation,
 				TokenRewardFactor:       DefaultTokenRewardFactor,
 				MaximumChains:           DefaultMaxChains,
@@ -141,7 +141,7 @@ func TestParams_Validate(t *testing.T) {
 		StakeDenom         string        `json:"stake_denom" yaml:"stake_denom"`       // bondable coin denomination
 		StakeMinimum       int64         `json:"stake_minimum" yaml:"stake_minimum"`   // minimum amount needed to stake
 		DaoAllocation      int64
-		AppAllocation      float64
+		PlatformAllocation float64
 		SessionBlock       int64 `json:"session_block" yaml:"session_block"`
 		ProposerAllocation int64 `json:"relays_to_tokens" yaml:"relays_to_tokens"`
 		// slashing params
@@ -247,7 +247,7 @@ func TestParams_Validate(t *testing.T) {
 			StakeDenom:              "3",
 			StakeMinimum:            1000000,
 			DaoAllocation:           -2,
-			AppAllocation:           -0.4,
+			PlatformAllocation:      -0.4,
 			SessionBlock:            1,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,
@@ -406,7 +406,7 @@ func TestParams_String(t *testing.T) {
 		ProposerAllocation      int64
 		SessionBlockFrequency   int64
 		DaoAllocation           int64
-		AppAllocation           int64
+		PlatformAllocation      int64
 		MaxEvidenceAge          time.Duration
 		SignedBlocksWindow      int64
 		MinSignedPerWindow      types.BigDec
@@ -435,7 +435,7 @@ func TestParams_String(t *testing.T) {
 			SlashFractionDowntime:   DefaultSlashFractionDowntime,
 			SessionBlockFrequency:   DefaultSessionBlocktime,
 			DaoAllocation:           DefaultDAOAllocation,
-			AppAllocation:           DefaultAppAllocation,
+			PlatformAllocation:      DefaultPlatformAllocation,
 			MaximumChains:           DefaultMaxChains,
 			MaxJailedBlocks:         DefaultMaxJailedBlocks,
 		}, fmt.Sprintf(`Params:
@@ -452,7 +452,7 @@ func TestParams_String(t *testing.T) {
   BlocksPerSession         %d
   Proposer Allocation      %d
   DAO allocation           %d
-  App allocation           %d
+  Platform allocation           %d
   Maximum Chains           %d
   Max Jailed Blocks        %d`,
 			DefaultUnstakingTime,
@@ -468,7 +468,7 @@ func TestParams_String(t *testing.T) {
 			DefaultSessionBlocktime,
 			DefaultProposerAllocation,
 			DefaultDAOAllocation,
-			DefaultAppAllocation,
+			DefaultPlatformAllocation,
 			DefaultMaxChains,
 			DefaultMaxJailedBlocks)},
 	}
@@ -482,7 +482,7 @@ func TestParams_String(t *testing.T) {
 				ProposerAllocation:      tt.fields.ProposerAllocation,
 				SessionBlockFrequency:   tt.fields.SessionBlockFrequency,
 				DAOAllocation:           tt.fields.DaoAllocation,
-				AppAllocation:           tt.fields.AppAllocation,
+				PlatformAllocation:      tt.fields.PlatformAllocation,
 				MaxEvidenceAge:          tt.fields.MaxEvidenceAge,
 				SignedBlocksWindow:      tt.fields.SignedBlocksWindow,
 				MinSignedPerWindow:      tt.fields.MinSignedPerWindow,

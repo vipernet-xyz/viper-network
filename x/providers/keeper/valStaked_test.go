@@ -189,7 +189,7 @@ func TestGetValsIterator(t *testing.T) {
 		})
 	}
 }
-func TestPlatformStaked_IterateAndExecuteOverStakedApps(t *testing.T) {
+func TestPlatformStaked_IterateAndExecuteOverStakedPlatforms(t *testing.T) {
 	stakedValidator := getStakedValidator()
 	secondStakedValidator := getStakedValidator()
 	tests := []struct {
@@ -214,7 +214,7 @@ func TestPlatformStaked_IterateAndExecuteOverStakedApps(t *testing.T) {
 			fn := modifyFn(&got)
 			keeper.IterateAndExecuteOverStakedVals(context, fn)
 			if got != tt.want {
-				t.Errorf("platformStaked.IterateAndExecuteOverApps() = got %v, want %v", got, tt.want)
+				t.Errorf("platformStaked.IterateAndExecuteOverPlatforms() = got %v, want %v", got, tt.want)
 			}
 		})
 	}

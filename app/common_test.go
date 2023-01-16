@@ -538,7 +538,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/MinSignedPerWindow", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
-		acl.SetOwner("pos/AppAllocation", kp.GetAddress())
+		acl.SetOwner("pos/PlatformAllocation", kp.GetAddress())
 		acl.SetOwner("pos/TokenRewardFactor", kp.GetAddress())
 		acl.SetOwner("pos/SignedBlocksWindow", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDoubleSign", kp.GetAddress())

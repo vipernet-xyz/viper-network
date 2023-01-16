@@ -53,9 +53,9 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 	if toFeeCollector.IsPositive() {
 		k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
 	}
-	toApp := k.AppReward(ctx, coins)
-	if toApp.IsPositive() {
-		k.mint(ctx, toApp, platformAddress)
+	toPlatform := k.PlatformReward(ctx, coins)
+	if toPlatform.IsPositive() {
+		k.mint(ctx, toPlatform, platformAddress)
 	}
 	return toNode
 }
@@ -71,7 +71,7 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	// get the dao and proposer % ex DAO .1 or 10% Proposer .05 or 5%
 	daoAllocation := sdk.NewDec(k.DAOAllocation(ctx))
 	proposerAllocation := sdk.NewDec(k.ProposerAllocation(ctx))
-	platformAllocation := sdk.NewDec(k.AppAllocation(ctx))
+	platformAllocation := sdk.NewDec(k.PlatformAllocation(ctx))
 	daoProposerAndplatformAllocation := daoAllocation.Add(proposerAllocation).Add(platformAllocation)
 	// get the new percentages based on the total. This is needed because the node (relayer) cut has already been allocated
 	daoAllocation = daoAllocation.Quo(daoProposerAndplatformAllocation)
