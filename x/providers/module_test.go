@@ -13,7 +13,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func TestAppModuleBasic_DefaultGenesis(t *testing.T) {
+func TestPlatformModuleBasic_DefaultGenesis(t *testing.T) {
 	tests := []struct {
 		name string
 		want json.RawMessage
@@ -22,7 +22,7 @@ func TestAppModuleBasic_DefaultGenesis(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ap := AppModuleBasic{}
+			ap := PlatformModuleBasic{}
 			if got := ap.DefaultGenesis(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DefaultGenesis() = %v, want %v", got, tt.want)
 			}
@@ -30,7 +30,7 @@ func TestAppModuleBasic_DefaultGenesis(t *testing.T) {
 	}
 }
 
-func TestAppModuleBasic_Name(t *testing.T) {
+func TestPlatformModuleBasic_Name(t *testing.T) {
 	tests := []struct {
 		name string
 		want string
@@ -39,7 +39,7 @@ func TestAppModuleBasic_Name(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ap := AppModuleBasic{}
+			ap := PlatformModuleBasic{}
 			if got := ap.Name(); got != tt.want {
 				t.Errorf("Name() = %v, want %v", got, tt.want)
 			}
@@ -47,7 +47,7 @@ func TestAppModuleBasic_Name(t *testing.T) {
 	}
 }
 
-func TestAppModuleBasic_RegisterCodec(t *testing.T) {
+func TestPlatformModuleBasic_RegisterCodec(t *testing.T) {
 	type args struct {
 		cdc *codec.Codec
 	}
@@ -59,13 +59,13 @@ func TestAppModuleBasic_RegisterCodec(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ap := AppModuleBasic{}
+			ap := PlatformModuleBasic{}
 			ap.RegisterCodec(tt.args.cdc)
 		})
 	}
 }
 
-func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
+func TestPlatformModuleBasic_ValidateGenesis(t *testing.T) {
 	type args struct {
 		bz json.RawMessage
 	}
@@ -78,7 +78,7 @@ func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ap := AppModuleBasic{}
+			ap := PlatformModuleBasic{}
 			if err := ap.ValidateGenesis(tt.args.bz); (err != nil) != tt.wantErr {
 				t.Errorf("ValidateGenesis() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -86,12 +86,12 @@ func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
 	}
 }
 
-func TestAppModule_BeginBlock(t *testing.T) {
+func TestPlatformModule_BeginBlock(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
-		accountKeeper  types.AuthKeeper
-		supplyKeeper   types.AuthKeeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
+		accountKeeper       types.AuthKeeper
+		supplyKeeper        types.AuthKeeper
 	}
 	type args struct {
 		ctx sdk.Context
@@ -105,10 +105,10 @@ func TestAppModule_BeginBlock(t *testing.T) {
 		args   args
 	}{
 		{"Test BeginBlock", fields{
-			AppModuleBasic: AppModuleBasic{},
-			keeper:         k,
-			accountKeeper:  nil,
-			supplyKeeper:   nil,
+			PlatformModuleBasic: PlatformModuleBasic{},
+			keeper:              k,
+			accountKeeper:       nil,
+			supplyKeeper:        nil,
 		}, args{
 			ctx: ctx,
 			req: abci.RequestBeginBlock{},
@@ -116,21 +116,21 @@ func TestAppModule_BeginBlock(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			am := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			pm := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
-			am.BeginBlock(tt.args.ctx, tt.args.req)
+			pm.BeginBlock(tt.args.ctx, tt.args.req)
 		})
 	}
 }
 
-func TestAppModule_EndBlock(t *testing.T) {
+func TestPlatformModule_EndBlock(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
-		accountKeeper  types.AuthKeeper
-		supplyKeeper   types.AuthKeeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
+		accountKeeper       types.AuthKeeper
+		supplyKeeper        types.AuthKeeper
 	}
 	type args struct {
 		ctx sdk.Context
@@ -146,10 +146,10 @@ func TestAppModule_EndBlock(t *testing.T) {
 		want   []abci.ValidatorUpdate
 	}{
 		{"Test EndBlock", fields{
-			AppModuleBasic: AppModuleBasic{},
-			keeper:         k,
-			accountKeeper:  nil,
-			supplyKeeper:   nil,
+			PlatformModuleBasic: PlatformModuleBasic{},
+			keeper:              k,
+			accountKeeper:       nil,
+			supplyKeeper:        nil,
 		}, args{
 			ctx: ctx,
 			in1: abci.RequestEndBlock{},
@@ -157,23 +157,23 @@ func TestAppModule_EndBlock(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			am := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			pm := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
-			if got := am.EndBlock(tt.args.ctx, tt.args.in1); !reflect.DeepEqual(len(got), len(tt.want)) {
+			if got := pm.EndBlock(tt.args.ctx, tt.args.in1); !reflect.DeepEqual(len(got), len(tt.want)) {
 				t.Errorf("EndBlock() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestAppModule_ExportGenesis(t *testing.T) {
+func TestPlatformModule_ExportGenesis(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
-		accountKeeper  types.AuthKeeper
-		supplyKeeper   types.AuthKeeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
+		accountKeeper       types.AuthKeeper
+		supplyKeeper        types.AuthKeeper
 	}
 	context, _, k := createTestInput(t, true)
 
@@ -188,29 +188,29 @@ func TestAppModule_ExportGenesis(t *testing.T) {
 		want   json.RawMessage
 	}{
 		{"Test Export Genesis", fields{
-			AppModuleBasic: AppModuleBasic{},
-			keeper:         k,
-			accountKeeper:  nil,
-			supplyKeeper:   nil,
+			PlatformModuleBasic: PlatformModuleBasic{},
+			keeper:              k,
+			accountKeeper:       nil,
+			supplyKeeper:        nil,
 		}, args{ctx: context}, types.ModuleCdc.MustMarshalJSON(ExportGenesis(context, k))},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			am := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			pm := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
-			if got := am.ExportGenesis(tt.args.ctx); !reflect.DeepEqual(got, tt.want) {
+			if got := pm.ExportGenesis(tt.args.ctx); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ExportGenesis() = %s, want %s", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestAppModule_InitGenesis(t *testing.T) {
+func TestPlatformModule_InitGenesis(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
 	}
 	type args struct {
 		ctx  sdk.Context
@@ -226,21 +226,21 @@ func TestAppModule_InitGenesis(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			am := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			pm := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
-			if got := am.InitGenesis(tt.args.ctx, tt.args.data); !reflect.DeepEqual(got, tt.want) {
+			if got := pm.InitGenesis(tt.args.ctx, tt.args.data); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("InitGenesis() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestAppModule_Name(t *testing.T) {
+func TestPlatformModule_Name(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
 	}
 	tests := []struct {
 		name   string
@@ -251,9 +251,9 @@ func TestAppModule_Name(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ap := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			ap := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
 			if got := ap.Name(); got != tt.want {
 				t.Errorf("Name() = %v, want %v", got, tt.want)
@@ -262,12 +262,12 @@ func TestAppModule_Name(t *testing.T) {
 	}
 }
 
-func TestAppModule_NewHandler(t *testing.T) {
+func TestPlatformModule_NewHandler(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
-		accountKeeper  types.AuthKeeper
-		supplyKeeper   types.AuthKeeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
+		accountKeeper       types.AuthKeeper
+		supplyKeeper        types.AuthKeeper
 	}
 
 	_, _, k := createTestInput(t, true)
@@ -278,29 +278,29 @@ func TestAppModule_NewHandler(t *testing.T) {
 		want   sdk.Handler
 	}{
 		{"Test NewHandler", fields{
-			AppModuleBasic: AppModuleBasic{},
-			keeper:         k,
-			accountKeeper:  nil,
-			supplyKeeper:   nil,
+			PlatformModuleBasic: PlatformModuleBasic{},
+			keeper:              k,
+			accountKeeper:       nil,
+			supplyKeeper:        nil,
 		}, NewHandler(k)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			am := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			pm := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
-			am.NewHandler()
+			pm.NewHandler()
 		})
 	}
 }
 
-func TestAppModule_NewQuerierHandler(t *testing.T) {
+func TestPlatformModule_NewQuerierHandler(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
-		accountKeeper  types.AuthKeeper
-		supplyKeeper   types.AuthKeeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
+		accountKeeper       types.AuthKeeper
+		supplyKeeper        types.AuthKeeper
 	}
 	tests := []struct {
 		name   string
@@ -308,29 +308,29 @@ func TestAppModule_NewQuerierHandler(t *testing.T) {
 		want   sdk.Querier
 	}{
 		{"Test Querier Handler", fields{
-			AppModuleBasic: AppModuleBasic{},
-			keeper:         keeper.Keeper{},
-			accountKeeper:  nil,
-			supplyKeeper:   nil,
+			PlatformModuleBasic: PlatformModuleBasic{},
+			keeper:              keeper.Keeper{},
+			accountKeeper:       nil,
+			supplyKeeper:        nil,
 		}, keeper.NewQuerier(keeper.Keeper{})},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			am := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			pm := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
-			am.NewQuerierHandler()
+			pm.NewQuerierHandler()
 		})
 	}
 }
 
-func TestAppModule_QuerierRoute(t *testing.T) {
+func TestPlatformModule_QuerierRoute(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
-		accountKeeper  types.AuthKeeper
-		supplyKeeper   types.AuthKeeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
+		accountKeeper       types.AuthKeeper
+		supplyKeeper        types.AuthKeeper
 	}
 
 	_, _, k := createTestInput(t, true)
@@ -341,17 +341,17 @@ func TestAppModule_QuerierRoute(t *testing.T) {
 		want   string
 	}{
 		{"Test QuerierRoute", fields{
-			AppModuleBasic: AppModuleBasic{},
-			keeper:         k,
-			accountKeeper:  nil,
-			supplyKeeper:   nil,
+			PlatformModuleBasic: PlatformModuleBasic{},
+			keeper:              k,
+			accountKeeper:       nil,
+			supplyKeeper:        nil,
 		}, types.ModuleName},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ap := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			ap := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
 			if got := ap.QuerierRoute(); got != tt.want {
 				t.Errorf("QuerierRoute() = %v, want %v", got, tt.want)
@@ -360,12 +360,12 @@ func TestAppModule_QuerierRoute(t *testing.T) {
 	}
 }
 
-func TestAppModule_Route(t *testing.T) {
+func TestPlatformModule_Route(t *testing.T) {
 	type fields struct {
-		AppModuleBasic AppModuleBasic
-		keeper         keeper.Keeper
-		accountKeeper  types.AuthKeeper
-		supplyKeeper   types.AuthKeeper
+		PlatformModuleBasic PlatformModuleBasic
+		keeper              keeper.Keeper
+		accountKeeper       types.AuthKeeper
+		supplyKeeper        types.AuthKeeper
 	}
 	_, _, keeper := createTestInput(t, true)
 	tests := []struct {
@@ -374,17 +374,17 @@ func TestAppModule_Route(t *testing.T) {
 		want   string
 	}{
 		{"test Route", fields{
-			AppModuleBasic: AppModuleBasic{},
-			keeper:         keeper,
-			accountKeeper:  nil,
-			supplyKeeper:   nil,
+			PlatformModuleBasic: PlatformModuleBasic{},
+			keeper:              keeper,
+			accountKeeper:       nil,
+			supplyKeeper:        nil,
 		}, types.ModuleName},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ap := AppModule{
-				AppModuleBasic: tt.fields.AppModuleBasic,
-				keeper:         tt.fields.keeper,
+			ap := PlatformModule{
+				PlatformModuleBasic: tt.fields.PlatformModuleBasic,
+				keeper:              tt.fields.keeper,
 			}
 			if got := ap.Route(); got != tt.want {
 				t.Errorf("Route() = %v, want %v", got, tt.want)
@@ -393,21 +393,21 @@ func TestAppModule_Route(t *testing.T) {
 	}
 }
 
-func TestNewAppModule(t *testing.T) {
+func TestNewPlatformModule(t *testing.T) {
 	type args struct {
 		keeper keeper.Keeper
 	}
 	tests := []struct {
 		name string
 		args args
-		want AppModule
+		want PlatformModule
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewAppModule(tt.args.keeper); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewAppModule() = %v, want %v", got, tt.want)
+			if got := NewPlatformModule(tt.args.keeper); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewPlatformModule() = %v, want %v", got, tt.want)
 			}
 		})
 	}

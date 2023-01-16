@@ -331,7 +331,7 @@ message Evidence {
 //----------------------------------------
 // Service Definition
 
-service ABCIApplication {
+service ABCIPlatform {
 	rpc Echo(RequestEcho) returns (ResponseEcho);
 	rpc Flush(RequestFlush) returns (ResponseFlush);
 	rpc Info(RequestInfo) returns (ResponseInfo);

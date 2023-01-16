@@ -1,9 +1,9 @@
 syntax = "proto3";
-package x.apps;
+package x.platforms;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/vipernet-xyz/viper-network/x/apps/types";
+option go_package = "github.com/vipernet-xyz/viper-network/x/platforms/types";
 
 message MsgProtoStake {
 	option (gogoproto.equal) = true;

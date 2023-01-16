@@ -44,6 +44,6 @@ func TestInvalidHashLengthError(t *testing.T) {
 	assert.Equal(t, NewInvalidHashLengthError(ModuleName), sdk.NewError(ModuleName, CodeInvalidHashLengthError, InvalidHashLengthError.Error()))
 }
 
-func TestInvalidAppPubKeyError(t *testing.T) {
-	assert.Equal(t, NewInvalidAppPubKeyError(ModuleName), sdk.NewError(ModuleName, CodeInvalidAppPubKeyError, InvalidAppPubKeyError.Error()))
+func TestInvalidPlatformPubKeyError(t *testing.T) {
+	assert.Equal(t, NewInvalidPlatformPubKeyError(ModuleName), sdk.NewError(ModuleName, CodeInvalidPlatformPubKeyError, InvalidPlatformPubKeyError.Error()))
 }

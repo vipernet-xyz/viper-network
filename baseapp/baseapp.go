@@ -20,8 +20,8 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	"github.com/vipernet-xyz/viper-network/crypto"
-	types2 "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
+	types2 "github.com/vipernet-xyz/viper-network/x/platforms/types"
 
 	"github.com/tendermint/tendermint/evidence"
 	"github.com/tendermint/tendermint/node"
@@ -813,7 +813,7 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 		msg := tx.GetMsg()
 		messageType = msg.Type()
 		recipient = msg.GetRecipient()
-		if signerPK == nil || messageType == types2.MsgAppStakeName {
+		if signerPK == nil || messageType == types2.MsgPlatformStakeName {
 			signers := msg.GetSigners()
 			if len(signers) >= 1 {
 				signer = signers[0]

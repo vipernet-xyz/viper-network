@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // SessionHeader defines the header for session information
 type SessionHeader struct {
-	ApplicationPubKey  string `protobuf:"bytes,1,opt,name=applicationPubKey,proto3" json:"app_public_key"`
+	PlatformPubKey  string `protobuf:"bytes,1,opt,name=platformlicationPubKey,proto3" json:"platform_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
 	SessionBlockHeight int64  `protobuf:"varint,3,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }
@@ -269,8 +269,8 @@ func (m *ProofI) GetChallengeProof() *ChallengeProofInvalidData {
 	return nil
 }
 
-// XXX_OneofWrappers is for the internal use of the proto package.
-func (*ProofI) XXX_OneofWrappers() []interface{} {
+// XXX_OneofWrplatformers is for the internal use of the proto package.
+func (*ProofI) XXX_OneofWrplatformers() []interface{} {
 	return []interface{}{
 		(*ProofI_RelayProof)(nil),
 		(*ProofI_ChallengeProof)(nil),
@@ -441,9 +441,9 @@ var xxx_messageInfo_RelayResponse proto.InternalMessageInfo
 
 type AAT struct {
 	Version              string `protobuf:"bytes,1,opt,name=version,proto3" json:"version"`
-	ApplicationPublicKey string `protobuf:"bytes,2,opt,name=applicationPublicKey,proto3" json:"app_pub_key"`
+	PlatformPublicKey string `protobuf:"bytes,2,opt,name=platformlicationPublicKey,proto3" json:"platform_pub_key"`
 	ClientPublicKey      string `protobuf:"bytes,3,opt,name=clientPublicKey,proto3" json:"client_pub_key"`
-	ApplicationSignature string `protobuf:"bytes,4,opt,name=applicationSignature,proto3" json:"signature"`
+	PlatformSignature string `protobuf:"bytes,4,opt,name=platformlicationSignature,proto3" json:"signature"`
 }
 
 func (m *AAT) Reset()         { *m = AAT{} }
@@ -746,10 +746,10 @@ func (m *SessionHeader) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.ApplicationPubKey) > 0 {
-		i -= len(m.ApplicationPubKey)
-		copy(dAtA[i:], m.ApplicationPubKey)
-		i = encodeVarintViper(dAtA, i, uint64(len(m.ApplicationPubKey)))
+	if len(m.PlatformPubKey) > 0 {
+		i -= len(m.PlatformPubKey)
+		copy(dAtA[i:], m.PlatformPubKey)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.PlatformPubKey)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1250,10 +1250,10 @@ func (m *AAT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.ApplicationSignature) > 0 {
-		i -= len(m.ApplicationSignature)
-		copy(dAtA[i:], m.ApplicationSignature)
-		i = encodeVarintViper(dAtA, i, uint64(len(m.ApplicationSignature)))
+	if len(m.PlatformSignature) > 0 {
+		i -= len(m.PlatformSignature)
+		copy(dAtA[i:], m.PlatformSignature)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.PlatformSignature)))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -1264,10 +1264,10 @@ func (m *AAT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.ApplicationPublicKey) > 0 {
-		i -= len(m.ApplicationPublicKey)
-		copy(dAtA[i:], m.ApplicationPublicKey)
-		i = encodeVarintViper(dAtA, i, uint64(len(m.ApplicationPublicKey)))
+	if len(m.PlatformPublicKey) > 0 {
+		i -= len(m.PlatformPublicKey)
+		copy(dAtA[i:], m.PlatformPublicKey)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.PlatformPublicKey)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1423,7 +1423,7 @@ func (m *SessionHeader) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ApplicationPubKey)
+	l = len(m.PlatformPubKey)
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
@@ -1648,7 +1648,7 @@ func (m *AAT) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
-	l = len(m.ApplicationPublicKey)
+	l = len(m.PlatformPublicKey)
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
@@ -1656,7 +1656,7 @@ func (m *AAT) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
-	l = len(m.ApplicationSignature)
+	l = len(m.PlatformSignature)
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
@@ -1750,7 +1750,7 @@ func (m *SessionHeader) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationPubKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PlatformPubKey", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1778,7 +1778,7 @@ func (m *SessionHeader) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationPubKey = string(dAtA[iNdEx:postIndex])
+			m.PlatformPubKey = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -3292,7 +3292,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationPublicKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PlatformPublicKey", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3320,7 +3320,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationPublicKey = string(dAtA[iNdEx:postIndex])
+			m.PlatformPublicKey = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
@@ -3356,7 +3356,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationSignature", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PlatformSignature", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3384,7 +3384,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationSignature = string(dAtA[iNdEx:postIndex])
+			m.PlatformSignature = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

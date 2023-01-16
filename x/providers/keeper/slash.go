@@ -233,7 +233,7 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 	_, found := k.GetValidator(ctx, addr)
 	if !found {
 		ctx.Logger().Info(fmt.Sprintf("in handleValidatorSignature: validator with addr %s not found, "+
-			"this is usually due to the 2 block delay between Tendermint and the baseapp", addr))
+			"this is usually due to the 2 block delay between Tendermint and the baseplatform", addr))
 		return
 	}
 	// fetch signing info

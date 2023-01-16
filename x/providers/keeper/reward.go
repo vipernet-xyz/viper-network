@@ -5,13 +5,13 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 )
 
 // RewardForRelays - Award coins to an address (will be called at the beginning of the next block)
-func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, appAddress sdk.Address) sdk.BigInt {
+func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, platformAddress sdk.Address) sdk.BigInt {
 	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
 		var found bool
 		address, found = k.GetValidatorOutputAddress(ctx, address)
@@ -55,7 +55,7 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 	}
 	toApp := k.AppReward(ctx, coins)
 	if toApp.IsPositive() {
-		k.mint(ctx, toApp, appAddress)
+		k.mint(ctx, toApp, platformAddress)
 	}
 	return toNode
 }
@@ -71,18 +71,18 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	// get the dao and proposer % ex DAO .1 or 10% Proposer .05 or 5%
 	daoAllocation := sdk.NewDec(k.DAOAllocation(ctx))
 	proposerAllocation := sdk.NewDec(k.ProposerAllocation(ctx))
-	appAllocation := sdk.NewDec(k.AppAllocation(ctx))
-	daoProposerAndappAllocation := daoAllocation.Add(proposerAllocation).Add(appAllocation)
+	platformAllocation := sdk.NewDec(k.AppAllocation(ctx))
+	daoProposerAndplatformAllocation := daoAllocation.Add(proposerAllocation).Add(platformAllocation)
 	// get the new percentages based on the total. This is needed because the node (relayer) cut has already been allocated
-	daoAllocation = daoAllocation.Quo(daoProposerAndappAllocation)
+	daoAllocation = daoAllocation.Quo(daoProposerAndplatformAllocation)
 	// dao cut calculation truncates int ex: 1.99uvipr = 1uvipr
 	daoCut := feesCollected.ToDec().Mul(daoAllocation).TruncateInt()
 	// get the new percentages based on the total. This is needed because the node (relayer) cut has already been allocated
-	appAllocation = appAllocation.Quo(daoProposerAndappAllocation)
-	// app cut calculation truncates int ex: 1.99uvipr = 1uvipr
-	appCut := feesCollected.ToDec().Mul(appAllocation).TruncateInt()
+	platformAllocation = platformAllocation.Quo(daoProposerAndplatformAllocation)
+	// platform cut calculation truncates int ex: 1.99uvipr = 1uvipr
+	platformCut := feesCollected.ToDec().Mul(platformAllocation).TruncateInt()
 	// proposer is whatever is left
-	proposerCut := feesCollected.Sub(daoCut).Sub(appCut)
+	proposerCut := feesCollected.Sub(daoCut).Sub(platformCut)
 	// send to the two parties
 	feeAddr := feesCollector.GetAddress()
 	err := k.AccountKeeper.SendCoinsFromAccountToModule(ctx, feeAddr, govTypes.DAOAccountName, sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, daoCut)))
@@ -153,12 +153,12 @@ func (k Keeper) SetPreviousProposer(ctx sdk.Ctx, consAddr sdk.Address) {
 	_ = store.Set(types.ProposerKey, b)
 }
 
-// GetApplicationKey - Retrieve the application key
-func (k Keeper) GetApplication(ctx sdk.Ctx) (addr sdk.Address) {
+// GetPlatformKey - Retrieve the platform key
+func (k Keeper) GetPlatform(ctx sdk.Ctx) (addr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
-	b, _ := store.Get(appsTypes.AllApplicationsKey)
+	b, _ := store.Get(platformsTypes.AllPlatformsKey)
 	if b == nil {
-		k.Logger(ctx).Error("Application not set")
+		k.Logger(ctx).Error("Platform not set")
 		return nil
 		//os.Exit(1)
 	}
@@ -167,12 +167,12 @@ func (k Keeper) GetApplication(ctx sdk.Ctx) (addr sdk.Address) {
 
 }
 
-// SetApplicationKey -  Store application public key for this block
-func (k Keeper) SetApplicationKey(ctx sdk.Ctx, consAddr sdk.Address) {
+// SetPlatformKey -  Store platform public key for this block
+func (k Keeper) SetPlatformKey(ctx sdk.Ctx, consAddr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
 	b, err := k.Cdc.MarshalBinaryLengthPrefixed(&consAddr, ctx.BlockHeight())
 	if err != nil {
 		panic(err)
 	}
-	_ = store.Set(appsTypes.AllApplicationsKey, b)
+	_ = store.Set(platformsTypes.AllPlatformsKey, b)
 }

@@ -17,30 +17,30 @@ import (
 
 // type check to ensure the interface is properly implemented
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.PlatformModule      = PlatformModule{}
+	_ module.PlatformModuleBasic = PlatformModuleBasic{}
 )
 
-// AppModuleBasic "AppModuleBasic" - The fundamental building block of a sdk module
-type AppModuleBasic struct{}
+// PlatformModuleBasic "PlatformModuleBasic" - The fundamental building block of a sdk module
+type PlatformModuleBasic struct{}
 
 // Name "Name" - Returns the name of the module
-func (AppModuleBasic) Name() string {
+func (PlatformModuleBasic) Name() string {
 	return types.ModuleName
 }
 
 // RegisterCodec "RegisterCodec" - Registers the codec for the module
-func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
+func (PlatformModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	types.RegisterCodec(cdc)
 }
 
 // DefaultGenesis "DefaultGenesis" - Returns the default genesis for the module
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
+func (PlatformModuleBasic) DefaultGenesis() json.RawMessage {
 	return types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 // ValidateGenesis "ValidateGenesis" - Validation check for genesis state bytes
-func (AppModuleBasic) ValidateGenesis(bytes json.RawMessage) error {
+func (PlatformModuleBasic) ValidateGenesis(bytes json.RawMessage) error {
 	var data types.GenesisState
 	err := types.ModuleCdc.UnmarshalJSON(bytes, &data)
 	if err != nil {
@@ -50,75 +50,75 @@ func (AppModuleBasic) ValidateGenesis(bytes json.RawMessage) error {
 	return types.ValidateGenesis(data)
 }
 
-// AppModule "AppModule" - The higher level building block for a module
-type AppModule struct {
-	AppModuleBasic               // a fundamental structure for all mods
-	keeper         keeper.Keeper // responsible for store operations
+// PlatformModule "PlatformModule" - The higher level building block for a module
+type PlatformModule struct {
+	PlatformModuleBasic               // a fundamental structure for all mods
+	keeper              keeper.Keeper // responsible for store operations
 }
 
-func (am AppModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+func (pm PlatformModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 
-	return am.keeper.ConsensusParamUpdate(ctx)
+	return pm.keeper.ConsensusParamUpdate(ctx)
 }
 
-func (am AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	am.keeper.UpgradeCodec(ctx)
+func (pm PlatformModule) UpgradeCodec(ctx sdk.Ctx) {
+	pm.keeper.UpgradeCodec(ctx)
 }
 
-// NewAppModule "NewAppModule" - Creates a new AppModule Object
-func NewAppModule(keeper keeper.Keeper) AppModule {
-	return AppModule{
-		AppModuleBasic: AppModuleBasic{},
-		keeper:         keeper,
+// NewPlatformModule "NewPlatformModule" - Creates a new PlatformModule Object
+func NewPlatformModule(keeper keeper.Keeper) PlatformModule {
+	return PlatformModule{
+		PlatformModuleBasic: PlatformModuleBasic{},
+		keeper:              keeper,
 	}
 }
 
 // RegisterInvariants "RegisterInvariants" - Unused crisis checking
-func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
+func (pm PlatformModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
 // Route "Route" - returns the route of the module
-func (am AppModule) Route() string {
+func (pm PlatformModule) Route() string {
 	return types.RouterKey
 }
 
 // NewHandler "NewHandler" - returns the handler for the module
-func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+func (pm PlatformModule) NewHandler() sdk.Handler {
+	return NewHandler(pm.keeper)
 }
 
 // QuerierRoute "QuerierRoute" - returns the route of the module for queries
-func (am AppModule) QuerierRoute() string {
+func (pm PlatformModule) QuerierRoute() string {
 	return types.ModuleName
 }
 
 // NewQuerierHandler "NewQuerierHandler" - returns the query handler for the module
-func (am AppModule) NewQuerierHandler() sdk.Querier {
-	return keeper.NewQuerier(am.keeper)
+func (pm PlatformModule) NewQuerierHandler() sdk.Querier {
+	return keeper.NewQuerier(pm.keeper)
 }
 
 // BeginBlock "BeginBlock" - Functionality that is called at the beginning of (every) block
-func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
-	ActivateAdditionalParameters(ctx, am)
+func (pm PlatformModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+	ActivateAdditionalParameters(ctx, pm)
 	// delete the expired claims
-	am.keeper.DeleteExpiredClaims(ctx)
+	pm.keeper.DeleteExpiredClaims(ctx)
 }
 
 // ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
-func ActivateAdditionalParameters(ctx sdk.Ctx, am AppModule) {
-	if am.keeper.Cdc.IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
+func ActivateAdditionalParameters(ctx sdk.Ctx, pm PlatformModule) {
+	if pm.keeper.Cdc.IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
 		//on the height we set the default value
-		params := am.keeper.GetParams(ctx)
+		params := pm.keeper.GetParams(ctx)
 		params.BlockByteSize = types.DefaultBlockByteSize
-		am.keeper.SetParams(ctx, params)
+		pm.keeper.SetParams(ctx, params)
 	}
 }
 
 // EndBlock "EndBlock" - Functionality that is called at the end of (every) block
-func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (pm PlatformModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	// get blocks per session
-	blocksPerSession := am.keeper.BlocksPerSession(ctx)
+	blocksPerSession := pm.keeper.BlocksPerSession(ctx)
 	// get self address
-	addr := am.keeper.GetSelfAddress(ctx)
+	addr := pm.keeper.GetSelfAddress(ctx)
 	if addr != nil {
 		// use the offset as a trigger to see if it's time to attempt to submit proofs
 		if (ctx.BlockHeight()+int64(addr[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
@@ -126,15 +126,15 @@ func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.Validat
 			go func() {
 				// use this sleep timer to bypass the beginBlock lock over transactions
 				time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
-				s, err := am.keeper.TmNode.Status()
+				s, err := pm.keeper.TmNode.Status()
 				if err != nil {
 					ctx.Logger().Error(fmt.Sprintf("could not get status for tendermint node (cannot submit claims/proofs in this state): %s", err.Error()))
 				} else {
 					if !s.SyncInfo.CatchingUp {
 						// auto send the proofs
-						am.keeper.SendClaimTx(ctx, am.keeper, am.keeper.TmNode, ClaimTx)
+						pm.keeper.SendClaimTx(ctx, pm.keeper, pm.keeper.TmNode, ClaimTx)
 						// auto claim the proofs
-						am.keeper.SendProofTx(ctx, am.keeper.TmNode, ProofTx)
+						pm.keeper.SendProofTx(ctx, pm.keeper.TmNode, ProofTx)
 						// clear session cache and db
 						types.ClearSessionCache()
 					}
@@ -148,18 +148,18 @@ func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.Validat
 }
 
 // InitGenesis "InitGenesis" - Inits the module genesis from raw json
-func (am AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
+func (pm PlatformModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if data == nil {
 		genesisState = types.DefaultGenesisState()
 	} else {
 		types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	}
-	return InitGenesis(ctx, am.keeper, genesisState)
+	return InitGenesis(ctx, pm.keeper, genesisState)
 }
 
 // ExportGenesis "ExportGenesis" - Exports the genesis from raw json
-func (am AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
-	gs := ExportGenesis(ctx, am.keeper)
+func (pm PlatformModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
+	gs := ExportGenesis(ctx, pm.keeper)
 	return types.ModuleCdc.MustMarshalJSON(gs)
 }

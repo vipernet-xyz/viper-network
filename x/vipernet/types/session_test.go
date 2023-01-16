@@ -2,22 +2,23 @@ package types
 
 import (
 	"encoding/hex"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewSessionKey(t *testing.T) {
-	appPubKey := getRandomPubKey()
+	platformPubKey := getRandomPubKey()
 	ctx := newContext(t, false).WithAppVersion("0.0.0")
 	blockhash := hex.EncodeToString(ctx.BlockHeader().LastBlockId.Hash)
 	ethereum := hex.EncodeToString([]byte{01})
 	bitcoin := hex.EncodeToString([]byte{02})
-	key1, err := NewSessionKey(appPubKey.RawString(), ethereum, blockhash)
+	key1, err := NewSessionKey(platformPubKey.RawString(), ethereum, blockhash)
 	assert.Nil(t, err)
 	assert.NotNil(t, key1)
 	assert.NotEmpty(t, key1)
 	assert.Nil(t, HashVerification(hex.EncodeToString(key1)))
-	key2, err := NewSessionKey(appPubKey.RawString(), bitcoin, blockhash)
+	key2, err := NewSessionKey(platformPubKey.RawString(), bitcoin, blockhash)
 	assert.Nil(t, err)
 	assert.NotNil(t, key2)
 	assert.NotEmpty(t, key2)
@@ -224,7 +225,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //	allNodes[10] = node10
 //	allNodes[11] = node11
 //	k := MockPosKeeper{Validators: allNodes}
-//	sessionNodes, err := NewSessionNodes(newContext(t, false).WithAppVersion("0.0.0"), newContext(t, false).WithAppVersion("0.0.0"), k, ethereum, fakeSessionKey, 5)
+//	sessionNodes, err := NewSessionNodes(newContext(t, false).WithPlatformVersion("0.0.0"), newContext(t, false).WithPlatformVersion("0.0.0"), k, ethereum, fakeSessionKey, 5)
 //	assert.Nil(t, err)
 //	assert.Len(t, sessionNodes, 5)
 //	assert.Contains(t, sessionNodes, allNodes[0].(nodesTypes.Validator))

@@ -25,11 +25,11 @@ import (
 	// sdk "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
-	apps "github.com/vipernet-xyz/viper-network/x/apps"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
@@ -303,11 +303,11 @@ func memCodec() *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			apps.AppModuleBasic{},
-			authentication.AppModuleBasic{},
-			governance.AppModuleBasic{},
-			providers.AppModuleBasic{},
-			viper.AppModuleBasic{},
+			platforms.PlatformModuleBasic{},
+			authentication.PlatformModuleBasic{},
+			governance.PlatformModuleBasic{},
+			providers.PlatformModuleBasic{},
+			viper.PlatformModuleBasic{},
 		).RegisterCodec(memCDC)
 		sdk.RegisterCodec(memCDC)
 		crypto.RegisterAmino(memCDC.AminoCodec().Amino)
@@ -319,11 +319,11 @@ func memCodecMod(upgrade bool) *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			apps.AppModuleBasic{},
-			authentication.AppModuleBasic{},
-			governance.AppModuleBasic{},
-			providers.AppModuleBasic{},
-			viper.AppModuleBasic{},
+			platforms.PlatformModuleBasic{},
+			authentication.PlatformModuleBasic{},
+			governance.PlatformModuleBasic{},
+			providers.PlatformModuleBasic{},
+			viper.PlatformModuleBasic{},
 		).RegisterCodec(memCDC)
 		sdk.RegisterCodec(memCDC)
 		crypto.RegisterAmino(memCDC.AminoCodec().Amino)
@@ -422,11 +422,11 @@ func oneAppTwoNodeGenesis() []byte {
 	pubKey := kp1.PublicKey
 	pubKey2 := kp2.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		apps.AppModuleBasic{},
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
-		providers.AppModuleBasic{},
-		viper.AppModuleBasic{},
+		platforms.PlatformModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
+		providers.PlatformModuleBasic{},
+		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
 	rawPOS := defaultGenesis[nodesTypes.ModuleName]
@@ -443,11 +443,11 @@ func oneAppTwoNodeGenesis() []byte {
 	defaultGenesis[nodesTypes.ModuleName] = res
 
 	// setup application
-	rawApps := defaultGenesis[appsTypes.ModuleName]
-	var appsGenesisState appsTypes.GenesisState
-	memCodec().MustUnmarshalJSON(rawApps, &appsGenesisState)
+	rawApps := defaultGenesis[platformsTypes.ModuleName]
+	var platformsGenesisState platformsTypes.GenesisState
+	memCodec().MustUnmarshalJSON(rawApps, &platformsGenesisState)
 	// app 1
-	appsGenesisState.Applications = append(appsGenesisState.Applications, appsTypes.Application{
+	platformsGenesisState.Platforms = append(platformsGenesisState.Platforms, platformsTypes.Platform{
 		Address:                 kp2.GetAddress(),
 		PublicKey:               kp2.PublicKey,
 		Jailed:                  false,
@@ -457,8 +457,8 @@ func oneAppTwoNodeGenesis() []byte {
 		MaxRelays:               sdk.NewInt(100000),
 		UnstakingCompletionTime: time.Time{},
 	})
-	res2 := memCodec().MustMarshalJSON(appsGenesisState)
-	defaultGenesis[appsTypes.ModuleName] = res2
+	res2 := memCodec().MustMarshalJSON(platformsGenesisState)
+	defaultGenesis[platformsTypes.ModuleName] = res2
 	// set coinbase as account holding coins
 	rawAccounts := defaultGenesis[authentication.ModuleName]
 	var authGenState authentication.GenesisState
@@ -510,10 +510,10 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 	if testACL == nil {
 		acl := govTypes.ACL{}
 		acl = make([]govTypes.ACLPair, 0)
-		acl.SetOwner("application/MinimumApplicationStake", kp.GetAddress())
+		acl.SetOwner("application/MinimumPlatformStake", kp.GetAddress())
 		acl.SetOwner("application/AppUnstakingTime", kp.GetAddress())
 		acl.SetOwner("application/BaseRelaysPerVIPR", kp.GetAddress())
-		acl.SetOwner("application/MaxApplications", kp.GetAddress())
+		acl.SetOwner("application/MaxPlatforms", kp.GetAddress())
 		acl.SetOwner("application/MaximumChains", kp.GetAddress())
 		acl.SetOwner("application/ParticipationRate", kp.GetAddress())
 		acl.SetOwner("application/StabilityModulation", kp.GetAddress())
@@ -574,11 +574,11 @@ func twoValTwoNodeGenesisState8() (genbz []byte, vals []nodesTypes.Validator) {
 	pubKey3 := kp3.PublicKey
 	pubkey4 := kp4.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		apps.AppModuleBasic{},
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
-		providers.AppModuleBasic{},
-		viper.AppModuleBasic{},
+		platforms.PlatformModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
+		providers.PlatformModuleBasic{},
+		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
 	rawPOS := defaultGenesis[nodesTypes.ModuleName]
@@ -687,11 +687,11 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []nodesTypes.Validator) {
 	pubKey3 := kp3.PublicKey
 	pubkey4 := kp4.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		apps.AppModuleBasic{},
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
-		providers.AppModuleBasic{},
-		viper.AppModuleBasic{},
+		platforms.PlatformModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
+		providers.PlatformModuleBasic{},
+		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
 	rawPOS := defaultGenesis[nodesTypes.ModuleName]
@@ -777,7 +777,7 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []nodesTypes.Validator) {
 	return j, posGenesisState.Validators
 }
 
-func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators nodesTypes.Validators, app appsTypes.Application) {
+func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators nodesTypes.Validators, app platformsTypes.Platform) {
 	kb := getInMemoryKeybase()
 	// create keypairs
 	kp1, err := kb.GetCoinbase()
@@ -805,11 +805,11 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	pubKey4 := kys[3].PublicKey()
 	pubKey5 := kys[4].PublicKey()
 	defaultGenesis := module.NewBasicManager(
-		apps.AppModuleBasic{},
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
-		providers.AppModuleBasic{},
-		viper.AppModuleBasic{},
+		platforms.PlatformModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
+		providers.PlatformModuleBasic{},
+		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// setup validators
 	rawPOS := defaultGenesis[nodesTypes.ModuleName]
@@ -859,11 +859,11 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	res := memCodec().MustMarshalJSON(posGenesisState)
 	defaultGenesis[nodesTypes.ModuleName] = res
 	// setup applications
-	rawApps := defaultGenesis[appsTypes.ModuleName]
-	var appsGenesisState appsTypes.GenesisState
-	memCodec().MustUnmarshalJSON(rawApps, &appsGenesisState)
+	rawApps := defaultGenesis[platformsTypes.ModuleName]
+	var platformsGenesisState platformsTypes.GenesisState
+	memCodec().MustUnmarshalJSON(rawApps, &platformsGenesisState)
 	// app 1
-	appsGenesisState.Applications = append(appsGenesisState.Applications, appsTypes.Application{
+	platformsGenesisState.Platforms = append(platformsGenesisState.Platforms, platformsTypes.Platform{
 		Address:                 kp2.GetAddress(),
 		PublicKey:               kp2.PublicKey,
 		Jailed:                  false,
@@ -873,8 +873,8 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 		MaxRelays:               sdk.NewInt(100000),
 		UnstakingCompletionTime: time.Time{},
 	})
-	res2 := memCodec().MustMarshalJSON(appsGenesisState)
-	defaultGenesis[appsTypes.ModuleName] = res2
+	res2 := memCodec().MustMarshalJSON(platformsGenesisState)
+	defaultGenesis[platformsTypes.ModuleName] = res2
 	// accounts
 	rawAccounts := defaultGenesis[authentication.ModuleName]
 	var authGenState authentication.GenesisState
@@ -908,7 +908,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	// end genesis setup
 	GenState = defaultGenesis
 	j, _ := memCodec().MarshalJSONIndent(defaultGenesis, "", "    ")
-	return j, kys, posGenesisState.Validators, appsGenesisState.Applications[0]
+	return j, kys, posGenesisState.Validators, platformsGenesisState.Platforms[0]
 }
 
 //

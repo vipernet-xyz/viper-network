@@ -22,7 +22,7 @@ import (
 
 	rand2 "github.com/tendermint/tendermint/libs/rand"
 
-	types3 "github.com/vipernet-xyz/viper-network/x/apps/types"
+	types3 "github.com/vipernet-xyz/viper-network/x/platforms/types"
 
 	"github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
@@ -452,13 +452,13 @@ func TestRPC_QueryApps(t *testing.T) {
 	<-evtChan // Wait for block
 	var params = HeightAndApplicaitonOptsParams{
 		Height: 0,
-		Opts: types3.QueryApplicationsWithOpts{
+		Opts: types3.QueryPlatformsWithOpts{
 			StakingStatus: types.Staked,
 			Page:          1,
 			Limit:         10000,
 		},
 	}
-	q := newQueryRequest("apps", newBody(params))
+	q := newQueryRequest("platforms", newBody(params))
 	rec := httptest.NewRecorder()
 	Apps(rec, q, httprouter.Params{})
 	body := rec.Body.String()
@@ -468,13 +468,13 @@ func TestRPC_QueryApps(t *testing.T) {
 	<-evtChan // Wait for block
 	params = HeightAndApplicaitonOptsParams{
 		Height: 2,
-		Opts: types3.QueryApplicationsWithOpts{
+		Opts: types3.QueryPlatformsWithOpts{
 			StakingStatus: types.Staked,
 			Page:          1,
 			Limit:         10000,
 		},
 	}
-	q = newQueryRequest("apps", newBody(params))
+	q = newQueryRequest("platforms", newBody(params))
 	rec = httptest.NewRecorder()
 	Apps(rec, q, httprouter.Params{})
 	body = rec.Body.String()
@@ -913,16 +913,16 @@ func TestRPC_Relay(t *testing.T) {
 	assert.Nil(t, err)
 	// setup AAT
 	aat := viperTypes.AAT{
-		Version:              "0.0.1",
-		ApplicationPublicKey: appPrivateKey.PublicKey().RawString(),
-		ClientPublicKey:      appPrivateKey.PublicKey().RawString(),
-		ApplicationSignature: "",
+		Version:           "0.0.1",
+		PlatformPublicKey: appPrivateKey.PublicKey().RawString(),
+		ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
+		PlatformSignature: "",
 	}
 	sig, err := appPrivateKey.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
-	aat.ApplicationSignature = hex.EncodeToString(sig)
+	aat.PlatformSignature = hex.EncodeToString(sig)
 	payload := viperTypes.Payload{
 		Data:   expectedRequest,
 		Method: "POST",
@@ -1007,7 +1007,7 @@ func TestRPC_Dispatch(t *testing.T) {
 	assert.Nil(t, err)
 	// Setup HandleDispatch Request
 	key := viperTypes.SessionHeader{
-		ApplicationPubKey:  appPrivateKey.PublicKey().RawString(),
+		PlatformPubKey:     appPrivateKey.PublicKey().RawString(),
 		Chain:              dummyChainsHash,
 		SessionBlockHeight: 1,
 	}
@@ -1019,7 +1019,7 @@ func TestRPC_Dispatch(t *testing.T) {
 	Dispatch(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
 	rawResp := string(resp)
-	assert.Regexp(t, key.ApplicationPubKey, rawResp)
+	assert.Regexp(t, key.PlatformPubKey, rawResp)
 	assert.Regexp(t, key.Chain, rawResp)
 
 	for _, validator := range validators {
@@ -1032,7 +1032,7 @@ func TestRPC_Dispatch(t *testing.T) {
 	Dispatch(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
 	rawResp = string(resp)
-	assert.Regexp(t, key.ApplicationPubKey, rawResp)
+	assert.Regexp(t, key.PlatformPubKey, rawResp)
 	assert.Regexp(t, key.Chain, rawResp)
 
 	for _, validator := range validators {
@@ -1338,10 +1338,10 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		RequestHash:        clientPubKey, // fake
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: appPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -1349,7 +1349,7 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof.Token.PlatformSignature = hex.EncodeToString(appSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -1363,10 +1363,10 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		RequestHash:        clientPubKey, // fake
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: appPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -1374,7 +1374,7 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof2.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof2.Token.PlatformSignature = hex.EncodeToString(appSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof2.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -1388,10 +1388,10 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		RequestHash:        clientPubKey, // fake
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: appPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -1399,7 +1399,7 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof3.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof3.Token.PlatformSignature = hex.EncodeToString(appSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof3.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())

@@ -23,11 +23,11 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 	// retrieve the nonNative blockchains your node is hosting
 	hostedBlockchains := k.GetHostedBlockchains()
 	// ensure the validity of the relay
-	maxPossibleRelays, err := relay.Validate(ctx, k.posKeeper, k.appKeeper, k, selfAddr, hostedBlockchains, sessionBlockHeight)
+	maxPossibleRelays, err := relay.Validate(ctx, k.posKeeper, k.platformKeeper, k, selfAddr, hostedBlockchains, sessionBlockHeight)
 	if err != nil {
 		if vc.GlobalViperConfig.RelayErrors {
 			ctx.Logger().Error(
-				fmt.Sprintf("could not validate relay for app: %s for chainID: %v with error: %s",
+				fmt.Sprintf("could not validate relay for platform: %s for chainID: %v with error: %s",
 					relay.Proof.ServicerPubKey,
 					relay.Proof.Blockchain,
 					err.Error(),
@@ -35,7 +35,7 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 			)
 			ctx.Logger().Debug(
 				fmt.Sprintf(
-					"could not validate relay for app: %s, for chainID %v on node %s, at session height: %v, with error: %s",
+					"could not validate relay for platform: %s, for chainID %v on node %s, at session height: %v, with error: %s",
 					relay.Proof.ServicerPubKey,
 					relay.Proof.Blockchain,
 					selfAddr.String(),
@@ -88,14 +88,14 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 	if er != nil {
 		return nil, sdk.ErrInternal(er.Error())
 	}
-	// get the application that staked on behalf of the client
-	app, found := k.GetAppFromPublicKey(sessionCtx, challenge.MinorityResponse.Proof.Token.ApplicationPublicKey)
+	// get the platformlication that staked on behalf of the client
+	platform, found := k.GetPlatformFromPublicKey(sessionCtx, challenge.MinorityResponse.Proof.Token.PlatformPublicKey)
 	if !found {
-		return nil, vc.NewAppNotFoundError(vc.ModuleName)
+		return nil, vc.NewPlatformNotFoundError(vc.ModuleName)
 	}
 	// generate header
 	header := vc.SessionHeader{
-		ApplicationPubKey:  challenge.MinorityResponse.Proof.Token.ApplicationPublicKey,
+		PlatformPubKey:     challenge.MinorityResponse.Proof.Token.PlatformPublicKey,
 		Chain:              challenge.MinorityResponse.Proof.Blockchain,
 		SessionBlockHeight: sessionCtx.BlockHeight(),
 	}
@@ -116,12 +116,12 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 		vc.SetSession(session)
 	}
 	// validate the challenge
-	err := challenge.ValidateLocal(header, app.GetMaxRelays(), app.GetChains(), int(k.SessionNodeCount(sessionCtx)), session.SessionNodes, selfNode)
+	err := challenge.ValidateLocal(header, platform.GetMaxRelays(), platform.GetChains(), int(k.SessionNodeCount(sessionCtx)), session.SessionNodes, selfNode)
 	if err != nil {
 		return nil, err
 	}
 	// store the challenge in memory
-	challenge.Store(app.GetMaxRelays())
+	challenge.Store(platform.GetMaxRelays())
 	// update metric
 	vc.GlobalServiceMetric().AddChallengeFor(header.Chain)
 	return &vc.ChallengeResponse{Response: fmt.Sprintf("successfully stored challenge proof for %s", challenge.MinorityResponse.Proof.ServicerPubKey)}, nil

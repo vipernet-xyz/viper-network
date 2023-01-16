@@ -30,8 +30,8 @@ import (
 // : deadcode unused
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
 	)
 )
 
@@ -104,7 +104,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
 	moduleManager := module.NewManager(
-		authentication.NewAppModule(ak),
+		authentication.NewPlatformModule(ak),
 	)
 
 	genesisState := ModuleBasics.DefaultGenesis()
@@ -192,9 +192,9 @@ func getGenesisStateForTest(ctx sdk.Ctx, keeper keeper.Keeper, defaultparams boo
 	}
 	prevStateTotalPower := keeper.PrevStateValidatorsPower(ctx)
 	validators := keeper.GetAllValidators(ctx)
-	var prevStateValidatorPowers []types.PrevStatePowerMapping
+	var prevStateValidatorPowers []types.PrevStatePowerMplatforming
 	keeper.IterateAndExecuteOverPrevStateValsByPower(ctx, func(addr sdk.Address, power int64) (stop bool) {
-		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMapping{Address: addr, Power: power})
+		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMplatforming{Address: addr, Power: power})
 		return false
 	})
 	signingInfos := make(map[string]types.ValidatorSigningInfo)

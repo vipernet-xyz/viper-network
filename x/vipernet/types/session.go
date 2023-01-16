@@ -7,11 +7,11 @@ import (
 	"log"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	appexported "github.com/vipernet-xyz/viper-network/x/apps/exported"
+	platformexported "github.com/vipernet-xyz/viper-network/x/platforms/exported"
 	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
-// "Session" - The relationship between an application and the viper network
+// "Session" - The relationship between an platformlication and the viper network
 
 func (s Session) IsSealed() bool {
 	return false
@@ -24,7 +24,7 @@ func (s Session) Seal() CacheObject {
 // "NewSession" - create a new session from seed data
 func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string, sessionNodesCount int) (Session, sdk.Error) {
 	// first generate session key
-	sessionKey, err := NewSessionKey(sessionHeader.ApplicationPubKey, sessionHeader.Chain, blockHash)
+	sessionKey, err := NewSessionKey(sessionHeader.PlatformPubKey, sessionHeader.Chain, blockHash)
 	if err != nil {
 		return Session{}, err
 	}
@@ -42,7 +42,7 @@ func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader Session
 }
 
 // "Validate" - Validates a session object
-func (s Session) Validate(node sdk.Address, app appexported.ApplicationI, sessionNodeCount int) sdk.Error {
+func (s Session) Validate(node sdk.Address, platform platformexported.PlatformI, sessionNodeCount int) sdk.Error {
 	// validate chain
 	if len(s.SessionHeader.Chain) == 0 {
 		return NewEmptyNonNativeChainError(ModuleName)
@@ -51,16 +51,16 @@ func (s Session) Validate(node sdk.Address, app appexported.ApplicationI, sessio
 	if s.SessionHeader.SessionBlockHeight < 1 {
 		return NewInvalidBlockHeightError(ModuleName)
 	}
-	// validate the app public key
-	if err := PubKeyVerification(s.SessionHeader.ApplicationPubKey); err != nil {
+	// validate the platform public key
+	if err := PubKeyVerification(s.SessionHeader.PlatformPubKey); err != nil {
 		return err
 	}
-	// validate app corresponds to appPubKey
-	if app.GetPublicKey().RawString() != s.SessionHeader.ApplicationPubKey {
-		return NewInvalidAppPubKeyError(ModuleName)
+	// validate platform corresponds to platformPubKey
+	if platform.GetPublicKey().RawString() != s.SessionHeader.PlatformPubKey {
+		return NewInvalidPlatformPubKeyError(ModuleName)
 	}
-	// validate app chains
-	chains := app.GetChains()
+	// validate platform chains
+	chains := platform.GetChains()
 	found := false
 	for _, c := range chains {
 		if c == s.SessionHeader.Chain {
@@ -69,7 +69,7 @@ func (s Session) Validate(node sdk.Address, app appexported.ApplicationI, sessio
 		}
 	}
 	if !found {
-		return NewUnsupportedBlockchainAppError(ModuleName)
+		return NewUnsupportedBlockchainPlatformError(ModuleName)
 	}
 	// validate sessionNodes
 	err := s.SessionNodes.Validate(sessionNodeCount)
@@ -187,15 +187,15 @@ type SessionKey []byte
 
 // "sessionKey" - Used for custom json
 type sessionKey struct {
-	AppPublicKey   string `json:"app_pub_key"`
-	NonNativeChain string `json:"chain"`
-	BlockHash      string `json:"blockchain"`
+	PlatformPublicKey string `json:"platform_pub_key"`
+	NonNativeChain    string `json:"chain"`
+	BlockHash         string `json:"blockchain"`
 }
 
 // "NewSessionKey" - generates the session key from metadata
-func NewSessionKey(appPubKey string, chain string, blockHash string) (SessionKey, sdk.Error) {
-	// validate appPubKey
-	if err := PubKeyVerification(appPubKey); err != nil {
+func NewSessionKey(platformPubKey string, chain string, blockHash string) (SessionKey, sdk.Error) {
+	// validate platformPubKey
+	if err := PubKeyVerification(platformPubKey); err != nil {
 		return nil, err
 	}
 	// validate chain
@@ -208,9 +208,9 @@ func NewSessionKey(appPubKey string, chain string, blockHash string) (SessionKey
 	}
 	// marshal into json
 	seed, err := json.Marshal(sessionKey{
-		AppPublicKey:   appPubKey,
-		NonNativeChain: chain,
-		BlockHash:      blockHash,
+		PlatformPublicKey: platformPubKey,
+		NonNativeChain:    chain,
+		BlockHash:         blockHash,
 	})
 	if err != nil {
 		return nil, NewJSONMarshalError(ModuleName, err)
@@ -226,8 +226,8 @@ func (sk SessionKey) Validate() sdk.Error {
 
 // "ValidateHeader" - Validates the header of the session
 func (sh SessionHeader) ValidateHeader() sdk.Error {
-	// check the app public key for validity
-	if err := PubKeyVerification(sh.ApplicationPubKey); err != nil {
+	// check the platform public key for validity
+	if err := PubKeyVerification(sh.PlatformPubKey); err != nil {
 		return err
 	}
 	// verify the chain merkleHash
@@ -266,11 +266,11 @@ func BlockHash(ctx sdk.Context) string {
 	return hex.EncodeToString(ctx.BlockHeader().LastBlockId.Hash)
 }
 
-// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an App on a sessions
-func MaxPossibleRelays(app appexported.ApplicationI, sessionNodeCount int64) sdk.BigInt {
+// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an Platform on a sessions
+func MaxPossibleRelays(platform platformexported.PlatformI, sessionNodeCount int64) sdk.BigInt {
 	//GetMaxRelays Max value is bound to math.MaxUint64,
 	//current worse case is 1 chain and 5 providers per session with a result of 3689348814741910323 which can be used safely as int64
-	return app.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(app.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
+	return platform.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(platform.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
 }
 
 // "NodeHashChain" - Returns whether or not the node has the relayChain

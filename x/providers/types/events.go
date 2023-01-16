@@ -10,7 +10,7 @@ const (
 	EventTypeUnstake                 = "unstake"
 	EventTypeProposerReward          = "proposer_reward"
 	EventTypeDAOAllocation           = "dao_allocation"
-	EventTypeAppAllocation           = "app_allocation"
+	EventTypeAppAllocation           = "platform_allocation"
 	EventTypeSlash                   = "slash"
 	EventTypeJail                    = "jail"
 	EventTypeLiveness                = "liveness"

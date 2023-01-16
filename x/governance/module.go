@@ -15,87 +15,87 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.PlatformModule      = PlatformModule{}
+	_ module.PlatformModuleBasic = PlatformModuleBasic{}
 )
 
 const moduleName = "governance"
 
-// AppModuleBasic app module basics object
-type AppModuleBasic struct{}
+// PlatformModuleBasic app module basics object
+type PlatformModuleBasic struct{}
 
 // Name module name
-func (AppModuleBasic) Name() string {
+func (PlatformModuleBasic) Name() string {
 	return moduleName
 }
 
 // RegisterCodec register module codec
-func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
+func (PlatformModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	types.RegisterCodec(cdc)
 }
 
 // DefaultGenesis default genesis state
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
+func (PlatformModuleBasic) DefaultGenesis() json.RawMessage {
 	return types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 // ValidateGenesis module validate genesis
-func (AppModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
+func (PlatformModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
 
-// AppModule implements an application module for the staking module.
-type AppModule struct {
-	AppModuleBasic
+// PlatformModule implements an platform module for the staking module.
+type PlatformModule struct {
+	PlatformModuleBasic
 	keeper keeper.Keeper
 }
 
-func (am AppModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+func (pm PlatformModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	return &abci.ConsensusParams{}
 }
 
-// NewAppModule creates a new AppModule object
-func NewAppModule(keeper keeper.Keeper) AppModule {
-	return AppModule{
-		AppModuleBasic: AppModuleBasic{},
-		keeper:         keeper,
+// NewPlatformModule creates a new PlatformModule object
+func NewPlatformModule(keeper keeper.Keeper) PlatformModule {
+	return PlatformModule{
+		PlatformModuleBasic: PlatformModuleBasic{},
+		keeper:              keeper,
 	}
 }
 
 // Name returns the staking module's name.
-func (AppModule) Name() string {
+func (PlatformModule) Name() string {
 	return types.ModuleName
 }
 
 // RegisterInvariants registers the staking module invariants.
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {
+func (pm PlatformModule) RegisterInvariants(_ sdk.InvariantRegistry) {
 }
 
-func (am AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	am.keeper.UpgradeCodec(ctx)
+func (pm PlatformModule) UpgradeCodec(ctx sdk.Ctx) {
+	pm.keeper.UpgradeCodec(ctx)
 }
 
 // Route returns the message routing key for the staking module.
-func (AppModule) Route() string {
+func (PlatformModule) Route() string {
 	return types.RouterKey
 }
 
 // NewHandler returns an sdk.Handler for the staking module.
-func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+func (pm PlatformModule) NewHandler() sdk.Handler {
+	return NewHandler(pm.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.
-func (AppModule) QuerierRoute() string {
+func (PlatformModule) QuerierRoute() string {
 	return types.QuerierRoute
 }
 
 // NewQuerierHandler returns the staking module sdk.Querier.
-func (am AppModule) NewQuerierHandler() sdk.Querier {
-	return keeper.NewQuerier(am.keeper)
+func (pm PlatformModule) NewQuerierHandler() sdk.Querier {
+	return keeper.NewQuerier(pm.keeper)
 }
 
 // InitGenesis performs genesis initialization for the pos module. It returns
 // no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
+func (pm PlatformModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if ctx.AppVersion() == "" {
 		fmt.Println(fmt.Errorf("must set app version in context, set with ctx.WithAppVersion(<version>)").Error())
@@ -106,22 +106,22 @@ func (am AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.Valida
 	} else {
 		types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	}
-	return am.keeper.InitGenesis(ctx, genesisState)
+	return pm.keeper.InitGenesis(ctx, genesisState)
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the staking
 // module.
-func (am AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
-	gs := am.keeper.ExportGenesis(ctx)
+func (pm PlatformModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
+	gs := pm.keeper.ExportGenesis(ctx)
 	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // BeginBlock module begin-block
-func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+func (pm PlatformModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 
-	ActivateAdditionalParametersACL(ctx, am)
+	ActivateAdditionalParametersACL(ctx, pm)
 
-	u := am.keeper.GetUpgrade(ctx)
+	u := pm.keeper.GetUpgrade(ctx)
 	if ctx.AppVersion() < u.Version && ctx.BlockHeight() >= u.UpgradeHeight() && ctx.BlockHeight() != 0 {
 		ctx.Logger().Error("MUST UPGRADE TO NEXT VERSION: ", u.Version)
 		ctx.EventManager().EmitEvent(sdk.NewEvent(types.EventMustUpgrade,
@@ -143,29 +143,29 @@ func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 }
 
 // ActivateAdditionalParametersACL ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
-func ActivateAdditionalParametersACL(ctx sdk.Ctx, am AppModule) {
+func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm PlatformModule) {
 
 	// activate BlockSizeModify params
-	if am.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
-		gParams := am.keeper.GetParams(ctx)
+	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
+		gParams := pm.keeper.GetParams(ctx)
 		//on the height we get the ACL and insert the key
-		gParams.ACL.SetOwner(types.NewACLKey(types.VipercoreSubspace, "BlockByteSize"), am.keeper.GetDAOOwner(ctx))
+		gParams.ACL.SetOwner(types.NewACLKey(types.VipercoreSubspace, "BlockByteSize"), pm.keeper.GetDAOOwner(ctx))
 		//update params
-		am.keeper.SetParams(ctx, gParams)
+		pm.keeper.SetParams(ctx, gParams)
 	}
 	//activate RSCALKey params
-	if am.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
-		params := am.keeper.GetParams(ctx)
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "MinServicerStakeBinWidth"), am.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "ServicerStakeWeight"), am.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "MaxServicerStakeBin"), am.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "ServicerStakeBinExponent"), am.keeper.GetDAOOwner(ctx))
-		am.keeper.SetParams(ctx, params)
+	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
+		params := pm.keeper.GetParams(ctx)
+		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "MinServicerStakeBinWidth"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "ServicerStakeWeight"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "MaxServicerStakeBin"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "ServicerStakeBinExponent"), pm.keeper.GetDAOOwner(ctx))
+		pm.keeper.SetParams(ctx, params)
 	}
 }
 
 // EndBlock returns the end blocker for the staking module. It returns no validator
 // updates.
-func (am AppModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (pm PlatformModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }

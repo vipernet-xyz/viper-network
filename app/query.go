@@ -11,10 +11,10 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	"github.com/vipernet-xyz/viper-network/x/governance/types"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -380,17 +380,17 @@ func (app ViperCoreApp) QueryParam(height int64, paramkey string) (r SingleParam
 	return
 }
 
-func (app ViperCoreApp) QueryApps(height int64, opts appsTypes.QueryApplicationsWithOpts) (res Page, err error) {
+func (app ViperCoreApp) QueryApps(height int64, opts platformsTypes.QueryPlatformsWithOpts) (res Page, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
 	opts.Page, opts.Limit = checkPagination(opts.Page, opts.Limit)
-	applications := app.appsKeeper.GetAllApplicationsWithOpts(ctx, opts)
-	return paginate(opts.Page, opts.Limit, applications, int(app.appsKeeper.GetParams(ctx).MaxApplications))
+	applications := app.platformsKeeper.GetAllPlatformsWithOpts(ctx, opts)
+	return paginate(opts.Page, opts.Limit, applications, int(app.platformsKeeper.GetParams(ctx).MaxPlatforms))
 }
 
-func (app ViperCoreApp) QueryApp(addr string, height int64) (res appsTypes.Application, err error) {
+func (app ViperCoreApp) QueryApp(addr string, height int64) (res platformsTypes.Platform, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
 		return res, err
@@ -399,9 +399,9 @@ func (app ViperCoreApp) QueryApp(addr string, height int64) (res appsTypes.Appli
 	if err != nil {
 		return
 	}
-	res, found := app.appsKeeper.GetApplication(ctx, a)
+	res, found := app.platformsKeeper.GetPlatform(ctx, a)
 	if !found {
-		err = appsTypes.ErrNoApplicationFound(appsTypes.ModuleName)
+		err = platformsTypes.ErrNoPlatformFound(platformsTypes.ModuleName)
 		return
 	}
 	return
@@ -412,15 +412,15 @@ func (app ViperCoreApp) QueryTotalAppCoins(height int64) (staked sdk.BigInt, err
 	if err != nil {
 		return
 	}
-	return app.appsKeeper.GetStakedTokens(ctx), nil
+	return app.platformsKeeper.GetStakedTokens(ctx), nil
 }
 
-func (app ViperCoreApp) QueryAppParams(height int64) (res appsTypes.Params, err error) {
+func (app ViperCoreApp) QueryAppParams(height int64) (res platformsTypes.Params, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	return app.appsKeeper.GetParams(ctx), nil
+	return app.platformsKeeper.GetParams(ctx), nil
 }
 
 func (app ViperCoreApp) QueryValidatorByChain(height int64, chain string) (amount int64, err error) {
@@ -447,7 +447,7 @@ func (app ViperCoreApp) QueryClaim(address, appPubkey, chain, evidenceType strin
 		return nil, err
 	}
 	header := viperTypes.SessionHeader{
-		ApplicationPubKey:  appPubkey,
+		PlatformPubKey:     appPubkey,
 		Chain:              chain,
 		SessionBlockHeight: sessionBlockHeight,
 	}

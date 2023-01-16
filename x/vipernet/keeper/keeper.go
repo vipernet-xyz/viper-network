@@ -14,7 +14,7 @@ import (
 type Keeper struct {
 	authKeeper        types.AuthKeeper
 	posKeeper         types.PosKeeper
-	appKeeper         types.AppsKeeper
+	platformKeeper    types.PlatformsKeeper
 	TmNode            client.Client
 	hostedBlockchains *types.HostedBlockchains
 	Paramstore        sdk.Subspace
@@ -23,11 +23,11 @@ type Keeper struct {
 }
 
 // NewKeeper creates new instances of the vipernet module Keeper
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, authKeeper types.AuthKeeper, posKeeper types.PosKeeper, appKeeper types.AppsKeeper, hostedChains *types.HostedBlockchains, paramstore sdk.Subspace) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, authKeeper types.AuthKeeper, posKeeper types.PosKeeper, platformKeeper types.PlatformsKeeper, hostedChains *types.HostedBlockchains, paramstore sdk.Subspace) Keeper {
 	return Keeper{
 		authKeeper:        authKeeper,
 		posKeeper:         posKeeper,
-		appKeeper:         appKeeper,
+		platformKeeper:    platformKeeper,
 		hostedBlockchains: hostedChains,
 		Paramstore:        paramstore.WithKeyTable(ParamKeyTable()),
 		storeKey:          storeKey,

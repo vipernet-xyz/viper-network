@@ -12,11 +12,11 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	apps "github.com/vipernet-xyz/viper-network/x/apps"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -58,36 +58,36 @@ func TestUnstakeClient(t *testing.T) {
 			var chains = []string{"0001"}
 			<-evtChan // Wait for block
 			memCli, _, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = apps.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = platforms.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for tx
-			got, err := PCA.QueryApps(PCA.LastBlockHeight(), appsTypes.QueryApplicationsWithOpts{
+			got, err := PCA.QueryApps(PCA.LastBlockHeight(), platformsTypes.QueryPlatformsWithOpts{
 				Page:  1,
 				Limit: 1})
 			assert.Nil(t, err)
-			res := got.Result.(appsTypes.Applications)
+			res := got.Result.(platformsTypes.Platforms)
 			assert.Equal(t, 1, len(res))
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			_, _ = apps.UnstakeTx(memCodec(), memCli, kb, kp.GetAddress(), "test", tc.codecUpgrade.upgradeMod)
+			_, _ = platforms.UnstakeTx(memCodec(), memCli, kb, kp.GetAddress(), "test", tc.codecUpgrade.upgradeMod)
 
 			<-evtChan // Wait for tx
-			got, err = PCA.QueryApps(PCA.LastBlockHeight(), appsTypes.QueryApplicationsWithOpts{
+			got, err = PCA.QueryApps(PCA.LastBlockHeight(), platformsTypes.QueryPlatformsWithOpts{
 				Page:          1,
 				Limit:         1,
 				StakingStatus: 1,
 			})
 			assert.Nil(t, err)
-			res = got.Result.(appsTypes.Applications)
+			res = got.Result.(platformsTypes.Platforms)
 			assert.Equal(t, 1, len(res))
-			got, err = PCA.QueryApps(PCA.LastBlockHeight(), appsTypes.QueryApplicationsWithOpts{
+			got, err = PCA.QueryApps(PCA.LastBlockHeight(), platformsTypes.QueryPlatformsWithOpts{
 				Page:          1,
 				Limit:         1,
 				StakingStatus: 2,
 			})
 			assert.Nil(t, err)
-			res = got.Result.(appsTypes.Applications)
+			res = got.Result.(platformsTypes.Platforms)
 			assert.Equal(t, 1, len(res)) // default genesis application
 
 			cleanup()
@@ -121,17 +121,17 @@ func TestStakeClient(t *testing.T) {
 
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = apps.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = platforms.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for tx
-			got, err := PCA.QueryApps(PCA.LastBlockHeight(), appsTypes.QueryApplicationsWithOpts{
+			got, err := PCA.QueryApps(PCA.LastBlockHeight(), platformsTypes.QueryPlatformsWithOpts{
 				Page:  1,
 				Limit: 2,
 			})
 			assert.Nil(t, err)
-			res := got.Result.(appsTypes.Applications)
+			res := got.Result.(platformsTypes.Platforms)
 			assert.Equal(t, 2, len(res))
 
 			stopCli()
@@ -175,7 +175,7 @@ func TestEditStakeClient(t *testing.T) {
 			n, err := PCA.QueryApp(kp.GetAddress().String(), PCA.LastBlockHeight())
 			assert.Nil(t, err)
 			var newBalance = balance.Sub(sdk.NewInt(100000)).Add(n.StakedTokens)
-			tx, err = apps.StakeTx(memCodec(), memCli, kb, newChains, newBalance, kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = platforms.StakeTx(memCodec(), memCli, kb, newChains, newBalance, kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			<-evtChan // Wait for tx
@@ -1182,16 +1182,16 @@ func TestClaimAminoTx(t *testing.T) {
 				assert.Nil(t, err)
 				// setup AAT
 				aat := viperTypes.AAT{
-					Version:              "0.0.1",
-					ApplicationPublicKey: appPrivateKey.PublicKey().RawString(),
-					ClientPublicKey:      appPrivateKey.PublicKey().RawString(),
-					ApplicationSignature: "",
+					Version:           "0.0.1",
+					PlatformPublicKey: appPrivateKey.PublicKey().RawString(),
+					ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
+					PlatformSignature: "",
 				}
 				sig, err := appPrivateKey.Sign(aat.Hash())
 				if err != nil {
 					panic(err)
 				}
-				aat.ApplicationSignature = hex.EncodeToString(sig)
+				aat.PlatformSignature = hex.EncodeToString(sig)
 				proof := viperTypes.RelayProof{
 					Entropy:            int64(rand.Int()),
 					RequestHash:        hex.EncodeToString(viperTypes.Hash([]byte("fake"))),
@@ -1207,7 +1207,7 @@ func TestClaimAminoTx(t *testing.T) {
 				}
 				proof.Signature = hex.EncodeToString(sig)
 				viperTypes.SetProof(viperTypes.SessionHeader{
-					ApplicationPubKey:  appPrivateKey.PublicKey().RawString(),
+					PlatformPubKey:     appPrivateKey.PublicKey().RawString(),
 					Chain:              sdk.PlaceholderHash,
 					SessionBlockHeight: 1,
 				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000))
@@ -1257,16 +1257,16 @@ func TestClaimProtoTx(t *testing.T) {
 				assert.Nil(t, err)
 				// setup AAT
 				aat := viperTypes.AAT{
-					Version:              "0.0.1",
-					ApplicationPublicKey: appPrivateKey.PublicKey().RawString(),
-					ClientPublicKey:      appPrivateKey.PublicKey().RawString(),
-					ApplicationSignature: "",
+					Version:           "0.0.1",
+					PlatformPublicKey: appPrivateKey.PublicKey().RawString(),
+					ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
+					PlatformSignature: "",
 				}
 				sig, err := appPrivateKey.Sign(aat.Hash())
 				if err != nil {
 					panic(err)
 				}
-				aat.ApplicationSignature = hex.EncodeToString(sig)
+				aat.PlatformSignature = hex.EncodeToString(sig)
 				proof := viperTypes.RelayProof{
 					Entropy:            int64(rand.Int()),
 					RequestHash:        hex.EncodeToString(viperTypes.Hash([]byte("fake"))),
@@ -1282,7 +1282,7 @@ func TestClaimProtoTx(t *testing.T) {
 				}
 				proof.Signature = hex.EncodeToString(sig)
 				viperTypes.SetProof(viperTypes.SessionHeader{
-					ApplicationPubKey:  appPrivateKey.PublicKey().RawString(),
+					PlatformPubKey:     appPrivateKey.PublicKey().RawString(),
 					Chain:              sdk.PlaceholderHash,
 					SessionBlockHeight: 1,
 				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000))
@@ -1403,10 +1403,10 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 			RequestHash:        clientPubKey, // fake
 			Blockchain:         sdk.PlaceholderHash,
 			Token: viperTypes.AAT{
-				Version:              "0.0.1",
-				ApplicationPublicKey: appPubKey,
-				ClientPublicKey:      clientPubKey,
-				ApplicationSignature: "",
+				Version:           "0.0.1",
+				PlatformPublicKey: appPubKey,
+				ClientPublicKey:   clientPubKey,
+				PlatformSignature: "",
 			},
 			Signature: "",
 		}
@@ -1414,7 +1414,7 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 		if er != nil {
 			t.Fatalf(er.Error())
 		}
-		validProof.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+		validProof.Token.PlatformSignature = hex.EncodeToString(appSignature)
 		clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())
@@ -1428,10 +1428,10 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 			RequestHash:        clientPubKey, // fake
 			Blockchain:         sdk.PlaceholderHash,
 			Token: viperTypes.AAT{
-				Version:              "0.0.1",
-				ApplicationPublicKey: appPubKey,
-				ClientPublicKey:      clientPubKey,
-				ApplicationSignature: "",
+				Version:           "0.0.1",
+				PlatformPublicKey: appPubKey,
+				ClientPublicKey:   clientPubKey,
+				PlatformSignature: "",
 			},
 			Signature: "",
 		}
@@ -1439,7 +1439,7 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 		if er != nil {
 			t.Fatalf(er.Error())
 		}
-		validProof2.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+		validProof2.Token.PlatformSignature = hex.EncodeToString(appSignature)
 		clientSignature, er = clientPrivateKey.Sign(validProof2.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())
@@ -1453,10 +1453,10 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 			RequestHash:        clientPubKey, // fake
 			Blockchain:         sdk.PlaceholderHash,
 			Token: viperTypes.AAT{
-				Version:              "0.0.1",
-				ApplicationPublicKey: appPubKey,
-				ClientPublicKey:      clientPubKey,
-				ApplicationSignature: "",
+				Version:           "0.0.1",
+				PlatformPublicKey: appPubKey,
+				ClientPublicKey:   clientPubKey,
+				PlatformSignature: "",
 			},
 			Signature: "",
 		}
@@ -1464,7 +1464,7 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 		if er != nil {
 			t.Fatalf(er.Error())
 		}
-		validProof3.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+		validProof3.Token.PlatformSignature = hex.EncodeToString(appSignature)
 		clientSignature, er = clientPrivateKey.Sign(validProof3.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())

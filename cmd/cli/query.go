@@ -8,7 +8,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/cmd/rpc"
 	"github.com/vipernet-xyz/viper-network/types"
-	types2 "github.com/vipernet-xyz/viper-network/x/apps/types"
+	types2 "github.com/vipernet-xyz/viper-network/x/platforms/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
 	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
@@ -492,8 +492,8 @@ func init() {
 }
 
 var queryApps = &cobra.Command{
-	Use:   "apps [--staking-status=<nodeStakingStatus>] [--appPage=<appPage>] [--nodeLimit=<nodeLimit>] [<height>]",
-	Short: "Gets apps",
+	Use:   "platforms [--staking-status=<nodeStakingStatus>] [--appPage=<appPage>] [--nodeLimit=<nodeLimit>] [<height>]",
+	Short: "Gets platforms",
 	Long:  `Retrieves the list of all applications known at the specified <height>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
@@ -508,7 +508,7 @@ var queryApps = &cobra.Command{
 				return
 			}
 		}
-		opts := types2.QueryApplicationsWithOpts{
+		opts := types2.QueryPlatformsWithOpts{
 			Blockchain: blockchain,
 			Page:       appPage,
 			Limit:      appLimit,

@@ -1,19 +1,19 @@
 syntax = "proto3";
-package x.apps;
+package x.platforms;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/vipernet-xyz/viper-network/x/apps/types";
+option go_package = "github.com/vipernet-xyz/viper-network/x/platforms/types";
 
-// Application defines the total amount of bond shares and their exchange rate to
+// Platform defines the total amount of bond shares and their exchange rate to
 // coins. Slashing results in a decrease in the exchange rate, allowing correct
 // calculation of future undelegations without iterating over delegators.
 // When coins are delegated to this validator, the validator is credited with a
 // delegation whose number of bond shares is based on the amount of coins
 // delegated divided by the current exchange rate. Voting power can be
 // calculated as total bonded shares multiplied by exchange rate.
-message ProtoApplication {
+message ProtoPlatform {
 	option (gogoproto.equal) = true;
 	option (gogoproto.goproto_getters) = false;
 

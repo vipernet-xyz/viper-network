@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 
 func TestIsUniqueProof(t *testing.T) {
 	h := SessionHeader{
-		ApplicationPubKey:  "0",
+		PlatformPubKey:     "0",
 		Chain:              "0001",
 		SessionBlockHeight: 0,
 	}
@@ -55,12 +55,12 @@ func TestIsUniqueProof(t *testing.T) {
 }
 
 func TestAllEvidence_AddGetEvidence(t *testing.T) {
-	appPubKey := getRandomPubKey().RawString()
+	platformPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{0001})
 	header := SessionHeader{
-		ApplicationPubKey:  appPubKey,
+		PlatformPubKey:     platformPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
@@ -71,10 +71,10 @@ func TestAllEvidence_AddGetEvidence(t *testing.T) {
 		ServicerPubKey:     servicerPubKey,
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -83,12 +83,12 @@ func TestAllEvidence_AddGetEvidence(t *testing.T) {
 }
 
 func TestAllEvidence_DeleteEvidence(t *testing.T) {
-	appPubKey := getRandomPubKey().RawString()
+	platformPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{0001})
 	header := SessionHeader{
-		ApplicationPubKey:  appPubKey,
+		PlatformPubKey:     platformPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
@@ -99,10 +99,10 @@ func TestAllEvidence_DeleteEvidence(t *testing.T) {
 		RequestHash:        header.HashString(), // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -114,17 +114,17 @@ func TestAllEvidence_DeleteEvidence(t *testing.T) {
 }
 
 func TestAllEvidence_GetTotalProofs(t *testing.T) {
-	appPubKey := getRandomPubKey().RawString()
+	platformPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{0001})
 	header := SessionHeader{
-		ApplicationPubKey:  appPubKey,
+		PlatformPubKey:     platformPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
 	header2 := SessionHeader{
-		ApplicationPubKey:  appPubKey,
+		PlatformPubKey:     platformPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 101,
 	}
@@ -135,10 +135,10 @@ func TestAllEvidence_GetTotalProofs(t *testing.T) {
 		RequestHash:        header.HashString(), // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -149,10 +149,10 @@ func TestAllEvidence_GetTotalProofs(t *testing.T) {
 		RequestHash:        header.HashString(), // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -200,7 +200,7 @@ func TestClearCache(t *testing.T) {
 }
 
 func NewTestSession(t *testing.T, chain string) Session {
-	appPubKey := getRandomPubKey()
+	platformPubKey := getRandomPubKey()
 	var vals []sdk.Address
 	for i := 0; i < 5; i++ {
 		nodePubKey := getRandomPubKey()
@@ -208,11 +208,11 @@ func NewTestSession(t *testing.T, chain string) Session {
 	}
 	return Session{
 		SessionHeader: SessionHeader{
-			ApplicationPubKey:  appPubKey.RawString(),
+			PlatformPubKey:     platformPubKey.RawString(),
 			Chain:              chain,
 			SessionBlockHeight: 1,
 		},
-		SessionKey:   appPubKey.RawBytes(), // fake
+		SessionKey:   platformPubKey.RawBytes(), // fake
 		SessionNodes: vals,
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
-	appsType "github.com/vipernet-xyz/viper-network/x/apps/types"
+	platformsType "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -257,7 +257,7 @@ func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount s
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
-	msg := appsType.MsgStake{
+	msg := platformsType.MsgStake{
 		PubKey: kp.PublicKey,
 		Chains: chains,
 		Value:  amount,
@@ -285,7 +285,7 @@ func UnstakeClient(fromAddr, passphrase, chainID string, fees int64, legacyCodec
 	if err != nil {
 		return nil, err
 	}
-	msg := appsType.MsgBeginUnstake{
+	msg := platformsType.MsgBeginUnstake{
 		Address: fa,
 	}
 	err = msg.ValidateBasic()

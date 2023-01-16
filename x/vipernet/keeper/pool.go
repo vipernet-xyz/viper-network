@@ -10,9 +10,9 @@ func (k Keeper) StakeDenom(ctx sdk.Ctx) (res string) {
 	return
 }
 
-// "GetAppStakedTokens" - Returns the total number of staked tokens in the apps module
-func (k Keeper) GetAppStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
-	res = k.appKeeper.GetStakedTokens(ctx)
+// "GetPlatformStakedTokens" - Returns the total number of staked tokens in the platforms module
+func (k Keeper) GetPlatformStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
+	res = k.platformKeeper.GetStakedTokens(ctx)
 	return
 }
 
@@ -28,8 +28,8 @@ func (k Keeper) GetTotalTokens(ctx sdk.Ctx) (res sdk.BigInt) {
 	return
 }
 
-// "GetTotalStakedTokens" - Returns the summation of app staked tokens and node staked tokens
+// "GetTotalStakedTokens" - Returns the summation of platform staked tokens and node staked tokens
 func (k Keeper) GetTotalStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
-	res = k.GetNodesStakedTokens(ctx).Add(k.GetAppStakedTokens(ctx))
+	res = k.GetNodesStakedTokens(ctx).Add(k.GetPlatformStakedTokens(ctx))
 	return
 }

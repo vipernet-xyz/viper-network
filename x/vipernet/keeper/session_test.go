@@ -11,19 +11,19 @@ import (
 
 func TestKeeper_Dispatch(t *testing.T) {
 	ctx, _, _, _, keeper, keys, _ := createTestInput(t, false)
-	appPrivateKey := getRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPrivateKey := getRandomPrivateKey()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
 	bitcoin := hex.EncodeToString([]byte{02})
 	// create a session header
 	validHeader := types.SessionHeader{
-		ApplicationPubKey:  appPubKey,
+		PlatformPubKey:     platformPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 976,
 	}
 	// create an invalid session header
 	invalidHeader := types.SessionHeader{
-		ApplicationPubKey:  appPubKey,
+		PlatformPubKey:     platformPubKey,
 		Chain:              bitcoin,
 		SessionBlockHeight: 976,
 	}
@@ -38,7 +38,7 @@ func TestKeeper_Dispatch(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, res.Session.SessionHeader.Chain, ethereum)
 	assert.Equal(t, res.Session.SessionHeader.SessionBlockHeight, int64(976))
-	assert.Equal(t, res.Session.SessionHeader.ApplicationPubKey, appPubKey)
+	assert.Equal(t, res.Session.SessionHeader.PlatformPubKey, platformPubKey)
 	assert.Equal(t, res.Session.SessionHeader, validHeader)
 	assert.Len(t, res.Session.SessionNodes, 5)
 	_, err = keeper.HandleDispatch(mockCtx, invalidHeader)

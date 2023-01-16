@@ -22,7 +22,7 @@ type AppCreator func(log.Logger, dbm.DB, io.Writer) *ViperCoreApp
 
 func NewClient(c config, creator AppCreator) (*node.Node, *ViperCoreApp, error) {
 	// setup the database
-	appDB, err := OpenApplicationDB(GlobalConfig)
+	appDB, err := OpenPlatformDB(GlobalConfig)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -65,9 +65,9 @@ func NewClient(c config, creator AppCreator) (*node.Node, *ViperCoreApp, error) 
 	return tmNode, app, nil
 }
 
-func OpenApplicationDB(config sdk.Config) (dbm.DB, error) {
+func OpenPlatformDB(config sdk.Config) (dbm.DB, error) {
 	dataDir := filepath.Join(config.TendermintConfig.RootDir, GlobalConfig.TendermintConfig.DBPath)
-	return sdk.NewLevelDB(sdk.ApplicationDBName, dataDir, config.TendermintConfig.LevelDBOptions.ToGoLevelDBOpts())
+	return sdk.NewLevelDB(sdk.PlatformDBName, dataDir, config.TendermintConfig.LevelDBOptions.ToGoLevelDBOpts())
 }
 
 func OpenTxIndexerDB(config sdk.Config) (dbm.DB, error) {

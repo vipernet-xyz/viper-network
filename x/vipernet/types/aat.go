@@ -39,7 +39,7 @@ func (a AAT) Validate() error {
 	if err := a.ValidateMessage(); err != nil {
 		return err
 	}
-	// check the app signature of the aat
+	// check the platform signature of the aat
 	if err := a.ValidateSignature(); err != nil {
 		return err
 	}
@@ -50,10 +50,10 @@ func (a AAT) Validate() error {
 func (a AAT) Bytes() []byte {
 	// using standard json bz
 	b, err := json.Marshal(AAT{
-		ApplicationSignature: "",
-		ApplicationPublicKey: a.ApplicationPublicKey,
-		ClientPublicKey:      a.ClientPublicKey,
-		Version:              a.Version,
+		PlatformSignature: "",
+		PlatformPublicKey: a.PlatformPublicKey,
+		ClientPublicKey:   a.ClientPublicKey,
+		Version:           a.Version,
 	})
 	if err != nil {
 		log.Fatal(fmt.Sprintf("an error occured hashing the aat:\n%v", err))
@@ -87,11 +87,11 @@ func (a AAT) ValidateVersion() error {
 
 // "ValidateMessage" - Confirms the message field of the AAT
 func (a AAT) ValidateMessage() error {
-	// check for valid application public key
-	if len(a.ApplicationPublicKey) == 0 {
-		return MissingApplicationPublicKeyError
+	// check for valid platformlication public key
+	if len(a.PlatformPublicKey) == 0 {
+		return MissingPlatformPublicKeyError
 	}
-	if err := PubKeyVerification(a.ApplicationPublicKey); err != nil {
+	if err := PubKeyVerification(a.PlatformPublicKey); err != nil {
 		return err
 	}
 	// check if client public key is valid
@@ -109,7 +109,7 @@ func (a AAT) ValidateSignature() error {
 	// check for valid signature
 	messageHash := a.HashString()
 	// verifies the signature with the message of the AAT
-	if err := SignatureVerification(a.ApplicationPublicKey, messageHash, a.ApplicationSignature); err != nil {
+	if err := SignatureVerification(a.PlatformPublicKey, messageHash, a.PlatformSignature); err != nil {
 		return InvalidTokenSignatureErorr
 	}
 	return nil

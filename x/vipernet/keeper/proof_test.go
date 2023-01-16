@@ -8,13 +8,13 @@ import (
 	"time"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKeeper_ValidateProof(t *testing.T) { // happy path only todo
+func TestKeeper_ValidateProof(t *testing.T) { // hplatformy path only todo
 	relaysDone := 8
 	maxRelays := int64(5)
 	ctx, _, _, _, keeper, keys, _ := createTestInput(t, false)
@@ -38,7 +38,7 @@ func TestKeeper_ValidateProof(t *testing.T) { // happy path only todo
 	mockCtx := &Ctx{}
 	mockCtx.On("KVStore", keeper.storeKey).Return(ctx.KVStore(keeper.storeKey))
 	mockCtx.On("KVStore", keys[sdk.ParamsKey.Name()]).Return(ctx.KVStore(keys[sdk.ParamsKey.Name()]))
-	mockCtx.On("KVStore", keys[appsTypes.StoreKey]).Return(ctx.KVStore(keys[appsTypes.StoreKey]))
+	mockCtx.On("KVStore", keys[platformsTypes.StoreKey]).Return(ctx.KVStore(keys[platformsTypes.StoreKey]))
 	mockCtx.On("Logger").Return(ctx.Logger())
 	mockCtx.On("BlockHeight").Return(ctx.BlockHeight())
 	mockCtx.On("PrevCtx", header.SessionBlockHeight).Return(ctx, nil)
@@ -73,7 +73,7 @@ func TestKeeper_GetPsuedorandomIndex(t *testing.T) {
 	for _, relays := range totalRelays {
 		ctx, _, _, _, keeper, keys, _ := createTestInput(t, false)
 		header := types.SessionHeader{
-			ApplicationPubKey:  "asdlfj",
+			PlatformPubKey:     "asdlfj",
 			Chain:              "lkajsdf",
 			SessionBlockHeight: 1,
 		}

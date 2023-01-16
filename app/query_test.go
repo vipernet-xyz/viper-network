@@ -15,9 +15,9 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	apps "github.com/vipernet-xyz/viper-network/x/apps"
-	types3 "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
+	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
+	types3 "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -205,8 +205,8 @@ func TestQueryApps(t *testing.T) {
 		memoryNodeFn func(t *testing.T, genesisState []byte) (tendermint *node.Node, keybase keys.Keybase, cleanup func())
 		*upgrades
 	}{
-		{name: "query apps from amino account with amino codec", memoryNodeFn: NewInMemoryTendermintNodeAmino, upgrades: &upgrades{codecUpgrade: codecUpgrade{false, 7000}}},
-		{name: "query apps from proto account with proto cdec", memoryNodeFn: NewInMemoryTendermintNodeProto, upgrades: &upgrades{codecUpgrade: codecUpgrade{true, 2}}},
+		{name: "query platforms from amino account with amino codec", memoryNodeFn: NewInMemoryTendermintNodeAmino, upgrades: &upgrades{codecUpgrade: codecUpgrade{false, 7000}}},
+		{name: "query platforms from proto account with proto cdec", memoryNodeFn: NewInMemoryTendermintNodeProto, upgrades: &upgrades{codecUpgrade: codecUpgrade{true, 2}}},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
@@ -224,12 +224,12 @@ func TestQueryApps(t *testing.T) {
 
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = apps.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = platforms.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for tx
-			got, err := PCA.QueryApps(PCA.LastBlockHeight(), types3.QueryApplicationsWithOpts{
+			got, err := PCA.QueryApps(PCA.LastBlockHeight(), types3.QueryPlatformsWithOpts{
 				Page:  1,
 				Limit: 1,
 			})
@@ -239,7 +239,7 @@ func TestQueryApps(t *testing.T) {
 				t.Fatalf("couldn't convert arg to slice")
 			}
 			assert.Equal(t, 1, slice.Len())
-			got, err = PCA.QueryApps(PCA.LastBlockHeight(), types3.QueryApplicationsWithOpts{
+			got, err = PCA.QueryApps(PCA.LastBlockHeight(), types3.QueryPlatformsWithOpts{
 				Page:  2,
 				Limit: 1,
 			})
@@ -249,7 +249,7 @@ func TestQueryApps(t *testing.T) {
 				t.Fatalf("couldn't convert arg to slice")
 			}
 			assert.Equal(t, 1, slice.Len())
-			got, err = PCA.QueryApps(PCA.LastBlockHeight(), types3.QueryApplicationsWithOpts{
+			got, err = PCA.QueryApps(PCA.LastBlockHeight(), types3.QueryPlatformsWithOpts{
 				Page:  1,
 				Limit: 2,
 			})
@@ -645,7 +645,7 @@ func TestQueryStakedApp(t *testing.T) {
 			var chains = []string{"0001"}
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = apps.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = platforms.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -675,16 +675,16 @@ func TestRelayGenerator(t *testing.T) {
 	var appPrivateKey crypto.Ed25519PrivateKey
 	copy(appPrivateKey[:], apkBz)
 	aat := types.AAT{
-		Version:              "0.0.1",
-		ApplicationPublicKey: appPrivateKey.PublicKey().RawString(),
-		ClientPublicKey:      appPrivateKey.PublicKey().RawString(),
-		ApplicationSignature: "",
+		Version:           "0.0.1",
+		PlatformPublicKey: appPrivateKey.PublicKey().RawString(),
+		ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
+		PlatformSignature: "",
 	}
 	sig, err := appPrivateKey.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
-	aat.ApplicationSignature = hex.EncodeToString(sig)
+	aat.PlatformSignature = hex.EncodeToString(sig)
 	payload := types.Payload{
 		Data: query,
 	}
@@ -747,16 +747,16 @@ func TestQueryRelay(t *testing.T) {
 			assert.Nil(t, err)
 			// setup AAT
 			aat := types.AAT{
-				Version:              "0.0.1",
-				ApplicationPublicKey: appPrivateKey.PublicKey().RawString(),
-				ClientPublicKey:      appPrivateKey.PublicKey().RawString(),
-				ApplicationSignature: "",
+				Version:           "0.0.1",
+				PlatformPublicKey: appPrivateKey.PublicKey().RawString(),
+				ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
+				PlatformSignature: "",
 			}
 			sig, err := appPrivateKey.Sign(aat.Hash())
 			if err != nil {
 				panic(err)
 			}
-			aat.ApplicationSignature = hex.EncodeToString(sig)
+			aat.PlatformSignature = hex.EncodeToString(sig)
 			payload := types.Payload{
 				Data:    expectedRequest,
 				Headers: map[string]string{headerKey: headerVal},
@@ -794,7 +794,7 @@ func TestQueryRelay(t *testing.T) {
 			select {
 			case <-evtChan:
 				inv, err := types.GetEvidence(types.SessionHeader{
-					ApplicationPubKey:  aat.ApplicationPublicKey,
+					PlatformPubKey:     aat.PlatformPublicKey,
 					Chain:              relay.Proof.Blockchain,
 					SessionBlockHeight: relay.Proof.SessionBlockHeight,
 				}, types.RelayEvidence, sdk.NewInt(10000))
@@ -832,7 +832,7 @@ func TestQueryDispatch(t *testing.T) {
 			assert.Nil(t, err)
 			// Setup HandleDispatch Request
 			key := types.SessionHeader{
-				ApplicationPubKey:  appPrivateKey.PublicKey().RawString(),
+				PlatformPubKey:     appPrivateKey.PublicKey().RawString(),
 				Chain:              sdk.PlaceholderHash,
 				SessionBlockHeight: 1,
 			}

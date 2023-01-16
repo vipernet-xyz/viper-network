@@ -41,7 +41,7 @@ func (msg MsgClaim) ValidateBasic() sdk.Error {
 		return NewEmptyProofsError(ModuleName)
 	}
 	// validate the public key format
-	if err := PubKeyVerification(msg.SessionHeader.ApplicationPubKey); err != nil {
+	if err := PubKeyVerification(msg.SessionHeader.PlatformPubKey); err != nil {
 		return NewPubKeyError(ModuleName, err)
 	}
 	// validate the address format
@@ -88,7 +88,7 @@ func (msg MsgClaim) GetRecipient() sdk.Address {
 	return nil
 }
 
-// "IsEmpty" - Returns true if the EvidenceType == 0, this should only happen on initialization and MsgClaim{} calls
+// "IsEmpty" - Returns true if the EvidenceType == 0, this should only hplatformen on initialization and MsgClaim{} calls
 func (msg MsgClaim) IsEmpty() bool {
 	return msg.EvidenceType == 0
 }

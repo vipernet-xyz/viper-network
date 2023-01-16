@@ -201,7 +201,7 @@ func (k Keeper) IterateAndExecuteOverVals(
 	}
 }
 
-// Validator - wrapper for GetValidator call
+// Validator - wrplatformer for GetValidator call
 func (k Keeper) Validator(ctx sdk.Ctx, address sdk.Address) exported.ValidatorI {
 	val, found := k.GetValidator(ctx, address)
 	if !found {

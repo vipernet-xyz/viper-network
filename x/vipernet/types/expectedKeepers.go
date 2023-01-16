@@ -3,13 +3,13 @@ package types
 import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	appexported "github.com/vipernet-xyz/viper-network/x/apps/exported"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
+	platformexported "github.com/vipernet-xyz/viper-network/x/platforms/exported"
 	nodesexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
 type PosKeeper interface {
-	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, appAddress sdk.Address) sdk.BigInt
+	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, platformAddress sdk.Address) sdk.BigInt
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
 	Validator(ctx sdk.Ctx, addr sdk.Address) nodesexported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
@@ -22,12 +22,12 @@ type PosKeeper interface {
 	GetValidatorsByChain(ctx sdk.Ctx, networkID string) (validators []sdk.Address, total int)
 }
 
-type AppsKeeper interface {
+type PlatformsKeeper interface {
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
-	Application(ctx sdk.Ctx, addr sdk.Address) appexported.ApplicationI
-	AllApplications(ctx sdk.Ctx) (applications []appexported.ApplicationI)
+	Platform(ctx sdk.Ctx, addr sdk.Address) platformexported.PlatformI
+	AllPlatforms(ctx sdk.Ctx) (platformlications []platformexported.PlatformI)
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
-	JailApplication(ctx sdk.Ctx, addr sdk.Address)
+	JailPlatform(ctx sdk.Ctx, addr sdk.Address)
 }
 
 type ViperKeeper interface {

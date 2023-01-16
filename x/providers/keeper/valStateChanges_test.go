@@ -76,7 +76,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 	nilOutputAddress := val
 	nilOutputAddress.OutputAddress = nil
 	nilOutputAddress.StakedTokens = stakeAmount
-	//same app no change no fail
+	//same platform no change no fail
 	updateNothingval := val
 	updateNothingval.StakedTokens = stakeAmount
 	//new staked amount doesn't push into the next bin
@@ -213,7 +213,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 			// see if the changes stuck
 			got, _ := keeper.GetValidator(context, tt.origApp.Address)
 			if !got.Equals(tt.want) {
-				t.Fatalf("Got app %s\nWanted app %s", got.String(), tt.want.String())
+				t.Fatalf("Got platform %s\nWanted platform %s", got.String(), tt.want.String())
 			}
 		})
 
@@ -248,7 +248,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 	nilOutputAddress := val
 	nilOutputAddress.OutputAddress = nil
 	nilOutputAddress.StakedTokens = stakeAmount
-	//same app no change no fail
+	//same platform no change no fail
 	updateNothingval := val
 	updateNothingval.StakedTokens = stakeAmount
 	tests := []struct {
@@ -345,7 +345,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 			// see if the changes stuck
 			got, _ := keeper.GetValidator(context, tt.origApp.Address)
 			if !got.Equals(tt.want) {
-				t.Fatalf("Got app %s\nWanted app %s", got.String(), tt.want.String())
+				t.Fatalf("Got platform %s\nWanted platform %s", got.String(), tt.want.String())
 			}
 		})
 

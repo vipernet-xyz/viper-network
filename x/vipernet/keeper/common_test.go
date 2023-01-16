@@ -20,12 +20,12 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
-	apps "github.com/vipernet-xyz/viper-network/x/apps"
-	appsKeeper "github.com/vipernet-xyz/viper-network/x/apps/keeper"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
+	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
@@ -45,8 +45,8 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
 	)
 )
 
@@ -79,7 +79,7 @@ func makeTestCodec() *codec.Codec {
 }
 
 // : deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Validator, []appsTypes.Application, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
+func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Validator, []platformsTypes.Platform, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
 	sdk.VbCCache = sdk.NewCache(1)
 	initPower := int64(100000000000)
 	nAccs := int64(5)
@@ -100,20 +100,20 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 	nodesKey := sdk.NewKVStoreKey(nodesTypes.StoreKey)
-	appsKey := sdk.NewKVStoreKey(appsTypes.StoreKey)
+	platformsKey := sdk.NewKVStoreKey(platformsTypes.StoreKey)
 	viperKey := sdk.NewKVStoreKey(types.StoreKey)
 
 	keys := make(map[string]*sdk.KVStoreKey)
 	keys["params"] = keyParams
 	keys["pos"] = nodesKey
-	keys["application"] = appsKey
+	keys["platformlication"] = platformsKey
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(nodesKey, sdk.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(appsKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(platformsKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(viperKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
 	err = ms.LoadLatestVersion()
@@ -138,7 +138,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
-		appsTypes.StakedPoolName:        {authentication.Burner, authentication.Staking, authentication.Minter},
+		platformsTypes.StakedPoolName:   {authentication.Burner, authentication.Staking, authentication.Minter},
 		nodesTypes.StakedPoolName:       {authentication.Burner, authentication.Staking},
 		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
 	}
@@ -160,27 +160,27 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 	types.InitConfig(&hb, log.NewTMLogger(os.Stdout), sdk.DefaultTestingViperConfig())
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	nodesSubspace := sdk.NewSubspace(nodesTypes.DefaultParamspace)
-	appSubspace := sdk.NewSubspace(appsTypes.DefaultParamspace)
+	platformSubspace := sdk.NewSubspace(platformsTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(types.DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, authSubspace, maccPerms)
 	nk := nodesKeeper.NewKeeper(cdc, nodesKey, ak, nodesSubspace, nodesTypes.ModuleName)
-	appk := appsKeeper.NewKeeper(cdc, appsKey, nk, ak, nil, appSubspace, appsTypes.ModuleName)
-	appk.SetApplication(ctx, getTestApplication())
-	keeper := NewKeeper(viperKey, cdc, ak, nk, appk, &hb, viperSubspace)
-	appk.ViperKeeper = keeper
+	platformk := platformsKeeper.NewKeeper(cdc, platformsKey, nk, ak, nil, platformSubspace, platformsTypes.ModuleName)
+	platformk.SetPlatform(ctx, getTestPlatform())
+	keeper := NewKeeper(viperKey, cdc, ak, nk, platformk, &hb, viperSubspace)
+	platformk.ViperKeeper = keeper
 	assert.Nil(t, err)
 	moduleManager := module.NewManager(
-		authentication.NewAppModule(ak),
-		providers.NewAppModule(nk),
-		apps.NewAppModule(appk),
+		authentication.NewPlatformModule(ak),
+		providers.NewPlatformModule(nk),
+		platforms.NewPlatformModule(platformk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	ap := createTestApps(ctx, int(nAccs), sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64)), appk, ak)
+	ap := createTestPlatforms(ctx, int(nAccs), sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64)), platformk, ak)
 	vals := createTestValidators(ctx, int(nAccs), sdk.ZeroInt(), &nk, ak, kb)
-	appk.SetParams(ctx, appsTypes.DefaultParams())
+	platformk.SetParams(ctx, platformsTypes.DefaultParams())
 	nk.SetParams(ctx, nodesTypes.DefaultParams())
 	defaultViperParams := types.DefaultParams()
 	defaultViperParams.SupportedBlockchains = []string{getTestSupportedBlockchain()}
@@ -189,9 +189,9 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []nodesTypes.Valida
 }
 
 var (
-	testApp            appsTypes.Application
-	testAppPrivateKey  crypto.PrivateKey
-	testSupportedChain string
+	testPlatform           platformsTypes.Platform
+	testPlatformPrivateKey crypto.PrivateKey
+	testSupportedChain     string
 )
 
 func getTestSupportedBlockchain() string {
@@ -201,17 +201,17 @@ func getTestSupportedBlockchain() string {
 	return testSupportedChain
 }
 
-func getTestApplicationPrivateKey() crypto.PrivateKey {
-	if testAppPrivateKey == nil {
-		testAppPrivateKey = getRandomPrivateKey()
+func getTestPlatformPrivateKey() crypto.PrivateKey {
+	if testPlatformPrivateKey == nil {
+		testPlatformPrivateKey = getRandomPrivateKey()
 	}
-	return testAppPrivateKey
+	return testPlatformPrivateKey
 }
 
-func getTestApplication() appsTypes.Application {
-	if testApp.Address == nil {
-		pk := getTestApplicationPrivateKey().PublicKey()
-		testApp = appsTypes.Application{
+func getTestPlatform() platformsTypes.Platform {
+	if testPlatform.Address == nil {
+		pk := getTestPlatformPrivateKey().PublicKey()
+		testPlatform = platformsTypes.Platform{
 			Address:                 sdk.Address(pk.Address()),
 			PublicKey:               pk,
 			Jailed:                  false,
@@ -222,7 +222,7 @@ func getTestApplication() appsTypes.Application {
 			UnstakingCompletionTime: time.Time{},
 		}
 	}
-	return testApp
+	return testPlatform
 }
 
 // : unparam deadcode unused
@@ -310,19 +310,19 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *nod
 	return
 }
 
-func createTestApps(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak appsKeeper.Keeper, sk authentication.Keeper) (accs appsTypes.Applications) {
+func createTestPlatforms(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak platformsKeeper.Keeper, sk authentication.Keeper) (accs platformsTypes.Platforms) {
 	ethereum := hex.EncodeToString([]byte{01})
 	for i := 0; i < numAccs; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey := privKey.PublicKey()
 		addr := sdk.Address(pubKey.Address())
-		app := appsTypes.NewApplication(addr, pubKey, []string{ethereum}, valCoins)
+		platform := platformsTypes.NewPlatform(addr, pubKey, []string{ethereum}, valCoins)
 		// set the vals from the data
 		// calculate relays
-		app.MaxRelays = ak.CalculateAppRelays(ctx, app)
-		ak.SetApplication(ctx, app)
-		ak.SetStakedApplication(ctx, app)
-		accs = append(accs, app)
+		platform.MaxRelays = ak.CalculatePlatformRelays(ctx, platform)
+		ak.SetPlatform(ctx, platform)
+		ak.SetStakedPlatform(ctx, platform)
+		accs = append(accs, platform)
 	}
 	stakedTokens := sdk.NewInt(int64(numAccs)).Mul(valCoins)
 	// take the staked amount and create the corresponding coins object
@@ -331,7 +331,7 @@ func createTestApps(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak appsKeeper
 	stakedPool := ak.GetStakedPool(ctx)
 	// if the stakedPool is nil
 	if stakedPool == nil {
-		panic(fmt.Sprintf("%s module account has not been set", appsTypes.StakedPoolName))
+		panic(fmt.Sprintf("%s module account has not been set", platformsTypes.StakedPoolName))
 	}
 	// add coins if not provided on genesis (there's an option to provide the coins in genesis)
 	if stakedPool.GetCoins().IsZero() {
@@ -342,7 +342,7 @@ func createTestApps(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak appsKeeper
 	} else {
 		// if it is provided in the genesis file then ensure the two are equal
 		if !stakedPool.GetCoins().IsEqual(stakedCoins) {
-			panic(fmt.Sprintf("%s module account total does not equal the amount in each app account", appsTypes.StakedPoolName))
+			panic(fmt.Sprintf("%s module account total does not equal the amount in each platform account", platformsTypes.StakedPoolName))
 		}
 	}
 	return
@@ -366,7 +366,7 @@ func simulateRelays(t *testing.T, k Keeper, ctx *sdk.Ctx, maxRelays int) (npk cr
 	ethereum := hex.EncodeToString([]byte{01})
 	clientKey := getRandomPrivateKey()
 	validHeader = types.SessionHeader{
-		ApplicationPubKey:  getTestApplication().PublicKey.RawString(),
+		PlatformPubKey:     getTestPlatform().PublicKey.RawString(),
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
@@ -377,28 +377,28 @@ func simulateRelays(t *testing.T, k Keeper, ctx *sdk.Ctx, maxRelays int) (npk cr
 
 	// NOTE Add a minimum of 5 proofs to memInvoice to be able to create a merkle tree
 	for j := 0; j < maxRelays; j++ {
-		proof := createProof(getTestApplicationPrivateKey(), clientKey, npk, ethereum, j)
+		proof := createProof(getTestPlatformPrivateKey(), clientKey, npk, ethereum, j)
 		types.SetProof(validHeader, types.RelayEvidence, proof, sdk.NewInt(100000))
 	}
 	mockCtx := new(Ctx)
 	mockCtx.On("KVStore", k.storeKey).Return((*ctx).KVStore(k.storeKey))
 	mockCtx.On("PrevCtx", validHeader.SessionBlockHeight).Return(*ctx, nil)
 	mockCtx.On("Logger").Return((*ctx).Logger())
-	keys = simulateRelayKeys{getTestApplicationPrivateKey(), clientKey}
+	keys = simulateRelayKeys{getTestPlatformPrivateKey(), clientKey}
 	return
 }
 func createProof(private, client crypto.PrivateKey, npk crypto.PublicKey, chain string, entropy int) types.Proof {
 	aat := types.AAT{
-		Version:              "0.0.1",
-		ApplicationPublicKey: private.PublicKey().RawString(),
-		ClientPublicKey:      client.PublicKey().RawString(),
-		ApplicationSignature: "",
+		Version:           "0.0.1",
+		PlatformPublicKey: private.PublicKey().RawString(),
+		ClientPublicKey:   client.PublicKey().RawString(),
+		PlatformSignature: "",
 	}
 	sig, err := private.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
-	aat.ApplicationSignature = hex.EncodeToString(sig)
+	aat.PlatformSignature = hex.EncodeToString(sig)
 	proof := types.RelayProof{
 		Entropy:            int64(entropy + 1),
 		RequestHash:        aat.HashString(), // fake

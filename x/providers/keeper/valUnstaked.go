@@ -54,7 +54,7 @@ func (k Keeper) DeleteWaitingValidator(ctx sdk.Ctx, valAddr sdk.Address) {
 	_ = store.Delete(types.KeyForValWaitingToBeginUnstaking(valAddr))
 }
 
-// SetUnstakingValidator - Store a validator address to the appropriate position in the unstaking queue
+// SetUnstakingValidator - Store a validator address to the platformropriate position in the unstaking queue
 func (k Keeper) SetUnstakingValidator(ctx sdk.Ctx, val types.Validator) {
 	validators := k.getUnstakingValidators(ctx, val.UnstakingCompletionTime)
 	validators = append(validators, val.Address)

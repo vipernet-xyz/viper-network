@@ -11,14 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAppModule_Name(t *testing.T) {
+func TestPlatformModule_Name(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	am := NewAppModule(k)
-	assert.Equal(t, am.Name(), types.ModuleName)
-	assert.Equal(t, am.Name(), types.ModuleName)
+	pm := NewPlatformModule(k)
+	assert.Equal(t, pm.Name(), types.ModuleName)
+	assert.Equal(t, pm.Name(), types.ModuleName)
 }
 
-func TestAppModule_InitExportGenesis(t *testing.T) {
+func TestPlatformModule_InitExportGenesis(t *testing.T) {
 	p := types.Params{
 		SessionNodeCount:      10,
 		ClaimSubmissionWindow: 22,
@@ -30,56 +30,56 @@ func TestAppModule_InitExportGenesis(t *testing.T) {
 		Claims: []types.MsgClaim(nil),
 	}
 	ctx, _, _, k, _ := createTestInput(t, false)
-	am := NewAppModule(k)
+	pm := NewPlatformModule(k)
 	data, err := types.ModuleCdc.MarshalJSON(genesisState)
 	assert.Nil(t, err)
-	am.InitGenesis(ctx, data)
-	genesisbz := am.ExportGenesis(ctx)
+	pm.InitGenesis(ctx, data)
+	genesisbz := pm.ExportGenesis(ctx)
 	var genesis types.GenesisState
 	err = types.ModuleCdc.UnmarshalJSON(genesisbz, &genesis)
 	assert.Nil(t, err)
 	assert.Equal(t, genesis, genesisState)
-	am.InitGenesis(ctx, nil)
+	pm.InitGenesis(ctx, nil)
 	var genesis2 types.GenesisState
-	genesis2bz := am.ExportGenesis(ctx)
+	genesis2bz := pm.ExportGenesis(ctx)
 	err = types.ModuleCdc.UnmarshalJSON(genesis2bz, &genesis2)
 	assert.Equal(t, genesis2, types.DefaultGenesisState())
 	assert.Nil(t, err)
 }
 
-func TestAppModule_NewQuerierHandler(t *testing.T) {
+func TestPlatformModule_NewQuerierHandler(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	am := NewAppModule(k)
-	assert.Equal(t, reflect.ValueOf(keeper.NewQuerier(k)).String(), reflect.ValueOf(am.NewQuerierHandler()).String())
+	pm := NewPlatformModule(k)
+	assert.Equal(t, reflect.ValueOf(keeper.NewQuerier(k)).String(), reflect.ValueOf(pm.NewQuerierHandler()).String())
 }
 
-func TestAppModule_Route(t *testing.T) {
+func TestPlatformModule_Route(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	am := NewAppModule(k)
-	assert.Equal(t, am.Route(), types.RouterKey)
+	pm := NewPlatformModule(k)
+	assert.Equal(t, pm.Route(), types.RouterKey)
 }
 
-func TestAppModule_QuerierRoute(t *testing.T) {
+func TestPlatformModule_QuerierRoute(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	am := NewAppModule(k)
-	assert.Equal(t, am.QuerierRoute(), types.ModuleName)
+	pm := NewPlatformModule(k)
+	assert.Equal(t, pm.QuerierRoute(), types.ModuleName)
 }
 
-//func TestAppModule_EndBlock(t *testing.T) {
+//func TestPlatformModule_EndBlock(t *testing.T) {
 //	ctx, _, _, k, _ := createTestInput(t, false)
-//	am := NewAppModule(k)
-//	assert.Equal(t, am.EndBlock(ctx, abci.RequestEndBlock{}), []abci.ValidatorUpdate{})
+//	pm := NewPlatformModule(k)
+//	assert.Equal(t, pm.EndBlock(ctx, abci.RequestEndBlock{}), []abci.ValidatorUpdate{})
 //}
 
-func TestAppModuleBasic_DefaultGenesis(t *testing.T) {
+func TestPlatformModuleBasic_DefaultGenesis(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	am := NewAppModule(k)
-	assert.Equal(t, []byte(am.DefaultGenesis()), []byte(types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())))
+	pm := NewPlatformModule(k)
+	assert.Equal(t, []byte(pm.DefaultGenesis()), []byte(types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())))
 }
 
-func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
+func TestPlatformModuleBasic_ValidateGenesis(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	am := NewAppModule(k)
+	pm := NewPlatformModule(k)
 	p := types.Params{
 		SessionNodeCount:      10,
 		ClaimSubmissionWindow: 22,
@@ -104,6 +104,6 @@ func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
 	assert.Nil(t, err)
 	invalidBz, err := types.ModuleCdc.MarshalJSON(genesisState2)
 	assert.Nil(t, err)
-	assert.True(t, nil == am.ValidateGenesis(validBz))
-	assert.False(t, nil == am.ValidateGenesis(invalidBz))
+	assert.True(t, nil == pm.ValidateGenesis(validBz))
+	assert.False(t, nil == pm.ValidateGenesis(invalidBz))
 }

@@ -6,13 +6,13 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
-	apps "github.com/vipernet-xyz/viper-network/x/apps"
-	appsKeeper "github.com/vipernet-xyz/viper-network/x/apps/keeper"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
+	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
@@ -37,7 +37,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	// setup subspaces
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	nodesSubspace := sdk.NewSubspace(nodesTypes.DefaultParamspace)
-	appsSubspace := sdk.NewSubspace(appsTypes.DefaultParamspace)
+	platformsSubspace := sdk.NewSubspace(platformsTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	// The AuthKeeper handles address -> account lookups
 	app.accountKeeper = authentication.NewKeeper(
@@ -54,15 +54,15 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		nodesSubspace,
 		nodesTypes.DefaultCodespace,
 	)
-	// The apps keeper handles viper core applications
-	app.appsKeeper = appsKeeper.NewKeeper(
+	// The platforms keeper handles viper core applications
+	app.platformsKeeper = platformsKeeper.NewKeeper(
 		app.cdc,
-		app.Keys[appsTypes.StoreKey],
+		app.Keys[platformsTypes.StoreKey],
 		app.nodesKeeper,
 		app.accountKeeper,
 		app.viperKeeper,
-		appsSubspace,
-		appsTypes.DefaultCodespace,
+		platformsSubspace,
+		platformsTypes.DefaultCodespace,
 	)
 	// The main viper core
 	app.viperKeeper = viperKeeper.NewKeeper(
@@ -70,7 +70,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.cdc,
 		app.accountKeeper,
 		app.nodesKeeper,
-		app.appsKeeper,
+		app.platformsKeeper,
 		hostedChains,
 		viperSubspace,
 	)
@@ -81,29 +81,29 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.Tkeys[viperTypes.StoreKey],
 		govTypes.DefaultCodespace,
 		app.accountKeeper,
-		authSubspace, nodesSubspace, appsSubspace, viperSubspace,
+		authSubspace, nodesSubspace, platformsSubspace, viperSubspace,
 	)
 	// add the keybase to the viper core keeper
 	app.viperKeeper.TmNode = tmClient
 	// give viper keeper to providers module for easy cache clearing
 	app.nodesKeeper.ViperKeeper = app.viperKeeper
-	app.appsKeeper.ViperKeeper = app.viperKeeper
+	app.platformsKeeper.ViperKeeper = app.viperKeeper
 	// setup module manager
 	app.mm = module.NewManager(
-		authentication.NewAppModule(app.accountKeeper),
-		providers.NewAppModule(app.nodesKeeper),
-		apps.NewAppModule(app.appsKeeper),
-		viper.NewAppModule(app.viperKeeper),
-		governance.NewAppModule(app.govKeeper),
+		authentication.NewPlatformModule(app.accountKeeper),
+		providers.NewPlatformModule(app.nodesKeeper),
+		platforms.NewPlatformModule(app.platformsKeeper),
+		viper.NewPlatformModule(app.viperKeeper),
+		governance.NewPlatformModule(app.govKeeper),
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(nodesTypes.ModuleName, appsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(nodesTypes.ModuleName, appsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(nodesTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(nodesTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		authentication.ModuleName,
 		nodesTypes.ModuleName,
-		appsTypes.ModuleName,
+		platformsTypes.ModuleName,
 		viperTypes.ModuleName,
 		governance.ModuleName,
 	)

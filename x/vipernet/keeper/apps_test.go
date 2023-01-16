@@ -6,23 +6,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetApp(t *testing.T) {
-	ctx, _, apps, _, keeper, _, _ := createTestInput(t, false)
-	a, found := keeper.GetApp(ctx, apps[0].Address)
+func TestGetPlatform(t *testing.T) {
+	ctx, _, platforms, _, keeper, _, _ := createTestInput(t, false)
+	a, found := keeper.GetPlatform(ctx, platforms[0].Address)
 	assert.True(t, found)
-	assert.Equal(t, a, apps[0])
+	assert.Equal(t, a, platforms[0])
 	randomAddr := getRandomValidatorAddress()
-	_, found = keeper.GetApp(ctx, randomAddr)
+	_, found = keeper.GetPlatform(ctx, randomAddr)
 	assert.False(t, found)
 }
 
-func TestGetAppFromPublicKey(t *testing.T) {
-	ctx, _, apps, _, keeper, _, _ := createTestInput(t, false)
-	pk := apps[0].PublicKey.RawString()
-	a, found := keeper.GetAppFromPublicKey(ctx, pk)
+func TestGetPlatformFromPublicKey(t *testing.T) {
+	ctx, _, platforms, _, keeper, _, _ := createTestInput(t, false)
+	pk := platforms[0].PublicKey.RawString()
+	a, found := keeper.GetPlatformFromPublicKey(ctx, pk)
 	assert.True(t, found)
-	assert.Equal(t, a, apps[0])
+	assert.Equal(t, a, platforms[0])
 	randomPubKey := getRandomPubKey().String()
-	_, found = keeper.GetAppFromPublicKey(ctx, randomPubKey)
+	_, found = keeper.GetPlatformFromPublicKey(ctx, randomPubKey)
 	assert.False(t, found)
 }

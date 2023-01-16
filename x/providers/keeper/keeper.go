@@ -93,10 +93,10 @@ func (k Keeper) ConvertState(ctx sdk.Ctx) {
 	validators := k.GetAllValidators(ctx)
 	waitingValidators := k.GetWaitingValidators(ctx)
 	prevProposer := k.GetPreviousProposer(ctx)
-	Application := k.GetApplication(ctx)
-	var prevStateValidatorPowers []types.PrevStatePowerMapping
+	Platform := k.GetPlatform(ctx)
+	var prevStateValidatorPowers []types.PrevStatePowerMplatforming
 	k.IterateAndExecuteOverPrevStateValsByPower(ctx, func(addr sdk.Address, power int64) (stop bool) {
-		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMapping{Address: addr, Power: power})
+		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMplatforming{Address: addr, Power: power})
 		return false
 	})
 	signingInfos := make([]types.ValidatorSigningInfo, 0)
@@ -116,7 +116,7 @@ func (k Keeper) ConvertState(ctx sdk.Ctx) {
 	k.SetWaitingValidators(ctx, waitingValidators)
 	k.SetValidators(ctx, validators)
 	k.SetPreviousProposer(ctx, prevProposer)
-	k.SetApplicationKey(ctx, Application)
+	k.SetPlatformKey(ctx, Platform)
 	k.SetValidatorSigningInfos(ctx, signingInfos)
 	k.Cdc.DisableUpgradeOverride()
 }

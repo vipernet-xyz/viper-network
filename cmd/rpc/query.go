@@ -16,7 +16,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	appTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
+	appTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/julienschmidt/httprouter"
@@ -51,8 +51,8 @@ type HeightAndValidatorOptsParams struct {
 }
 
 type HeightAndApplicaitonOptsParams struct {
-	Height int64                              `json:"height"`
-	Opts   appTypes.QueryApplicationsWithOpts `json:"opts"`
+	Height int64                           `json:"height"`
+	Opts   appTypes.QueryPlatformsWithOpts `json:"opts"`
 }
 
 type PaginateAddrParams struct {
@@ -741,7 +741,7 @@ func Supply(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	appsStaked, err := app.PCA.QueryTotalAppCoins(params.Height)
+	platformsStaked, err := app.PCA.QueryTotalAppCoins(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -751,11 +751,11 @@ func Supply(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	totalStaked := nodesStake.Add(appsStaked).Add(dao)
+	totalStaked := nodesStake.Add(platformsStaked).Add(dao)
 	totalUnstaked := total.Sub(totalStaked)
 	res, err := json.MarshalIndent(&querySupplyResponse{
 		NodeStaked:    nodesStake.String(),
-		AppStaked:     appsStaked.String(),
+		AppStaked:     platformsStaked.String(),
 		Dao:           dao.String(),
 		TotalStaked:   totalStaked.BigInt().String(),
 		TotalUnstaked: totalUnstaked.BigInt().String(),

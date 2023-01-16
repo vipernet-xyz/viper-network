@@ -26,7 +26,7 @@ type Relay struct {
 }
 
 // "Validate" - Checks the validity of a relay request using store data
-func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper AppsKeeper, viperKeeper ViperKeeper, node sdk.Address, hb *HostedBlockchains, sessionBlockHeight int64) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
+func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper PlatformsKeeper, viperKeeper ViperKeeper, node sdk.Address, hb *HostedBlockchains, sessionBlockHeight int64) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
 	// validate payload
 	if err := r.Payload.Validate(); err != nil {
 		return sdk.ZeroInt(), NewEmptyPayloadDataError(ModuleName)
@@ -52,18 +52,18 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper AppsKeeper
 	if er != nil {
 		return sdk.ZeroInt(), sdk.ErrInternal(er.Error())
 	}
-	// get the application that staked on behalf of the client
-	app, found := GetAppFromPublicKey(sessionCtx, appsKeeper, r.Proof.Token.ApplicationPublicKey)
+	// get the platformlication that staked on behalf of the client
+	platform, found := GetPlatformFromPublicKey(sessionCtx, platformsKeeper, r.Proof.Token.PlatformPublicKey)
 	if !found {
-		return sdk.ZeroInt(), NewAppNotFoundError(ModuleName)
+		return sdk.ZeroInt(), NewPlatformNotFoundError(ModuleName)
 	}
 	// get session node count from that session height
 	sessionNodeCount := viperKeeper.SessionNodeCount(sessionCtx)
 	// get max possible relays
-	maxPossibleRelays = MaxPossibleRelays(app, sessionNodeCount)
+	maxPossibleRelays = MaxPossibleRelays(platform, sessionNodeCount)
 	// generate the session header
 	header := SessionHeader{
-		ApplicationPubKey:  r.Proof.Token.ApplicationPublicKey,
+		PlatformPubKey:     r.Proof.Token.PlatformPublicKey,
 		Chain:              r.Proof.Blockchain,
 		SessionBlockHeight: r.Proof.SessionBlockHeight,
 	}
@@ -81,7 +81,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper AppsKeeper
 		return sdk.ZeroInt(), NewOverServiceError(ModuleName)
 	}
 	// validate the Proof
-	if err := r.Proof.ValidateLocal(app.GetChains(), int(sessionNodeCount), sessionBlockHeight, node); err != nil {
+	if err := r.Proof.ValidateLocal(platform.GetChains(), int(sessionNodeCount), sessionBlockHeight, node); err != nil {
 		return sdk.ZeroInt(), err
 	}
 	// check cache
@@ -101,7 +101,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper AppsKeeper
 		SetSession(session)
 	}
 	// validate the session
-	err = session.Validate(node, app, int(sessionNodeCount))
+	err = session.Validate(node, platform, int(sessionNodeCount))
 	if err != nil {
 		return sdk.ZeroInt(), err
 	}
@@ -301,7 +301,7 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, met
 	}
 	// add headers if needed
 	if len(headers) == 0 {
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", "platformlication/json")
 	} else {
 		for k, v := range headers {
 			req.Header.Set(k, v)

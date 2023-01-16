@@ -13,9 +13,9 @@ import (
 )
 
 func TestRelayProof_ValidateLocal(t *testing.T) {
-	appPrivateKey := GetRandomPrivateKey()
+	platformPrivateKey := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	sPK := getRandomPubKey()
 	servicerPubKey := sPK.RawString()
 	verifyAddr := sPK.Address()
@@ -33,18 +33,18 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 		RequestHash:        payload.HashString(), // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er := appPrivateKey.Sign(validProof.Token.Hash())
+	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -68,13 +68,13 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 	invalidProofNotHostedBlockchain.Blockchain = bitcoin
 	// invalid Proof AAT
 	invalidProofInvalidAAT := validProof
-	invalidProofInvalidAAT.Token.ApplicationSignature = hex.EncodeToString(clientSignature) // wrong signature
+	invalidProofInvalidAAT.Token.PlatformSignature = hex.EncodeToString(clientSignature) // wrong signature
 	// invalid Proof Request ID
 	invalidProofRequestHash := validProof
 	invalidProofRequestHash.RequestHash = servicerPubKey
 	// invalid Proof no client signature
 	invalidProofClientSignature := validProof
-	invalidProofClientSignature.Signature = hex.EncodeToString(appSignature) // wrong signature
+	invalidProofClientSignature.Signature = hex.EncodeToString(platformSignature) // wrong signature
 	tests := []struct {
 		name             string
 		proof            Proof
@@ -164,7 +164,7 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 }
 
 func TestRelayProof_Bytes(t *testing.T) {
-	appPubKey := getRandomPubKey().RawString()
+	platformPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -175,10 +175,10 @@ func TestRelayProof_Bytes(t *testing.T) {
 		RequestHash:        servicerPubKey, // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -191,7 +191,7 @@ func TestRelayProof_Bytes(t *testing.T) {
 }
 
 func TestRelayProof_HashAndHashString(t *testing.T) {
-	appPubKey := getRandomPubKey().RawString()
+	platformPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -202,10 +202,10 @@ func TestRelayProof_HashAndHashString(t *testing.T) {
 		RequestHash:        servicerPubKey, // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
@@ -216,9 +216,9 @@ func TestRelayProof_HashAndHashString(t *testing.T) {
 }
 
 func TestRelayProof_ValidateBasic(t *testing.T) {
-	appPrivateKey := GetRandomPrivateKey()
+	platformPrivateKey := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -229,18 +229,18 @@ func TestRelayProof_ValidateBasic(t *testing.T) {
 		RequestHash:        servicerPubKey, // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er := appPrivateKey.Sign(validProof.Token.Hash())
+	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -323,9 +323,9 @@ func TestRelayProof_ValidateBasic(t *testing.T) {
 }
 
 func TestRelayProof_SessionHeader(t *testing.T) {
-	appPrivateKey := GetRandomPrivateKey()
+	platformPrivateKey := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -336,20 +336,20 @@ func TestRelayProof_SessionHeader(t *testing.T) {
 		RequestHash:        servicerPubKey, // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er := appPrivateKey.Sign(validProof.Token.Hash())
+	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
 	sh := SessionHeader{
-		ApplicationPubKey:  validProof.Token.ApplicationPublicKey,
+		PlatformPubKey:     validProof.Token.PlatformPublicKey,
 		Chain:              validProof.Blockchain,
 		SessionBlockHeight: validProof.SessionBlockHeight,
 	}
@@ -403,7 +403,7 @@ func TestChallengeProofInvalidData_ValidateBasic(t *testing.T) {
 }
 
 func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
-	validChallengeProofIVD, servicer1PK, servicer2PK, servicer3PK, appPK, _, reporterPK := NewValidChallengeProof(t)
+	validChallengeProofIVD, servicer1PK, servicer2PK, servicer3PK, platformPK, _, reporterPK := NewValidChallengeProof(t)
 	safeCopyChallenge := func(c ChallengeProofInvalidData) ChallengeProofInvalidData {
 		p := ChallengeProofInvalidData{
 			MajorityResponses: make([]RelayResponse, 2),
@@ -416,7 +416,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	ser1PubKey := servicer1PK.PublicKey()
 	ser2PubKey := servicer2PK.PublicKey()
 	ser3PubKey := servicer3PK.PublicKey()
-	appPubKey := appPK.PublicKey()
+	platformPubKey := platformPK.PublicKey()
 	reporterPubKey := reporterPK.PublicKey()
 	// invalid challenge Proof duplicate
 	invalidProofDup := safeCopyChallenge(validChallengeProofIVD)
@@ -445,7 +445,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	minResp.Signature = hex.EncodeToString(sig)
 	invalidProofAllMajority.MinorityResponse = minResp
 	ethereum := hex.EncodeToString([]byte{01})
-	sessionNodes := SessionNodes{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(appPubKey.Address())}
+	sessionNodes := SessionNodes{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(platformPubKey.Address())}
 	tests := []struct {
 		name                 string
 		proof                ChallengeProofInvalidData
@@ -513,7 +513,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := SessionHeader{
-				ApplicationPubKey:  tt.proof.MinorityResponse.Proof.Token.ApplicationPublicKey,
+				PlatformPubKey:     tt.proof.MinorityResponse.Proof.Token.PlatformPublicKey,
 				Chain:              tt.proof.MinorityResponse.Proof.Blockchain,
 				SessionBlockHeight: tt.proof.MinorityResponse.Proof.SessionBlockHeight,
 			}
@@ -526,13 +526,13 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	}
 }
 
-func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, ser1 crypto.PrivateKey, ser2 crypto.PrivateKey, ser3 crypto.PrivateKey, app crypto.PrivateKey, cli crypto.PrivateKey, repor crypto.PrivateKey) {
-	appPrivateKey := GetRandomPrivateKey()
+func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, ser1 crypto.PrivateKey, ser2 crypto.PrivateKey, ser3 crypto.PrivateKey, platform crypto.PrivateKey, cli crypto.PrivateKey, repor crypto.PrivateKey) {
+	platformPrivateKey := GetRandomPrivateKey()
 	servicerPrivKey1 := GetRandomPrivateKey()
 	servicerPrivKey2 := GetRandomPrivateKey()
 	servicerPrivKey3 := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	servicerPubKey := servicerPrivKey1.PublicKey().RawString()
 	servicerPubKey2 := servicerPrivKey2.PublicKey().RawString()
 	servicerPubKey3 := servicerPrivKey3.PublicKey().RawString()
@@ -548,18 +548,18 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		RequestHash:        clientPubKey, // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er := appPrivateKey.Sign(validProof.Token.Hash())
+	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -573,18 +573,18 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		RequestHash:        clientPubKey, // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er = appPrivateKey.Sign(validProof2.Token.Hash())
+	platformSignature, er = platformPrivateKey.Sign(validProof2.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof2.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof2.Token.PlatformSignature = hex.EncodeToString(platformSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof2.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -598,18 +598,18 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		RequestHash:        clientPubKey, // fake
 		Blockchain:         ethereum,
 		Token: AAT{
-			Version:              "0.0.1",
-			ApplicationPublicKey: appPubKey,
-			ClientPublicKey:      clientPubKey,
-			ApplicationSignature: "",
+			Version:           "0.0.1",
+			PlatformPublicKey: platformPubKey,
+			ClientPublicKey:   clientPubKey,
+			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er = appPrivateKey.Sign(validProof3.Token.Hash())
+	platformSignature, er = platformPrivateKey.Sign(validProof3.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof3.Token.ApplicationSignature = hex.EncodeToString(appSignature)
+	validProof3.Token.PlatformSignature = hex.EncodeToString(platformSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof3.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -659,13 +659,13 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		},
 		MinorityResponse: minResp,
 		ReporterAddress:  sdk.Address(reporterAddr),
-	}, servicerPrivKey1, servicerPrivKey2, servicerPrivKey3, appPrivateKey, clientPrivateKey, reporterPrivKey
+	}, servicerPrivKey1, servicerPrivKey2, servicerPrivKey3, platformPrivateKey, clientPrivateKey, reporterPrivKey
 }
 
 func TestChallengeProofInvalidData_SessionHeader(t *testing.T) {
 	c, _, _, _, _, _, _ := NewValidChallengeProof(t)
 	assert.Equal(t, c.SessionHeader(), SessionHeader{
-		ApplicationPubKey:  c.MinorityResponse.Proof.Token.ApplicationPublicKey,
+		PlatformPubKey:     c.MinorityResponse.Proof.Token.PlatformPublicKey,
 		Chain:              c.MinorityResponse.Proof.Blockchain,
 		SessionBlockHeight: c.MinorityResponse.Proof.SessionBlockHeight,
 	})

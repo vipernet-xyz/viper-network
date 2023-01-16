@@ -37,7 +37,7 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx ut
 		// check to see if evidence is stored in cache
 		evidence, err := vc.GetEvidence(claim.SessionHeader, claim.EvidenceType, sdk.ZeroInt())
 		if err != nil || evidence.Proofs == nil || len(evidence.Proofs) == 0 {
-			ctx.Logger().Info(fmt.Sprintf("the evidence object for evidence is not found, ignoring pending claim for app: %s, at sessionHeight: %d", claim.SessionHeader.ApplicationPubKey, claim.SessionHeader.SessionBlockHeight))
+			ctx.Logger().Info(fmt.Sprintf("the evidence object for evidence is not found, ignoring pending claim for platform: %s, at sessionHeight: %d", claim.SessionHeader.PlatformPubKey, claim.SessionHeader.SessionBlockHeight))
 			continue
 		}
 		if ctx.BlockHeight()-claim.SessionHeader.SessionBlockHeight > int64(vc.GlobalViperConfig.MaxClaimAgeForProofRetry) {
@@ -65,7 +65,7 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx ut
 		// get the session context
 		sessionCtx, err := ctx.PrevCtx(claim.SessionHeader.SessionBlockHeight)
 		if err != nil {
-			ctx.Logger().Info(fmt.Sprintf("could not get Session Context, ignoring pending claim for app: %s, at sessionHeight: %d", claim.SessionHeader.ApplicationPubKey, claim.SessionHeader.SessionBlockHeight))
+			ctx.Logger().Info(fmt.Sprintf("could not get Session Context, ignoring pending claim for platform: %s, at sessionHeight: %d", claim.SessionHeader.PlatformPubKey, claim.SessionHeader.SessionBlockHeight))
 			continue
 		}
 		// generate the needed pseudorandom index using the information found in the first transaction
@@ -74,22 +74,22 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx ut
 			ctx.Logger().Error(err.Error())
 			continue
 		}
-		app, found := k.GetAppFromPublicKey(sessionCtx, claim.SessionHeader.ApplicationPubKey)
+		platform, found := k.GetPlatformFromPublicKey(sessionCtx, claim.SessionHeader.PlatformPubKey)
 		if !found {
-			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the proof transaction with app %s not found with evidence %v", evidence.ApplicationPubKey, evidence))
+			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the proof transaction with platform %s not found with evidence %v", evidence.PlatformPubKey, evidence))
 		}
 		// get the merkle proof object for the pseudorandom index
-		mProof, leaf := evidence.GenerateMerkleProof(claim.SessionHeader.SessionBlockHeight, int(index), vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionCtx)).Int64())
+		mProof, leaf := evidence.GenerateMerkleProof(claim.SessionHeader.SessionBlockHeight, int(index), vc.MaxPossibleRelays(platform, k.SessionNodeCount(sessionCtx)).Int64())
 		// if prevalidation on, then pre-validate
 		if vc.GlobalViperConfig.ProofPrevalidation {
 			// validate level count on claim by total relays
 			levelCount := len(mProof.HashRanges)
 			if levelCount != int(math.Ceil(math.Log2(float64(claim.TotalProofs)))) {
-				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for app: %s, at sessionHeight: %d, level count", claim.SessionHeader.ApplicationPubKey, claim.SessionHeader.SessionBlockHeight))
+				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for platform: %s, at sessionHeight: %d, level count", claim.SessionHeader.PlatformPubKey, claim.SessionHeader.SessionBlockHeight))
 				continue
 			}
 			if isValid, _ := mProof.Validate(claim.SessionHeader.SessionBlockHeight, claim.MerkleRoot, leaf, levelCount); !isValid {
-				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for app: %s, at sessionHeight: %d", claim.SessionHeader.ApplicationPubKey, claim.SessionHeader.SessionBlockHeight))
+				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for platform: %s, at sessionHeight: %d", claim.SessionHeader.PlatformPubKey, claim.SessionHeader.SessionBlockHeight))
 				continue
 			}
 		}
@@ -137,7 +137,7 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 		return servicerAddr, claim, sdk.ErrInternal(err.Error())
 	}
 	// validate the proof
-	ctx.Logger().Info(fmt.Sprintf("Generate psuedorandom proof with %d proofs, at session height of %d, for app: %s", claim.TotalProofs, claim.SessionHeader.SessionBlockHeight, claim.SessionHeader.ApplicationPubKey))
+	ctx.Logger().Info(fmt.Sprintf("Generate psuedorandom proof with %d proofs, at session height of %d, for platform: %s", claim.TotalProofs, claim.SessionHeader.SessionBlockHeight, claim.SessionHeader.PlatformPubKey))
 	reqProof, err := k.getPseudorandomIndex(ctx, claim.TotalProofs, claim.SessionHeader, sessionCtx)
 	if err != nil {
 		return servicerAddr, claim, sdk.ErrInternal(err.Error())
@@ -155,13 +155,13 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 		}
 		return servicerAddr, claim, vc.NewInvalidMerkleVerifyError(vc.ModuleName)
 	}
-	// get the application
-	application, found := k.GetAppFromPublicKey(sessionCtx, claim.SessionHeader.ApplicationPubKey)
+	// get the platformlication
+	platformlication, found := k.GetPlatformFromPublicKey(sessionCtx, claim.SessionHeader.PlatformPubKey)
 	if !found {
-		return servicerAddr, claim, vc.NewAppNotFoundError(vc.ModuleName)
+		return servicerAddr, claim, vc.NewPlatformNotFoundError(vc.ModuleName)
 	}
 	// validate the proof depending on the type of proof it is
-	er := proof.GetLeaf().Validate(application.GetChains(), int(k.SessionNodeCount(sessionCtx)), claim.SessionHeader.SessionBlockHeight)
+	er := proof.GetLeaf().Validate(platformlication.GetChains(), int(k.SessionNodeCount(sessionCtx)), claim.SessionHeader.SessionBlockHeight)
 	if er != nil {
 		return nil, claim, er
 	}
@@ -170,8 +170,8 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 }
 
 func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) (tokens sdk.BigInt, err sdk.Error) {
-	//application address
-	appAddress := sdk.Address(claim.SessionHeader.ApplicationPubKey)
+	//platformlication address
+	platformAddress := sdk.Address(claim.SessionHeader.PlatformPubKey)
 	// convert to value for switch consistency
 	l := proof.GetLeaf()
 	if reflect.ValueOf(l).Kind() == reflect.Ptr {
@@ -180,7 +180,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) 
 	switch l.(type) {
 	case vc.RelayProof:
 		ctx.Logger().Info(fmt.Sprintf("reward coins to %s, for %d relays", claim.FromAddress.String(), claim.TotalProofs))
-		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs, claim.FromAddress, appAddress)
+		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs, claim.FromAddress, platformAddress)
 		err := k.DeleteClaim(ctx, claim.FromAddress, claim.SessionHeader, vc.RelayEvidence)
 		if err != nil {
 			return tokens, sdk.ErrInternal(err.Error())
@@ -202,7 +202,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) 
 			return sdk.ZeroInt(), sdk.ErrInternal(err.Error())
 		}
 		// small reward for the challenge proof invalid data
-		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs/100, claim.FromAddress, appAddress)
+		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs/100, claim.FromAddress, platformAddress)
 	}
 	return tokens, nil
 }

@@ -72,12 +72,12 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 			}
 			continue
 		}
-		app, found := k.GetAppFromPublicKey(sessionCtx, evidence.ApplicationPubKey)
+		platform, found := k.GetPlatformFromPublicKey(sessionCtx, evidence.PlatformPubKey)
 		if !found {
-			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the claim transaction with app %s not found with evidence %v", evidence.ApplicationPubKey, evidence))
+			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the claim transaction with platform %s not found with evidence %v", evidence.PlatformPubKey, evidence))
 		}
 		// generate the merkle root for this evidence
-		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionCtx)).Int64())
+		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(platform, k.SessionNodeCount(sessionCtx)).Int64())
 		// generate the auto txbuilder and clictx
 		txBuilder, cliCtx, err := newTxBuilderAndCliCtx(ctx, &vc.MsgClaim{}, n, kp, k)
 		if err != nil {
@@ -120,14 +120,14 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	if !found {
 		return vc.NewNodeNotFoundErr(vc.ModuleName)
 	}
-	// get the application (at the state of the start of the session)
-	app, found := k.GetAppFromPublicKey(sessionContext, claim.SessionHeader.ApplicationPubKey)
+	// get the platformlication (at the state of the start of the session)
+	platform, found := k.GetPlatformFromPublicKey(sessionContext, claim.SessionHeader.PlatformPubKey)
 	// if not found return not found error
 	if !found {
-		return vc.NewAppNotFoundError(vc.ModuleName)
+		return vc.NewPlatformNotFoundError(vc.ModuleName)
 	}
 	if vc.ModuleCdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.MaxRelayProtKey) {
-		if vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionContext)).LT(sdk.NewInt(claim.TotalProofs)) {
+		if vc.MaxPossibleRelays(platform, k.SessionNodeCount(sessionContext)).LT(sdk.NewInt(claim.TotalProofs)) {
 			return vc.NewOverServiceError(vc.ModuleName)
 		}
 	}
@@ -148,12 +148,12 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 		// create a new session to validate
 		session, err = vc.NewSession(sessionContext, sessionEndCtx, k.posKeeper, claim.SessionHeader, hex.EncodeToString(hash), sessionNodeCount)
 		if err != nil {
-			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", app.GetPublicKey().RawString(), claim.SessionHeader.Chain).Error())
+			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", platform.GetPublicKey().RawString(), claim.SessionHeader.Chain).Error())
 			return err
 		}
 	}
 	// validate the session
-	err = session.Validate(claim.FromAddress, app, sessionNodeCount)
+	err = session.Validate(claim.FromAddress, platform, sessionNodeCount)
 	if err != nil {
 		return err
 	}

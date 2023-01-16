@@ -6,7 +6,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/stretchr/testify/assert"
@@ -43,9 +43,9 @@ func TestSetAndGetProposer(t *testing.T) {
 	}
 }
 
-func TestSetandGetApplication(t *testing.T) {
-	application := getStakedApplication()
-	consAddress := application.GetAddress()
+func TestSetandGetPlatform(t *testing.T) {
+	platform := getStakedPlatform()
+	consAddress := platform.GetAddress()
 
 	tests := []struct {
 		name            string
@@ -53,7 +53,7 @@ func TestSetandGetApplication(t *testing.T) {
 		expectedAddress sdk.Address
 	}{
 		{
-			name:            "can set the application",
+			name:            "can set the platform",
 			args:            args{consAddress: consAddress},
 			expectedAddress: consAddress,
 		},
@@ -63,8 +63,8 @@ func TestSetandGetApplication(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			context, _, keeper := createTestInput(t, true)
 
-			keeper.SetApplicationKey(context, test.args.consAddress)
-			receivedAddress := keeper.GetApplication(context)
+			keeper.SetPlatformKey(context, test.args.consAddress)
+			receivedAddress := keeper.GetPlatform(context)
 			assert.True(t, test.expectedAddress.Equals(receivedAddress), "addresses do not match ")
 		})
 	}
@@ -124,15 +124,15 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 	type args struct {
 		ctx              sdk.Context
 		previousProposer sdk.Address
-		application      sdk.Address
+		platform         sdk.Address
 		Output           sdk.Address
 		aOutput          sdk.Address
 		Amount           sdk.BigInt
 	}
 	stakedValidator := getStakedValidator()
-	stakedApplication := getStakedApplication()
+	stakedPlatform := getStakedPlatform()
 	stakedValidator.OutputAddress = getRandomValidatorAddress()
-	stakedApplication.Address = getRandomApplicationAddress()
+	stakedPlatform.Address = getRandomPlatformAddress()
 	codec.UpgradeFeatureMap[codec.RSCALKey] = 0
 	codec.TestMode = -3
 	amount := sdk.NewInt(10000)
@@ -152,9 +152,9 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 			args{
 				ctx:              context,
 				previousProposer: stakedValidator.GetAddress(),
-				application:      stakedApplication.GetAddress(),
+				platform:         stakedPlatform.GetAddress(),
 				Output:           stakedValidator.OutputAddress,
-				aOutput:          stakedApplication.Address,
+				aOutput:          stakedPlatform.Address,
 			}},
 	}
 	for _, tt := range tests {
@@ -167,7 +167,7 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(910)))))
 			acc = k.GetAccount(ctx, tt.args.previousProposer)
-			acc1 = k.GetAccount(ctx, tt.args.application)
+			acc1 = k.GetAccount(ctx, tt.args.platform)
 			assert.True(t, acc.Coins.IsZero())
 			assert.True(t, acc1.Coins.IsZero())
 		})
@@ -175,13 +175,13 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 
 }
 
-func getRandomApplicationAddress() sdk.Address {
+func getRandomPlatformAddress() sdk.Address {
 	return sdk.Address(getRandomPubKey().Address())
 }
 
-func GetApplication() appsTypes.Application {
+func GetPlatform() platformsTypes.Platform {
 	pub := getRandomPubKey()
-	return appsTypes.Application{
+	return platformsTypes.Platform{
 		Address:      sdk.Address(pub.Address()),
 		StakedTokens: sdk.NewInt(100000000000),
 		PublicKey:    pub,
@@ -191,8 +191,8 @@ func GetApplication() appsTypes.Application {
 		Chains:       []string{"0001"},
 	}
 }
-func getStakedApplication() appsTypes.Application {
-	return GetApplication()
+func getStakedPlatform() platformsTypes.Platform {
+	return GetPlatform()
 }
 
 func TestKeeper_rewardFromRelays(t *testing.T) {

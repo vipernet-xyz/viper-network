@@ -10,12 +10,12 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
-	appsKeeper "github.com/vipernet-xyz/viper-network/x/apps/keeper"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
@@ -39,11 +39,11 @@ type ViperCoreApp struct {
 	Keys  map[string]*sdk.KVStoreKey
 	Tkeys map[string]*sdk.TransientStoreKey
 	// Keepers for each module
-	accountKeeper authentication.Keeper
-	appsKeeper    appsKeeper.Keeper
-	nodesKeeper   nodesKeeper.Keeper
-	govKeeper     govKeeper.Keeper
-	viperKeeper   viperKeeper.Keeper
+	accountKeeper   authentication.Keeper
+	platformsKeeper platformsKeeper.Keeper
+	nodesKeeper     nodesKeeper.Keeper
+	govKeeper       govKeeper.Keeper
+	viperKeeper     viperKeeper.Keeper
 	// Module Manager
 	mm *module.Manager
 }
@@ -57,9 +57,9 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, nodesTypes.StoreKey, appsTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, nodesTypes.StoreKey, platformsTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
 	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(nodesTypes.TStoreKey, appsTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(nodesTypes.TStoreKey, platformsTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -200,10 +200,10 @@ var (
 	moduleAccountPermissions = map[string][]string{
 		authentication.FeeCollectorName: {authentication.Burner, authentication.Minter, authentication.Staking},
 		nodesTypes.StakedPoolName:       {authentication.Burner, authentication.Minter, authentication.Staking},
-		appsTypes.StakedPoolName:        {authentication.Burner, authentication.Minter, authentication.Staking},
+		platformsTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		govTypes.DAOAccountName:         {authentication.Burner, authentication.Minter, authentication.Staking},
 		nodesTypes.ModuleName:           {authentication.Burner, authentication.Minter, authentication.Staking},
-		appsTypes.ModuleName:            nil,
+		platformsTypes.ModuleName:       nil,
 	}
 )
 

@@ -165,9 +165,9 @@ func merkleProof(height int64, data []HashRange, index int, p *MerkleProof) Merk
 // "newParentHash" - Compute the merkleHash of the parent by hashing the hashes, sum and parent
 func parentHash(height int64, hash1, hash2 []byte, r Range, index1, index2 uint64) []byte {
 	if ModuleCdc.IsAfterCodecUpgrade(height) {
-		return merkleHash(MultiAppend(make([]byte, MerkleHashLength*2+32), hash1, hash2, uint64ToBytes(index1, index2), r.Bytes()))
+		return merkleHash(MultiPlatformend(make([]byte, MerkleHashLength*2+32), hash1, hash2, uint64ToBytes(index1, index2), r.Bytes()))
 	}
-	return merkleHash(MultiAppend(make([]byte, MerkleHashLength*2+16), hash1, hash2, r.Bytes()))
+	return merkleHash(MultiPlatformend(make([]byte, MerkleHashLength*2+16), hash1, hash2, r.Bytes()))
 }
 
 // "merkleHash" - the merkleHash function used in the merkle tree
@@ -301,7 +301,7 @@ func structureProofs(proofs []Proof) (d []HashRange, sortedProofs []Proof) {
 	return hashRanges, proofs
 }
 
-func MultiAppend(dest []byte, s ...[]byte) []byte {
+func MultiPlatformend(dest []byte, s ...[]byte) []byte {
 	i := 0
 	for _, v := range s {
 		i += copy(dest[i:], v)

@@ -3,22 +3,22 @@ package types
 import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/apps/exported"
+	"github.com/vipernet-xyz/viper-network/x/platforms/exported"
 )
 
-// "GetAppFromPublicKey" - Retrieves an application from the app store, using the appKeeper (a link to the apps module)
+// "GetPlatformFromPublicKey" - Retrieves an platformlication from the platform store, using the platformKeeper (a link to the platforms module)
 // using a hex string public key
-func GetAppFromPublicKey(ctx sdk.Ctx, appsKeeper AppsKeeper, pubKey string) (app exported.ApplicationI, found bool) {
+func GetPlatformFromPublicKey(ctx sdk.Ctx, platformsKeeper PlatformsKeeper, pubKey string) (platform exported.PlatformI, found bool) {
 	pk, err := crypto.NewPublicKey(pubKey)
 	if err != nil {
 		return nil, false
 	}
-	return GetApp(ctx, appsKeeper, pk.Address().Bytes())
+	return GetPlatform(ctx, platformsKeeper, pk.Address().Bytes())
 }
 
-// "GetApp" - Retrieves an application from the app store, using the appKeeper (a link to the apps module)
-func GetApp(ctx sdk.Ctx, appsKeeper AppsKeeper, address sdk.Address) (a exported.ApplicationI, found bool) {
-	a = appsKeeper.Application(ctx, address)
+// "GetPlatform" - Retrieves an platformlication from the platform store, using the platformKeeper (a link to the platforms module)
+func GetPlatform(ctx sdk.Ctx, platformsKeeper PlatformsKeeper, address sdk.Address) (a exported.PlatformI, found bool) {
+	a = platformsKeeper.Platform(ctx, address)
 	if a == nil {
 		return a, false
 	}

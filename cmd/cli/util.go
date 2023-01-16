@@ -116,7 +116,7 @@ var exportGenesisForReset = &cobra.Command{
 			fmt.Println("error parsing height: ", err)
 			return
 		}
-		db, err := app.OpenApplicationDB(app.GlobalConfig)
+		db, err := app.OpenPlatformDB(app.GlobalConfig)
 		if err != nil {
 			fmt.Println("error loading application database: ", err)
 			return

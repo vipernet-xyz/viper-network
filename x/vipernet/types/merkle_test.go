@@ -14,7 +14,7 @@ import (
 	"github.com/willf/bloom"
 )
 
-func TestMultiAppend(t *testing.T) {
+func TestMultiPlatformend(t *testing.T) {
 	h1 := merkleHash([]byte("a"))
 	h2 := merkleHash([]byte("b"))
 	sum := uint64ToBytes(0, 1000000)
@@ -32,7 +32,7 @@ func TestMultiAppend(t *testing.T) {
 	runtime.ReadMemStats(&m)
 	//start = time.Now()
 	dest := make([]byte, MerkleHashLength*2+16)
-	y := merkleHash(MultiAppend(dest, h1, h2, sum))
+	y := merkleHash(MultiPlatformend(dest, h1, h2, sum))
 	//fmt.Println(time.Since(start))
 	runtime.ReadMemStats(&m2)
 	//fmt.Println(m2.Alloc - m.Alloc)
@@ -41,27 +41,27 @@ func TestMultiAppend(t *testing.T) {
 
 func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 	ClearEvidence()
-	appPrivateKey := GetRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPrivateKey := GetRandomPrivateKey()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPublicKey := clientPrivateKey.PublicKey().RawString()
 	nodePubKey := getRandomPubKey()
 	ethereum := hex.EncodeToString([]byte{01})
 	validAAT := AAT{
-		Version:              "0.0.1",
-		ApplicationPublicKey: appPubKey,
-		ClientPublicKey:      clientPublicKey,
-		ApplicationSignature: "",
+		Version:           "0.0.1",
+		PlatformPublicKey: platformPubKey,
+		ClientPublicKey:   clientPublicKey,
+		PlatformSignature: "",
 	}
-	appSig, er := appPrivateKey.Sign(validAAT.Hash())
+	platformSig, er := platformPrivateKey.Sign(validAAT.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validAAT.ApplicationSignature = hex.EncodeToString(appSig)
+	validAAT.PlatformSignature = hex.EncodeToString(platformSig)
 	i := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			ApplicationPubKey:  appPubKey,
+			PlatformPubKey:     platformPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -135,27 +135,27 @@ func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 }
 
 func TestEvidence_GenerateMerkleProof(t *testing.T) {
-	appPrivateKey := GetRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPrivateKey := GetRandomPrivateKey()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPublicKey := clientPrivateKey.PublicKey().RawString()
 	nodePubKey := getRandomPubKey()
 	ethereum := hex.EncodeToString([]byte{01})
 	validAAT := AAT{
-		Version:              "0.0.1",
-		ApplicationPublicKey: appPubKey,
-		ClientPublicKey:      clientPublicKey,
-		ApplicationSignature: "",
+		Version:           "0.0.1",
+		PlatformPublicKey: platformPubKey,
+		ClientPublicKey:   clientPublicKey,
+		PlatformSignature: "",
 	}
-	appSig, er := appPrivateKey.Sign(validAAT.Hash())
+	platformSig, er := platformPrivateKey.Sign(validAAT.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validAAT.ApplicationSignature = hex.EncodeToString(appSig)
+	validAAT.PlatformSignature = hex.EncodeToString(platformSig)
 	i := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			ApplicationPubKey:  appPubKey,
+			PlatformPubKey:     platformPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -217,27 +217,27 @@ func TestEvidence_GenerateMerkleProof(t *testing.T) {
 }
 
 func TestEvidence_VerifyMerkleProof(t *testing.T) {
-	appPrivateKey := GetRandomPrivateKey()
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPrivateKey := GetRandomPrivateKey()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPublicKey := clientPrivateKey.PublicKey().RawString()
 	nodePubKey := getRandomPubKey()
 	ethereum := hex.EncodeToString([]byte{01})
 	validAAT := AAT{
-		Version:              "0.0.1",
-		ApplicationPublicKey: appPubKey,
-		ClientPublicKey:      clientPublicKey,
-		ApplicationSignature: "",
+		Version:           "0.0.1",
+		PlatformPublicKey: platformPubKey,
+		ClientPublicKey:   clientPublicKey,
+		PlatformSignature: "",
 	}
-	appSig, er := appPrivateKey.Sign(validAAT.Hash())
+	platformSig, er := platformPrivateKey.Sign(validAAT.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validAAT.ApplicationSignature = hex.EncodeToString(appSig)
+	validAAT.PlatformSignature = hex.EncodeToString(platformSig)
 	i := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			ApplicationPubKey:  appPubKey,
+			PlatformPubKey:     platformPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -294,7 +294,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 	i2 := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			ApplicationPubKey:  appPubKey,
+			PlatformPubKey:     platformPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},

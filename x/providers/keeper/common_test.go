@@ -27,8 +27,8 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
 	)
 )
 
@@ -93,7 +93,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	posSubspace := sdk.NewSubspace(DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
 	moduleManager := module.NewManager(
-		authentication.NewAppModule(ak),
+		authentication.NewPlatformModule(ak),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)

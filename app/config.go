@@ -21,10 +21,10 @@ import (
 	"github.com/vipernet-xyz/viper-network/store"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
-	apps "github.com/vipernet-xyz/viper-network/x/apps"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
+	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
@@ -210,7 +210,7 @@ func UpdateConfig(datadir string) {
 		Version: "v1",
 	}
 	GlobalConfig.ViperConfig.ValidatorCacheSize = sdk.DefaultValidatorCacheSize
-	GlobalConfig.ViperConfig.ApplicationCacheSize = sdk.DefaultApplicationCacheSize
+	GlobalConfig.ViperConfig.PlatformCacheSize = sdk.DefaultPlatformCacheSize
 	GlobalConfig.ViperConfig.CtxCacheSize = sdk.DefaultCtxCacheSize
 	GlobalConfig.ViperConfig.RPCTimeout = sdk.DefaultRPCTimeout
 	GlobalConfig.ViperConfig.IavlCacheSize = sdk.DefaultIavlCacheSize
@@ -403,7 +403,7 @@ func InitViperCoreConfig(chains *types.HostedBlockchains, logger log.Logger) {
 	logger.Info("Initializing pos config")
 	nodesTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
 	logger.Info("Initializing app config")
-	appsTypes.InitConfig(GlobalConfig.ViperConfig.ApplicationCacheSize)
+	platformsTypes.InitConfig(GlobalConfig.ViperConfig.PlatformCacheSize)
 }
 
 func ShutdownViperCore() {
@@ -724,11 +724,11 @@ func MakeCodec() {
 	cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	// register all the app module types
 	module.NewBasicManager(
-		apps.AppModuleBasic{},
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
-		providers.AppModuleBasic{},
-		viper.AppModuleBasic{},
+		platforms.PlatformModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
+		providers.PlatformModuleBasic{},
+		viper.PlatformModuleBasic{},
 	).RegisterCodec(cdc)
 	// register the sdk types
 	sdk.RegisterCodec(cdc)

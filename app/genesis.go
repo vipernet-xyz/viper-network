@@ -11,11 +11,11 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
-	apps "github.com/vipernet-xyz/viper-network/x/apps"
-	appsTypes "github.com/vipernet-xyz/viper-network/x/apps/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
+	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
@@ -176,7 +176,7 @@ var mainnetGenesis = `{
             "params": {
                 "acl": [
                     {
-                        "acl_key": "application/MinimumApplicationStake",
+                        "acl_key": "application/MinimumPlatformStake",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -188,7 +188,7 @@ var mainnetGenesis = `{
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
-                        "acl_key": "application/MaxApplications",
+                        "acl_key": "application/MaxPlatforms",
                         "address": "52264967f262a7c55a2b570d3d2de409161521b8"
                     },
                     {
@@ -355,11 +355,11 @@ func newDefaultGenesisState() []byte {
 	}
 	pubKey := cb.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		apps.AppModuleBasic{},
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
-		providers.AppModuleBasic{},
-		viper.AppModuleBasic{},
+		platforms.PlatformModuleBasic{},
+		authentication.PlatformModuleBasic{},
+		governance.PlatformModuleBasic{},
+		providers.PlatformModuleBasic{},
+		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// setup account genesis
 	rawAuth := defaultGenesis[authentication.ModuleName]
@@ -373,10 +373,10 @@ func newDefaultGenesisState() []byte {
 	res := Codec().MustMarshalJSON(accountGenesis)
 	defaultGenesis[authentication.ModuleName] = res
 	// set address as application too
-	rawApps := defaultGenesis[appsTypes.ModuleName]
-	var appsGenesis appsTypes.GenesisState
-	types.ModuleCdc.MustUnmarshalJSON(rawApps, &appsGenesis)
-	appsGenesis.Applications = append(appsGenesis.Applications, appsTypes.Application{
+	rawApps := defaultGenesis[platformsTypes.ModuleName]
+	var platformsGenesis platformsTypes.GenesisState
+	types.ModuleCdc.MustUnmarshalJSON(rawApps, &platformsGenesis)
+	platformsGenesis.Platforms = append(platformsGenesis.Platforms, platformsTypes.Platform{
 		Address:                 cb.GetAddress(),
 		PublicKey:               cb.PublicKey,
 		Jailed:                  false,
@@ -386,8 +386,8 @@ func newDefaultGenesisState() []byte {
 		MaxRelays:               sdk.NewInt(10000000000000),
 		UnstakingCompletionTime: time.Time{},
 	})
-	res = Codec().MustMarshalJSON(appsGenesis)
-	defaultGenesis[appsTypes.ModuleName] = res
+	res = Codec().MustMarshalJSON(platformsGenesis)
+	defaultGenesis[platformsTypes.ModuleName] = res
 	// set default governance in genesis
 	rawViper := defaultGenesis[types.ModuleName]
 	var viperGenesis types.GenesisState
@@ -447,10 +447,10 @@ func createDummyACL(kp crypto.PublicKey) govTypes.ACL {
 	addr := sdk.Address(kp.Address())
 	acl := govTypes.ACL{}
 	acl = make([]govTypes.ACLPair, 0)
-	acl.SetOwner("application/MinimumApplicationStake", addr)
+	acl.SetOwner("application/MinimumPlatformStake", addr)
 	acl.SetOwner("application/AppUnstakingTime", addr)
 	acl.SetOwner("application/BaseRelaysPerVIPR", addr)
-	acl.SetOwner("application/MaxApplications", addr)
+	acl.SetOwner("application/MaxPlatforms", addr)
 	acl.SetOwner("application/MaximumChains", addr)
 	acl.SetOwner("application/ParticipationRate", addr)
 	acl.SetOwner("application/StabilityModulation", addr)
