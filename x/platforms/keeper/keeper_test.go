@@ -11,8 +11,8 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
-	nodeskeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
-	nodestypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providerskeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	providerstypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -51,14 +51,14 @@ func TestKeepers_NewKeeper(t *testing.T) {
 			keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 			keyParams := sdk.ParamsKey
 			tkeyParams := sdk.ParamsTKey
-			nodesKey := sdk.NewKVStoreKey(nodestypes.StoreKey)
+			providersKey := sdk.NewKVStoreKey(providerstypes.StoreKey)
 			platformsKey := sdk.NewKVStoreKey(types.StoreKey)
 
 			db := dbm.NewMemDB()
 			ms := store.NewCommitMultiStore(db, false, 5000000)
 			ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 			ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
-			ms.MountStoreWithDB(nodesKey, sdk.StoreTypeIAVL, db)
+			ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
 			ms.MountStoreWithDB(platformsKey, sdk.StoreTypeIAVL, db)
 			ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
 			err := ms.LoadLatestVersion()
@@ -78,7 +78,7 @@ func TestKeepers_NewKeeper(t *testing.T) {
 
 			maccPerms := map[string][]string{
 				authentication.FeeCollectorName: nil,
-				nodestypes.StakedPoolName:       {authentication.Burner, authentication.Staking},
+				providerstypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
 				govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
 			}
 			if !tt.hasError {
@@ -92,10 +92,10 @@ func TestKeepers_NewKeeper(t *testing.T) {
 			valTokens := sdk.TokensFromConsensusPower(initPower)
 
 			accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
-			nodesSubspace := sdk.NewSubspace(nodestypes.DefaultParamspace)
+			providersSubspace := sdk.NewSubspace(providerstypes.DefaultParamspace)
 			platformSubspace := sdk.NewSubspace(DefaultParamspace)
 			ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
-			nk := nodeskeeper.NewKeeper(cdc, nodesKey, ak, nodesSubspace, "pos")
+			nk := providerskeeper.NewKeeper(cdc, providersKey, ak, providersSubspace, "pos")
 			moduleManager := module.NewManager(
 				authentication.NewPlatformModule(ak),
 				providers.NewPlatformModule(nk),

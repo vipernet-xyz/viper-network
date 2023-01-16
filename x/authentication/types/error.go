@@ -32,7 +32,7 @@ func ErrAccountNotFound(codespace sdk.CodespaceType) sdk.Error {
 }
 
 func ErrNilTxIndexer(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeTxIndexerNil, "the transaction indexer in the node is nil")
+	return sdk.NewError(codespace, CodeTxIndexerNil, "the transaction indexer in the provider is nil")
 }
 
 func ErrInsufficientFee(codespace sdk.CodespaceType, expectedFee sdk.Coins, actualFee sdk.Coins) sdk.Error {

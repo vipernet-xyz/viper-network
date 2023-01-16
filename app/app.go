@@ -14,8 +14,8 @@ import (
 	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
-	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -36,7 +36,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	app := NewViperBaseApp(logger, db, cache, iavlCacheSize, baseAppOptions...)
 	// setup subspaces
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
-	nodesSubspace := sdk.NewSubspace(nodesTypes.DefaultParamspace)
+	providersSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
 	platformsSubspace := sdk.NewSubspace(platformsTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	// The AuthKeeper handles address -> account lookups
@@ -46,19 +46,19 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		authSubspace,
 		moduleAccountPermissions,
 	)
-	// The nodesKeeper keeper handles viper core providers
-	app.nodesKeeper = nodesKeeper.NewKeeper(
+	// The providersKeeper keeper handles viper core providers
+	app.providersKeeper = providersKeeper.NewKeeper(
 		app.cdc,
-		app.Keys[nodesTypes.StoreKey],
+		app.Keys[providersTypes.StoreKey],
 		app.accountKeeper,
-		nodesSubspace,
-		nodesTypes.DefaultCodespace,
+		providersSubspace,
+		providersTypes.DefaultCodespace,
 	)
 	// The platforms keeper handles viper core applications
 	app.platformsKeeper = platformsKeeper.NewKeeper(
 		app.cdc,
 		app.Keys[platformsTypes.StoreKey],
-		app.nodesKeeper,
+		app.providersKeeper,
 		app.accountKeeper,
 		app.viperKeeper,
 		platformsSubspace,
@@ -69,7 +69,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.Keys[viperTypes.StoreKey],
 		app.cdc,
 		app.accountKeeper,
-		app.nodesKeeper,
+		app.providersKeeper,
 		app.platformsKeeper,
 		hostedChains,
 		viperSubspace,
@@ -81,28 +81,28 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.Tkeys[viperTypes.StoreKey],
 		govTypes.DefaultCodespace,
 		app.accountKeeper,
-		authSubspace, nodesSubspace, platformsSubspace, viperSubspace,
+		authSubspace, providersSubspace, platformsSubspace, viperSubspace,
 	)
 	// add the keybase to the viper core keeper
 	app.viperKeeper.TmNode = tmClient
 	// give viper keeper to providers module for easy cache clearing
-	app.nodesKeeper.ViperKeeper = app.viperKeeper
+	app.providersKeeper.ViperKeeper = app.viperKeeper
 	app.platformsKeeper.ViperKeeper = app.viperKeeper
 	// setup module manager
 	app.mm = module.NewManager(
 		authentication.NewPlatformModule(app.accountKeeper),
-		providers.NewPlatformModule(app.nodesKeeper),
+		providers.NewPlatformModule(app.providersKeeper),
 		platforms.NewPlatformModule(app.platformsKeeper),
 		viper.NewPlatformModule(app.viperKeeper),
 		governance.NewPlatformModule(app.govKeeper),
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(nodesTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(nodesTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		authentication.ModuleName,
-		nodesTypes.ModuleName,
+		providersTypes.ModuleName,
 		platformsTypes.ModuleName,
 		viperTypes.ModuleName,
 		governance.ModuleName,

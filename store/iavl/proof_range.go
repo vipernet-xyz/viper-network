@@ -14,9 +14,9 @@ import (
 type RangeProof struct {
 	// You don't need the right path because
 	// it can be derived from what we have.
-	LeftPath   PathToLeaf      `json:"left_path"`
-	InnerNodes []PathToLeaf    `json:"inner_nodes"`
-	Leaves     []ProofLeafNode `json:"leaves"`
+	LeftPath       PathToLeaf      `json:"left_path"`
+	InnerProviders []PathToLeaf    `json:"inner_providers"`
+	Leaves         []ProofLeafNode `json:"leaves"`
 
 	// memoize
 	rootHash     []byte // valid iff rootVerified is true
@@ -51,8 +51,8 @@ func (proof *RangeProof) String() string {
 }
 
 func (proof *RangeProof) StringIndented(indent string) string {
-	istrs := make([]string, 0, len(proof.InnerNodes))
-	for _, ptl := range proof.InnerNodes {
+	istrs := make([]string, 0, len(proof.InnerProviders))
+	for _, ptl := range proof.InnerProviders {
 		istrs = append(istrs, ptl.stringIndented(indent+"    "))
 	}
 	lstrs := make([]string, 0, len(proof.Leaves))
@@ -61,7 +61,7 @@ func (proof *RangeProof) StringIndented(indent string) string {
 	}
 	return fmt.Sprintf(`RangeProof{
 %s  LeftPath: %v
-%s  InnerNodes:
+%s  InnerProviders:
 %s    %v
 %s  Leaves:
 %s    %v
@@ -221,15 +221,15 @@ func (proof *RangeProof) _computeRootHash() (rootHash []byte, treeEnd bool, err 
 	if len(proof.Leaves) == 0 {
 		return nil, false, errors.Wrap(ErrInvalidProof, "no leaves")
 	}
-	if len(proof.InnerNodes)+1 != len(proof.Leaves) {
-		return nil, false, errors.Wrap(ErrInvalidProof, "InnerNodes vs Leaves length mismatch, leaves should be 1 more.")
+	if len(proof.InnerProviders)+1 != len(proof.Leaves) {
+		return nil, false, errors.Wrap(ErrInvalidProof, "InnerProviders vs Leaves length mismatch, leaves should be 1 more.")
 	}
 
 	// Start from the left path and prove each leaf.
 
 	// shared across recursive calls
 	var leaves = proof.Leaves
-	var innersq = proof.InnerNodes
+	var innersq = proof.InnerProviders
 	var COMPUTEHASH func(path PathToLeaf, rightmost bool) (hash []byte, treeEnd bool, done bool, err error)
 
 	// rightmost: is the root a rightmost child of the tree?
@@ -443,9 +443,9 @@ func (t *ImmutableTree) getRangeProof(keyStart, keyEnd []byte, limit int) (proof
 	)
 
 	return &RangeProof{
-		LeftPath:   path,
-		InnerNodes: allPathToLeafs,
-		Leaves:     leaves,
+		LeftPath:       path,
+		InnerProviders: allPathToLeafs,
+		Leaves:         leaves,
 	}, keys, values, nil
 }
 

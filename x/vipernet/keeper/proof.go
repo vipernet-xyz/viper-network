@@ -142,7 +142,7 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 	if err != nil {
 		return servicerAddr, claim, sdk.ErrInternal(err.Error())
 	}
-	// if the required proof message index does not match the leaf node index
+	// if the required proof message index does not match the leaf provider index
 	if reqProof != int64(proof.MerkleProof.TargetIndex) {
 		return servicerAddr, claim, vc.NewInvalidProofsError(vc.ModuleName)
 	}

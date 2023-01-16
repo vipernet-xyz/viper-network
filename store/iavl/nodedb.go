@@ -207,7 +207,7 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 
 	// First, delete all active providers in the current (latest) version whose node version is after
 	// the given version.
-	err = ndb.deleteNodesFrom(version, root)
+	err = ndb.deleteProvidersFrom(version, root)
 	if err != nil {
 		return err
 	}
@@ -236,21 +236,21 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 	return nil
 }
 
-// deleteNodesFrom deletes the given node and any descendants that have versions after the given
+// deleteProvidersFrom deletes the given node and any descendants that have versions after the given
 // (inclusive). It is mainly used via LoadVersionForOverwriting, to delete the current version.
-func (ndb *nodeDB) deleteNodesFrom(version int64, hash []byte) error {
+func (ndb *nodeDB) deleteProvidersFrom(version int64, hash []byte) error {
 	if len(hash) == 0 {
 		return nil
 	}
 
 	node := ndb.GetNode(hash)
 	if node.leftHash != nil {
-		if err := ndb.deleteNodesFrom(version, node.leftHash); err != nil {
+		if err := ndb.deleteProvidersFrom(version, node.leftHash); err != nil {
 			return err
 		}
 	}
 	if node.rightHash != nil {
-		if err := ndb.deleteNodesFrom(version, node.rightHash); err != nil {
+		if err := ndb.deleteProvidersFrom(version, node.rightHash); err != nil {
 			return err
 		}
 	}
@@ -516,10 +516,10 @@ func (ndb *nodeDB) decrVersionReaders(version int64) {
 
 ////////////////// Utility and test functions /////////////////////////////////
 
-func (ndb *nodeDB) leafNodes() []*Node {
+func (ndb *nodeDB) leafProviders() []*Node {
 	leaves := []*Node{}
 
-	ndb.traverseNodes(func(hash []byte, node *Node) {
+	ndb.traverseProviders(func(hash []byte, node *Node) {
 		if node.isLeaf() {
 			leaves = append(leaves, node)
 		}
@@ -530,7 +530,7 @@ func (ndb *nodeDB) leafNodes() []*Node {
 func (ndb *nodeDB) providers() []*Node {
 	providers := []*Node{}
 
-	ndb.traverseNodes(func(hash []byte, node *Node) {
+	ndb.traverseProviders(func(hash []byte, node *Node) {
 		providers = append(providers, node)
 	})
 	return providers
@@ -561,7 +561,7 @@ func (ndb *nodeDB) size() int {
 	return size
 }
 
-func (ndb *nodeDB) traverseNodes(fn func(hash []byte, node *Node)) {
+func (ndb *nodeDB) traverseProviders(fn func(hash []byte, node *Node)) {
 	providers := []*Node{}
 
 	ndb.traversePrefix(nodeKeyFormat.Key(), func(key, value []byte) {
@@ -596,7 +596,7 @@ func (ndb *nodeDB) String() string {
 	})
 	str += "\n"
 
-	ndb.traverseNodes(func(hash []byte, node *Node) {
+	ndb.traverseProviders(func(hash []byte, node *Node) {
 		switch {
 		case len(hash) == 0:
 			str += "<nil>\n"

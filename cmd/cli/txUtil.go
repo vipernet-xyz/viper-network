@@ -12,7 +12,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	platformsType "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providerTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/tendermint/tendermint/libs/rand"
@@ -24,7 +24,7 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 )
 
-// SendTransaction - Deliver Transaction to node
+// SendTransaction - Deliver Transaction to provider
 func SendTransaction(fromAddr, toAddr, passphrase, chainID string, amount sdk.BigInt, fees int64, memo string, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
@@ -41,7 +41,7 @@ func SendTransaction(fromAddr, toAddr, passphrase, chainID string, amount sdk.Bi
 	if err != nil {
 		return nil, err
 	}
-	msg := nodeTypes.MsgSend{
+	msg := providerTypes.MsgSend{
 		FromAddress: fa,
 		ToAddress:   ta,
 		Amount:      amount,
@@ -60,7 +60,7 @@ func SendTransaction(fromAddr, toAddr, passphrase, chainID string, amount sdk.Bi
 	}, nil
 }
 
-// LegacyStakeNode - Deliver Stake message to node
+// LegacyStakeNode - Deliver Stake message to provider
 func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
@@ -89,7 +89,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
-	err = nodeTypes.ValidateServiceURL(serviceURL)
+	err = providerTypes.ValidateServiceURL(serviceURL)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 	}, nil
 }
 
-// StakeNode - Deliver Stake message to node
+// StakeNode - Deliver Stake message to provider
 func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	var operatorPublicKey crypto.PublicKey
 	var operatorAddress sdk.Address
@@ -159,7 +159,7 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
-	err = nodeTypes.ValidateServiceURL(serviceURL)
+	err = providerTypes.ValidateServiceURL(serviceURL)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 	}, nil
 }
 
-// UnstakeNode - start unstaking message to node
+// UnstakeNode - start unstaking message to provider
 func UnstakeNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
@@ -206,7 +206,7 @@ func UnstakeNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64)
 	}, nil
 }
 
-// UnjailNode - Remove node from jail
+// UnjailNode - Remove provider from jail
 func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {

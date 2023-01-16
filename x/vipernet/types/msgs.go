@@ -94,7 +94,7 @@ func (msg MsgClaim) IsEmpty() bool {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// "MsgProof" - Proves the previous claim by providing the merkle Proof and the leaf node
+// "MsgProof" - Proves the previous claim by providing the merkle Proof and the leaf provider
 type MsgProof struct {
 	MerkleProof  MerkleProof  `json:"merkle_proofs"` // the merkleProof needed to verify the proofs
 	Leaf         Proof        `json:"leaf"`          // the needed to verify the Proof

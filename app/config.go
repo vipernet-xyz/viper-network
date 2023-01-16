@@ -26,7 +26,7 @@ import (
 	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -401,7 +401,7 @@ func InitViperCoreConfig(chains *types.HostedBlockchains, logger log.Logger) {
 	logger.Info("Initializing ctx cache")
 	sdk.InitCtxCache(GlobalConfig.ViperConfig.CtxCacheSize)
 	logger.Info("Initializing pos config")
-	nodesTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
+	providersTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
 	logger.Info("Initializing app config")
 	platformsTypes.InitConfig(GlobalConfig.ViperConfig.PlatformCacheSize)
 }
@@ -547,7 +547,7 @@ func HotReloadChains(chains *types.HostedBlockchains) {
 			}
 			m := make(map[string]types.HostedBlockchain)
 			for _, chain := range hostedChainsSlice {
-				if err := nodesTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+				if err := providersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 					log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 				}
 				m[chain.ID] = chain
@@ -597,7 +597,7 @@ func NewHostedChains(generate bool) *types.HostedBlockchains {
 	}
 	m := make(map[string]types.HostedBlockchain)
 	for _, chain := range hostedChainsSlice {
-		if err := nodesTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+		if err := providersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 			log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 		}
 		m[chain.ID] = chain
@@ -635,7 +635,7 @@ func generateChainsJson(chainsPath string) *types.HostedBlockchains {
 	}
 	m := make(map[string]types.HostedBlockchain)
 	for _, chain := range c {
-		if err := nodesTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+		if err := providersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 			log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 		}
 		m[chain.ID] = chain
@@ -662,7 +662,7 @@ func GenerateHostedChains() (chains []types.HostedBlockchain) {
 			os.Exit(3)
 		}
 		ID = strings.Trim(strings.TrimSpace(ID), "\n")
-		if err := nodesTypes.ValidateNetworkIdentifier(ID); err != nil {
+		if err := providersTypes.ValidateNetworkIdentifier(ID); err != nil {
 			fmt.Println(err)
 			fmt.Println("please try again")
 			continue

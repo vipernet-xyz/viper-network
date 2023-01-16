@@ -39,7 +39,7 @@ func (k Keeper) Codec() *codec.Codec {
 	return k.Cdc
 }
 
-// "GetBlock" returns the block from the tendermint node at a certain height
+// "GetBlock" returns the block from the tendermint provider at a certain height
 func (k Keeper) GetBlock(height int) (*coretypes.ResultBlock, error) {
 	h := int64(height)
 	return k.TmNode.Block(&h)

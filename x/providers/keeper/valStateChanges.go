@@ -183,7 +183,7 @@ func (k Keeper) ValidateValidatorStaking(ctx sdk.Ctx, validator types.Validator,
 
 // ValidateValidatorMsgSigner Check Validator Signature
 func ValidateValidatorMsgSigner(validator types.Validator, signerAddress sdk.Address, k Keeper) (sdk.Error, bool) {
-	//check if outputAddress is defined, if not only the operator/node signature is valid
+	//check if outputAddress is defined, if not only the operator/provider signature is valid
 	if validator.OutputAddress == nil {
 		if !signerAddress.Equals(validator.Address) {
 			return types.ErrUnauthorizedSigner(k.Codespace()), false

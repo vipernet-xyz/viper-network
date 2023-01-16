@@ -55,7 +55,7 @@ func (ps ProofIs) FromProofI() (res Proofs) {
 
 var _ Proof = RelayProof{} // ensure implements interface at compile time
 
-// "ValidateLocal" - Validates the proof object, where the owner of the proof is the local node
+// "ValidateLocal" - Validates the proof object, where the owner of the proof is the local provider
 func (rp RelayProof) ValidateLocal(platformSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64, verifyAddr sdk.Address) sdk.Error {
 	//Basic Validations
 	err := rp.ValidateBasic()
@@ -236,9 +236,9 @@ func (rp RelayProof) GetSigner() sdk.Address {
 var _ Proof = ChallengeProofInvalidData{} // compile time interface implementation
 
 // "ValidateLocal" - Validate local is used to validate a challenge request directly from a client
-func (c ChallengeProofInvalidData) ValidateLocal(h SessionHeader, maxRelays sdk.BigInt, supportedBlockchains []string, sessionNodeCount int, sessionNodes SessionNodes, selfAddr sdk.Address) sdk.Error {
+func (c ChallengeProofInvalidData) ValidateLocal(h SessionHeader, maxRelays sdk.BigInt, supportedBlockchains []string, sessionNodeCount int, sessionProviders SessionProviders, selfAddr sdk.Address) sdk.Error {
 	// check if verifyPubKey in session (must be in session to do challenges)
-	if !sessionNodes.Contains(selfAddr) {
+	if !sessionProviders.Contains(selfAddr) {
 		return NewNodeNotInSessionError(ModuleName)
 	}
 	sessionblockHeight := h.SessionBlockHeight

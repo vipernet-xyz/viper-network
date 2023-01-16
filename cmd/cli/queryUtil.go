@@ -31,7 +31,7 @@ var (
 	GetBalancePath,
 	GetAccountTxsPath,
 	GetNodeParamsPath,
-	GetNodesPath,
+	GetProvidersPath,
 	GetSigningInfoPath,
 	GetAppsPath,
 	GetAppParamsPath,
@@ -81,8 +81,8 @@ func init() {
 			GetAccountTxsPath = route.Path
 		case "QueryNodeParams":
 			GetNodeParamsPath = route.Path
-		case "QueryNodes":
-			GetNodesPath = route.Path
+		case "QueryProviders":
+			GetProvidersPath = route.Path
 		case "QuerySigningInfo":
 			GetSigningInfoPath = route.Path
 		case "QueryApps":

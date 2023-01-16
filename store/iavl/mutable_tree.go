@@ -24,7 +24,7 @@ var ErrVersionDoesNotExist = errors.New("version does not exist")
 type MutableTree struct {
 	*ImmutableTree                  // The current, working tree.
 	lastSaved      *ImmutableTree   // The most recently saved tree.
-	orphans        map[string]int64 // Nodes removed by changes to working tree.
+	orphans        map[string]int64 // Providers removed by changes to working tree.
 	versions       map[int64]bool   // The previous, saved versions of the tree.
 	ndb            *nodeDB
 }

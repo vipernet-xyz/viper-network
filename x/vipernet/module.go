@@ -128,7 +128,7 @@ func (pm PlatformModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.Va
 				time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
 				s, err := pm.keeper.TmNode.Status()
 				if err != nil {
-					ctx.Logger().Error(fmt.Sprintf("could not get status for tendermint node (cannot submit claims/proofs in this state): %s", err.Error()))
+					ctx.Logger().Error(fmt.Sprintf("could not get status for tendermint provider (cannot submit claims/proofs in this state): %s", err.Error()))
 				} else {
 					if !s.SyncInfo.CatchingUp {
 						// auto send the proofs

@@ -126,7 +126,7 @@ func (k Keeper) ServicerStakeBinExponent(ctx sdk.Ctx) (res sdk.BigDec) {
 	return
 }
 
-func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (nodeReward sdk.BigInt, feesCollected sdk.BigInt) {
+func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (providerReward sdk.BigInt, feesCollected sdk.BigInt) {
 	// convert reward to dec
 	r := reward.ToDec()
 	// get the dao and proposer % ex DAO .08 or 8% Proposer .01 or 1%  App .02 or 2%
@@ -140,8 +140,8 @@ func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (nodeReward sdk.BigIn
 	feesCollected = daoAllocation.Add(proposerAllocation).TruncateInt()
 	//platformAllocation go to the platform
 	platformAllocation := r.Mul(platformAllocationPercentage).TruncateInt()
-	// the rest goes to the node
-	nodeReward = reward.Sub(feesCollected).Sub(platformAllocation)
+	// the rest goes to the provider
+	providerReward = reward.Sub(feesCollected).Sub(platformAllocation)
 	return
 }
 

@@ -17,7 +17,7 @@ import (
 	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
@@ -396,18 +396,18 @@ func newDefaultGenesisState() []byte {
 	res = Codec().MustMarshalJSON(viperGenesis)
 	defaultGenesis[types.ModuleName] = res
 	// setup pos genesis
-	rawPOS := defaultGenesis[nodesTypes.ModuleName]
-	var posGenesisState nodesTypes.GenesisState
+	rawPOS := defaultGenesis[providersTypes.ModuleName]
+	var posGenesisState providersTypes.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawPOS, &posGenesisState)
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{Address: sdk.Address(pubKey.Address()),
+		providersTypes.Validator{Address: sdk.Address(pubKey.Address()),
 			PublicKey:    pubKey,
 			Status:       sdk.Staked,
 			Chains:       []string{sdk.PlaceholderHash},
 			ServiceURL:   sdk.PlaceholderServiceURL,
 			StakedTokens: sdk.NewInt(10000000)})
 	res = types.ModuleCdc.MustMarshalJSON(posGenesisState)
-	defaultGenesis[nodesTypes.ModuleName] = res
+	defaultGenesis[providersTypes.ModuleName] = res
 	// set default governance in genesis
 	var govGenesisState govTypes.GenesisState
 	rawGov := defaultGenesis[govTypes.ModuleName]

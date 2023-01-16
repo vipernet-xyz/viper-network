@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
-	nodesExported "github.com/vipernet-xyz/viper-network/x/providers/exported"
+	providersExported "github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
 // AuthKeeper defines the expected supply Keeper (noalias)
@@ -31,12 +31,12 @@ type AuthKeeper interface {
 type PosKeeper interface {
 	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, appAddress sdk.Address)
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
-	Validator(ctx sdk.Ctx, addr sdk.Address) nodesExported.ValidatorI
+	Validator(ctx sdk.Ctx, addr sdk.Address) providersExported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
 	BurnForChallenge(ctx sdk.Ctx, challenges sdk.BigInt, address sdk.Address)
 	JailValidator(ctx sdk.Ctx, addr sdk.Address)
-	AllValidators(ctx sdk.Ctx) (validators []nodesExported.ValidatorI)
-	GetStakedValidators(ctx sdk.Ctx) (validators []nodesExported.ValidatorI)
+	AllValidators(ctx sdk.Ctx) (validators []providersExported.ValidatorI)
+	GetStakedValidators(ctx sdk.Ctx) (validators []providersExported.ValidatorI)
 	SessionBlockFrequency(ctx sdk.Ctx) (res int64)
 	StakeDenom(ctx sdk.Ctx) (res string)
 }

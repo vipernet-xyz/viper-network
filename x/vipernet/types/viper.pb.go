@@ -67,7 +67,7 @@ var xxx_messageInfo_SessionHeader proto.InternalMessageInfo
 type Session struct {
 	SessionHeader SessionHeader `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
 	SessionKey    SessionKey    `protobuf:"bytes,2,opt,name=sessionKey,proto3,casttype=SessionKey" json:"key"`
-	SessionNodes  SessionNodes  `protobuf:"bytes,3,rep,name=sessionNodes,proto3,castrepeated=SessionNodes" json:"providers"`
+	SessionProviders  SessionProviders  `protobuf:"bytes,3,rep,name=sessionProviders,proto3,castrepeated=SessionProviders" json:"providers"`
 }
 
 func (m *Session) Reset()         { *m = Session{} }
@@ -776,11 +776,11 @@ func (m *Session) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.SessionNodes) > 0 {
-		for iNdEx := len(m.SessionNodes) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.SessionNodes[iNdEx])
-			copy(dAtA[i:], m.SessionNodes[iNdEx])
-			i = encodeVarintViper(dAtA, i, uint64(len(m.SessionNodes[iNdEx])))
+	if len(m.SessionProviders) > 0 {
+		for iNdEx := len(m.SessionProviders) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.SessionProviders[iNdEx])
+			copy(dAtA[i:], m.SessionProviders[iNdEx])
+			i = encodeVarintViper(dAtA, i, uint64(len(m.SessionProviders[iNdEx])))
 			i--
 			dAtA[i] = 0x1a
 		}
@@ -1449,8 +1449,8 @@ func (m *Session) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
-	if len(m.SessionNodes) > 0 {
-		for _, b := range m.SessionNodes {
+	if len(m.SessionProviders) > 0 {
+		for _, b := range m.SessionProviders {
 			l = len(b)
 			n += 1 + l + sovViper(uint64(l))
 		}
@@ -1953,7 +1953,7 @@ func (m *Session) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SessionNodes", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SessionProviders", wireType)
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
@@ -1980,8 +1980,8 @@ func (m *Session) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SessionNodes = append(m.SessionNodes, make([]byte, postIndex-iNdEx))
-			copy(m.SessionNodes[len(m.SessionNodes)-1], dAtA[iNdEx:postIndex])
+			m.SessionProviders = append(m.SessionProviders, make([]byte, postIndex-iNdEx))
+			copy(m.SessionProviders[len(m.SessionProviders)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

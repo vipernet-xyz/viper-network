@@ -245,18 +245,18 @@ func TestUnstakeNode(t *testing.T) {
 					select {
 					case res := <-evtChan:
 						if len(res.Events["begin_unstake.module"]) == 1 {
-							got, err := PCA.QueryNodes(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 1, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // unstaking
+							got, err := PCA.QueryProviders(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 1, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // unstaking
 							assert.Nil(t, err)
 							res := got.Result.([]nodeTypes.Validator)
 							assert.Equal(t, 1, len(res))
-							got, err = PCA.QueryNodes(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 2, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // staked
+							got, err = PCA.QueryProviders(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 2, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // staked
 							assert.Nil(t, err)
 							res = got.Result.([]nodeTypes.Validator)
 							assert.Equal(t, 1, len(res))
 							memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlockHeader)
 							header := <-evtChan // Wait for header
 							if len(header.Events["unstake.module"]) == 1 {
-								got, err := PCA.QueryNodes(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 0, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1})
+								got, err := PCA.QueryProviders(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 0, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1})
 								assert.Nil(t, err)
 								res := got.Result.([]nodeTypes.Validator)
 								assert.Equal(t, 1, len(res))
@@ -536,18 +536,18 @@ func TestUnstakeNode8(t *testing.T) {
 				select {
 				case res := <-evtChan:
 					if len(res.Events["begin_unstake.module"]) == 1 {
-						got, err := PCA.QueryNodes(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 1, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // unstaking
+						got, err := PCA.QueryProviders(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 1, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // unstaking
 						assert.Nil(t, err)
 						res := got.Result.([]nodeTypes.Validator)
 						assert.Equal(t, 1, len(res))
-						got, err = PCA.QueryNodes(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 2, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // staked
+						got, err = PCA.QueryProviders(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 2, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1}) // staked
 						assert.Nil(t, err)
 						res = got.Result.([]nodeTypes.Validator)
 						assert.Equal(t, 1, len(res))
 						memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlockHeader)
 						header := <-evtChan // Wait for header
 						if len(header.Events["unstake.module"]) == 1 {
-							got, err := PCA.QueryNodes(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 0, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1})
+							got, err := PCA.QueryProviders(PCA.LastBlockHeight(), nodeTypes.QueryValidatorsParams{StakingStatus: 0, JailedStatus: 0, Blockchain: "", Page: 1, Limit: 1})
 							assert.Nil(t, err)
 							res := got.Result.([]nodeTypes.Validator)
 							assert.Equal(t, 1, len(res))
@@ -574,7 +574,7 @@ func TestUnstakeNode8(t *testing.T) {
 	}
 
 }
-func TestStakeNodes(t *testing.T) {
+func TestStakeProviders(t *testing.T) {
 	tt := []struct {
 		name           string
 		memoryNodeFn   func(t *testing.T, genesisState []byte) (tendermint *node.Node, keybase keys.Keybase, cleanup func())

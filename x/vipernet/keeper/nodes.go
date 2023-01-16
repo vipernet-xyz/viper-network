@@ -7,7 +7,7 @@ import (
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
-// "GetNode" - Gets a node from the state storage
+// "GetNode" - Gets a provider from the state storage
 func (k Keeper) GetNode(ctx sdk.Ctx, address sdk.Address) (n exported.ValidatorI, found bool) {
 	n = k.posKeeper.Validator(ctx, address)
 	if n == nil {
@@ -34,9 +34,9 @@ func (k Keeper) GetSelfPrivKey(ctx sdk.Ctx) (crypto.PrivateKey, sdk.Error) {
 	return pk, nil
 }
 
-// "GetSelfNode" - Gets self node (private val key) from the world state
-func (k Keeper) GetSelfNode(ctx sdk.Ctx) (node exported.ValidatorI, er sdk.Error) {
-	// get the node from the world state
+// "GetSelfNode" - Gets self provider (private val key) from the world state
+func (k Keeper) GetSelfNode(ctx sdk.Ctx) (provider exported.ValidatorI, er sdk.Error) {
+	// get the provider from the world state
 	self, found := k.GetNode(ctx, k.GetSelfAddress(ctx))
 	if !found {
 		er = vc.NewSelfNotFoundError(vc.ModuleName)

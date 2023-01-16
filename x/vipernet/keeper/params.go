@@ -10,7 +10,7 @@ func ParamKeyTable() sdk.KeyTable {
 	return sdk.NewKeyTable().RegisterParamSet(&types.Params{})
 }
 
-// "SessionNodeCount" - Returns the session node count parameter from the paramstore
+// "SessionNodeCount" - Returns the session provider count parameter from the paramstore
 // Number of providers dispatched in a single session
 func (k Keeper) SessionNodeCount(ctx sdk.Ctx) (res int64) {
 	k.Paramstore.Get(ctx, types.KeySessionNodeCount, &res)

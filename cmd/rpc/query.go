@@ -17,7 +17,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/app"
 	appTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	nodeTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providerTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/julienschmidt/httprouter"
 	core_types "github.com/tendermint/tendermint/rpc/core/types"
@@ -46,8 +46,8 @@ type HeightAndAddrParams struct {
 }
 
 type HeightAndValidatorOptsParams struct {
-	Height int64                           `json:"height"`
-	Opts   nodeTypes.QueryValidatorsParams `json:"opts"`
+	Height int64                               `json:"height"`
+	Opts   providerTypes.QueryValidatorsParams `json:"opts"`
 }
 
 type HeightAndApplicaitonOptsParams struct {
@@ -389,7 +389,7 @@ func Accounts(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	WriteJSONResponse(w, string(s), r.URL.Path, r.Host)
 }
 
-func Nodes(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func Providers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var params = HeightAndValidatorOptsParams{}
 	if err := PopModel(w, r, ps, &params); err != nil {
 		WriteErrorResponse(w, 400, err.Error())
@@ -404,7 +404,7 @@ func Nodes(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Opts.Limit == 0 {
 		params.Opts.Limit = 1000
 	}
-	res, err := app.PCA.QueryNodes(params.Height, params.Opts)
+	res, err := app.PCA.QueryProviders(params.Height, params.Opts)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -523,7 +523,7 @@ func NodeParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func QueryValidatorsByChain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var params = HeightAndValidatorOptsParams{
 		Height: 0,
-		Opts: nodeTypes.QueryValidatorsParams{
+		Opts: providerTypes.QueryValidatorsParams{
 			Blockchain: "0001",
 		},
 	}
@@ -719,7 +719,7 @@ func SupportedChains(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 }
 
 type querySupplyResponse struct {
-	NodeStaked    string `json:"node_staked"`
+	NodeStaked    string `json:"provider_staked"`
 	AppStaked     string `json:"app_staked"`
 	Dao           string `json:"dao"`
 	TotalStaked   string `json:"total_staked"`
@@ -736,7 +736,7 @@ func Supply(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Height == 0 {
 		params.Height = app.PCA.BaseApp.LastBlockHeight()
 	}
-	nodesStake, total, err := app.PCA.QueryTotalNodeCoins(params.Height)
+	providersStake, total, err := app.PCA.QueryTotalNodeCoins(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -751,10 +751,10 @@ func Supply(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	totalStaked := nodesStake.Add(platformsStaked).Add(dao)
+	totalStaked := providersStake.Add(platformsStaked).Add(dao)
 	totalUnstaked := total.Sub(totalStaked)
 	res, err := json.MarshalIndent(&querySupplyResponse{
-		NodeStaked:    nodesStake.String(),
+		NodeStaked:    providersStake.String(),
 		AppStaked:     platformsStaked.String(),
 		Dao:           dao.String(),
 		TotalStaked:   totalStaked.BigInt().String(),

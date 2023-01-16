@@ -36,7 +36,7 @@ var _ types.ParamSet = (*Params)(nil)
 
 // "Params" - defines the governance set, high level settings for vipernet module
 type Params struct {
-	SessionNodeCount           int64    `json:"session_node_count"`
+	SessionNodeCount           int64    `json:"session_provider_count"`
 	ClaimSubmissionWindow      int64    `json:"proof_waiting_period"`
 	SupportedBlockchains       []string `json:"supported_blockchains"`
 	ClaimExpiration            int64    `json:"claim_expiration"` // per session
@@ -75,7 +75,7 @@ func DefaultParams() Params {
 func (p Params) Validate() error {
 	// session count constraints
 	if p.SessionNodeCount > 25 || p.SessionNodeCount < 1 {
-		return errors.New("invalid session node count")
+		return errors.New("invalid session provider count")
 	}
 	// claim submission window constraints
 	if p.ClaimSubmissionWindow < 2 {

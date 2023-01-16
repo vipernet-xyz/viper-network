@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -100,7 +100,7 @@ func UpdateChains(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		}
 		m := make(map[string]types.HostedBlockchain)
 		for _, chain := range hostedChainsSlice {
-			if err := nodesTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+			if err := providersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 				WriteErrorResponse(w, 400, fmt.Sprintf("invalid ID: %s in network identifier in json", chain.ID))
 				return
 			}

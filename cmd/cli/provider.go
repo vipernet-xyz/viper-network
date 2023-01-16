@@ -11,27 +11,27 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(nodesCmd)
-	nodesCmd.AddCommand(nodeUnstakeCmd)
-	nodesCmd.AddCommand(nodeUnjailCmd)
+	rootCmd.AddCommand(providersCmd)
+	providersCmd.AddCommand(providerUnstakeCmd)
+	providersCmd.AddCommand(providerUnjailCmd)
 }
 
-var nodesCmd = &cobra.Command{
+var providersCmd = &cobra.Command{
 	Use:   "providers",
-	Short: "node management",
-	Long: `The node namespace handles all node related interactions,
+	Short: "provider management",
+	Long: `The provider namespace handles all provider related interactions,
 from staking and unstaking; to unjailing.`,
 }
 
 func init() {
-	nodeUnstakeCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
-	nodeUnjailCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
+	providerUnstakeCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
+	providerUnjailCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 }
 
-var nodeUnstakeCmd = &cobra.Command{
+var providerUnstakeCmd = &cobra.Command{
 	Use:   "unstake <operatorAddr> <fromAddr> <networkID> <fee>",
-	Short: "Unstake a node in the network",
-	Long: `Unstake a node from the network, changing it's status to Unstaking.
+	Short: "Unstake a provider in the network",
+	Long: `Unstake a provider from the network, changing it's status to Unstaking.
 Will prompt the user for the <fromAddr> account passphrase.`,
 	Args: cobra.ExactArgs(4),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -61,10 +61,10 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 	},
 }
 
-var nodeUnjailCmd = &cobra.Command{
+var providerUnjailCmd = &cobra.Command{
 	Use:   "unjail <operatorAddr> <fromAddr> <networkID> <fee>",
-	Short: "Unjails a node in the network",
-	Long: `Unjails a node from the network, allowing it to participate in service and consensus again.
+	Short: "Unjails a provider in the network",
+	Long: `Unjails a provider from the network, allowing it to participate in service and consensus again.
 Will prompt the user for the <fromAddr> account passphrase.`,
 	Args: cobra.ExactArgs(4),
 	Run: func(cmd *cobra.Command, args []string) {

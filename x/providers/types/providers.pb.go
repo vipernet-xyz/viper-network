@@ -432,7 +432,7 @@ func (m *ProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if len(m.OutputAddress) > 0 {
 		i -= len(m.OutputAddress)
 		copy(dAtA[i:], m.OutputAddress)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.OutputAddress)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.OutputAddress)))
 		i--
 		dAtA[i] = 0x4a
 	}
@@ -441,7 +441,7 @@ func (m *ProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		return 0, err1
 	}
 	i -= n1
-	i = encodeVarintNodes(dAtA, i, uint64(n1))
+	i = encodeVarintProviders(dAtA, i, uint64(n1))
 	i--
 	dAtA[i] = 0x42
 	{
@@ -450,14 +450,14 @@ func (m *ProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		if _, err := m.StakedTokens.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
-		i = encodeVarintNodes(dAtA, i, uint64(size))
+		i = encodeVarintProviders(dAtA, i, uint64(size))
 	}
 	i--
 	dAtA[i] = 0x3a
 	if len(m.ServiceURL) > 0 {
 		i -= len(m.ServiceURL)
 		copy(dAtA[i:], m.ServiceURL)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.ServiceURL)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.ServiceURL)))
 		i--
 		dAtA[i] = 0x32
 	}
@@ -465,13 +465,13 @@ func (m *ProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		for iNdEx := len(m.Chains) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.Chains[iNdEx])
 			copy(dAtA[i:], m.Chains[iNdEx])
-			i = encodeVarintNodes(dAtA, i, uint64(len(m.Chains[iNdEx])))
+			i = encodeVarintProviders(dAtA, i, uint64(len(m.Chains[iNdEx])))
 			i--
 			dAtA[i] = 0x2a
 		}
 	}
 	if m.Status != 0 {
-		i = encodeVarintNodes(dAtA, i, uint64(m.Status))
+		i = encodeVarintProviders(dAtA, i, uint64(m.Status))
 		i--
 		dAtA[i] = 0x20
 	}
@@ -488,14 +488,14 @@ func (m *ProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if len(m.PublicKey) > 0 {
 		i -= len(m.PublicKey)
 		copy(dAtA[i:], m.PublicKey)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.PublicKey)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.PublicKey)))
 		i--
 		dAtA[i] = 0x12
 	}
 	if len(m.Address) > 0 {
 		i -= len(m.Address)
 		copy(dAtA[i:], m.Address)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.Address)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.Address)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -527,7 +527,7 @@ func (m *LegacyProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		return 0, err2
 	}
 	i -= n2
-	i = encodeVarintNodes(dAtA, i, uint64(n2))
+	i = encodeVarintProviders(dAtA, i, uint64(n2))
 	i--
 	dAtA[i] = 0x42
 	{
@@ -536,14 +536,14 @@ func (m *LegacyProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		if _, err := m.StakedTokens.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
-		i = encodeVarintNodes(dAtA, i, uint64(size))
+		i = encodeVarintProviders(dAtA, i, uint64(size))
 	}
 	i--
 	dAtA[i] = 0x3a
 	if len(m.ServiceURL) > 0 {
 		i -= len(m.ServiceURL)
 		copy(dAtA[i:], m.ServiceURL)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.ServiceURL)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.ServiceURL)))
 		i--
 		dAtA[i] = 0x32
 	}
@@ -551,13 +551,13 @@ func (m *LegacyProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		for iNdEx := len(m.Chains) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.Chains[iNdEx])
 			copy(dAtA[i:], m.Chains[iNdEx])
-			i = encodeVarintNodes(dAtA, i, uint64(len(m.Chains[iNdEx])))
+			i = encodeVarintProviders(dAtA, i, uint64(len(m.Chains[iNdEx])))
 			i--
 			dAtA[i] = 0x2a
 		}
 	}
 	if m.Status != 0 {
-		i = encodeVarintNodes(dAtA, i, uint64(m.Status))
+		i = encodeVarintProviders(dAtA, i, uint64(m.Status))
 		i--
 		dAtA[i] = 0x20
 	}
@@ -574,14 +574,14 @@ func (m *LegacyProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if len(m.PublicKey) > 0 {
 		i -= len(m.PublicKey)
 		copy(dAtA[i:], m.PublicKey)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.PublicKey)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.PublicKey)))
 		i--
 		dAtA[i] = 0x12
 	}
 	if len(m.Address) > 0 {
 		i -= len(m.Address)
 		copy(dAtA[i:], m.Address)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.Address)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.Address)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -609,12 +609,12 @@ func (m *ValidatorSigningInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	if m.JailedBlocksCounter != 0 {
-		i = encodeVarintNodes(dAtA, i, uint64(m.JailedBlocksCounter))
+		i = encodeVarintProviders(dAtA, i, uint64(m.JailedBlocksCounter))
 		i--
 		dAtA[i] = 0x30
 	}
 	if m.MissedBlocksCounter != 0 {
-		i = encodeVarintNodes(dAtA, i, uint64(m.MissedBlocksCounter))
+		i = encodeVarintProviders(dAtA, i, uint64(m.MissedBlocksCounter))
 		i--
 		dAtA[i] = 0x28
 	}
@@ -623,31 +623,31 @@ func (m *ValidatorSigningInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		return 0, err3
 	}
 	i -= n3
-	i = encodeVarintNodes(dAtA, i, uint64(n3))
+	i = encodeVarintProviders(dAtA, i, uint64(n3))
 	i--
 	dAtA[i] = 0x22
 	if m.Index != 0 {
-		i = encodeVarintNodes(dAtA, i, uint64(m.Index))
+		i = encodeVarintProviders(dAtA, i, uint64(m.Index))
 		i--
 		dAtA[i] = 0x18
 	}
 	if m.StartHeight != 0 {
-		i = encodeVarintNodes(dAtA, i, uint64(m.StartHeight))
+		i = encodeVarintProviders(dAtA, i, uint64(m.StartHeight))
 		i--
 		dAtA[i] = 0x10
 	}
 	if len(m.Address) > 0 {
 		i -= len(m.Address)
 		copy(dAtA[i:], m.Address)
-		i = encodeVarintNodes(dAtA, i, uint64(len(m.Address)))
+		i = encodeVarintProviders(dAtA, i, uint64(len(m.Address)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func encodeVarintNodes(dAtA []byte, offset int, v uint64) int {
-	offset -= sovNodes(v)
+func encodeVarintProviders(dAtA []byte, offset int, v uint64) int {
+	offset -= sovProviders(v)
 	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -665,35 +665,35 @@ func (m *ProtoValidator) Size() (n int) {
 	_ = l
 	l = len(m.Address)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	l = len(m.PublicKey)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	if m.Jailed {
 		n += 2
 	}
 	if m.Status != 0 {
-		n += 1 + sovNodes(uint64(m.Status))
+		n += 1 + sovProviders(uint64(m.Status))
 	}
 	if len(m.Chains) > 0 {
 		for _, s := range m.Chains {
 			l = len(s)
-			n += 1 + l + sovNodes(uint64(l))
+			n += 1 + l + sovProviders(uint64(l))
 		}
 	}
 	l = len(m.ServiceURL)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	l = m.StakedTokens.Size()
-	n += 1 + l + sovNodes(uint64(l))
+	n += 1 + l + sovProviders(uint64(l))
 	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.UnstakingCompletionTime)
-	n += 1 + l + sovNodes(uint64(l))
+	n += 1 + l + sovProviders(uint64(l))
 	l = len(m.OutputAddress)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	return n
 }
@@ -706,32 +706,32 @@ func (m *LegacyProtoValidator) Size() (n int) {
 	_ = l
 	l = len(m.Address)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	l = len(m.PublicKey)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	if m.Jailed {
 		n += 2
 	}
 	if m.Status != 0 {
-		n += 1 + sovNodes(uint64(m.Status))
+		n += 1 + sovProviders(uint64(m.Status))
 	}
 	if len(m.Chains) > 0 {
 		for _, s := range m.Chains {
 			l = len(s)
-			n += 1 + l + sovNodes(uint64(l))
+			n += 1 + l + sovProviders(uint64(l))
 		}
 	}
 	l = len(m.ServiceURL)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	l = m.StakedTokens.Size()
-	n += 1 + l + sovNodes(uint64(l))
+	n += 1 + l + sovProviders(uint64(l))
 	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.UnstakingCompletionTime)
-	n += 1 + l + sovNodes(uint64(l))
+	n += 1 + l + sovProviders(uint64(l))
 	return n
 }
 
@@ -743,30 +743,30 @@ func (m *ValidatorSigningInfo) Size() (n int) {
 	_ = l
 	l = len(m.Address)
 	if l > 0 {
-		n += 1 + l + sovNodes(uint64(l))
+		n += 1 + l + sovProviders(uint64(l))
 	}
 	if m.StartHeight != 0 {
-		n += 1 + sovNodes(uint64(m.StartHeight))
+		n += 1 + sovProviders(uint64(m.StartHeight))
 	}
 	if m.Index != 0 {
-		n += 1 + sovNodes(uint64(m.Index))
+		n += 1 + sovProviders(uint64(m.Index))
 	}
 	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.JailedUntil)
-	n += 1 + l + sovNodes(uint64(l))
+	n += 1 + l + sovProviders(uint64(l))
 	if m.MissedBlocksCounter != 0 {
-		n += 1 + sovNodes(uint64(m.MissedBlocksCounter))
+		n += 1 + sovProviders(uint64(m.MissedBlocksCounter))
 	}
 	if m.JailedBlocksCounter != 0 {
-		n += 1 + sovNodes(uint64(m.JailedBlocksCounter))
+		n += 1 + sovProviders(uint64(m.JailedBlocksCounter))
 	}
 	return n
 }
 
-func sovNodes(x uint64) (n int) {
+func sovProviders(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-func sozNodes(x uint64) (n int) {
-	return sovNodes(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+func sozProviders(x uint64) (n int) {
+	return sovProviders(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
 func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -776,7 +776,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
 			if shift >= 64 {
-				return ErrIntOverflowNodes
+				return ErrIntOverflowProviders
 			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
@@ -804,7 +804,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -817,11 +817,11 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if byteLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + byteLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -838,7 +838,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -851,11 +851,11 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if byteLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + byteLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -872,7 +872,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -892,7 +892,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			m.Status = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -911,7 +911,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -925,11 +925,11 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -943,7 +943,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -957,11 +957,11 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -975,7 +975,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -989,11 +989,11 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1009,7 +1009,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1022,11 +1022,11 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if msglen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + msglen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1042,7 +1042,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1055,11 +1055,11 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if byteLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + byteLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1071,15 +1071,15 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipNodes(dAtA[iNdEx:])
+			skippy, err := skipProviders(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
 			if skippy < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
@@ -1101,7 +1101,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
 			if shift >= 64 {
-				return ErrIntOverflowNodes
+				return ErrIntOverflowProviders
 			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
@@ -1129,7 +1129,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1142,11 +1142,11 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if byteLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + byteLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1163,7 +1163,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1176,11 +1176,11 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if byteLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + byteLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1197,7 +1197,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1217,7 +1217,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			m.Status = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1236,7 +1236,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1250,11 +1250,11 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1268,7 +1268,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1282,11 +1282,11 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1300,7 +1300,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1314,11 +1314,11 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1334,7 +1334,7 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1347,11 +1347,11 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if msglen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + msglen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1362,15 +1362,15 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipNodes(dAtA[iNdEx:])
+			skippy, err := skipProviders(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
 			if skippy < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
@@ -1392,7 +1392,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
 			if shift >= 64 {
-				return ErrIntOverflowNodes
+				return ErrIntOverflowProviders
 			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
@@ -1420,7 +1420,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1433,11 +1433,11 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if byteLen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + byteLen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1454,7 +1454,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 			m.StartHeight = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1473,7 +1473,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 			m.Index = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1492,7 +1492,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1505,11 +1505,11 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 				}
 			}
 			if msglen < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			postIndex := iNdEx + msglen
 			if postIndex < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1525,7 +1525,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 			m.MissedBlocksCounter = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1544,7 +1544,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 			m.JailedBlocksCounter = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflowNodes
+					return ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1558,15 +1558,15 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 			}
 		default:
 			iNdEx = preIndex
-			skippy, err := skipNodes(dAtA[iNdEx:])
+			skippy, err := skipProviders(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
 			if skippy < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthNodes
+				return ErrInvalidLengthProviders
 			}
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
@@ -1580,7 +1580,7 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func skipNodes(dAtA []byte) (n int, err error) {
+func skipProviders(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
 	depth := 0
@@ -1588,7 +1588,7 @@ func skipNodes(dAtA []byte) (n int, err error) {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
 			if shift >= 64 {
-				return 0, ErrIntOverflowNodes
+				return 0, ErrIntOverflowProviders
 			}
 			if iNdEx >= l {
 				return 0, io.ErrUnexpectedEOF
@@ -1605,7 +1605,7 @@ func skipNodes(dAtA []byte) (n int, err error) {
 		case 0:
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return 0, ErrIntOverflowNodes
+					return 0, ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
@@ -1621,7 +1621,7 @@ func skipNodes(dAtA []byte) (n int, err error) {
 			var length int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return 0, ErrIntOverflowNodes
+					return 0, ErrIntOverflowProviders
 				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
@@ -1634,14 +1634,14 @@ func skipNodes(dAtA []byte) (n int, err error) {
 				}
 			}
 			if length < 0 {
-				return 0, ErrInvalidLengthNodes
+				return 0, ErrInvalidLengthProviders
 			}
 			iNdEx += length
 		case 3:
 			depth++
 		case 4:
 			if depth == 0 {
-				return 0, ErrUnexpectedEndOfGroupNodes
+				return 0, ErrUnexpectedEndOfGroupProviders
 			}
 			depth--
 		case 5:
@@ -1650,7 +1650,7 @@ func skipNodes(dAtA []byte) (n int, err error) {
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
 		if iNdEx < 0 {
-			return 0, ErrInvalidLengthNodes
+			return 0, ErrInvalidLengthProviders
 		}
 		if depth == 0 {
 			return iNdEx, nil
@@ -1660,7 +1660,7 @@ func skipNodes(dAtA []byte) (n int, err error) {
 }
 
 var (
-	ErrInvalidLengthNodes        = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowNodes          = fmt.Errorf("proto: integer overflow")
-	ErrUnexpectedEndOfGroupNodes = fmt.Errorf("proto: unexpected end of group")
+	ErrInvalidLengthProviders        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowProviders          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupProviders = fmt.Errorf("proto: unexpected end of group")
 )

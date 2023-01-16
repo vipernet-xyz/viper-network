@@ -4,7 +4,7 @@ import (
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
-// "GetHostedBlockchains" returns the non native chains hosted locally on this node
+// "GetHostedBlockchains" returns the non native chains hosted locally on this provider
 func (k Keeper) GetHostedBlockchains() *vc.HostedBlockchains {
 	return k.hostedBlockchains
 }

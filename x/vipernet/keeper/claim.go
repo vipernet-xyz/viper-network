@@ -114,7 +114,7 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	if !k.IsViperSupportedBlockchain(sessionContext, claim.SessionHeader.Chain) {
 		return vc.NewChainNotSupportedErr(vc.ModuleName)
 	}
-	// get the node from the keeper (at the state of the start of the session)
+	// get the provider from the keeper (at the state of the start of the session)
 	_, found := k.GetNode(sessionContext, claim.FromAddress)
 	// if not found return not found error
 	if !found {
@@ -131,7 +131,7 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 			return vc.NewOverServiceError(vc.ModuleName)
 		}
 	}
-	// get the session node count for the time of the session
+	// get the session provider count for the time of the session
 	sessionNodeCount := int(k.SessionNodeCount(sessionContext))
 	// check cache
 	session, found := vc.GetSession(claim.SessionHeader)

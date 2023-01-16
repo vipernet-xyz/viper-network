@@ -4,7 +4,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
-// "StakeDenom" - Returns the stake coin denomination from the node module
+// "StakeDenom" - Returns the stake coin denomination from the provider module
 func (k Keeper) StakeDenom(ctx sdk.Ctx) (res string) {
 	res = k.posKeeper.StakeDenom(ctx)
 	return
@@ -17,7 +17,7 @@ func (k Keeper) GetPlatformStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
 }
 
 // "GetNodeStakedTokens" - Returns the total number of staked tokens in the providers module
-func (k Keeper) GetNodesStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
+func (k Keeper) GetProvidersStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
 	res = k.posKeeper.GetStakedTokens(ctx)
 	return
 }
@@ -28,8 +28,8 @@ func (k Keeper) GetTotalTokens(ctx sdk.Ctx) (res sdk.BigInt) {
 	return
 }
 
-// "GetTotalStakedTokens" - Returns the summation of platform staked tokens and node staked tokens
+// "GetTotalStakedTokens" - Returns the summation of platform staked tokens and provider staked tokens
 func (k Keeper) GetTotalStakedTokens(ctx sdk.Ctx) (res sdk.BigInt) {
-	res = k.GetNodesStakedTokens(ctx).Add(k.GetPlatformStakedTokens(ctx))
+	res = k.GetProvidersStakedTokens(ctx).Add(k.GetPlatformStakedTokens(ctx))
 	return
 }

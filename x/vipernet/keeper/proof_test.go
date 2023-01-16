@@ -49,7 +49,7 @@ func TestKeeper_ValidateProof(t *testing.T) { // hplatformy path only todo
 	neededLeafIndex, er := keeper.getPseudorandomIndex(mockCtx, maxRelays, header, mockCtx)
 	assert.Nil(t, er)
 	merkleProofs, _ := evidence.GenerateMerkleProof(0, int(neededLeafIndex), maxRelays)
-	// get leaf and cousin node
+	// get leaf and cousin provider
 	leafNode := types.GetProof(header, types.RelayEvidence, neededLeafIndex)
 	// create proof message
 	proofMsg := types.MsgProof{

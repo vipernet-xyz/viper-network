@@ -63,7 +63,7 @@ const (
 	DefaultKeybaseName                 = "viper-keybase"
 	DefaultPVKName                     = "priv_val_key.json"
 	DefaultPVSName                     = "priv_val_state.json"
-	DefaultNKName                      = "node_key.json"
+	DefaultNKName                      = "provider_key.json"
 	DefaultChainsName                  = "chains.json"
 	DefaultGenesisName                 = "genesis.json"
 	DefaultRPCPort                     = "8081"

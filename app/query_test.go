@@ -182,15 +182,15 @@ func TestQueryValidators(t *testing.T) {
 			time.Sleep(2 * time.Second)
 			_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			got, err := PCA.QueryNodes(PCA.LastBlockHeight(), types2.QueryValidatorsParams{Page: 1, Limit: 1})
+			got, err := PCA.QueryProviders(PCA.LastBlockHeight(), types2.QueryValidatorsParams{Page: 1, Limit: 1})
 			assert.Nil(t, err)
 			res := got.Result.([]types2.Validator)
 			assert.Equal(t, 1, len(res))
-			got, err = PCA.QueryNodes(0, types2.QueryValidatorsParams{Page: 2, Limit: 1})
+			got, err = PCA.QueryProviders(0, types2.QueryValidatorsParams{Page: 2, Limit: 1})
 			assert.Nil(t, err)
 			res = got.Result.([]types2.Validator)
 			assert.Equal(t, 1, len(res))
-			got, err = PCA.QueryNodes(0, types2.QueryValidatorsParams{Page: 1, Limit: 1000})
+			got, err = PCA.QueryProviders(0, types2.QueryValidatorsParams{Page: 1, Limit: 1000})
 			assert.Nil(t, err)
 			res = got.Result.([]types2.Validator)
 			assert.Equal(t, 2, len(res))
@@ -842,7 +842,7 @@ func TestQueryDispatch(t *testing.T) {
 			res, err := PCA.HandleDispatch(key)
 			assert.Nil(t, err)
 			for _, val := range validators {
-				assert.Contains(t, res.Session.SessionNodes, val)
+				assert.Contains(t, res.Session.SessionProviders, val)
 			}
 			cleanup()
 			stopCli()

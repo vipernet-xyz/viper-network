@@ -22,27 +22,27 @@ func (s Session) Seal() CacheObject {
 }
 
 // "NewSession" - create a new session from seed data
-func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string, sessionNodesCount int) (Session, sdk.Error) {
+func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string, sessionProvidersCount int) (Session, sdk.Error) {
 	// first generate session key
 	sessionKey, err := NewSessionKey(sessionHeader.PlatformPubKey, sessionHeader.Chain, blockHash)
 	if err != nil {
 		return Session{}, err
 	}
 	// then generate the service providers for that session
-	sessionNodes, err := NewSessionNodes(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionKey, sessionNodesCount)
+	sessionProviders, err := NewSessionProviders(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionKey, sessionProvidersCount)
 	if err != nil {
 		return Session{}, err
 	}
 	// then populate the structure and return
 	return Session{
-		SessionKey:    sessionKey,
-		SessionHeader: sessionHeader,
-		SessionNodes:  sessionNodes,
+		SessionKey:       sessionKey,
+		SessionHeader:    sessionHeader,
+		SessionProviders: sessionProviders,
 	}, nil
 }
 
 // "Validate" - Validates a session object
-func (s Session) Validate(node sdk.Address, platform platformexported.PlatformI, sessionNodeCount int) sdk.Error {
+func (s Session) Validate(provider sdk.Address, platform platformexported.PlatformI, sessionNodeCount int) sdk.Error {
 	// validate chain
 	if len(s.SessionHeader.Chain) == 0 {
 		return NewEmptyNonNativeChainError(ModuleName)
@@ -71,13 +71,13 @@ func (s Session) Validate(node sdk.Address, platform platformexported.PlatformI,
 	if !found {
 		return NewUnsupportedBlockchainPlatformError(ModuleName)
 	}
-	// validate sessionNodes
-	err := s.SessionNodes.Validate(sessionNodeCount)
+	// validate sessionProviders
+	err := s.SessionProviders.Validate(sessionNodeCount)
 	if err != nil {
 		return err
 	}
-	// validate node is of the session
-	if !s.SessionNodes.Contains(node) {
+	// validate provider is of the session
+	if !s.SessionProviders.Contains(provider) {
 		return NewInvalidSessionError(ModuleName)
 	}
 	return nil
@@ -98,63 +98,63 @@ func (s Session) Key() ([]byte, error) {
 	return s.SessionHeader.Hash(), nil
 }
 
-// "SessionNodes" - Service providers in a session
-type SessionNodes []sdk.Address
+// "SessionProviders" - Service providers in a session
+type SessionProviders []sdk.Address
 
-// "NewSessionNodes" - Generates providers for the session
-func NewSessionNodes(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, sessionKey SessionKey, sessionNodesCount int) (sessionNodes SessionNodes, err sdk.Error) {
-	// all nodesAddrs at session genesis
-	nodesAddrs, totalNodes := keeper.GetValidatorsByChain(sessionCtx, chain)
-	// validate nodesAddrs
-	if totalNodes < sessionNodesCount {
-		return nil, NewInsufficientNodesError(ModuleName)
+// "NewSessionProviders" - Generates providers for the session
+func NewSessionProviders(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, sessionKey SessionKey, sessionProvidersCount int) (sessionProviders SessionProviders, err sdk.Error) {
+	// all providersAddrs at session genesis
+	providersAddrs, totalProviders := keeper.GetValidatorsByChain(sessionCtx, chain)
+	// validate providersAddrs
+	if totalProviders < sessionProvidersCount {
+		return nil, NewInsufficientProvidersError(ModuleName)
 	}
-	sessionNodes = make(SessionNodes, sessionNodesCount)
-	var node exported.ValidatorI
+	sessionProviders = make(SessionProviders, sessionProvidersCount)
+	var provider exported.ValidatorI
 	//unique address map to avoid re-checking a pseudorandomly selected servicer
 	m := make(map[string]struct{})
-	// only select the nodesAddrs if not jailed
-	for i, numOfNodes := 0, 0; ; i++ {
+	// only select the providersAddrs if not jailed
+	for i, numOfProviders := 0, 0; ; i++ {
 		//if this is true we already checked all providers we got on getValidatorsBychain
-		if len(m) >= totalNodes {
-			return nil, NewInsufficientNodesError(ModuleName)
+		if len(m) >= totalProviders {
+			return nil, NewInsufficientProvidersError(ModuleName)
 		}
 		// generate the random index
-		index := PseudorandomSelection(sdk.NewInt(int64(totalNodes)), sessionKey)
+		index := PseudorandomSelection(sdk.NewInt(int64(totalProviders)), sessionKey)
 		// merkleHash the session key to provide new entropy
 		sessionKey = Hash(sessionKey)
-		// get the node from the array
-		n := nodesAddrs[index.Int64()]
+		// get the provider from the array
+		n := providersAddrs[index.Int64()]
 		//if we already have seen this address we continue as it's either on the list or discarded
 		if _, ok := m[n.String()]; ok {
 			continue
 		}
-		//add the node address to the map
+		//add the provider address to the map
 		m[n.String()] = struct{}{}
 
-		// cross check the node from the `new` or `end` world state
-		node = keeper.Validator(ctx, n)
+		// cross check the provider from the `new` or `end` world state
+		provider = keeper.Validator(ctx, n)
 		// if not found or jailed, don't add to session and continue
-		if node == nil || node.IsJailed() || !NodeHasChain(chain, node) || sessionNodes.Contains(node.GetAddress()) {
+		if provider == nil || provider.IsJailed() || !NodeHasChain(chain, provider) || sessionProviders.Contains(provider.GetAddress()) {
 			continue
 		}
-		// else add the node to the session
-		sessionNodes[numOfNodes] = n
-		// increment the number of nodesAddrs in the sessionNodes slice
-		numOfNodes++
+		// else add the provider to the session
+		sessionProviders[numOfProviders] = n
+		// increment the number of providersAddrs in the sessionProviders slice
+		numOfProviders++
 		// if maxing out the session count end loop
-		if numOfNodes == sessionNodesCount {
+		if numOfProviders == sessionProvidersCount {
 			break
 		}
 	}
-	// return the nodesAddrs
-	return sessionNodes, nil
+	// return the providersAddrs
+	return sessionProviders, nil
 }
 
-// "Validate" - Validates the session node object
-func (sn SessionNodes) Validate(sessionNodesCount int) sdk.Error {
-	if len(sn) < sessionNodesCount {
-		return NewInsufficientNodesError(ModuleName)
+// "Validate" - Validates the session provider object
+func (sn SessionProviders) Validate(sessionProvidersCount int) sdk.Error {
+	if len(sn) < sessionProvidersCount {
+		return NewInsufficientProvidersError(ModuleName)
 	}
 	for _, n := range sn {
 		if n == nil {
@@ -164,18 +164,18 @@ func (sn SessionNodes) Validate(sessionNodesCount int) sdk.Error {
 	return nil
 }
 
-// "Contains" - Verifies if the session providers contains the node using the address
-func (sn SessionNodes) Contains(addr sdk.Address) bool {
+// "Contains" - Verifies if the session providers contains the provider using the address
+func (sn SessionProviders) Contains(addr sdk.Address) bool {
 	// if nil return
 	if addr == nil {
 		return false
 	}
 	// loop over the providers
-	for _, node := range sn {
-		if node == nil {
+	for _, provider := range sn {
+		if provider == nil {
 			continue
 		}
-		if node.Equals(addr) {
+		if provider.Equals(addr) {
 			return true
 		}
 	}
@@ -273,10 +273,10 @@ func MaxPossibleRelays(platform platformexported.PlatformI, sessionNodeCount int
 	return platform.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(platform.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
 }
 
-// "NodeHashChain" - Returns whether or not the node has the relayChain
-func NodeHasChain(chain string, node exported.ValidatorI) bool {
+// "NodeHashChain" - Returns whether or not the provider has the relayChain
+func NodeHasChain(chain string, provider exported.ValidatorI) bool {
 	hasChain := false
-	for _, c := range node.GetChains() {
+	for _, c := range provider.GetChains() {
 		if c == chain {
 			hasChain = true
 			break

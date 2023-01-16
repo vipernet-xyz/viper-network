@@ -203,8 +203,8 @@ func NewTestSession(t *testing.T, chain string) Session {
 	platformPubKey := getRandomPubKey()
 	var vals []sdk.Address
 	for i := 0; i < 5; i++ {
-		nodePubKey := getRandomPubKey()
-		vals = append(vals, sdk.Address(nodePubKey.Address()))
+		providerPubKey := getRandomPubKey()
+		vals = append(vals, sdk.Address(providerPubKey.Address()))
 	}
 	return Session{
 		SessionHeader: SessionHeader{
@@ -212,7 +212,7 @@ func NewTestSession(t *testing.T, chain string) Session {
 			Chain:              chain,
 			SessionBlockHeight: 1,
 		},
-		SessionKey:   platformPubKey.RawBytes(), // fake
-		SessionNodes: vals,
+		SessionKey:       platformPubKey.RawBytes(), // fake
+		SessionProviders: vals,
 	}
 }

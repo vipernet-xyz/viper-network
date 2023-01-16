@@ -11,8 +11,8 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/platforms/exported"
 	"github.com/vipernet-xyz/viper-network/x/providers"
-	nodeskeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
-	nodestypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providerskeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	providerstypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -42,7 +42,7 @@ func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)
 	governance.RegisterCodec(cdc)
-	nodestypes.RegisterCodec(cdc)
+	providerstypes.RegisterCodec(cdc)
 	types.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
@@ -67,14 +67,14 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
-	nodesKey := sdk.NewKVStoreKey(nodestypes.StoreKey)
+	providersKey := sdk.NewKVStoreKey(providerstypes.StoreKey)
 	platformsKey := sdk.NewKVStoreKey(types.StoreKey)
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(nodesKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(platformsKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
 	err := ms.LoadLatestVersion()
@@ -93,7 +93,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
 		types.StakedPoolName:            {authentication.Burner, authentication.Staking, authentication.Minter},
-		nodestypes.StakedPoolName:       {authentication.Burner, authentication.Staking},
+		providerstypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
 		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
 	}
 
@@ -103,10 +103,10 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	}
 	valTokens := sdk.TokensFromConsensusPower(initPower)
 	accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
-	nodesSubspace := sdk.NewSubspace(nodestypes.DefaultParamspace)
+	providersSubspace := sdk.NewSubspace(providerstypes.DefaultParamspace)
 	platformSubspace := sdk.NewSubspace(DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
-	nk := nodeskeeper.NewKeeper(cdc, nodesKey, ak, nodesSubspace, "pos")
+	nk := providerskeeper.NewKeeper(cdc, providersKey, ak, providersSubspace, "pos")
 	moduleManager := module.NewManager(
 		authentication.NewPlatformModule(ak),
 		providers.NewPlatformModule(nk),

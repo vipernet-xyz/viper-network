@@ -31,7 +31,7 @@ import (
 	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 
 	"github.com/stretchr/testify/assert"
@@ -429,18 +429,18 @@ func oneAppTwoNodeGenesis() []byte {
 		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
-	rawPOS := defaultGenesis[nodesTypes.ModuleName]
-	var posGenesisState nodesTypes.GenesisState
+	rawPOS := defaultGenesis[providersTypes.ModuleName]
+	var posGenesisState providersTypes.GenesisState
 	memCodec().MustUnmarshalJSON(rawPOS, &posGenesisState)
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{Address: sdk.Address(pubKey.Address()),
+		providersTypes.Validator{Address: sdk.Address(pubKey.Address()),
 			PublicKey:    pubKey,
 			Status:       sdk.Staked,
 			Chains:       []string{dummyChainsHash},
 			ServiceURL:   sdk.PlaceholderServiceURL,
 			StakedTokens: sdk.NewInt(1000000000000000)})
 	res := memCodec().MustMarshalJSON(posGenesisState)
-	defaultGenesis[nodesTypes.ModuleName] = res
+	defaultGenesis[providersTypes.ModuleName] = res
 
 	// setup application
 	rawApps := defaultGenesis[platformsTypes.ModuleName]
@@ -551,7 +551,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 	return testACL
 }
 
-func twoValTwoNodeGenesisState8() (genbz []byte, vals []nodesTypes.Validator) {
+func twoValTwoNodeGenesisState8() (genbz []byte, vals []providersTypes.Validator) {
 	kb := getInMemoryKeybase()
 	kp1, err := kb.GetCoinbase()
 	if err != nil {
@@ -581,11 +581,11 @@ func twoValTwoNodeGenesisState8() (genbz []byte, vals []nodesTypes.Validator) {
 		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
-	rawPOS := defaultGenesis[nodesTypes.ModuleName]
-	var posGenesisState nodesTypes.GenesisState
+	rawPOS := defaultGenesis[providersTypes.ModuleName]
+	var posGenesisState providersTypes.GenesisState
 	memCodec().MustUnmarshalJSON(rawPOS, &posGenesisState)
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{
+		providersTypes.Validator{
 			Address:                 sdk.Address(pubKey.Address()),
 			PublicKey:               pubKey,
 			Jailed:                  false,
@@ -597,7 +597,7 @@ func twoValTwoNodeGenesisState8() (genbz []byte, vals []nodesTypes.Validator) {
 			OutputAddress:           kp3.GetAddress(),
 		})
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{
+		providersTypes.Validator{
 			Address:                 sdk.Address(pubKey2.Address()),
 			PublicKey:               pubKey2,
 			Jailed:                  false,
@@ -611,7 +611,7 @@ func twoValTwoNodeGenesisState8() (genbz []byte, vals []nodesTypes.Validator) {
 	posGenesisState.Params.UnstakingTime = time.Nanosecond
 	posGenesisState.Params.SessionBlockFrequency = 5
 	res := memCodec().MustMarshalJSON(posGenesisState)
-	defaultGenesis[nodesTypes.ModuleName] = res
+	defaultGenesis[providersTypes.ModuleName] = res
 	// set coinbase as account holding coins
 	rawAccounts := defaultGenesis[authentication.ModuleName]
 	var authGenState authentication.GenesisState
@@ -664,7 +664,7 @@ func twoValTwoNodeGenesisState8() (genbz []byte, vals []nodesTypes.Validator) {
 	return j, posGenesisState.Validators
 }
 
-func twoValTwoNodeGenesisState() (genbz []byte, vals []nodesTypes.Validator) {
+func twoValTwoNodeGenesisState() (genbz []byte, vals []providersTypes.Validator) {
 	kb := getInMemoryKeybase()
 	kp1, err := kb.GetCoinbase()
 	if err != nil {
@@ -694,11 +694,11 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []nodesTypes.Validator) {
 		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
-	rawPOS := defaultGenesis[nodesTypes.ModuleName]
-	var posGenesisState nodesTypes.GenesisState
+	rawPOS := defaultGenesis[providersTypes.ModuleName]
+	var posGenesisState providersTypes.GenesisState
 	memCodec().MustUnmarshalJSON(rawPOS, &posGenesisState)
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{
+		providersTypes.Validator{
 			Address:                 sdk.Address(pubKey.Address()),
 			PublicKey:               pubKey,
 			Jailed:                  false,
@@ -710,7 +710,7 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []nodesTypes.Validator) {
 			OutputAddress:           nil,
 		})
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{
+		providersTypes.Validator{
 			Address:                 sdk.Address(pubKey2.Address()),
 			PublicKey:               pubKey2,
 			Jailed:                  false,
@@ -724,7 +724,7 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []nodesTypes.Validator) {
 	posGenesisState.Params.UnstakingTime = time.Nanosecond
 	posGenesisState.Params.SessionBlockFrequency = 5
 	res := memCodec().MustMarshalJSON(posGenesisState)
-	defaultGenesis[nodesTypes.ModuleName] = res
+	defaultGenesis[providersTypes.ModuleName] = res
 	// set coinbase as account holding coins
 	rawAccounts := defaultGenesis[authentication.ModuleName]
 	var authGenState authentication.GenesisState
@@ -777,7 +777,7 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []nodesTypes.Validator) {
 	return j, posGenesisState.Validators
 }
 
-func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators nodesTypes.Validators, app platformsTypes.Platform) {
+func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators providersTypes.Validators, app platformsTypes.Platform) {
 	kb := getInMemoryKeybase()
 	// create keypairs
 	kp1, err := kb.GetCoinbase()
@@ -812,12 +812,12 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 		viper.PlatformModuleBasic{},
 	).DefaultGenesis()
 	// setup validators
-	rawPOS := defaultGenesis[nodesTypes.ModuleName]
-	var posGenesisState nodesTypes.GenesisState
+	rawPOS := defaultGenesis[providersTypes.ModuleName]
+	var posGenesisState providersTypes.GenesisState
 	memCodec().MustUnmarshalJSON(rawPOS, &posGenesisState)
 	// validator 1
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{Address: sdk.Address(pubKey.Address()),
+		providersTypes.Validator{Address: sdk.Address(pubKey.Address()),
 			PublicKey:    pubKey,
 			Status:       sdk.Staked,
 			Chains:       []string{dummyChainsHash},
@@ -825,7 +825,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 			StakedTokens: sdk.NewInt(1000000000000000000)})
 	// validator 2
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{Address: sdk.Address(pubKey2.Address()),
+		providersTypes.Validator{Address: sdk.Address(pubKey2.Address()),
 			PublicKey:    pubKey2,
 			Status:       sdk.Staked,
 			Chains:       []string{dummyChainsHash},
@@ -833,7 +833,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 			StakedTokens: sdk.NewInt(10000000)})
 	// validator 3
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{Address: sdk.Address(pubKey3.Address()),
+		providersTypes.Validator{Address: sdk.Address(pubKey3.Address()),
 			PublicKey:    pubKey3,
 			Status:       sdk.Staked,
 			Chains:       []string{dummyChainsHash},
@@ -841,7 +841,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 			StakedTokens: sdk.NewInt(10000000)})
 	// validator 4
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{Address: sdk.Address(pubKey4.Address()),
+		providersTypes.Validator{Address: sdk.Address(pubKey4.Address()),
 			PublicKey:    pubKey4,
 			Status:       sdk.Staked,
 			Chains:       []string{dummyChainsHash},
@@ -849,7 +849,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 			StakedTokens: sdk.NewInt(10000000)})
 	// validator 5
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		nodesTypes.Validator{Address: sdk.Address(pubKey5.Address()),
+		providersTypes.Validator{Address: sdk.Address(pubKey5.Address()),
 			PublicKey:    pubKey5,
 			Status:       sdk.Staked,
 			Chains:       []string{dummyChainsHash},
@@ -857,7 +857,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 			StakedTokens: sdk.NewInt(10000000)})
 	// marshal into json
 	res := memCodec().MustMarshalJSON(posGenesisState)
-	defaultGenesis[nodesTypes.ModuleName] = res
+	defaultGenesis[providersTypes.ModuleName] = res
 	// setup applications
 	rawApps := defaultGenesis[platformsTypes.ModuleName]
 	var platformsGenesisState platformsTypes.GenesisState

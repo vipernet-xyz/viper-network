@@ -148,9 +148,9 @@ func (k Keeper) CalculatePlatformRelays(ctx sdk.Ctx, platform types.Platform) sd
 	baseRate := sdk.NewInt(k.BaselineThroughputStakeRate(ctx))
 	if k.ParticipationRate(ctx) {
 		platformStakedCoins := k.GetStakedTokens(ctx)
-		nodeStakedCoins := k.POSKeeper.GetStakedTokens(ctx)
+		providerStakedCoins := k.POSKeeper.GetStakedTokens(ctx)
 		totalTokens := k.TotalTokens(ctx)
-		participationRate = platformStakedCoins.Add(nodeStakedCoins).ToDec().Quo(totalTokens.ToDec())
+		participationRate = platformStakedCoins.Add(providerStakedCoins).ToDec().Quo(totalTokens.ToDec())
 	}
 	basePercentage := baseRate.ToDec().Quo(sdk.NewDec(100))
 	baselineThroughput := basePercentage.Mul(platform.StakedTokens.ToDec().Quo(sdk.NewDec(1000000)))

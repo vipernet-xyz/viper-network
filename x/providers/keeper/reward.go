@@ -73,11 +73,11 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	proposerAllocation := sdk.NewDec(k.ProposerAllocation(ctx))
 	platformAllocation := sdk.NewDec(k.PlatformAllocation(ctx))
 	daoProposerAndplatformAllocation := daoAllocation.Add(proposerAllocation).Add(platformAllocation)
-	// get the new percentages based on the total. This is needed because the node (relayer) cut has already been allocated
+	// get the new percentages based on the total. This is needed because the provider (relayer) cut has already been allocated
 	daoAllocation = daoAllocation.Quo(daoProposerAndplatformAllocation)
 	// dao cut calculation truncates int ex: 1.99uvipr = 1uvipr
 	daoCut := feesCollected.ToDec().Mul(daoAllocation).TruncateInt()
-	// get the new percentages based on the total. This is needed because the node (relayer) cut has already been allocated
+	// get the new percentages based on the total. This is needed because the provider (relayer) cut has already been allocated
 	platformAllocation = platformAllocation.Quo(daoProposerAndplatformAllocation)
 	// platform cut calculation truncates int ex: 1.99uvipr = 1uvipr
 	platformCut := feesCollected.ToDec().Mul(platformAllocation).TruncateInt()
@@ -107,7 +107,7 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	}
 }
 
-// "mint" - takes an amount and mints it to the node staking pool, then sends the coins to the address
+// "mint" - takes an amount and mints it to the provider staking pool, then sends the coins to the address
 func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Result {
 	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
 	mintErr := k.AccountKeeper.MintCoins(ctx, types.StakedPoolName, coins)

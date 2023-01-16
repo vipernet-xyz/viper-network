@@ -156,10 +156,10 @@ func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm PlatformModule) {
 	//activate RSCALKey params
 	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
 		params := pm.keeper.GetParams(ctx)
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "MinServicerStakeBinWidth"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "ServicerStakeWeight"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "MaxServicerStakeBin"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.NodesSubspace, "ServicerStakeBinExponent"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "MinServicerStakeBinWidth"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "ServicerStakeWeight"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "MaxServicerStakeBin"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "ServicerStakeBinExponent"), pm.keeper.GetDAOOwner(ctx))
 		pm.keeper.SetParams(ctx, params)
 	}
 }

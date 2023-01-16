@@ -40,7 +40,7 @@ func TestKeeper_Dispatch(t *testing.T) {
 	assert.Equal(t, res.Session.SessionHeader.SessionBlockHeight, int64(976))
 	assert.Equal(t, res.Session.SessionHeader.PlatformPubKey, platformPubKey)
 	assert.Equal(t, res.Session.SessionHeader, validHeader)
-	assert.Len(t, res.Session.SessionNodes, 5)
+	assert.Len(t, res.Session.SessionProviders, 5)
 	_, err = keeper.HandleDispatch(mockCtx, invalidHeader)
 	assert.NotNil(t, err)
 }

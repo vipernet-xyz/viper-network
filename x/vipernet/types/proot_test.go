@@ -445,13 +445,13 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	minResp.Signature = hex.EncodeToString(sig)
 	invalidProofAllMajority.MinorityResponse = minResp
 	ethereum := hex.EncodeToString([]byte{01})
-	sessionNodes := SessionNodes{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(platformPubKey.Address())}
+	sessionProviders := SessionProviders{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(platformPubKey.Address())}
 	tests := []struct {
 		name                 string
 		proof                ChallengeProofInvalidData
 		maxRelays            sdk.BigInt
 		supportedBlockchains []string
-		sessionNodes         SessionNodes
+		sessionProviders     SessionProviders
 		reporterAddress      sdk.Address
 		hasError             bool
 	}{
@@ -460,7 +460,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                validChallengeProofIVD,
 			maxRelays:            sdk.NewInt(100000),
 			supportedBlockchains: []string{ethereum},
-			sessionNodes:         sessionNodes,
+			sessionProviders:     sessionProviders,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             false,
 		},
@@ -469,7 +469,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                validChallengeProofIVD,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionNodes:         sessionNodes,
+			sessionProviders:     sessionProviders,
 			reporterAddress:      sdk.Address([]byte("fake")),
 			hasError:             true,
 		},
@@ -478,7 +478,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                invalidProofDup,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionNodes:         sessionNodes,
+			sessionProviders:     sessionProviders,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -487,7 +487,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                invalidProofNoMajority,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionNodes:         sessionNodes,
+			sessionProviders:     sessionProviders,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -496,7 +496,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                invalidProofAllMajority,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionNodes:         sessionNodes,
+			sessionProviders:     sessionProviders,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -505,7 +505,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                validChallengeProofIVD,
 			maxRelays:            sdk.ZeroInt(),
 			supportedBlockchains: []string{ethereum},
-			sessionNodes:         sessionNodes,
+			sessionProviders:     sessionProviders,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -517,7 +517,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 				Chain:              tt.proof.MinorityResponse.Proof.Blockchain,
 				SessionBlockHeight: tt.proof.MinorityResponse.Proof.SessionBlockHeight,
 			}
-			if err := tt.proof.ValidateLocal(h, tt.maxRelays, tt.supportedBlockchains, 5, tt.sessionNodes, tt.reporterAddress); (err != nil) != tt.hasError {
+			if err := tt.proof.ValidateLocal(h, tt.maxRelays, tt.supportedBlockchains, 5, tt.sessionProviders, tt.reporterAddress); (err != nil) != tt.hasError {
 				fmt.Println(tt.name)
 				fmt.Println(err)
 				t.Fatalf(err.Error())

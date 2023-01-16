@@ -52,7 +52,7 @@ func (hr HashRange) Equal(hr2 HashRange) bool {
 	return bytes.Equal(hr.Hash, hr2.Hash) && hr.Range.Lower == hr2.Range.Lower && hr.Range.Upper == hr2.Range.Upper
 }
 
-// "Validate" - Verifies the Proof from the leaf/cousin node data, the merkle root, and the Proof object
+// "Validate" - Verifies the Proof from the leaf/cousin provider data, the merkle root, and the Proof object
 func (mp MerkleProof) Validate(height int64, root HashRange, leaf Proof, numOfLevels int) (isValid bool, isReplayAttack bool) {
 	// ensure root lower is zero
 	if root.Range.Lower != 0 {
@@ -128,7 +128,7 @@ func nextPowerOfTwo(v uint) uint {
 	return v
 }
 
-// "GenerateProofs" - Generates the merkle Proof object from the leaf node data and the index
+// "GenerateProofs" - Generates the merkle Proof object from the leaf provider data and the index
 func GenerateProofs(height int64, p []Proof, index int) (mProof MerkleProof, leaf Proof) {
 	data, proofs := sortAndStructure(p) // TODO proofs are already sorted
 	// make a copy of the data because the merkle proof function will manipulate the slice
@@ -176,7 +176,7 @@ func merkleHash(data []byte) []byte {
 	return hash[:]
 }
 
-// "GenerateRoot" - generates the merkle root from leaf node data
+// "GenerateRoot" - generates the merkle root from leaf provider data
 func GenerateRoot(height int64, data []Proof) (r HashRange, sortedData []Proof) {
 	// structure the leafs
 	adjacentHashRanges, sortedProofs := sortAndStructure(data)

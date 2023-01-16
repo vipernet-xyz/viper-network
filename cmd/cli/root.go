@@ -49,7 +49,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&datadir, "datadir", "", "data directory (default is $HOME/.github.com/vipernet-xyz/viper-network/")
-	rootCmd.PersistentFlags().StringVar(&tmNode, "node", "", "takes a remote endpoint in the form <protocol>://<host>:<port>")
+	rootCmd.PersistentFlags().StringVar(&tmNode, "provider", "", "takes a remote endpoint in the form <protocol>://<host>:<port>")
 	rootCmd.PersistentFlags().StringVar(&remoteCLIURL, "remoteCLIURL", "", "takes a remote endpoint in the form of <protocol>://<host> (uses RPC Port)")
 	rootCmd.PersistentFlags().StringVar(&persistentPeers, "persistent_peers", "", "a comma separated list of PeerURLs: '<ID>@<IP>:<PORT>,<ID2>@<IP2>:<PORT>...<IDn>@<IPn>:<PORT>'")
 	rootCmd.PersistentFlags().StringVar(&seeds, "seeds", "", "a comma separated list of PeerURLs: '<ID>@<IP>:<PORT>,<ID2>@<IP2>:<PORT>...<IDn>@<IPn>:<PORT>'")
@@ -70,7 +70,7 @@ func init() {
 var startCmd = &cobra.Command{
 	Use:   "start [--keybase=(true | false)]",
 	Short: "starts viper-core daemon",
-	Long:  `Starts the Viper node, picks up the config from the assigned <datadir>`,
+	Long:  `Starts the Viper provider, picks up the config from the assigned <datadir>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		t := time.Unix(1625263200, 0) // Friday, July 2, 2021 6:00:00 PM GMT-04:00
 		sleepDuration := time.Until(t)
@@ -123,7 +123,7 @@ func start(cmd *cobra.Command, args []string) {
 var resetCmd = &cobra.Command{
 	Use:   "reset",
 	Short: "Reset viper-core",
-	Long:  `Reset the Viper node daemon`,
+	Long:  `Reset the Viper provider daemon`,
 	Run:   app.ResetWorldState,
 }
 

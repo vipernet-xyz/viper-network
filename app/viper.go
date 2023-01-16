@@ -16,8 +16,8 @@ import (
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	nodesKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -41,7 +41,7 @@ type ViperCoreApp struct {
 	// Keepers for each module
 	accountKeeper   authentication.Keeper
 	platformsKeeper platformsKeeper.Keeper
-	nodesKeeper     nodesKeeper.Keeper
+	providersKeeper providersKeeper.Keeper
 	govKeeper       govKeeper.Keeper
 	viperKeeper     viperKeeper.Keeper
 	// Module Manager
@@ -57,9 +57,9 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, nodesTypes.StoreKey, platformsTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, providersTypes.StoreKey, platformsTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
 	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(nodesTypes.TStoreKey, platformsTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(providersTypes.TStoreKey, platformsTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -199,10 +199,10 @@ var (
 	// module account permissions
 	moduleAccountPermissions = map[string][]string{
 		authentication.FeeCollectorName: {authentication.Burner, authentication.Minter, authentication.Staking},
-		nodesTypes.StakedPoolName:       {authentication.Burner, authentication.Minter, authentication.Staking},
+		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		platformsTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		govTypes.DAOAccountName:         {authentication.Burner, authentication.Minter, authentication.Staking},
-		nodesTypes.ModuleName:           {authentication.Burner, authentication.Minter, authentication.Staking},
+		providersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
 		platformsTypes.ModuleName:       nil,
 	}
 )

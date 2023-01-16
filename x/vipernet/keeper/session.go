@@ -40,14 +40,14 @@ func (k Keeper) HandleDispatch(ctx sdk.Ctx, header types.SessionHeader) (*types.
 		// add to cache
 		types.SetSession(session)
 	}
-	actualNodes := make([]exported.ValidatorI, len(session.SessionNodes))
-	for i, addr := range session.SessionNodes {
-		actualNodes[i], _ = k.GetNode(sessionCtx, addr)
+	actualProviders := make([]exported.ValidatorI, len(session.SessionProviders))
+	for i, addr := range session.SessionProviders {
+		actualProviders[i], _ = k.GetNode(sessionCtx, addr)
 	}
 	return &types.DispatchResponse{Session: types.DispatchSession{
-		SessionHeader: session.SessionHeader,
-		SessionKey:    session.SessionKey,
-		SessionNodes:  actualNodes,
+		SessionHeader:    session.SessionHeader,
+		SessionKey:       session.SessionKey,
+		SessionProviders: actualProviders,
 	}, BlockHeight: ctx.BlockHeight()}, nil
 }
 

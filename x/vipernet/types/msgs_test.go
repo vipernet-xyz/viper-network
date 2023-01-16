@@ -31,7 +31,7 @@ func TestMsgClaim_GetSigners(t *testing.T) {
 
 func TestMsgClaim_ValidateBasic(t *testing.T) {
 	platformPubKey := getRandomPubKey().RawString()
-	nodeAddress := getRandomValidatorAddress()
+	providerAddress := getRandomValidatorAddress()
 	ethereum := hex.EncodeToString([]byte{01})
 	rootHash := Hash([]byte("fakeRoot"))
 	root := HashRange{
@@ -46,7 +46,7 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 		},
 		MerkleRoot:   root,
 		TotalProofs:  100,
-		FromAddress:  nodeAddress,
+		FromAddress:  providerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	invalidClaimMessageRoot := MsgClaim{
@@ -59,7 +59,7 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 			Hash: []byte("bad_root"),
 		},
 		TotalProofs:  100,
-		FromAddress:  nodeAddress,
+		FromAddress:  providerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	invalidClaimMessageRelays := MsgClaim{
@@ -70,7 +70,7 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 		},
 		MerkleRoot:   root,
 		TotalProofs:  -1,
-		FromAddress:  nodeAddress,
+		FromAddress:  providerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	invalidClaimMessageFromAddress := MsgClaim{
@@ -92,7 +92,7 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 		},
 		MerkleRoot:  root,
 		TotalProofs: 100,
-		FromAddress: nodeAddress,
+		FromAddress: providerAddress,
 	}
 	validClaimMessage := MsgClaim{
 		SessionHeader: SessionHeader{
@@ -102,7 +102,7 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 		},
 		MerkleRoot:   root,
 		TotalProofs:  100,
-		FromAddress:  nodeAddress,
+		FromAddress:  providerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	tests := []struct {
@@ -285,7 +285,7 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 			hasError: true,
 		},
 		{
-			name:     "Invalid Proof Message, leafnode index",
+			name:     "Invalid Proof Message, leafprovider index",
 			msg:      invalidProofMsgIndex,
 			hasError: true,
 		},

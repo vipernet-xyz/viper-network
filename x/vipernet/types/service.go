@@ -26,7 +26,7 @@ type Relay struct {
 }
 
 // "Validate" - Checks the validity of a relay request using store data
-func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper PlatformsKeeper, viperKeeper ViperKeeper, node sdk.Address, hb *HostedBlockchains, sessionBlockHeight int64) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
+func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper PlatformsKeeper, viperKeeper ViperKeeper, provider sdk.Address, hb *HostedBlockchains, sessionBlockHeight int64) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
 	// validate payload
 	if err := r.Payload.Validate(); err != nil {
 		return sdk.ZeroInt(), NewEmptyPayloadDataError(ModuleName)
@@ -57,7 +57,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper Platf
 	if !found {
 		return sdk.ZeroInt(), NewPlatformNotFoundError(ModuleName)
 	}
-	// get session node count from that session height
+	// get session provider count from that session height
 	sessionNodeCount := viperKeeper.SessionNodeCount(sessionCtx)
 	// get max possible relays
 	maxPossibleRelays = MaxPossibleRelays(platform, sessionNodeCount)
@@ -81,7 +81,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper Platf
 		return sdk.ZeroInt(), NewOverServiceError(ModuleName)
 	}
 	// validate the Proof
-	if err := r.Proof.ValidateLocal(platform.GetChains(), int(sessionNodeCount), sessionBlockHeight, node); err != nil {
+	if err := r.Proof.ValidateLocal(platform.GetChains(), int(sessionNodeCount), sessionBlockHeight, provider); err != nil {
 		return sdk.ZeroInt(), err
 	}
 	// check cache
@@ -101,7 +101,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper Platf
 		SetSession(session)
 	}
 	// validate the session
-	err = session.Validate(node, platform, int(sessionNodeCount))
+	err = session.Validate(provider, platform, int(sessionNodeCount))
 	if err != nil {
 		return sdk.ZeroInt(), err
 	}
@@ -231,7 +231,7 @@ func InitClientBlockAllowance(allowance int) {
 	GlobalViperConfig.ClientBlockSyncAllowance = allowance
 }
 
-// "Validate" - The node validates the response after signing
+// "Validate" - The provider validates the response after signing
 func (rr RelayResponse) Validate() sdk.Error {
 	// cannot contain empty response
 	if rr.Response == "" {
@@ -281,9 +281,9 @@ type DispatchResponse struct {
 }
 
 type DispatchSession struct {
-	SessionHeader `json:"header"`
-	SessionKey    `json:"key"`
-	SessionNodes  []exported.ValidatorI `json:"providers"`
+	SessionHeader    `json:"header"`
+	SessionKey       `json:"key"`
+	SessionProviders []exported.ValidatorI `json:"providers"`
 }
 
 // "executeHTTPRequest" takes in the raw json string and forwards it to the RPC endpoint

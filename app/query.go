@@ -15,7 +15,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	"github.com/vipernet-xyz/viper-network/x/governance/types"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	nodesTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	core_types "github.com/tendermint/tendermint/rpc/core/types"
@@ -170,17 +170,17 @@ func (app ViperCoreApp) QueryAccounts(height int64, page, perPage int) (res Page
 	return paginate(page, perPage, accs, 10000)
 }
 
-func (app ViperCoreApp) QueryNodes(height int64, opts nodesTypes.QueryValidatorsParams) (res Page, err error) {
+func (app ViperCoreApp) QueryProviders(height int64, opts providersTypes.QueryValidatorsParams) (res Page, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
 	opts.Page, opts.Limit = checkPagination(opts.Page, opts.Limit)
-	providers := app.nodesKeeper.GetAllValidatorsWithOpts(ctx, opts)
-	return paginate(opts.Page, opts.Limit, providers, int(app.nodesKeeper.MaxValidators(ctx)))
+	providers := app.providersKeeper.GetAllValidatorsWithOpts(ctx, opts)
+	return paginate(opts.Page, opts.Limit, providers, int(app.providersKeeper.MaxValidators(ctx)))
 }
 
-func (app ViperCoreApp) QueryNode(addr string, height int64) (res nodesTypes.Validator, err error) {
+func (app ViperCoreApp) QueryNode(addr string, height int64) (res providersTypes.Validator, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
 		return res, err
@@ -189,19 +189,19 @@ func (app ViperCoreApp) QueryNode(addr string, height int64) (res nodesTypes.Val
 	if err != nil {
 		return
 	}
-	res, found := app.nodesKeeper.GetValidator(ctx, a)
+	res, found := app.providersKeeper.GetValidator(ctx, a)
 	if !found {
 		err = fmt.Errorf("validator not found for %s", a.String())
 	}
 	return
 }
 
-func (app ViperCoreApp) QueryNodeParams(height int64) (res nodesTypes.Params, err error) {
+func (app ViperCoreApp) QueryNodeParams(height int64) (res providersTypes.Params, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	return app.nodesKeeper.GetParams(ctx), nil
+	return app.providersKeeper.GetParams(ctx), nil
 }
 
 func (app ViperCoreApp) QueryHostedChains() (res map[string]viperTypes.HostedBlockchain, err error) {
@@ -212,16 +212,16 @@ func (app ViperCoreApp) SetHostedChains(req map[string]viperTypes.HostedBlockcha
 	return app.viperKeeper.SetHostedBlockchains(req).M, nil
 }
 
-func (app ViperCoreApp) QuerySigningInfo(height int64, addr string) (res nodesTypes.ValidatorSigningInfo, err error) {
+func (app ViperCoreApp) QuerySigningInfo(height int64, addr string) (res providersTypes.ValidatorSigningInfo, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
-		return nodesTypes.ValidatorSigningInfo{}, err
+		return providersTypes.ValidatorSigningInfo{}, err
 	}
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	res, found := app.nodesKeeper.GetValidatorSigningInfo(ctx, a)
+	res, found := app.providersKeeper.GetValidatorSigningInfo(ctx, a)
 	if !found {
 		err = fmt.Errorf("signing info not found for %s", a.String())
 	}
@@ -233,7 +233,7 @@ func (app ViperCoreApp) QuerySigningInfos(address string, height int64, page, pe
 	if err != nil {
 		return
 	}
-	signingInfos := make([]nodesTypes.ValidatorSigningInfo, 0)
+	signingInfos := make([]providersTypes.ValidatorSigningInfo, 0)
 
 	page, perPage = checkPagination(page, perPage)
 	if address != "" {
@@ -241,18 +241,18 @@ func (app ViperCoreApp) QuerySigningInfos(address string, height int64, page, pe
 		if err != nil {
 			return Page{}, err
 		}
-		sinfo, found := app.nodesKeeper.GetValidatorSigningInfo(ctx, addr)
+		sinfo, found := app.providersKeeper.GetValidatorSigningInfo(ctx, addr)
 		if !found {
 			return Page{}, err
 		}
 		signingInfos = append(signingInfos, sinfo)
 	} else {
-		app.nodesKeeper.IterateAndExecuteOverValSigningInfo(ctx, func(address sdk.Address, info nodesTypes.ValidatorSigningInfo) (stop bool) {
+		app.providersKeeper.IterateAndExecuteOverValSigningInfo(ctx, func(address sdk.Address, info providersTypes.ValidatorSigningInfo) (stop bool) {
 			signingInfos = append(signingInfos, info)
 			return false
 		})
 	}
-	return paginate(page, perPage, signingInfos, int(app.nodesKeeper.MaxValidators(ctx)))
+	return paginate(page, perPage, signingInfos, int(app.providersKeeper.MaxValidators(ctx)))
 }
 
 func (app ViperCoreApp) QueryTotalNodeCoins(height int64) (stakedTokens sdk.BigInt, totalTokens sdk.BigInt, err error) {
@@ -260,8 +260,8 @@ func (app ViperCoreApp) QueryTotalNodeCoins(height int64) (stakedTokens sdk.BigI
 	if err != nil {
 		return
 	}
-	stakedTokens = app.nodesKeeper.GetStakedTokens(ctx)
-	totalTokens = app.nodesKeeper.TotalTokens(ctx)
+	stakedTokens = app.providersKeeper.GetStakedTokens(ctx)
+	totalTokens = app.providersKeeper.TotalTokens(ctx)
 	return
 }
 
@@ -428,7 +428,7 @@ func (app ViperCoreApp) QueryValidatorByChain(height int64, chain string) (amoun
 	if err != nil {
 		return
 	}
-	_, count := app.nodesKeeper.GetValidatorsByChain(ctx, chain)
+	_, count := app.providersKeeper.GetValidatorsByChain(ctx, chain)
 	return int64(count), nil
 }
 

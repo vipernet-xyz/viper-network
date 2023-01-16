@@ -14,11 +14,11 @@ func TestKeeper_StakeDenom(t *testing.T) {
 	assert.Equal(t, stakeDenom, k.posKeeper.StakeDenom(ctx))
 }
 
-func TestKeeper_GetNodesStakedTokens(t *testing.T) {
+func TestKeeper_GetProvidersStakedTokens(t *testing.T) {
 	ctx, vals, _, _, k, _, _ := createTestInput(t, false)
 	assert.NotZero(t, len(vals))
 	tokens := vals[0].StakedTokens
-	assert.Equal(t, k.GetNodesStakedTokens(ctx), tokens.Mul(types.NewInt(int64(len(vals)))))
+	assert.Equal(t, k.GetProvidersStakedTokens(ctx), tokens.Mul(types.NewInt(int64(len(vals)))))
 }
 
 func TestKeeper_GetPlatformsStakedTokens(t *testing.T) {

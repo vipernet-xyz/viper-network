@@ -335,7 +335,7 @@ func TestRPC_QueryAccounts(t *testing.T) {
 	stopCli()
 }
 
-func TestRPC_QueryNodes(t *testing.T) {
+func TestRPC_QueryProviders(t *testing.T) {
 	codec.UpgradeHeight = 7000
 	_, _, cleanup := NewInMemoryTendermintNode(t, oneValTwoNodeGenesisState())
 	_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
@@ -354,7 +354,7 @@ func TestRPC_QueryNodes(t *testing.T) {
 	}
 	q := newQueryRequest("providers", newBody(params))
 	rec := httptest.NewRecorder()
-	Nodes(rec, q, httprouter.Params{})
+	Providers(rec, q, httprouter.Params{})
 	body := rec.Body.String()
 	address := cb.GetAddress().String()
 	assert.True(t, strings.Contains(body, address))
@@ -362,7 +362,7 @@ func TestRPC_QueryNodes(t *testing.T) {
 	<-evtChan // Wait for block
 	q = newQueryRequest("providers", newBody(params))
 	rec = httptest.NewRecorder()
-	Nodes(rec, q, httprouter.Params{})
+	Providers(rec, q, httprouter.Params{})
 	body = rec.Body.String()
 	address = cb.GetAddress().String()
 	assert.True(t, strings.Contains(body, address))
@@ -384,7 +384,7 @@ func TestRPC_QueryNode(t *testing.T) {
 		Height:  0,
 		Address: cb.GetAddress().String(),
 	}
-	q := newQueryRequest("node", newBody(params))
+	q := newQueryRequest("provider", newBody(params))
 	rec := httptest.NewRecorder()
 	Node(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
@@ -397,7 +397,7 @@ func TestRPC_QueryNode(t *testing.T) {
 		Height:  2,
 		Address: cb.GetAddress().String(),
 	}
-	q = newQueryRequest("node", newBody(params))
+	q = newQueryRequest("provider", newBody(params))
 	rec = httptest.NewRecorder()
 	Node(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
@@ -494,7 +494,7 @@ func TestRPC_QueryNodeParams(t *testing.T) {
 	var params = HeightParams{
 		Height: 0,
 	}
-	q := newQueryRequest("nodeparams", newBody(params))
+	q := newQueryRequest("providerparams", newBody(params))
 	rec := httptest.NewRecorder()
 	NodeParams(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
@@ -506,7 +506,7 @@ func TestRPC_QueryNodeParams(t *testing.T) {
 	params = HeightParams{
 		Height: 2,
 	}
-	q = newQueryRequest("nodeparams", newBody(params))
+	q = newQueryRequest("providerparams", newBody(params))
 	rec = httptest.NewRecorder()
 	NodeParams(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
@@ -1124,7 +1124,7 @@ func TestRPC_QueryNodeClaims(t *testing.T) {
 		Height: 0,
 		Addr:   cb.GetAddress().String(),
 	}
-	q := newQueryRequest("nodeclaims", newBody(params))
+	q := newQueryRequest("providerclaims", newBody(params))
 	rec := httptest.NewRecorder()
 	NodeClaims(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
@@ -1134,7 +1134,7 @@ func TestRPC_QueryNodeClaims(t *testing.T) {
 		Height: 2,
 		Addr:   cb.GetAddress().String(),
 	}
-	q = newQueryRequest("nodeclaims", newBody(params))
+	q = newQueryRequest("providerclaims", newBody(params))
 	rec = httptest.NewRecorder()
 	NodeClaims(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
@@ -1159,7 +1159,7 @@ func TestRPC_QueryNodeClaim(t *testing.T) {
 		Height:       0,
 		ReceiptType:  "relay",
 	}
-	q := newQueryRequest("nodeclaim", newBody(params))
+	q := newQueryRequest("providerclaim", newBody(params))
 	rec := httptest.NewRecorder()
 	NodeClaim(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
@@ -1173,7 +1173,7 @@ func TestRPC_QueryNodeClaim(t *testing.T) {
 		Height:       0,
 		ReceiptType:  "relay",
 	}
-	q = newQueryRequest("nodeclaim", newBody(params))
+	q = newQueryRequest("providerclaim", newBody(params))
 	rec = httptest.NewRecorder()
 	NodeClaim(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
