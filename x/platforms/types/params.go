@@ -16,7 +16,7 @@ const (
 	DefaultUnstakingTime             = time.Hour * 24 * 7 * 3
 	DefaultMaxPlatforms        int64 = math.MaxInt64
 	DefaultMinStake            int64 = 1000000
-	DefaultBaseRelaysPerVIP    int64 = 200000
+	DefaultBaseRelaysPerVIPR   int64 = 200000
 	DefaultStabilityModulation int64 = 0
 	DefaultParticipationRateOn bool  = false
 	DefaultMaxChains           int64 = 15
@@ -65,7 +65,7 @@ func DefaultParams() Params {
 		UnstakingTime:       DefaultUnstakingTime,
 		MaxPlatforms:        DefaultMaxPlatforms,
 		MinPlatformStake:    DefaultMinStake,
-		BaseRelaysPerVIPR:   DefaultBaseRelaysPerVIP,
+		BaseRelaysPerVIPR:   DefaultBaseRelaysPerVIPR,
 		StabilityModulation: DefaultStabilityModulation,
 		ParticipationRate:   DefaultParticipationRateOn,
 		MaxChains:           DefaultMaxChains,
