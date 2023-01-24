@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKeeper_ValidateProof(t *testing.T) { // hplatformy path only todo
+func TestKeeper_ValidateProof(t *testing.T) { // happy path only todo
 	relaysDone := 8
 	maxRelays := int64(5)
 	ctx, _, _, _, keeper, keys, _ := createTestInput(t, false)
@@ -49,7 +49,7 @@ func TestKeeper_ValidateProof(t *testing.T) { // hplatformy path only todo
 	neededLeafIndex, er := keeper.getPseudorandomIndex(mockCtx, maxRelays, header, mockCtx)
 	assert.Nil(t, er)
 	merkleProofs, _ := evidence.GenerateMerkleProof(0, int(neededLeafIndex), maxRelays)
-	// get leaf and cousin provider
+	// get leaf and cousin node
 	leafNode := types.GetProof(header, types.RelayEvidence, neededLeafIndex)
 	// create proof message
 	proofMsg := types.MsgProof{
@@ -67,7 +67,6 @@ func TestKeeper_ValidateProof(t *testing.T) { // hplatformy path only todo
 		t.Fatalf(err.Error())
 	}
 }
-
 func TestKeeper_GetPsuedorandomIndex(t *testing.T) {
 	var totalRelays = []int{10, 100, 10000000}
 	for _, relays := range totalRelays {

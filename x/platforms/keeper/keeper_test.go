@@ -8,7 +8,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
 	providerskeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
@@ -22,8 +22,8 @@ import (
 
 func TestKeeper_Codespace(t *testing.T) {
 	_, _, keeper := createTestInput(t, true)
-	if got := keeper.Codespace(); got != "platforms" {
-		t.Errorf("Codespace() = %v, want %v", got, "platforms")
+	if got := keeper.Codespace(); got != "apps" {
+		t.Errorf("Codespace() = %v, want %v", got, "apps")
 	}
 }
 
@@ -79,7 +79,7 @@ func TestKeepers_NewKeeper(t *testing.T) {
 			maccPerms := map[string][]string{
 				authentication.FeeCollectorName: nil,
 				providerstypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
-				govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
+				governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Staking},
 			}
 			if !tt.hasError {
 				maccPerms[types.StakedPoolName] = []string{authentication.Burner, authentication.Staking, authentication.Minter}

@@ -17,24 +17,22 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec"
 
+	rand2 "github.com/tendermint/tendermint/libs/rand"
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/crypto"
 
-	rand2 "github.com/tendermint/tendermint/libs/rand"
-
-	types3 "github.com/vipernet-xyz/viper-network/x/platforms/types"
-
-	"github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
-	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"
+	types3 "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
-	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/assert"
 	core_types "github.com/tendermint/tendermint/rpc/core/types"
 	tmTypes "github.com/tendermint/tendermint/types"
+	"github.com/vipernet-xyz/viper-network/types"
+	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"
+	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -384,7 +382,7 @@ func TestRPC_QueryNode(t *testing.T) {
 		Height:  0,
 		Address: cb.GetAddress().String(),
 	}
-	q := newQueryRequest("provider", newBody(params))
+	q := newQueryRequest("node", newBody(params))
 	rec := httptest.NewRecorder()
 	Node(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
@@ -397,7 +395,7 @@ func TestRPC_QueryNode(t *testing.T) {
 		Height:  2,
 		Address: cb.GetAddress().String(),
 	}
-	q = newQueryRequest("provider", newBody(params))
+	q = newQueryRequest("node", newBody(params))
 	rec = httptest.NewRecorder()
 	Node(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
@@ -409,7 +407,7 @@ func TestRPC_QueryNode(t *testing.T) {
 	stopCli()
 }
 
-func TestRPC_QueryApp(t *testing.T) {
+func TestRPC_QueryPlatform(t *testing.T) {
 	codec.UpgradeHeight = 7000
 	gBZ, _, _, app := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, gBZ)
@@ -444,13 +442,13 @@ func TestRPC_QueryApp(t *testing.T) {
 	stopCli()
 }
 
-func TestRPC_QueryApps(t *testing.T) {
+func TestRPC_QueryPlatforms(t *testing.T) {
 	codec.UpgradeHeight = 7000
 	gBZ, _, _, app := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, gBZ)
 	_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 	<-evtChan // Wait for block
-	var params = HeightAndApplicaitonOptsParams{
+	var params = HeightAndPlatformOptsParams{
 		Height: 0,
 		Opts: types3.QueryPlatformsWithOpts{
 			StakingStatus: types.Staked,
@@ -458,15 +456,15 @@ func TestRPC_QueryApps(t *testing.T) {
 			Limit:         10000,
 		},
 	}
-	q := newQueryRequest("platforms", newBody(params))
+	q := newQueryRequest("apps", newBody(params))
 	rec := httptest.NewRecorder()
-	Apps(rec, q, httprouter.Params{})
+	Platforms(rec, q, httprouter.Params{})
 	body := rec.Body.String()
 	address := app.GetAddress().String()
 	assert.True(t, strings.Contains(body, address))
 
 	<-evtChan // Wait for block
-	params = HeightAndApplicaitonOptsParams{
+	params = HeightAndPlatformOptsParams{
 		Height: 2,
 		Opts: types3.QueryPlatformsWithOpts{
 			StakingStatus: types.Staked,
@@ -474,9 +472,9 @@ func TestRPC_QueryApps(t *testing.T) {
 			Limit:         10000,
 		},
 	}
-	q = newQueryRequest("platforms", newBody(params))
+	q = newQueryRequest("apps", newBody(params))
 	rec = httptest.NewRecorder()
-	Apps(rec, q, httprouter.Params{})
+	Platforms(rec, q, httprouter.Params{})
 	body = rec.Body.String()
 	address = app.GetAddress().String()
 	assert.True(t, strings.Contains(body, address))
@@ -494,7 +492,7 @@ func TestRPC_QueryNodeParams(t *testing.T) {
 	var params = HeightParams{
 		Height: 0,
 	}
-	q := newQueryRequest("providerparams", newBody(params))
+	q := newQueryRequest("nodeparams", newBody(params))
 	rec := httptest.NewRecorder()
 	NodeParams(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
@@ -506,7 +504,7 @@ func TestRPC_QueryNodeParams(t *testing.T) {
 	params = HeightParams{
 		Height: 2,
 	}
-	q = newQueryRequest("providerparams", newBody(params))
+	q = newQueryRequest("nodeparams", newBody(params))
 	rec = httptest.NewRecorder()
 	NodeParams(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
@@ -518,7 +516,7 @@ func TestRPC_QueryNodeParams(t *testing.T) {
 	stopCli()
 }
 
-func TestRPC_QueryAppParams(t *testing.T) {
+func TestRPC_QueryPlatformParams(t *testing.T) {
 	codec.UpgradeHeight = 7000
 	gBZ, _, _, _ := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, gBZ)
@@ -909,16 +907,16 @@ func TestRPC_Relay(t *testing.T) {
 		BodyString(expectedRequest).
 		Reply(200).
 		BodyString(expectedResponse)
-	appPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+	platformPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 	assert.Nil(t, err)
 	// setup AAT
 	aat := viperTypes.AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: appPrivateKey.PublicKey().RawString(),
-		ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
+		PlatformPublicKey: platformPrivateKey.PublicKey().RawString(),
+		ClientPublicKey:   platformPrivateKey.PublicKey().RawString(),
 		PlatformSignature: "",
 	}
-	sig, err := appPrivateKey.Sign(aat.Hash())
+	sig, err := platformPrivateKey.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
@@ -941,7 +939,7 @@ func TestRPC_Relay(t *testing.T) {
 		},
 	}
 	relay.Proof.RequestHash = relay.RequestHashString()
-	sig, err = appPrivateKey.Sign(relay.Proof.Hash())
+	sig, err = platformPrivateKey.Sign(relay.Proof.Hash())
 	if err != nil {
 		panic(err)
 	}
@@ -959,7 +957,7 @@ func TestRPC_Relay(t *testing.T) {
 		},
 	}
 	relay2.Proof.RequestHash = relay2.RequestHashString()
-	sig2, err := appPrivateKey.Sign(relay2.Proof.Hash())
+	sig2, err := platformPrivateKey.Sign(relay2.Proof.Hash())
 	if err != nil {
 		panic(err)
 	}
@@ -1003,11 +1001,11 @@ func TestRPC_Dispatch(t *testing.T) {
 	kb := getInMemoryKeybase()
 	genBZ, _, validators, app := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, genBZ)
-	appPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+	platformPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 	assert.Nil(t, err)
 	// Setup HandleDispatch Request
 	key := viperTypes.SessionHeader{
-		PlatformPubKey:     appPrivateKey.PublicKey().RawString(),
+		PlatformPubKey:     platformPrivateKey.PublicKey().RawString(),
 		Chain:              dummyChainsHash,
 		SessionBlockHeight: 1,
 	}
@@ -1124,7 +1122,7 @@ func TestRPC_QueryNodeClaims(t *testing.T) {
 		Height: 0,
 		Addr:   cb.GetAddress().String(),
 	}
-	q := newQueryRequest("providerclaims", newBody(params))
+	q := newQueryRequest("nodeclaims", newBody(params))
 	rec := httptest.NewRecorder()
 	NodeClaims(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
@@ -1134,7 +1132,7 @@ func TestRPC_QueryNodeClaims(t *testing.T) {
 		Height: 2,
 		Addr:   cb.GetAddress().String(),
 	}
-	q = newQueryRequest("providerclaims", newBody(params))
+	q = newQueryRequest("nodeclaims", newBody(params))
 	rec = httptest.NewRecorder()
 	NodeClaims(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
@@ -1152,28 +1150,28 @@ func TestRPC_QueryNodeClaim(t *testing.T) {
 	cb, err := kb.GetCoinbase()
 	assert.Nil(t, err)
 	var params = QueryNodeReceiptParam{
-		Address:      cb.GetAddress().String(),
-		Blockchain:   "0001",
-		AppPubKey:    cb.PublicKey.RawString(),
-		SBlockHeight: 1,
-		Height:       0,
-		ReceiptType:  "relay",
+		Address:        cb.GetAddress().String(),
+		Blockchain:     "0001",
+		PlatformPubkey: cb.PublicKey.RawString(),
+		SBlockHeight:   1,
+		Height:         0,
+		ReceiptType:    "relay",
 	}
-	q := newQueryRequest("providerclaim", newBody(params))
+	q := newQueryRequest("nodeclaim", newBody(params))
 	rec := httptest.NewRecorder()
 	NodeClaim(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
 
 	<-evtChan
 	params = QueryNodeReceiptParam{
-		Address:      cb.GetAddress().String(),
-		Blockchain:   "0001",
-		AppPubKey:    cb.PublicKey.RawString(),
-		SBlockHeight: 1,
-		Height:       0,
-		ReceiptType:  "relay",
+		Address:        cb.GetAddress().String(),
+		Blockchain:     "0001",
+		PlatformPubkey: cb.PublicKey.RawString(),
+		SBlockHeight:   1,
+		Height:         0,
+		ReceiptType:    "relay",
 	}
-	q = newQueryRequest("providerclaim", newBody(params))
+	q = newQueryRequest("nodeclaim", newBody(params))
 	rec = httptest.NewRecorder()
 	NodeClaim(rec, q, httprouter.Params{})
 	getJSONResponse(rec)
@@ -1317,12 +1315,12 @@ func getJSONResponse(rec *httptest.ResponseRecorder) []byte {
 }
 
 func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (challenge viperTypes.ChallengeProofInvalidData) {
-	appPrivateKey := privateKeys[1]
+	platformPrivateKey := privateKeys[1]
 	servicerPrivKey1 := privateKeys[4]
 	servicerPrivKey2 := privateKeys[2]
 	servicerPrivKey3 := privateKeys[3]
 	clientPrivateKey := servicerPrivKey3
-	appPubKey := appPrivateKey.PublicKey().RawString()
+	platformPubKey := platformPrivateKey.PublicKey().RawString()
 	servicerPubKey := servicerPrivKey1.PublicKey().RawString()
 	servicerPubKey2 := servicerPrivKey2.PublicKey().RawString()
 	servicerPubKey3 := servicerPrivKey3.PublicKey().RawString()
@@ -1339,13 +1337,13 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: appPubKey,
+			PlatformPublicKey: platformPubKey,
 			ClientPublicKey:   clientPubKey,
 			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er := appPrivateKey.Sign(validProof.Token.Hash())
+	appSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
@@ -1364,13 +1362,13 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: appPubKey,
+			PlatformPublicKey: platformPubKey,
 			ClientPublicKey:   clientPubKey,
 			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er = appPrivateKey.Sign(validProof2.Token.Hash())
+	appSignature, er = platformPrivateKey.Sign(validProof2.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
@@ -1389,13 +1387,13 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: appPubKey,
+			PlatformPublicKey: platformPubKey,
 			ClientPublicKey:   clientPubKey,
 			PlatformSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er = appPrivateKey.Sign(validProof3.Token.Hash())
+	appSignature, er = platformPrivateKey.Sign(validProof3.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}

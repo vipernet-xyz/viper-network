@@ -9,8 +9,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/store"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"
-	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -43,7 +43,7 @@ func setupTestInput() testInput {
 	ak := NewKeeper(
 		cdc, authCapKey, akSubspace, nil,
 	)
-	govKeeper.NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, govTypes.DefaultCodespace, ak, akSubspace)
+	governanceKeeper.NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, governanceTypes.DefaultCodespace, ak, akSubspace)
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 	ak.SetParams(ctx, authTypes.DefaultParams())
 	return testInput{Keeper: ak, cdc: cdc, ctx: ctx}

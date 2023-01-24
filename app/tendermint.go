@@ -44,7 +44,7 @@ func NewClient(c config, creator AppCreator) (*node.Node, *ViperCoreApp, error) 
 	}
 	// upgrade the privVal file
 	app := creator(c.Logger, appDB, traceWriter)
-	PCA = app
+	VCA = app
 	// create & start tendermint node
 	tmNode, err := node.NewNode(app,
 		c.TmConfig,

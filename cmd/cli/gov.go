@@ -9,21 +9,21 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/types"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
 	"github.com/spf13/cobra"
 )
 
 func init() {
-	rootCmd.AddCommand(govCmd)
-	govCmd.AddCommand(govDAOTransfer)
-	govCmd.AddCommand(govDAOBurn)
-	govCmd.AddCommand(govChangeParam)
-	govCmd.AddCommand(govUpgrade)
-	govCmd.AddCommand(govFeatureEnable)
+	rootCmd.AddCommand(governanceCmd)
+	governanceCmd.AddCommand(governanceDAOTransfer)
+	governanceCmd.AddCommand(governanceDAOBurn)
+	governanceCmd.AddCommand(governanceChangeParam)
+	governanceCmd.AddCommand(governanceUpgrade)
+	governanceCmd.AddCommand(governanceFeatureEnable)
 }
 
-var govCmd = &cobra.Command{
+var governanceCmd = &cobra.Command{
 	Use:   "governance",
 	Short: "governance management",
 	Long: `The governance namespace handles all governance related interactions,
@@ -31,13 +31,13 @@ from DAOTransfer, change parameters; to performing protocol Upgrades. `,
 }
 
 func init() {
-	govDAOTransfer.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
-	govDAOBurn.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
-	govChangeParam.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
-	govUpgrade.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
+	governanceDAOTransfer.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
+	governanceDAOBurn.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
+	governanceChangeParam.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
+	governanceUpgrade.Flags().StringVar(&pwd, "pwd", "", "defines the passphrase used by the cmd non empty usage bypass interactive prompt ")
 }
 
-var govDAOTransfer = &cobra.Command{
+var governanceDAOTransfer = &cobra.Command{
 	Use:   "transfer <amount> <fromAddr> <toAddr> <networkID> <fees>",
 	Short: "Transfer from DAO",
 	Long: `If authorized, move funds from the DAO.
@@ -78,7 +78,7 @@ Actions: [burn, transfer]`,
 	},
 }
 
-var govDAOBurn = &cobra.Command{
+var governanceDAOBurn = &cobra.Command{
 	Use:   "burn <amount> <fromAddr> <toAddr> <networkID> <fees>",
 	Short: "Burn from DAO",
 	Long: `If authorized, burn funds from the DAO.
@@ -121,7 +121,7 @@ Actions: [burn, transfer]`,
 		fmt.Println(resp)
 	},
 }
-var govChangeParam = &cobra.Command{
+var governanceChangeParam = &cobra.Command{
 	Use:   "change_param <fromAddr> <networkID> <paramKey module/param> <paramValue (jsonObj)> <fees>",
 	Short: "Edit a param in the network",
 	Long: `If authorized, submit a tx to change any param from any module.
@@ -155,7 +155,7 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 	},
 }
 
-var govUpgrade = &cobra.Command{
+var governanceUpgrade = &cobra.Command{
 	Use:   "upgrade <fromAddr> <atHeight> <version> <networkID> <fees>",
 	Short: "Upgrade the protocol",
 	Long: `If authorized, upgrade the protocol.
@@ -167,7 +167,7 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 		if err != nil {
 			log.Fatal(err)
 		}
-		u := govTypes.Upgrade{
+		u := governanceTypes.Upgrade{
 			Height:  int64(i),
 			Version: dropTag(args[2]),
 		}
@@ -208,7 +208,7 @@ func dropTag(version string) string {
 const FeatureUpgradeKey = "FEATURE"
 const FeatureUpgradeHeight = int64(1)
 
-var govFeatureEnable = &cobra.Command{
+var governanceFeatureEnable = &cobra.Command{
 	Use:   "enable <fromAddr> <atHeight> <key> <networkID> <fees>",
 	Short: "enable a protocol feature",
 	Long: `If authorized, enable the protocol feature with the key.
@@ -220,7 +220,7 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 		key := args[2]
 		fstring := fmt.Sprintf("%s:%s", key, height)
 
-		u := govTypes.Upgrade{
+		u := governanceTypes.Upgrade{
 			Height:   FeatureUpgradeHeight,
 			Version:  FeatureUpgradeKey,
 			Features: []string{fstring},

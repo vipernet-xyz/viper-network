@@ -13,7 +13,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
@@ -409,15 +409,15 @@ func newDefaultGenesisState() []byte {
 	res = types.ModuleCdc.MustMarshalJSON(posGenesisState)
 	defaultGenesis[providersTypes.ModuleName] = res
 	// set default governance in genesis
-	var govGenesisState govTypes.GenesisState
-	rawGov := defaultGenesis[govTypes.ModuleName]
-	Codec().MustUnmarshalJSON(rawGov, &govGenesisState)
+	var governanceGenesisState governanceTypes.GenesisState
+	rawGov := defaultGenesis[governanceTypes.ModuleName]
+	Codec().MustUnmarshalJSON(rawGov, &governanceGenesisState)
 	mACL := createDummyACL(pubKey)
-	govGenesisState.Params.ACL = mACL
-	govGenesisState.Params.DAOOwner = sdk.Address(pubKey.Address())
-	govGenesisState.Params.Upgrade = govTypes.NewUpgrade(0, "0")
-	res4 := Codec().MustMarshalJSON(govGenesisState)
-	defaultGenesis[govTypes.ModuleName] = res4
+	governanceGenesisState.Params.ACL = mACL
+	governanceGenesisState.Params.DAOOwner = sdk.Address(pubKey.Address())
+	governanceGenesisState.Params.Upgrade = governanceTypes.NewUpgrade(0, "0")
+	res4 := Codec().MustMarshalJSON(governanceGenesisState)
+	defaultGenesis[governanceTypes.ModuleName] = res4
 	// end genesis setup
 	j, _ := types.ModuleCdc.MarshalJSONIndent(defaultGenesis, "", "    ")
 	j, _ = types.ModuleCdc.MarshalJSONIndent(tmType.GenesisDoc{
@@ -443,10 +443,10 @@ func newDefaultGenesisState() []byte {
 	return j
 }
 
-func createDummyACL(kp crypto.PublicKey) govTypes.ACL {
+func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	addr := sdk.Address(kp.Address())
-	acl := govTypes.ACL{}
-	acl = make([]govTypes.ACLPair, 0)
+	acl := governanceTypes.ACL{}
+	acl = make([]governanceTypes.ACLPair, 0)
 	acl.SetOwner("application/MinimumPlatformStake", addr)
 	acl.SetOwner("application/AppUnstakingTime", addr)
 	acl.SetOwner("application/BaseRelaysPerVIPR", addr)

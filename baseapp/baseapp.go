@@ -516,7 +516,7 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	switch path[0] {
 	// "/app" prefix for special application queries
 	case "app":
-		return handleQueryApp(app, path, req)
+		return handleQueryPlatform(app, path, req)
 	case "store":
 		return handleQueryStore(app, path, req)
 
@@ -531,7 +531,7 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	return sdk.ErrUnknownRequest(msg).QueryResult()
 }
 
-func handleQueryApp(app *BaseApp, path []string, req abci.RequestQuery) (res abci.ResponseQuery) {
+func handleQueryPlatform(app *BaseApp, path []string, req abci.RequestQuery) (res abci.ResponseQuery) {
 	if len(path) >= 2 {
 		var result sdk.Result
 

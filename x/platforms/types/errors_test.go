@@ -58,7 +58,7 @@ func TestError_ErrNilPlatformAddr(t *testing.T) {
 		})
 	}
 }
-func TestError_ErrPlatformlicaitonStatus(t *testing.T) {
+func TestError_ErrPlatformStatus(t *testing.T) {
 	type args struct {
 		codespace sdk.CodespaceType
 	}
@@ -154,7 +154,7 @@ func TestError_ErrNotEnoughCoins(t *testing.T) {
 		})
 	}
 }
-func TestError_ErrPlatformlicaitonPubKeyExists(t *testing.T) {
+func TestError_ErrPlatformPubKeyExists(t *testing.T) {
 	type args struct {
 		codespace sdk.CodespaceType
 	}
@@ -226,7 +226,7 @@ func TestError_ErrNoPlatformFoundForAddress(t *testing.T) {
 		})
 	}
 }
-func TestError_ErrBadPlatformlicaitonAddr(t *testing.T) {
+func TestError_ErrBadPlatformAddr(t *testing.T) {
 	type args struct {
 		codespace sdk.CodespaceType
 	}
@@ -246,7 +246,7 @@ func TestError_ErrBadPlatformlicaitonAddr(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			if got := ErrBadPlatformAddr(tt.args.codespace); got.Error() != tt.want.Error() {
-				t.Errorf("ErrBadPlatformlicaitonAddr(): returns %v but want %v", got, tt.want)
+				t.Errorf("ErrBadPlatformAddr(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}

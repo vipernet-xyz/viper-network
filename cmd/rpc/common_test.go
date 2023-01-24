@@ -186,13 +186,13 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 		return db, nil
 	}
 	txDB := dbm.NewMemDB()
-	baseapp := creator(c.Logger, db, io.Writer(nil))
-	tmNode, err := node.NewNode(baseapp,
+	baseplatform := creator(c.Logger, db, io.Writer(nil))
+	tmNode, err := node.NewNode(baseplatform,
 		c.TmConfig,
 		0,
 		privVal,
 		&nodeKey,
-		proxy.NewLocalClientCreator(baseapp),
+		proxy.NewLocalClientCreator(baseplatform),
 		sdk.NewTransactionIndexer(txDB),
 		genDocProvider,
 		dbProvider,
@@ -202,11 +202,11 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 	if err != nil {
 		panic(err)
 	}
-	baseapp.SetTxIndexer(tmNode.TxIndexer())
-	baseapp.SetBlockstore(tmNode.BlockStore())
-	baseapp.SetEvidencePool(tmNode.EvidencePool())
-	baseapp.SetTendermintNode(tmNode)
-	app.PCA = baseapp
+	baseplatform.SetTxIndexer(tmNode.TxIndexer())
+	baseplatform.SetBlockstore(tmNode.BlockStore())
+	baseplatform.SetEvidencePool(tmNode.EvidencePool())
+	baseplatform.SetTendermintNode(tmNode)
+	app.VCA = baseplatform
 	return tmNode, kb
 }
 
@@ -325,20 +325,20 @@ func oneValTwoNodeGenesisState() []byte {
 	defaultGenesis[providersTypes.ModuleName] = res
 	// set coinbase as account holding coins
 	rawAccounts := defaultGenesis[authentication.ModuleName]
-	var authGenState authentication.GenesisState
-	memCodec().MustUnmarshalJSON(rawAccounts, &authGenState)
-	authGenState.Accounts = append(authGenState.Accounts, &authentication.BaseAccount{
+	var authenticationGenState authentication.GenesisState
+	memCodec().MustUnmarshalJSON(rawAccounts, &authenticationGenState)
+	authenticationGenState.Accounts = append(authenticationGenState.Accounts, &authentication.BaseAccount{
 		Address: sdk.Address(pubKey.Address()),
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(1000000000))),
 		PubKey:  pubKey,
 	})
 	// add second account
-	authGenState.Accounts = append(authGenState.Accounts, &authentication.BaseAccount{
+	authenticationGenState.Accounts = append(authenticationGenState.Accounts, &authentication.BaseAccount{
 		Address: sdk.Address(pubKey2.Address()),
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(1000000000))),
 		PubKey:  pubKey,
 	})
-	res2 := memCodec().MustMarshalJSON(authGenState)
+	res2 := memCodec().MustMarshalJSON(authenticationGenState)
 	defaultGenesis[authentication.ModuleName] = res2
 	// set default chain for module
 	rawViper := defaultGenesis[viperTypes.ModuleName]
@@ -375,36 +375,35 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("governance/daoOwner", kp.GetAddress())
 		acl.SetOwner("governance/acl", kp.GetAddress())
 		acl.SetOwner("pos/StakeDenom", kp.GetAddress())
-		acl.SetOwner("vipernet/SupportedBlockchains", kp.GetAddress())
+		acl.SetOwner("vipercore/SupportedBlockchains", kp.GetAddress())
 		acl.SetOwner("pos/DowntimeJailDuration", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDoubleSign", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDowntime", kp.GetAddress())
 		acl.SetOwner("authentication/FeeMultipliers", kp.GetAddress())
-		acl.SetOwner("application/MinimumPlatformStake", kp.GetAddress())
-		acl.SetOwner("vipernet/ClaimExpiration", kp.GetAddress())
-		acl.SetOwner("vipernet/SessionNodeCount", kp.GetAddress())
-		acl.SetOwner("vipernet/MinimumNumberOfProofs", kp.GetAddress())
-		acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", kp.GetAddress())
+		acl.SetOwner("platformlication/PlatformStakeMinimum", kp.GetAddress())
+		acl.SetOwner("vipercore/ClaimExpiration", kp.GetAddress())
+		acl.SetOwner("vipercore/SessionNodeCount", kp.GetAddress())
+		acl.SetOwner("vipercore/MinimumNumberOfProofs", kp.GetAddress())
+		acl.SetOwner("vipercore/ReplayAttackBurnMultiplier", kp.GetAddress())
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
-		acl.SetOwner("pos/PlatformAllocation", kp.GetAddress())
-		acl.SetOwner("application/StabilityModulation", kp.GetAddress())
-		acl.SetOwner("application/AppUnstakingTime", kp.GetAddress())
-		acl.SetOwner("application/ParticipationRate", kp.GetAddress())
+		acl.SetOwner("platformlication/StabilityAdjustment", kp.GetAddress())
+		acl.SetOwner("platformlication/AppUnstakingTime", kp.GetAddress())
+		acl.SetOwner("platformlication/ParticipationRateOn", kp.GetAddress())
 		acl.SetOwner("pos/MaxEvidenceAge", kp.GetAddress())
 		acl.SetOwner("pos/MinSignedPerWindow", kp.GetAddress())
 		acl.SetOwner("pos/StakeMinimum", kp.GetAddress())
 		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
-		acl.SetOwner("pos/TokenRewardFactor", kp.GetAddress())
-		acl.SetOwner("application/BaseRelaysPerVIPR", kp.GetAddress())
-		acl.SetOwner("vipernet/ClaimSubmissionWindow", kp.GetAddress())
+		acl.SetOwner("pos/RelaysToTokensMultiplier", kp.GetAddress())
+		acl.SetOwner("platformlication/BaseRelaysPerVIPR", kp.GetAddress())
+		acl.SetOwner("vipercore/ClaimSubmissionWindow", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())
 		acl.SetOwner("pos/SignedBlocksWindow", kp.GetAddress())
 		acl.SetOwner("pos/BlocksPerSession", kp.GetAddress())
-		acl.SetOwner("application/MaxPlatforms", kp.GetAddress())
+		acl.SetOwner("platformlication/MaxPlatforms", kp.GetAddress())
 		acl.SetOwner("governance/daoOwner", kp.GetAddress())
 		acl.SetOwner("governance/upgrade", kp.GetAddress())
-		acl.SetOwner("application/MaximumChains", kp.GetAddress())
+		acl.SetOwner("platformlication/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaxJailedBlocks", kp.GetAddress())
 		testACL = acl
@@ -412,7 +411,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 	return testACL
 }
 
-func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators providersTypes.Validators, application platformsTypes.Platform) {
+func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators providersTypes.Validators, platformlication platformsTypes.Platform) {
 	kb := getInMemoryKeybase()
 	// create keypairs
 	kp1, err := kb.GetCoinbase()
@@ -493,11 +492,11 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	// marshal into json
 	res := memCodec().MustMarshalJSON(posGenesisState)
 	defaultGenesis[providersTypes.ModuleName] = res
-	// setup applications
+	// setup platformlications
 	rawApps := defaultGenesis[platformsTypes.ModuleName]
 	var platformsGenesisState platformsTypes.GenesisState
 	memCodec().MustUnmarshalJSON(rawApps, &platformsGenesisState)
-	// application 1
+	// platformlication 1
 	platformsGenesisState.Platforms = append(platformsGenesisState.Platforms, platformsTypes.Platform{
 		Address:                 kp2.GetAddress(),
 		PublicKey:               kp2.PublicKey,
@@ -512,14 +511,14 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	defaultGenesis[platformsTypes.ModuleName] = res2
 	// accounts
 	rawAccounts := defaultGenesis[authentication.ModuleName]
-	var authGenState authentication.GenesisState
-	memCodec().MustUnmarshalJSON(rawAccounts, &authGenState)
-	authGenState.Accounts = append(authGenState.Accounts, &authentication.BaseAccount{
+	var authenticationGenState authentication.GenesisState
+	memCodec().MustUnmarshalJSON(rawAccounts, &authenticationGenState)
+	authenticationGenState.Accounts = append(authenticationGenState.Accounts, &authentication.BaseAccount{
 		Address: sdk.Address(pubKey.Address()),
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(1000000000))),
 		PubKey:  pubKey,
 	})
-	res = memCodec().MustMarshalJSON(authGenState)
+	res = memCodec().MustMarshalJSON(authenticationGenState)
 	defaultGenesis[authentication.ModuleName] = res
 	// setup supported blockchains
 	rawViper := defaultGenesis[viperTypes.ModuleName]

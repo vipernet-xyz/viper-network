@@ -29,7 +29,7 @@ func Dispatch(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	res, err := app.PCA.HandleDispatch(d)
+	res, err := app.VCA.HandleDispatch(d)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -67,7 +67,7 @@ func Relay(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteJSONResponseWithCode(w, string(j), r.URL.Path, r.Host, 400)
 		return
 	}
-	res, dispatch, err := app.PCA.HandleRelay(relay)
+	res, dispatch, err := app.VCA.HandleRelay(relay)
 	if err != nil {
 		response := RPCRelayErrorResponse{
 			Error:    err,
@@ -106,7 +106,7 @@ func UpdateChains(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 			}
 			m[chain.ID] = chain
 		}
-		result, err := app.PCA.SetHostedChains(m)
+		result, err := app.VCA.SetHostedChains(m)
 		if err != nil {
 			WriteErrorResponse(w, 400, err.Error())
 		} else {
@@ -127,7 +127,7 @@ func Stop(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	value := r.URL.Query().Get("authtoken")
 	if value == app.AuthToken.Value {
 		app.ShutdownViperCore()
-		err := app.PCA.TMNode().Stop()
+		err := app.VCA.TMNode().Stop()
 		if err != nil {
 			fmt.Println(err)
 			WriteErrorResponse(w, 400, err.Error())
@@ -151,7 +151,7 @@ func Challenge(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	res, err := app.PCA.HandleChallenge(challenge)
+	res, err := app.VCA.HandleChallenge(challenge)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -180,7 +180,7 @@ func SendRawTx(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	res, err := app.PCA.SendRawTx(params.Addr, bz)
+	res, err := app.VCA.SendRawTx(params.Addr, bz)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return

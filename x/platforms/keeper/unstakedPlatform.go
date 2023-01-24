@@ -16,7 +16,7 @@ func (k Keeper) SetUnstakingPlatform(ctx sdk.Ctx, val types.Platform) {
 	k.setUnstakingPlatforms(ctx, val.UnstakingCompletionTime, platforms)
 }
 
-// deleteUnstakingPlatformlicaiton - DeleteEvidence an platform address from the unstaking queue
+// deleteUnstakingPlatform - DeleteEvidence an platform address from the unstaking queue
 func (k Keeper) deleteUnstakingPlatform(ctx sdk.Ctx, val types.Platform) {
 	platforms := k.getUnstakingPlatforms(ctx, val.UnstakingCompletionTime)
 	var newPlatforms []sdk.Address

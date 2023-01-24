@@ -16,7 +16,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	appTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
+	platformTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	providerTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/julienschmidt/httprouter"
@@ -50,9 +50,9 @@ type HeightAndValidatorOptsParams struct {
 	Opts   providerTypes.QueryValidatorsParams `json:"opts"`
 }
 
-type HeightAndApplicaitonOptsParams struct {
-	Height int64                           `json:"height"`
-	Opts   appTypes.QueryPlatformsWithOpts `json:"opts"`
+type HeightAndPlatformOptsParams struct {
+	Height int64                                `json:"height"`
+	Opts   platformTypes.QueryPlatformsWithOpts `json:"opts"`
 }
 
 type PaginateAddrParams struct {
@@ -86,9 +86,9 @@ func Block(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryBlock(&params.Height)
+	res, err := app.VCA.QueryBlock(&params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -102,7 +102,7 @@ func Tx(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	res, err := app.PCA.QueryTx(params.Hash, params.Prove)
+	res, err := app.VCA.QueryTx(params.Hash, params.Prove)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -240,9 +240,9 @@ func AccountTxs(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var res *core_types.ResultTxSearch
 	var err error
 	if !params.Received {
-		res, err = app.PCA.QueryAccountTxs(params.Address, params.Page, params.PerPage, params.Prove, params.Sort)
+		res, err = app.VCA.QueryAccountTxs(params.Address, params.Page, params.PerPage, params.Prove, params.Sort)
 	} else {
-		res, err = app.PCA.QueryRecipientTxs(params.Address, params.Page, params.PerPage, params.Prove, params.Sort)
+		res, err = app.VCA.QueryRecipientTxs(params.Address, params.Page, params.PerPage, params.Prove, params.Sort)
 	}
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
@@ -264,9 +264,9 @@ func BlockTxs(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryBlockTxs(params.Height, params.Page, params.PerPage, params.Prove, params.Sort)
+	res, err := app.VCA.QueryBlockTxs(params.Height, params.Page, params.PerPage, params.Prove, params.Sort)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 	}
@@ -286,9 +286,9 @@ func AllBlockTxs(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryAllBlockTxs(params.Height, params.Page, params.PerPage)
+	res, err := app.VCA.QueryAllBlockTxs(params.Height, params.Page, params.PerPage)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 	}
@@ -306,7 +306,7 @@ type queryHeightResponse struct {
 }
 
 func Height(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	res, err := app.PCA.QueryHeight()
+	res, err := app.VCA.QueryHeight()
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -330,9 +330,9 @@ func Balance(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	balance, err := app.PCA.QueryBalance(params.Address, params.Height)
+	balance, err := app.VCA.QueryBalance(params.Address, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -352,9 +352,9 @@ func Account(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryAccount(params.Address, params.Height)
+	res, err := app.VCA.QueryAccount(params.Address, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -374,9 +374,9 @@ func Accounts(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryAccounts(params.Height, params.Page, params.PerPage)
+	res, err := app.VCA.QueryAccounts(params.Height, params.Page, params.PerPage)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -396,7 +396,7 @@ func Providers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
 	if params.Opts.Page == 0 {
 		params.Opts.Page = 1
@@ -404,7 +404,7 @@ func Providers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Opts.Limit == 0 {
 		params.Opts.Limit = 1000
 	}
-	res, err := app.PCA.QueryProviders(params.Height, params.Opts)
+	res, err := app.VCA.QueryProviders(params.Height, params.Opts)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -428,9 +428,9 @@ func Node(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryNode(params.Address, params.Height)
+	res, err := app.VCA.QueryProvider(params.Address, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -450,9 +450,9 @@ func SigningInfo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QuerySigningInfos(params.Addr, params.Height, params.Page, params.PerPage)
+	res, err := app.VCA.QuerySigningInfos(params.Addr, params.Height, params.Page, params.PerPage)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -472,7 +472,7 @@ func SecondUpgrade(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
 	result := app.Codec().IsAfterValidatorSplitUpgrade(params.Height)
 	j, _ := json.Marshal(struct {
@@ -485,7 +485,7 @@ func SecondUpgrade(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 func Chains(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	value := r.URL.Query().Get("authtoken")
 	if value == app.AuthToken.Value {
-		res, err := app.PCA.QueryHostedChains()
+		res, err := app.VCA.QueryHostedChains()
 		if err != nil {
 			WriteErrorResponse(w, 400, err.Error())
 			return
@@ -507,7 +507,7 @@ func NodeParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	res, err := app.PCA.QueryNodeParams(params.Height)
+	res, err := app.VCA.QueryProviderParams(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -531,7 +531,7 @@ func QueryValidatorsByChain(w http.ResponseWriter, r *http.Request, ps httproute
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	res, err := app.PCA.QueryValidatorByChain(params.Height, params.Opts.Blockchain)
+	res, err := app.VCA.QueryValidatorByChain(params.Height, params.Opts.Blockchain)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -546,12 +546,12 @@ func QueryValidatorsByChain(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 type QueryNodeReceiptParam struct {
-	Address      string `json:"address"`
-	Blockchain   string `json:"blockchain"`
-	AppPubKey    string `json:"app_pubkey"`
-	SBlockHeight int64  `json:"session_block_height"`
-	Height       int64  `json:"height"`
-	ReceiptType  string `json:"receipt_type"`
+	Address        string `json:"address"`
+	Blockchain     string `json:"blockchain"`
+	PlatformPubkey string `json:"platform_pubkey"`
+	SBlockHeight   int64  `json:"session_block_height"`
+	Height         int64  `json:"height"`
+	ReceiptType    string `json:"receipt_type"`
 }
 
 func NodeClaim(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -561,9 +561,9 @@ func NodeClaim(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryClaim(params.Address, params.AppPubKey, params.Blockchain, params.ReceiptType, params.SBlockHeight, params.Height)
+	res, err := app.VCA.QueryClaim(params.Address, params.PlatformPubkey, params.Blockchain, params.ReceiptType, params.SBlockHeight, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -583,9 +583,9 @@ func NodeClaims(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryClaims(params.Addr, params.Height, params.Page, params.PerPage)
+	res, err := app.VCA.QueryClaims(params.Addr, params.Height, params.Page, params.PerPage)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -598,14 +598,14 @@ func NodeClaims(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
 }
 
-func Apps(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var params = HeightAndApplicaitonOptsParams{}
+func Platforms(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	var params = HeightAndPlatformOptsParams{}
 	if err := PopModel(w, r, ps, &params); err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
 	if params.Opts.Page == 0 {
 		params.Opts.Page = 1
@@ -613,7 +613,7 @@ func Apps(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Opts.Limit == 0 {
 		params.Opts.Limit = 1000
 	}
-	res, err := app.PCA.QueryApps(params.Height, params.Opts)
+	res, err := app.VCA.QueryPlatforms(params.Height, params.Opts)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -637,9 +637,9 @@ func App(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryApp(params.Address, params.Height)
+	res, err := app.VCA.QueryPlatform(params.Address, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -659,9 +659,9 @@ func AppParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryAppParams(params.Height)
+	res, err := app.VCA.QueryPlatformParams(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -681,9 +681,9 @@ func ViperParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryViperParams(params.Height)
+	res, err := app.VCA.QueryViperParams(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -703,9 +703,9 @@ func SupportedChains(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryViperSupportedBlockchains(params.Height)
+	res, err := app.VCA.QueryViperSupportedBlockchains(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -734,19 +734,19 @@ func Supply(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	providersStake, total, err := app.PCA.QueryTotalNodeCoins(params.Height)
+	providersStake, total, err := app.VCA.QueryTotalProviderCoins(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	platformsStaked, err := app.PCA.QueryTotalAppCoins(params.Height)
+	platformsStaked, err := app.VCA.QueryTotalPlatformCoins(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	dao, err := app.PCA.QueryDaoBalance(params.Height)
+	dao, err := app.VCA.QueryDaoBalance(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -775,9 +775,9 @@ func DAOOwner(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryDaoOwner(0)
+	res, err := app.VCA.QueryDaoOwner(0)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -797,9 +797,9 @@ func Upgrade(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryUpgrade(params.Height)
+	res, err := app.VCA.QueryUpgrade(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -819,9 +819,9 @@ func ACL(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryACL(params.Height)
+	res, err := app.VCA.QueryACL(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -841,9 +841,9 @@ func AllParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryAllParams(params.Height)
+	res, err := app.VCA.QueryAllParams(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -862,9 +862,9 @@ func Param(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.QueryParam(params.Height, params.Key)
+	res, err := app.VCA.QueryParam(params.Height, params.Key)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -884,9 +884,9 @@ func State(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if params.Height == 0 {
-		params.Height = app.PCA.BaseApp.LastBlockHeight()
+		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.PCA.ExportState(params.Height, "")
+	res, err := app.VCA.ExportState(params.Height, "")
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return

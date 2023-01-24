@@ -12,7 +12,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/platforms/keeper"
 	"github.com/vipernet-xyz/viper-network/x/platforms/types"
 	"github.com/vipernet-xyz/viper-network/x/providers"
@@ -88,7 +88,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, keeper.Keeper, type
 		authentication.FeeCollectorName: nil,
 		types.StakedPoolName:            {authentication.Burner, authentication.Staking, authentication.Minter},
 		providerstypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
-		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
+		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Staking},
 	}
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {

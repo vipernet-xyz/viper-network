@@ -5,7 +5,13 @@ import (
 	"testing"
 
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/x/governance"
 
+	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmtypes "github.com/tendermint/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
@@ -14,17 +20,10 @@ import (
 	providerskeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	providerstypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 
-	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
-	"github.com/vipernet-xyz/viper-network/x/governance"
 	"github.com/vipernet-xyz/viper-network/x/platforms/types"
 )
 
@@ -68,14 +67,14 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 	providersKey := sdk.NewKVStoreKey(providerstypes.StoreKey)
-	platformsKey := sdk.NewKVStoreKey(types.StoreKey)
+	appsKey := sdk.NewKVStoreKey(types.StoreKey)
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(platformsKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(appsKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
 	err := ms.LoadLatestVersion()
 	require.Nil(t, err)
@@ -104,7 +103,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	valTokens := sdk.TokensFromConsensusPower(initPower)
 	accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	providersSubspace := sdk.NewSubspace(providerstypes.DefaultParamspace)
-	platformSubspace := sdk.NewSubspace(DefaultParamspace)
+	appSubspace := sdk.NewSubspace(DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
 	nk := providerskeeper.NewKeeper(cdc, providersKey, ak, providersSubspace, "pos")
 	moduleManager := module.NewManager(
@@ -115,7 +114,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	keeper := NewKeeper(cdc, platformsKey, nk, ak, MockViperKeeper{}, platformSubspace, "platforms")
+	keeper := NewKeeper(cdc, appsKey, nk, ak, MockViperKeeper{}, appSubspace, "apps")
 	p := types.DefaultParams()
 	keeper.SetParams(ctx, p)
 	return ctx, accs, keeper
@@ -194,8 +193,8 @@ func getUnstakingPlatform() types.Platform {
 
 func modifyFn(i *int) func(index int64, platform exported.PlatformI) (stop bool) {
 	return func(index int64, platform exported.PlatformI) (stop bool) {
-		user := platform.(types.Platform)
-		user.StakedTokens = sdk.NewInt(100)
+		app := platform.(types.Platform)
+		app.StakedTokens = sdk.NewInt(100)
 		if index == 1 {
 			stop = true
 		}

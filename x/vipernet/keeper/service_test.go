@@ -32,7 +32,7 @@ func TestKeeper_HandleRelay(t *testing.T) {
 	ak.SetStakedPlatform(ctx, platform)
 	kp, _ := kb.GetCoinbase()
 	npk := kp.PublicKey
-	providerPubKey := npk.RawString()
+	nodePubKey := npk.RawString()
 	p := types.Payload{
 		Data:    "{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}",
 		Method:  "",
@@ -45,7 +45,7 @@ func TestKeeper_HandleRelay(t *testing.T) {
 		Proof: types.RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 976,
-			ServicerPubKey:     providerPubKey,
+			ServicerPubKey:     nodePubKey,
 			Blockchain:         ethereum,
 			Token: types.AAT{
 				Version:           "0.0.1",
@@ -77,7 +77,7 @@ func TestKeeper_HandleRelay(t *testing.T) {
 	mockCtx.On("KVStore", keeper.storeKey).Return(ctx.KVStore(keeper.storeKey))
 	mockCtx.On("KVStore", keys["pos"]).Return(ctx.KVStore(keys["pos"]))
 	mockCtx.On("KVStore", keys["params"]).Return(ctx.KVStore(keys["params"]))
-	mockCtx.On("KVStore", keys["platformlication"]).Return(ctx.KVStore(keys["platformlication"]))
+	mockCtx.On("KVStore", keys["application"]).Return(ctx.KVStore(keys["application"]))
 	mockCtx.On("BlockHeight").Return(ctx.BlockHeight())
 	mockCtx.On("PrevCtx", int64(976)).Return(ctx, nil)
 	mockCtx.On("PrevCtx", keeper.GetLatestSessionBlockHeight(mockCtx)).Return(ctx, nil)

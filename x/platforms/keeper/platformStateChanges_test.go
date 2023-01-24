@@ -9,7 +9,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/platforms/types"
 )
 
-func TestPlatformStateChange_ValidatePlatformlicaitonBeginUnstaking(t *testing.T) {
+func TestPlatformStateChange_ValidatePlatformBeginUnstaking(t *testing.T) {
 	tests := []struct {
 		name     string
 		platform types.Platform
@@ -51,44 +51,44 @@ func TestPlatformStateChange_ValidatePlatformlicaitonBeginUnstaking(t *testing.T
 	}
 }
 
-func TestPlatformStateChange_ValidatePlatformlicaitonStaking(t *testing.T) {
+func TestAppStateChange_ValidateApplicaitonStaking(t *testing.T) {
 	tests := []struct {
-		name                 string
-		platform             types.Platform
-		panics               bool
-		amount               sdk.BigInt
-		stakedPlatformsCount int
-		isAfterUpgrade       bool
-		want                 interface{}
+		name            string
+		application     types.Platform
+		panics          bool
+		amount          sdk.BigInt
+		stakedAppsCount int
+		isAfterUpgrade  bool
+		want            interface{}
 	}{
 		{
-			name:                 "validates platform",
-			stakedPlatformsCount: 0,
-			platform:             getUnstakedPlatform(),
-			amount:               sdk.NewInt(1000000),
-			want:                 nil,
+			name:            "validates application",
+			stakedAppsCount: 0,
+			application:     getUnstakedPlatform(),
+			amount:          sdk.NewInt(1000000),
+			want:            nil,
 		},
 		{
-			name:                 "errors if below minimum stake",
-			platform:             getUnstakedPlatform(),
-			stakedPlatformsCount: 0,
-			amount:               sdk.NewInt(0),
-			want:                 types.ErrMinimumStake("platforms"),
+			name:            "errors if below minimum stake",
+			application:     getUnstakedPlatform(),
+			stakedAppsCount: 0,
+			amount:          sdk.NewInt(0),
+			want:            types.ErrMinimumStake("apps"),
 		},
 		{
-			name:                 "errors bank does not have enough coins",
-			platform:             getUnstakedPlatform(),
-			stakedPlatformsCount: 0,
-			amount:               sdk.NewInt(1000000000000000000),
-			want:                 types.ErrNotEnoughCoins("platforms"),
+			name:            "errors bank does not have enough coins",
+			application:     getUnstakedPlatform(),
+			stakedAppsCount: 0,
+			amount:          sdk.NewInt(1000000000000000000),
+			want:            types.ErrNotEnoughCoins("apps"),
 		},
 		{
-			name:                 "errors if max platforms hit",
-			platform:             getUnstakedPlatform(),
-			stakedPlatformsCount: 5,
-			amount:               sdk.NewInt(1000000),
-			want:                 types.ErrMaxPlatforms("platforms"),
-			isAfterUpgrade:       true,
+			name:            "errors if max applications hit",
+			application:     getUnstakedPlatform(),
+			stakedAppsCount: 5,
+			amount:          sdk.NewInt(1000000),
+			want:            types.ErrMaxPlatforms("apps"),
+			isAfterUpgrade:  true,
 		},
 	}
 
@@ -98,7 +98,7 @@ func TestPlatformStateChange_ValidatePlatformlicaitonStaking(t *testing.T) {
 			p := keeper.GetParams(context)
 			p.MaxPlatforms = 5
 			keeper.SetParams(context, p)
-			for i := 0; i < tt.stakedPlatformsCount; i++ {
+			for i := 0; i < tt.stakedAppsCount; i++ {
 				pk := getRandomPubKey()
 				keeper.SetStakedPlatform(context, types.Platform{
 					Address:      sdk.Address(pk.Address()),
@@ -113,14 +113,13 @@ func TestPlatformStateChange_ValidatePlatformlicaitonStaking(t *testing.T) {
 				codec.UpgradeHeight = -1
 			}
 			addMintedCoinsToModule(t, context, &keeper, types.StakedPoolName)
-			sendFromModuleToAccount(t, context, &keeper, types.StakedPoolName, tt.platform.Address, sdk.NewInt(100000000000))
-			if got := keeper.ValidatePlatformStaking(context, tt.platform, tt.amount); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("PlatformStateChange.ValidatePlatformStaking() = got %v, want %v", got, tt.want)
+			sendFromModuleToAccount(t, context, &keeper, types.StakedPoolName, tt.application.Address, sdk.NewInt(100000000000))
+			if got := keeper.ValidatePlatformStaking(context, tt.application, tt.amount); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("AppStateChange.ValidateApplicationStaking() = got %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
-
 func TestPlatformStateChange_JailPlatform(t *testing.T) {
 	jailedPlatform := getStakedPlatform()
 	jailedPlatform.Jailed = true
@@ -261,7 +260,7 @@ func TestPlatformStateChange_EditAndValidateStakePlatform(t *testing.T) {
 	tests := []struct {
 		name          string
 		accountAmount sdk.BigInt
-		origPlatform  types.Platform
+		origApp       types.Platform
 		amount        sdk.BigInt
 		want          types.Platform
 		err           sdk.Error
@@ -269,37 +268,37 @@ func TestPlatformStateChange_EditAndValidateStakePlatform(t *testing.T) {
 		{
 			name:          "edit stake amount of existing platform",
 			accountAmount: accountAmount,
-			origPlatform:  platform,
+			origApp:       platform,
 			amount:        stakeAmount,
 			want:          updateStakeAmountPlatform,
 		},
 		{
 			name:          "FAIL edit stake amount of existing platform",
 			accountAmount: accountAmount,
-			origPlatform:  platform,
+			origApp:       platform,
 			amount:        stakeAmount,
 			want:          updateStakeAmountPlatformFail,
-			err:           types.ErrMinimumEditStake("platforms"),
+			err:           types.ErrMinimumEditStake("apps"),
 		},
 		{
 			name:          "edit stake the chains of the platform",
 			accountAmount: accountAmount,
-			origPlatform:  platform,
+			origApp:       platform,
 			amount:        stakeAmount,
 			want:          updateChainsPlatform,
 		},
 		{
 			name:          "FAIL not enough coins to bump stake amount of existing platform",
 			accountAmount: notEnoughCoinsAccount,
-			origPlatform:  platform,
+			origApp:       platform,
 			amount:        stakeAmount,
 			want:          updateStakeAmountPlatform,
-			err:           types.ErrNotEnoughCoins("platforms"),
+			err:           types.ErrNotEnoughCoins("apps"),
 		},
 		{
 			name:          "update nothing for the platform",
 			accountAmount: accountAmount,
-			origPlatform:  platform,
+			origApp:       platform,
 			amount:        stakeAmount,
 			want:          updateNothingPlatform,
 		},
@@ -314,11 +313,11 @@ func TestPlatformStateChange_EditAndValidateStakePlatform(t *testing.T) {
 			if err != nil {
 				t.Fail()
 			}
-			err = keeper.AccountKeeper.SendCoinsFromModuleToAccount(context, types.StakedPoolName, tt.origPlatform.Address, coins)
+			err = keeper.AccountKeeper.SendCoinsFromModuleToAccount(context, types.StakedPoolName, tt.origApp.Address, coins)
 			if err != nil {
 				t.Fail()
 			}
-			err = keeper.StakePlatform(context, tt.origPlatform, tt.amount)
+			err = keeper.StakePlatform(context, tt.origApp, tt.amount)
 			if err != nil {
 				t.Fail()
 			}
@@ -335,9 +334,9 @@ func TestPlatformStateChange_EditAndValidateStakePlatform(t *testing.T) {
 			tt.want.MaxRelays = keeper.CalculatePlatformRelays(context, tt.want)
 			tt.want.Status = sdk.Staked
 			// see if the changes stuck
-			got, _ := keeper.GetPlatform(context, tt.origPlatform.Address)
+			got, _ := keeper.GetPlatform(context, tt.origApp.Address)
 			if !got.Equals(tt.want) {
-				t.Fatalf("Got platform %s\nWanted platform %s", got.String(), tt.want.String())
+				t.Fatalf("Got app %s\nWanted app %s", got.String(), tt.want.String())
 			}
 		})
 

@@ -24,7 +24,7 @@ var (
 	GetDAOOwnerPath,
 	GetHeightPath,
 	GetAccountPath,
-	GetAppPath,
+	GetPlatformPath,
 	GetTxPath,
 	GetBlockPath,
 	GetSupportedChainsPath,
@@ -33,8 +33,8 @@ var (
 	GetNodeParamsPath,
 	GetProvidersPath,
 	GetSigningInfoPath,
-	GetAppsPath,
-	GetAppParamsPath,
+	GetPlatformsPath,
+	GetPlatformParamsPath,
 	GetViperParamsPath,
 	GetNodeClaimsPath,
 	GetNodeClaimPath,
@@ -67,8 +67,8 @@ func init() {
 			GetAccountPath = route.Path
 		case "QueryAccounts":
 			GetAccountsPath = route.Path
-		case "QueryApp":
-			GetAppPath = route.Path
+		case "QueryPlatform":
+			GetPlatformPath = route.Path
 		case "QueryTX":
 			GetTxPath = route.Path
 		case "QueryBlock":
@@ -85,10 +85,10 @@ func init() {
 			GetProvidersPath = route.Path
 		case "QuerySigningInfo":
 			GetSigningInfoPath = route.Path
-		case "QueryApps":
-			GetAppsPath = route.Path
-		case "QueryAppParams":
-			GetAppParamsPath = route.Path
+		case "QueryPlatforms":
+			GetPlatformsPath = route.Path
+		case "QueryPlatformParams":
+			GetPlatformParamsPath = route.Path
 		case "QueryViperParams":
 			GetViperParamsPath = route.Path
 		case "QueryBlockTxs":

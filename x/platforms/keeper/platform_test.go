@@ -36,7 +36,7 @@ func TestPlatform_SetAndGetPlatform(t *testing.T) {
 			}
 
 			if _, found := keeper.GetPlatform(context, tt.platform.Address); found != tt.want {
-				t.Errorf("Platformlicaiton.GetPlatform() = got %v, want %v", found, tt.want)
+				t.Errorf("Platform.GetPlatform() = got %v, want %v", found, tt.want)
 			}
 		})
 	}
@@ -53,7 +53,7 @@ func TestPlatform_CalculatePlatformRelays(t *testing.T) {
 		{
 			name:     "calculates Platform relays",
 			platform: platform,
-			want:     sdk.NewInt(100000),
+			want:     sdk.NewInt(200000000),
 		},
 	}
 	for _, tt := range tests {
@@ -61,7 +61,7 @@ func TestPlatform_CalculatePlatformRelays(t *testing.T) {
 			context, _, keeper := createTestInput(t, true)
 
 			if got := keeper.CalculatePlatformRelays(context, tt.platform); !got.Equal(tt.want) {
-				t.Errorf("Platformlicaiton.CalculatePlatformRelays() = got %v, want %v", got, tt.want)
+				t.Errorf("Platform.CalculatePlatformRelays() = got %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -88,7 +88,7 @@ func TestPlatform_GetAllAplications(t *testing.T) {
 			keeper.SetPlatform(context, tt.platform)
 
 			if got := keeper.GetAllPlatforms(context); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Platformlicaiton.GetAllPlatforms() = got %v, want %v", got, tt.want)
+				t.Errorf("Platform.GetAllPlatforms() = got %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -117,7 +117,7 @@ func TestPlatform_GetAplications(t *testing.T) {
 			keeper.SetPlatform(context, tt.platform)
 
 			if got := keeper.GetPlatforms(context, tt.maxRetrieve); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Platformlicaiton.GetAllPlatforms() = got %v, want %v", got, tt.want)
+				t.Errorf("Platform.GetAllPlatforms() = got %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -142,7 +142,7 @@ func (k Keeper) ValidateValidatorStaking(ctx sdk.Ctx, validator types.Validator,
 		if !valid {
 			return err
 		}
-		// edit stake in 6.X upgrade
+
 		if ctx.IsAfterUpgradeHeight() && val.IsStaked() {
 			return k.ValidateEditStake(ctx, val, validator, amount, signerAddress)
 		}

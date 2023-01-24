@@ -26,13 +26,13 @@ func init() {
 	queryCmd.AddCommand(queryProviders)
 	queryCmd.AddCommand(queryBalance)
 	queryCmd.AddCommand(queryAccount)
-	queryCmd.AddCommand(queryNode)
-	queryCmd.AddCommand(queryApps)
-	queryCmd.AddCommand(queryApp)
-	queryCmd.AddCommand(queryNodeParams)
-	queryCmd.AddCommand(queryAppParams)
-	queryCmd.AddCommand(queryNodeClaims)
-	queryCmd.AddCommand(queryNodeClaim)
+	queryCmd.AddCommand(queryProvider)
+	queryCmd.AddCommand(queryClients)
+	queryCmd.AddCommand(queryClient)
+	queryCmd.AddCommand(queryProviderParams)
+	queryCmd.AddCommand(queryClientParams)
+	queryCmd.AddCommand(queryProviderClaims)
+	queryCmd.AddCommand(queryProviderClaim)
 	queryCmd.AddCommand(queryViperParams)
 	queryCmd.AddCommand(queryViperSupportedChains)
 	queryCmd.AddCommand(querySupply)
@@ -412,7 +412,7 @@ var queryProviders = &cobra.Command{
 	},
 }
 
-var queryNode = &cobra.Command{
+var queryProvider = &cobra.Command{
 	Use:   "provider <address> [<height>]",
 	Short: "Gets provider from address",
 	Long:  `Retrieves the provider at the specified <height>.`,
@@ -448,7 +448,7 @@ var queryNode = &cobra.Command{
 	},
 }
 
-var queryNodeParams = &cobra.Command{
+var queryProviderParams = &cobra.Command{
 	Use:   "provider-params <height>",
 	Short: "Gets provider parameters",
 	Long:  `Retrieves the provider parameters at the specified <height>.`,
@@ -482,19 +482,19 @@ var queryNodeParams = &cobra.Command{
 	},
 }
 
-var appStakingStatus string
-var appPage, appLimit int
+var clientStakingStatus string
+var clientPage, clientLimit int
 
 func init() {
-	queryApps.Flags().StringVar(&providerStakingStatus, "staking-status", "", "the staking status of the provider")
-	queryApps.Flags().IntVar(&appPage, "appPage", 1, "mark the page you want")
-	queryApps.Flags().IntVar(&appLimit, "appLimit", 10000, "reduce the amount of results")
+	queryClients.Flags().StringVar(&providerStakingStatus, "staking-status", "", "the staking status of the provider")
+	queryClients.Flags().IntVar(&clientPage, "clientPage", 1, "mark the page you want")
+	queryClients.Flags().IntVar(&clientLimit, "clientLimit", 10000, "reduce the amount of results")
 }
 
-var queryApps = &cobra.Command{
-	Use:   "platforms [--staking-status=<providerStakingStatus>] [--appPage=<appPage>] [--providerLimit=<providerLimit>] [<height>]",
+var queryClients = &cobra.Command{
+	Use:   "platforms [--staking-status=<providerStakingStatus>] [--clientPage=<clientPage>] [--providerLimit=<providerLimit>] [<height>]",
 	Short: "Gets platforms",
-	Long:  `Retrieves the list of all applications known at the specified <height>`,
+	Long:  `Retrieves the list of all clients known at the specified <height>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		var height int
@@ -510,10 +510,10 @@ var queryApps = &cobra.Command{
 		}
 		opts := types2.QueryPlatformsWithOpts{
 			Blockchain: blockchain,
-			Page:       appPage,
-			Limit:      appLimit,
+			Page:       clientPage,
+			Limit:      clientLimit,
 		}
-		if appStakingStatus != "" {
+		if clientStakingStatus != "" {
 			switch strings.ToLower(providerStakingStatus) {
 			case "staked":
 				opts.StakingStatus = types.Staked
@@ -523,7 +523,7 @@ var queryApps = &cobra.Command{
 				fmt.Println(fmt.Errorf("unkown staking status <staked or unstaking>"))
 			}
 		}
-		params := rpc.HeightAndApplicaitonOptsParams{
+		params := rpc.HeightAndPlatformOptsParams{
 			Height: int64(height),
 			Opts:   opts,
 		}
@@ -532,7 +532,7 @@ var queryApps = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		res, err := QueryRPC(GetAppsPath, j)
+		res, err := QueryRPC(GetPlatformsPath, j)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -541,10 +541,10 @@ var queryApps = &cobra.Command{
 	},
 }
 
-var queryApp = &cobra.Command{
-	Use:   "app <address> [<height>]",
-	Short: "Gets app from address",
-	Long:  `Retrieves the app at the specified <height>.`,
+var queryClient = &cobra.Command{
+	Use:   "Client <address> [<height>]",
+	Short: "Gets client from address",
+	Long:  `Retrieves the client at the specified <height>.`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
@@ -568,7 +568,7 @@ var queryApp = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		res, err := QueryRPC(GetAppPath, j)
+		res, err := QueryRPC(GetPlatformPath, j)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -577,10 +577,10 @@ var queryApp = &cobra.Command{
 	},
 }
 
-var queryAppParams = &cobra.Command{
-	Use:   "app-params [<height>]",
-	Short: "Gets app parameters",
-	Long:  `Retrieves the app parameters at the specified <height>.`,
+var queryClientParams = &cobra.Command{
+	Use:   "client-params [<height>]",
+	Short: "Gets client parameters",
+	Long:  `Retrieves the client parameters at the specified <height>.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		var height int
@@ -602,7 +602,7 @@ var queryAppParams = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		res, err := QueryRPC(GetAppParamsPath, j)
+		res, err := QueryRPC(GetPlatformParamsPath, j)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -611,7 +611,7 @@ var queryAppParams = &cobra.Command{
 	},
 }
 
-var queryNodeClaims = &cobra.Command{
+var queryProviderClaims = &cobra.Command{
 	Use:   "provider-claims <providerAddr> [<height>]",
 	Short: "Gets provider pending claims for work completed",
 	Long:  `Retrieves the list of all pending proof of work submitted by <providerAddr> at <height>.`,
@@ -648,8 +648,8 @@ var queryNodeClaims = &cobra.Command{
 	},
 }
 
-var queryNodeClaim = &cobra.Command{
-	Use:   "provider-claim <address> <appPubKey> <claimType=(relay | challenge)> <relayChainID> <sessionHeight> [<height>]`",
+var queryProviderClaim = &cobra.Command{
+	Use:   "provider-claim <address> <platformPubKey> <claimType=(relay | challenge)> <relayChainID> <sessionHeight> [<height>]`",
 	Short: "Gets provider pending claim for work completed",
 	Long:  `Gets provider pending claim for verified proof of work submitted for a specific session`,
 	Args:  cobra.MinimumNArgs(5),
@@ -672,12 +672,12 @@ var queryNodeClaim = &cobra.Command{
 			return
 		}
 		params := rpc.QueryNodeReceiptParam{
-			Address:      args[0],
-			Blockchain:   args[3],
-			AppPubKey:    args[1],
-			SBlockHeight: int64(sessionheight),
-			Height:       int64(height),
-			ReceiptType:  args[2],
+			Address:        args[0],
+			Blockchain:     args[3],
+			PlatformPubkey: args[1],
+			SBlockHeight:   int64(sessionheight),
+			Height:         int64(height),
+			ReceiptType:    args[2],
 		}
 		j, err := json.Marshal(params)
 		if err != nil {

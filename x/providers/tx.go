@@ -14,17 +14,9 @@ import (
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
-func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, serviceURL string, amount sdk.BigInt, kp keys.KeyPair, output sdk.Address, passphrase string, legacyCodec, isAfter8 bool, fromAddr sdk.Address) (*sdk.TxResponse, error) {
+func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, serviceURL string, amount sdk.BigInt, kp keys.KeyPair, output sdk.Address, passphrase string, legacyCodec bool, fromAddr sdk.Address) (*sdk.TxResponse, error) {
 	var msg sdk.ProtoMsg
-	if isAfter8 {
-		msg = &types.MsgStake{
-			PublicKey:  kp.PublicKey,
-			Chains:     chains,
-			Value:      amount,
-			ServiceUrl: serviceURL,
-			Output:     output,
-		}
-	} else {
+	{
 		msg = &types.LegacyMsgStake{
 			PublicKey:  kp.PublicKey,
 			Value:      amount,
@@ -43,11 +35,9 @@ func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chain
 	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, msg, legacyCodec)
 }
 
-func UnstakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, address, signer sdk.Address, passphrase string, legacyCodec bool, isAfter8 bool) (*sdk.TxResponse, error) {
+func UnstakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, address, signer sdk.Address, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
 	var msg sdk.ProtoMsg
-	if isAfter8 {
-		msg = &types.MsgBeginUnstake{Address: address, Signer: signer}
-	} else {
+	{
 		msg = &types.LegacyMsgBeginUnstake{Address: address}
 	}
 	txBuilder, cliCtx, err := newTx(cdc, msg, address, tmNode, keybase, passphrase)

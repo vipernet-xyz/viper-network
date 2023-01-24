@@ -44,7 +44,7 @@ func Test_queryPlatforms(t *testing.T) {
 				t.Errorf("queryPlatforms() got = %v, want %v", got, tt.want)
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("queryPlatformlicaitons() got1 = %v, want %v", got1, tt.want1)
+				t.Errorf("queryPlatforms() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}

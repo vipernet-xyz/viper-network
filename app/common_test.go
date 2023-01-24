@@ -93,7 +93,7 @@ func NewInMemoryTendermintNodeAmino(t *testing.T, genesisState []byte) (tendermi
 		}
 		viperTypes.ClearEvidence()
 		viperTypes.ClearSessionCache()
-		PCA = nil
+		VCA = nil
 		inMemKB = nil
 		err := inMemDB.Close()
 		if err != nil {
@@ -146,7 +146,7 @@ func NewInMemoryTendermintNodeProto(t *testing.T, genesisState []byte) (tendermi
 		viperTypes.ClearEvidence()
 		viperTypes.ClearSessionCache()
 
-		PCA = nil
+		VCA = nil
 		inMemKB = nil
 		err := inMemDB.Close()
 		if err != nil {
@@ -272,7 +272,7 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 	if err != nil {
 		panic(err)
 	}
-	PCA = app
+	VCA = app
 	app.SetTxIndexer(tmNode.TxIndexer())
 	app.SetBlockstore(tmNode.BlockStore())
 	app.SetEvidencePool(tmNode.EvidencePool())

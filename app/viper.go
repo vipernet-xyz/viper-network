@@ -12,8 +12,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
@@ -39,11 +39,11 @@ type ViperCoreApp struct {
 	Keys  map[string]*sdk.KVStoreKey
 	Tkeys map[string]*sdk.TransientStoreKey
 	// Keepers for each module
-	accountKeeper   authentication.Keeper
-	platformsKeeper platformsKeeper.Keeper
-	providersKeeper providersKeeper.Keeper
-	govKeeper       govKeeper.Keeper
-	viperKeeper     viperKeeper.Keeper
+	accountKeeper    authentication.Keeper
+	platformsKeeper  platformsKeeper.Keeper
+	providersKeeper  providersKeeper.Keeper
+	governanceKeeper governanceKeeper.Keeper
+	viperKeeper      viperKeeper.Keeper
 	// Module Manager
 	mm *module.Manager
 }
@@ -201,7 +201,7 @@ var (
 		authentication.FeeCollectorName: {authentication.Burner, authentication.Minter, authentication.Staking},
 		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		platformsTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
-		govTypes.DAOAccountName:         {authentication.Burner, authentication.Minter, authentication.Staking},
+		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Minter, authentication.Staking},
 		providersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
 		platformsTypes.ModuleName:       nil,
 	}

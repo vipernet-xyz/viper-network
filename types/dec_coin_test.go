@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -338,7 +339,7 @@ func TestDecCoinsIntersect(t *testing.T) {
 	}{
 		{"", "", ""},
 		{"1.0uvipr", "", ""},
-		{"1.0uviprr", "1.0uvipr", "1.0uvipr"},
+		{"1.0uvipr", "1.0uvipr", "1.0uvipr"},
 		{"", "1.0uvipr", ""},
 		{"1.0uvipr", "", ""},
 		{"2.0uvipr,1.0trope", "1.9uvipr", "1.9uvipr"},
@@ -356,7 +357,8 @@ func TestDecCoinsIntersect(t *testing.T) {
 		require.NoError(t, err, "unexpected parse error in %v", i)
 		exr, err := ParseDecCoins(tc.expectedResult)
 		require.NoError(t, err, "unexpected parse error in %v", i)
-
+		fmt.Println(in1.Intersect(in2))
+		fmt.Println(exr)
 		require.True(t, in1.Intersect(in2).IsEqual(exr), "in1.cap(in2) != exr in %v", i)
 	}
 }

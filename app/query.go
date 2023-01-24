@@ -130,7 +130,7 @@ func (app ViperCoreApp) QueryHeight() (res int64, err error) {
 	return height, nil
 }
 
-func (app ViperCoreApp) QueryNodeStatus() (res *core_types.ResultStatus, err error) {
+func (app ViperCoreApp) QueryProviderStatus() (res *core_types.ResultStatus, err error) {
 	tmClient := app.GetClient()
 	defer func() { _ = tmClient.Stop() }()
 	return tmClient.Status()
@@ -180,7 +180,7 @@ func (app ViperCoreApp) QueryProviders(height int64, opts providersTypes.QueryVa
 	return paginate(opts.Page, opts.Limit, providers, int(app.providersKeeper.MaxValidators(ctx)))
 }
 
-func (app ViperCoreApp) QueryNode(addr string, height int64) (res providersTypes.Validator, err error) {
+func (app ViperCoreApp) QueryProvider(addr string, height int64) (res providersTypes.Validator, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
 		return res, err
@@ -196,7 +196,7 @@ func (app ViperCoreApp) QueryNode(addr string, height int64) (res providersTypes
 	return
 }
 
-func (app ViperCoreApp) QueryNodeParams(height int64) (res providersTypes.Params, err error) {
+func (app ViperCoreApp) QueryProviderParams(height int64) (res providersTypes.Params, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
@@ -255,7 +255,7 @@ func (app ViperCoreApp) QuerySigningInfos(address string, height int64, page, pe
 	return paginate(page, perPage, signingInfos, int(app.providersKeeper.MaxValidators(ctx)))
 }
 
-func (app ViperCoreApp) QueryTotalNodeCoins(height int64) (stakedTokens sdk.BigInt, totalTokens sdk.BigInt, err error) {
+func (app ViperCoreApp) QueryTotalProviderCoins(height int64) (stakedTokens sdk.BigInt, totalTokens sdk.BigInt, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
@@ -270,7 +270,7 @@ func (app ViperCoreApp) QueryDaoBalance(height int64) (res sdk.BigInt, err error
 	if err != nil {
 		return
 	}
-	return app.govKeeper.GetDAOTokens(ctx), nil
+	return app.governanceKeeper.GetDAOTokens(ctx), nil
 }
 
 func (app ViperCoreApp) QueryDaoOwner(height int64) (res sdk.Address, err error) {
@@ -278,7 +278,7 @@ func (app ViperCoreApp) QueryDaoOwner(height int64) (res sdk.Address, err error)
 	if err != nil {
 		return
 	}
-	return app.govKeeper.GetDAOOwner(ctx), nil
+	return app.governanceKeeper.GetDAOOwner(ctx), nil
 }
 
 func (app ViperCoreApp) QueryUpgrade(height int64) (res types.Upgrade, err error) {
@@ -286,7 +286,7 @@ func (app ViperCoreApp) QueryUpgrade(height int64) (res types.Upgrade, err error
 	if err != nil {
 		return
 	}
-	return app.govKeeper.GetUpgrade(ctx), nil
+	return app.governanceKeeper.GetUpgrade(ctx), nil
 }
 
 func (app ViperCoreApp) QueryACL(height int64) (res types.ACL, err error) {
@@ -294,14 +294,14 @@ func (app ViperCoreApp) QueryACL(height int64) (res types.ACL, err error) {
 	if err != nil {
 		return
 	}
-	return app.govKeeper.GetACL(ctx), nil
+	return app.governanceKeeper.GetACL(ctx), nil
 }
 
 type AllParamsReturn struct {
 	AppParams   []SingleParamReturn `json:"app_params"`
 	NodeParams  []SingleParamReturn `json:"node_params"`
 	ViperParams []SingleParamReturn `json:"viper_params"`
-	GovParams   []SingleParamReturn `json:"gov_params"`
+	GovParams   []SingleParamReturn `json:"governance_params"`
 	AuthParams  []SingleParamReturn `json:"auth_params"`
 }
 
@@ -316,7 +316,7 @@ func (app ViperCoreApp) QueryAllParams(height int64) (r AllParamsReturn, err err
 		return
 	}
 	//get all the parameters from governance module
-	allmap := app.govKeeper.GetAllParamNameValue(ctx)
+	allmap := app.governanceKeeper.GetAllParamNameValue(ctx)
 
 	//transform for easy handling
 	for k, v := range allmap {
@@ -365,7 +365,7 @@ func (app ViperCoreApp) QueryParam(height int64, paramkey string) (r SingleParam
 		return
 	}
 	//get all the parameters from governance module
-	allmap := app.govKeeper.GetAllParamNameValue(ctx)
+	allmap := app.governanceKeeper.GetAllParamNameValue(ctx)
 
 	if val, ok := allmap[paramkey]; ok {
 		r.Key = paramkey
@@ -380,7 +380,7 @@ func (app ViperCoreApp) QueryParam(height int64, paramkey string) (r SingleParam
 	return
 }
 
-func (app ViperCoreApp) QueryApps(height int64, opts platformsTypes.QueryPlatformsWithOpts) (res Page, err error) {
+func (app ViperCoreApp) QueryPlatforms(height int64, opts platformsTypes.QueryPlatformsWithOpts) (res Page, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
@@ -390,7 +390,7 @@ func (app ViperCoreApp) QueryApps(height int64, opts platformsTypes.QueryPlatfor
 	return paginate(opts.Page, opts.Limit, applications, int(app.platformsKeeper.GetParams(ctx).MaxPlatforms))
 }
 
-func (app ViperCoreApp) QueryApp(addr string, height int64) (res platformsTypes.Platform, err error) {
+func (app ViperCoreApp) QueryPlatform(addr string, height int64) (res platformsTypes.Platform, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
 		return res, err
@@ -407,7 +407,7 @@ func (app ViperCoreApp) QueryApp(addr string, height int64) (res platformsTypes.
 	return
 }
 
-func (app ViperCoreApp) QueryTotalAppCoins(height int64) (staked sdk.BigInt, err error) {
+func (app ViperCoreApp) QueryTotalPlatformCoins(height int64) (staked sdk.BigInt, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
@@ -415,7 +415,7 @@ func (app ViperCoreApp) QueryTotalAppCoins(height int64) (staked sdk.BigInt, err
 	return app.platformsKeeper.GetStakedTokens(ctx), nil
 }
 
-func (app ViperCoreApp) QueryAppParams(height int64) (res platformsTypes.Params, err error) {
+func (app ViperCoreApp) QueryPlatformParams(height int64) (res platformsTypes.Params, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
@@ -441,13 +441,13 @@ func (app ViperCoreApp) QueryViperSupportedBlockchains(height int64) (res []stri
 	return sb, nil
 }
 
-func (app ViperCoreApp) QueryClaim(address, appPubkey, chain, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
+func (app ViperCoreApp) QueryClaim(address, platformPubkey, chain, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
 	a, err := sdk.AddressFromHex(address)
 	if err != nil {
 		return nil, err
 	}
 	header := viperTypes.SessionHeader{
-		PlatformPubKey:     appPubkey,
+		PlatformPubKey:     platformPubkey,
 		Chain:              chain,
 		SessionBlockHeight: sessionBlockHeight,
 	}

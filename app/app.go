@@ -8,8 +8,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
 	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
 	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
@@ -75,11 +75,11 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		viperSubspace,
 	)
 	// The governance keeper
-	app.govKeeper = govKeeper.NewKeeper(
+	app.governanceKeeper = governanceKeeper.NewKeeper(
 		app.cdc,
 		app.Keys[viperTypes.StoreKey],
 		app.Tkeys[viperTypes.StoreKey],
-		govTypes.DefaultCodespace,
+		governanceTypes.DefaultCodespace,
 		app.accountKeeper,
 		authSubspace, providersSubspace, platformsSubspace, viperSubspace,
 	)
@@ -94,11 +94,11 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		providers.NewPlatformModule(app.providersKeeper),
 		platforms.NewPlatformModule(app.platformsKeeper),
 		viper.NewPlatformModule(app.viperKeeper),
-		governance.NewPlatformModule(app.govKeeper),
+		governance.NewPlatformModule(app.governanceKeeper),
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, govTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		authentication.ModuleName,
@@ -128,7 +128,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		cmn.Exit(err.Error())
 	}
 	ctx := sdk.NewContext(app.Store(), abci.Header{}, false, app.Logger()).WithBlockStore(app.BlockStore())
-	if upgrade := app.govKeeper.GetUpgrade(ctx); upgrade.Height != 0 {
+	if upgrade := app.governanceKeeper.GetUpgrade(ctx); upgrade.Height != 0 {
 		codec.UpgradeHeight = upgrade.Height
 		codec.OldUpgradeHeight = upgrade.OldUpgradeHeight
 		codec.UpgradeFeatureMap = codec.SliceToExistingMap(upgrade.GetFeatures(), codec.UpgradeFeatureMap)

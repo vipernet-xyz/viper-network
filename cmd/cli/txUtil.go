@@ -21,7 +21,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 )
 
 // SendTransaction - Deliver Transaction to provider
@@ -70,6 +70,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 	if err != nil {
 		return nil, err
 	}
+	kp, err := kb.Get(fa)
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +95,13 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
+	msg = &providerTypes.MsgStake{
+		PublicKey:  kp.PublicKey,
+		Chains:     chains,
+		Value:      amount,
+		ServiceUrl: serviceURL,
+		Output:     fa,
+	}
 	err = msg.ValidateBasic()
 	if err != nil {
 		return nil, err
@@ -164,6 +172,13 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
+	msg = &providerTypes.MsgStake{
+		PublicKey:  operatorPublicKey,
+		Chains:     chains,
+		Value:      amount,
+		ServiceUrl: serviceURL,
+		Output:     outputAddress,
+	}
 	err = msg.ValidateBasic()
 	if err != nil {
 		return nil, err
@@ -184,10 +199,15 @@ func UnstakeNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64)
 	if err != nil {
 		return nil, err
 	}
+	oa, err := sdk.AddressFromHex(operatorAddr)
 	if err != nil {
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
+	msg = &providerTypes.MsgBeginUnstake{
+		Address: oa,
+		Signer:  fa,
+	}
 	kb, err := app.GetKeybase()
 	if err != nil {
 		return nil, err
@@ -212,10 +232,14 @@ func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) 
 	if err != nil {
 		return nil, err
 	}
+	oa, err := sdk.AddressFromHex(operatorAddr)
 	if err != nil {
 		return nil, err
 	}
 	var msg sdk.ProtoMsg
+	msg = &providerTypes.MsgUnjail{
+		ValidatorAddr: oa,
+		Signer:        fa}
 	kb, err := app.GetKeybase()
 	if err != nil {
 		return nil, err
@@ -315,7 +339,7 @@ func DAOTx(fromAddr, toAddr, passphrase string, amount sdk.BigInt, action, chain
 	if err != nil {
 		return nil, err
 	}
-	msg := govTypes.MsgDAOTransfer{
+	msg := governanceTypes.MsgDAOTransfer{
 		FromAddress: fa,
 		ToAddress:   ta,
 		Amount:      amount,
@@ -350,7 +374,7 @@ func ChangeParam(fromAddr, paramACLKey string, paramValue json.RawMessage, passp
 		return nil, err
 
 	}
-	msg := govTypes.MsgChangeParam{
+	msg := governanceTypes.MsgChangeParam{
 		FromAddress: fa,
 		ParamKey:    paramACLKey,
 		ParamVal:    valueBytes,
@@ -369,7 +393,7 @@ func ChangeParam(fromAddr, paramACLKey string, paramValue json.RawMessage, passp
 	}, nil
 }
 
-func Upgrade(fromAddr string, upgrade govTypes.Upgrade, passphrase, chainID string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+func Upgrade(fromAddr string, upgrade governanceTypes.Upgrade, passphrase, chainID string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -378,7 +402,7 @@ func Upgrade(fromAddr string, upgrade govTypes.Upgrade, passphrase, chainID stri
 	if err != nil {
 		return nil, err
 	}
-	msg := govTypes.MsgUpgrade{
+	msg := governanceTypes.MsgUpgrade{
 		Address: fa,
 		Upgrade: upgrade,
 	}

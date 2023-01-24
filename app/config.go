@@ -54,7 +54,7 @@ var (
 	// the default fileseparator based on OS
 	FS = string(fp.Separator)
 	// app instance currently running
-	PCA *ViperCoreApp
+	VCA *ViperCoreApp
 	// config
 	GlobalConfig sdk.Config
 	// HTTP CLIENT FOR TENDERMINT

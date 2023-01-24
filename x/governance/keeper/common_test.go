@@ -13,7 +13,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/authentication/keeper"
-	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -33,7 +33,7 @@ var (
 func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)
-	govTypes.RegisterCodec(cdc)
+	governanceTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	return cdc
@@ -74,7 +74,7 @@ func createTestKeeperAndContext(t *testing.T, isCheckTx bool) (sdk.Context, Keep
 	cdc := makeTestCodec()
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
-		govTypes.DAOAccountName:         {"burner", "staking", "minter"},
+		governanceTypes.DAOAccountName:  {"burner", "staking", "minter"},
 		"FAKE":                          {"burner", "staking", "minter"},
 	}
 	modAccAddrs := make(map[string]bool)
@@ -84,26 +84,26 @@ func createTestKeeperAndContext(t *testing.T, isCheckTx bool) (sdk.Context, Keep
 	akSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	ak := keeper.NewKeeper(cdc, keyAcc, akSubspace, maccPerms)
 	ak.GetModuleAccount(ctx, "FAKE")
-	pk := NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, govTypes.DefaultParamspace, ak, akSubspace)
+	pk := NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, governanceTypes.DefaultParamspace, ak, akSubspace)
 	moduleManager := module.NewManager(
 		authentication.NewPlatformModule(ak),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)
-	params := govTypes.DefaultParams()
+	params := governanceTypes.DefaultParams()
 	pk.SetParams(ctx, params)
-	gs := govTypes.DefaultGenesisState()
+	gs := governanceTypes.DefaultGenesisState()
 	acl := createTestACL()
 	gs.Params.ACL = acl
 	pk.InitGenesis(ctx, gs)
 	return ctx, pk
 }
 
-var testACL govTypes.ACL
+var testACL governanceTypes.ACL
 
-func createTestACL() govTypes.ACL {
+func createTestACL() governanceTypes.ACL {
 	if testACL == nil {
-		acl := govTypes.ACL(make([]govTypes.ACLPair, 0))
+		acl := governanceTypes.ACL(make([]governanceTypes.ACLPair, 0))
 		acl.SetOwner("authentication/MaxMemoCharacters", getRandomValidatorAddress())
 		acl.SetOwner("authentication/TxSigLimit", getRandomValidatorAddress())
 		acl.SetOwner("authentication/FeeMultipliers", getRandomValidatorAddress())
