@@ -32,7 +32,7 @@ func TestKeeper_HandleRelay(t *testing.T) {
 	ak.SetStakedPlatform(ctx, platform)
 	kp, _ := kb.GetCoinbase()
 	npk := kp.PublicKey
-	nodePubKey := npk.RawString()
+	providerPubKey := npk.RawString()
 	p := types.Payload{
 		Data:    "{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}",
 		Method:  "",
@@ -45,7 +45,7 @@ func TestKeeper_HandleRelay(t *testing.T) {
 		Proof: types.RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 976,
-			ServicerPubKey:     nodePubKey,
+			ServicerPubKey:     providerPubKey,
 			Blockchain:         ethereum,
 			Token: types.AAT{
 				Version:           "0.0.1",
