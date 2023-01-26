@@ -10,7 +10,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 )
 
-// RewardForRelays - Award coins to an address (will be called at the beginning of the next block)
+// RewardForRelays - Award coins to an address
 func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, platformAddress sdk.Address) sdk.BigInt {
 	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
 		var found bool
