@@ -11,14 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPlatformModule_Name(t *testing.T) {
+func TestProviderModule_Name(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	pm := NewPlatformModule(k)
+	pm := NewProviderModule(k)
 	assert.Equal(t, pm.Name(), types.ModuleName)
 	assert.Equal(t, pm.Name(), types.ModuleName)
 }
 
-func TestPlatformModule_InitExportGenesis(t *testing.T) {
+func TestProviderModule_InitExportGenesis(t *testing.T) {
 	p := types.Params{
 		SessionNodeCount:      10,
 		ClaimSubmissionWindow: 22,
@@ -30,7 +30,7 @@ func TestPlatformModule_InitExportGenesis(t *testing.T) {
 		Claims: []types.MsgClaim(nil),
 	}
 	ctx, _, _, k, _ := createTestInput(t, false)
-	pm := NewPlatformModule(k)
+	pm := NewProviderModule(k)
 	data, err := types.ModuleCdc.MarshalJSON(genesisState)
 	assert.Nil(t, err)
 	pm.InitGenesis(ctx, data)
@@ -47,39 +47,39 @@ func TestPlatformModule_InitExportGenesis(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestPlatformModule_NewQuerierHandler(t *testing.T) {
+func TestProviderModule_NewQuerierHandler(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	pm := NewPlatformModule(k)
+	pm := NewProviderModule(k)
 	assert.Equal(t, reflect.ValueOf(keeper.NewQuerier(k)).String(), reflect.ValueOf(pm.NewQuerierHandler()).String())
 }
 
-func TestPlatformModule_Route(t *testing.T) {
+func TestProviderModule_Route(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	pm := NewPlatformModule(k)
+	pm := NewProviderModule(k)
 	assert.Equal(t, pm.Route(), types.RouterKey)
 }
 
-func TestPlatformModule_QuerierRoute(t *testing.T) {
+func TestProviderModule_QuerierRoute(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	pm := NewPlatformModule(k)
+	pm := NewProviderModule(k)
 	assert.Equal(t, pm.QuerierRoute(), types.ModuleName)
 }
 
-//func TestPlatformModule_EndBlock(t *testing.T) {
+//func TestProviderModule_EndBlock(t *testing.T) {
 //	ctx, _, _, k, _ := createTestInput(t, false)
-//	pm := NewPlatformModule(k)
+//	pm := NewProviderModule(k)
 //	assert.Equal(t, pm.EndBlock(ctx, abci.RequestEndBlock{}), []abci.ValidatorUpdate{})
 //}
 
-func TestPlatformModuleBasic_DefaultGenesis(t *testing.T) {
+func TestProviderModuleBasic_DefaultGenesis(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	pm := NewPlatformModule(k)
+	pm := NewProviderModule(k)
 	assert.Equal(t, []byte(pm.DefaultGenesis()), []byte(types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())))
 }
 
-func TestPlatformModuleBasic_ValidateGenesis(t *testing.T) {
+func TestProviderModuleBasic_ValidateGenesis(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	pm := NewPlatformModule(k)
+	pm := NewProviderModule(k)
 	p := types.Params{
 		SessionNodeCount:      10,
 		ClaimSubmissionWindow: 22,

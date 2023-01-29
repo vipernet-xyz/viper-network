@@ -14,8 +14,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	"github.com/vipernet-xyz/viper-network/x/governance/types"
-	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	core_types "github.com/tendermint/tendermint/rpc/core/types"
@@ -130,7 +130,7 @@ func (app ViperCoreApp) QueryHeight() (res int64, err error) {
 	return height, nil
 }
 
-func (app ViperCoreApp) QueryProviderStatus() (res *core_types.ResultStatus, err error) {
+func (app ViperCoreApp) QueryServicerStatus() (res *core_types.ResultStatus, err error) {
 	tmClient := app.GetClient()
 	defer func() { _ = tmClient.Stop() }()
 	return tmClient.Status()
@@ -170,17 +170,17 @@ func (app ViperCoreApp) QueryAccounts(height int64, page, perPage int) (res Page
 	return paginate(page, perPage, accs, 10000)
 }
 
-func (app ViperCoreApp) QueryProviders(height int64, opts providersTypes.QueryValidatorsParams) (res Page, err error) {
+func (app ViperCoreApp) QueryServicers(height int64, opts servicersTypes.QueryValidatorsParams) (res Page, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
 	opts.Page, opts.Limit = checkPagination(opts.Page, opts.Limit)
-	providers := app.providersKeeper.GetAllValidatorsWithOpts(ctx, opts)
-	return paginate(opts.Page, opts.Limit, providers, int(app.providersKeeper.MaxValidators(ctx)))
+	servicers := app.servicersKeeper.GetAllValidatorsWithOpts(ctx, opts)
+	return paginate(opts.Page, opts.Limit, servicers, int(app.servicersKeeper.MaxValidators(ctx)))
 }
 
-func (app ViperCoreApp) QueryProvider(addr string, height int64) (res providersTypes.Validator, err error) {
+func (app ViperCoreApp) QueryServicer(addr string, height int64) (res servicersTypes.Validator, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
 		return res, err
@@ -189,19 +189,19 @@ func (app ViperCoreApp) QueryProvider(addr string, height int64) (res providersT
 	if err != nil {
 		return
 	}
-	res, found := app.providersKeeper.GetValidator(ctx, a)
+	res, found := app.servicersKeeper.GetValidator(ctx, a)
 	if !found {
 		err = fmt.Errorf("validator not found for %s", a.String())
 	}
 	return
 }
 
-func (app ViperCoreApp) QueryProviderParams(height int64) (res providersTypes.Params, err error) {
+func (app ViperCoreApp) QueryServicerParams(height int64) (res servicersTypes.Params, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	return app.providersKeeper.GetParams(ctx), nil
+	return app.servicersKeeper.GetParams(ctx), nil
 }
 
 func (app ViperCoreApp) QueryHostedChains() (res map[string]viperTypes.HostedBlockchain, err error) {
@@ -212,16 +212,16 @@ func (app ViperCoreApp) SetHostedChains(req map[string]viperTypes.HostedBlockcha
 	return app.viperKeeper.SetHostedBlockchains(req).M, nil
 }
 
-func (app ViperCoreApp) QuerySigningInfo(height int64, addr string) (res providersTypes.ValidatorSigningInfo, err error) {
+func (app ViperCoreApp) QuerySigningInfo(height int64, addr string) (res servicersTypes.ValidatorSigningInfo, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
-		return providersTypes.ValidatorSigningInfo{}, err
+		return servicersTypes.ValidatorSigningInfo{}, err
 	}
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	res, found := app.providersKeeper.GetValidatorSigningInfo(ctx, a)
+	res, found := app.servicersKeeper.GetValidatorSigningInfo(ctx, a)
 	if !found {
 		err = fmt.Errorf("signing info not found for %s", a.String())
 	}
@@ -233,7 +233,7 @@ func (app ViperCoreApp) QuerySigningInfos(address string, height int64, page, pe
 	if err != nil {
 		return
 	}
-	signingInfos := make([]providersTypes.ValidatorSigningInfo, 0)
+	signingInfos := make([]servicersTypes.ValidatorSigningInfo, 0)
 
 	page, perPage = checkPagination(page, perPage)
 	if address != "" {
@@ -241,27 +241,27 @@ func (app ViperCoreApp) QuerySigningInfos(address string, height int64, page, pe
 		if err != nil {
 			return Page{}, err
 		}
-		sinfo, found := app.providersKeeper.GetValidatorSigningInfo(ctx, addr)
+		sinfo, found := app.servicersKeeper.GetValidatorSigningInfo(ctx, addr)
 		if !found {
 			return Page{}, err
 		}
 		signingInfos = append(signingInfos, sinfo)
 	} else {
-		app.providersKeeper.IterateAndExecuteOverValSigningInfo(ctx, func(address sdk.Address, info providersTypes.ValidatorSigningInfo) (stop bool) {
+		app.servicersKeeper.IterateAndExecuteOverValSigningInfo(ctx, func(address sdk.Address, info servicersTypes.ValidatorSigningInfo) (stop bool) {
 			signingInfos = append(signingInfos, info)
 			return false
 		})
 	}
-	return paginate(page, perPage, signingInfos, int(app.providersKeeper.MaxValidators(ctx)))
+	return paginate(page, perPage, signingInfos, int(app.servicersKeeper.MaxValidators(ctx)))
 }
 
-func (app ViperCoreApp) QueryTotalProviderCoins(height int64) (stakedTokens sdk.BigInt, totalTokens sdk.BigInt, err error) {
+func (app ViperCoreApp) QueryTotalServicerCoins(height int64) (stakedTokens sdk.BigInt, totalTokens sdk.BigInt, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	stakedTokens = app.providersKeeper.GetStakedTokens(ctx)
-	totalTokens = app.providersKeeper.TotalTokens(ctx)
+	stakedTokens = app.servicersKeeper.GetStakedTokens(ctx)
+	totalTokens = app.servicersKeeper.TotalTokens(ctx)
 	return
 }
 
@@ -380,17 +380,17 @@ func (app ViperCoreApp) QueryParam(height int64, paramkey string) (r SingleParam
 	return
 }
 
-func (app ViperCoreApp) QueryPlatforms(height int64, opts platformsTypes.QueryPlatformsWithOpts) (res Page, err error) {
+func (app ViperCoreApp) QueryProviders(height int64, opts providersTypes.QueryProvidersWithOpts) (res Page, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
 	opts.Page, opts.Limit = checkPagination(opts.Page, opts.Limit)
-	applications := app.platformsKeeper.GetAllPlatformsWithOpts(ctx, opts)
-	return paginate(opts.Page, opts.Limit, applications, int(app.platformsKeeper.GetParams(ctx).MaxPlatforms))
+	applications := app.providersKeeper.GetAllProvidersWithOpts(ctx, opts)
+	return paginate(opts.Page, opts.Limit, applications, int(app.providersKeeper.GetParams(ctx).MaxProviders))
 }
 
-func (app ViperCoreApp) QueryPlatform(addr string, height int64) (res platformsTypes.Platform, err error) {
+func (app ViperCoreApp) QueryProvider(addr string, height int64) (res providersTypes.Provider, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
 		return res, err
@@ -399,28 +399,28 @@ func (app ViperCoreApp) QueryPlatform(addr string, height int64) (res platformsT
 	if err != nil {
 		return
 	}
-	res, found := app.platformsKeeper.GetPlatform(ctx, a)
+	res, found := app.providersKeeper.GetProvider(ctx, a)
 	if !found {
-		err = platformsTypes.ErrNoPlatformFound(platformsTypes.ModuleName)
+		err = providersTypes.ErrNoProviderFound(providersTypes.ModuleName)
 		return
 	}
 	return
 }
 
-func (app ViperCoreApp) QueryTotalPlatformCoins(height int64) (staked sdk.BigInt, err error) {
+func (app ViperCoreApp) QueryTotalProviderCoins(height int64) (staked sdk.BigInt, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	return app.platformsKeeper.GetStakedTokens(ctx), nil
+	return app.providersKeeper.GetStakedTokens(ctx), nil
 }
 
-func (app ViperCoreApp) QueryPlatformParams(height int64) (res platformsTypes.Params, err error) {
+func (app ViperCoreApp) QueryProviderParams(height int64) (res providersTypes.Params, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	return app.platformsKeeper.GetParams(ctx), nil
+	return app.providersKeeper.GetParams(ctx), nil
 }
 
 func (app ViperCoreApp) QueryValidatorByChain(height int64, chain string) (amount int64, err error) {
@@ -428,7 +428,7 @@ func (app ViperCoreApp) QueryValidatorByChain(height int64, chain string) (amoun
 	if err != nil {
 		return
 	}
-	_, count := app.providersKeeper.GetValidatorsByChain(ctx, chain)
+	_, count := app.servicersKeeper.GetValidatorsByChain(ctx, chain)
 	return int64(count), nil
 }
 
@@ -441,13 +441,13 @@ func (app ViperCoreApp) QueryViperSupportedBlockchains(height int64) (res []stri
 	return sb, nil
 }
 
-func (app ViperCoreApp) QueryClaim(address, platformPubkey, chain, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
+func (app ViperCoreApp) QueryClaim(address, providerPubkey, chain, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
 	a, err := sdk.AddressFromHex(address)
 	if err != nil {
 		return nil, err
 	}
 	header := viperTypes.SessionHeader{
-		PlatformPubKey:     platformPubkey,
+		ProviderPubKey:     providerPubkey,
 		Chain:              chain,
 		SessionBlockHeight: sessionBlockHeight,
 	}

@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/providers/exported"
+	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
@@ -40,14 +40,14 @@ func (k Keeper) HandleDispatch(ctx sdk.Ctx, header types.SessionHeader) (*types.
 		// add to cache
 		types.SetSession(session)
 	}
-	actualNodes := make([]exported.ValidatorI, len(session.SessionProviders))
-	for i, addr := range session.SessionProviders {
+	actualNodes := make([]exported.ValidatorI, len(session.SessionServicers))
+	for i, addr := range session.SessionServicers {
 		actualNodes[i], _ = k.GetNode(sessionCtx, addr)
 	}
 	return &types.DispatchResponse{Session: types.DispatchSession{
 		SessionHeader:    session.SessionHeader,
 		SessionKey:       session.SessionKey,
-		SessionProviders: actualNodes,
+		SessionServicers: actualNodes,
 	}, BlockHeight: ctx.BlockHeight()}, nil
 }
 

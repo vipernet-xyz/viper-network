@@ -14,30 +14,30 @@ import (
 )
 
 var (
-	_ module.PlatformModule      = PlatformModule{}
-	_ module.PlatformModuleBasic = PlatformModuleBasic{}
+	_ module.ProviderModule      = ProviderModule{}
+	_ module.ProviderModuleBasic = ProviderModuleBasic{}
 )
 
-// PlatformModuleBasic app module basics object
-type PlatformModuleBasic struct{}
+// ProviderModuleBasic app module basics object
+type ProviderModuleBasic struct{}
 
 // Name module name
-func (PlatformModuleBasic) Name() string {
+func (ProviderModuleBasic) Name() string {
 	return types.ModuleName
 }
 
 // RegisterCodec register module codec
-func (PlatformModuleBasic) RegisterCodec(cdc *codec.Codec) {
+func (ProviderModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	types.RegisterCodec(cdc)
 }
 
 // DefaultGenesis default genesis state
-func (PlatformModuleBasic) DefaultGenesis() json.RawMessage {
+func (ProviderModuleBasic) DefaultGenesis() json.RawMessage {
 	return types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 // ValidateGenesis module validate genesis
-func (PlatformModuleBasic) ValidateGenesis(bz json.RawMessage) error {
+func (ProviderModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	var data types.GenesisState
 	err := types.ModuleCdc.UnmarshalJSON(bz, &data)
 	if err != nil {
@@ -46,55 +46,55 @@ func (PlatformModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return types.ValidateGenesis(data)
 }
 
-// PlatformModule app module object
+// ProviderModule app module object
 // ___________________________
-type PlatformModule struct {
-	PlatformModuleBasic
+type ProviderModule struct {
+	ProviderModuleBasic
 	accountKeeper keeper.Keeper
 }
 
-func (am PlatformModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+func (am ProviderModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	return &abci.ConsensusParams{}
 }
 
-// NewPlatformModule creates a new PlatformModule object
-func NewPlatformModule(accountKeeper keeper.Keeper) PlatformModule {
-	return PlatformModule{
-		PlatformModuleBasic: PlatformModuleBasic{},
+// NewProviderModule creates a new ProviderModule object
+func NewProviderModule(accountKeeper keeper.Keeper) ProviderModule {
+	return ProviderModule{
+		ProviderModuleBasic: ProviderModuleBasic{},
 		accountKeeper:       accountKeeper,
 	}
 }
 
 // Name module name
-func (PlatformModule) Name() string {
+func (ProviderModule) Name() string {
 	return types.ModuleName
 }
 
 // RegisterInvariants register invariants
-func (PlatformModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+func (ProviderModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // Route module message route name
-func (PlatformModule) Route() string { return "" }
+func (ProviderModule) Route() string { return "" }
 
-func (am PlatformModule) UpgradeCodec(ctx sdk.Ctx) {
+func (am ProviderModule) UpgradeCodec(ctx sdk.Ctx) {
 	am.accountKeeper.UpgradeCodec(ctx)
 }
 
 // NewHandler module handler
-func (PlatformModule) NewHandler() sdk.Handler { return nil }
+func (ProviderModule) NewHandler() sdk.Handler { return nil }
 
 // QuerierRoute module querier route name
-func (PlatformModule) QuerierRoute() string {
+func (ProviderModule) QuerierRoute() string {
 	return types.QuerierRoute
 }
 
 // NewQuerierHandler module querier
-func (am PlatformModule) NewQuerierHandler() sdk.Querier {
+func (am ProviderModule) NewQuerierHandler() sdk.Querier {
 	return NewQuerier(am.accountKeeper)
 }
 
 // InitGenesis module init-genesis
-func (am PlatformModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
+func (am ProviderModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if data == nil {
 		genesisState = types.DefaultGenesisState()
@@ -106,16 +106,16 @@ func (am PlatformModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.V
 }
 
 // ExportGenesis module export genesis
-func (am PlatformModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
+func (am ProviderModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
 	gs := ExportGenesis(ctx, am.accountKeeper)
 	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // BeginBlock module begin-block
-func (am PlatformModule) BeginBlock(ctx sdk.Ctx, _ abci.RequestBeginBlock) {
+func (am ProviderModule) BeginBlock(ctx sdk.Ctx, _ abci.RequestBeginBlock) {
 }
 
 // EndBlock module end-block
-func (PlatformModule) EndBlock(_ sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (ProviderModule) EndBlock(_ sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }

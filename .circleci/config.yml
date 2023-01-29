@@ -7,7 +7,7 @@ version: 2.1
 # Jobs Definitions
 jobs:
   # Generic build job
-  # TODO: Make builds for all platforms where Viper Core is expected to run
+  # TODO: Make builds for all providers where Viper Core is expected to run
   build:
     docker:
       - image: cimg/go:1.17

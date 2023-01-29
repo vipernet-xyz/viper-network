@@ -16,10 +16,10 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
-	types3 "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	"github.com/vipernet-xyz/viper-network/x/providers"
-	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providers "github.com/vipernet-xyz/viper-network/x/providers"
+	types3 "github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	types2 "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
@@ -103,7 +103,7 @@ func TestQueryTx(t *testing.T) {
 			var tx *sdk.TxResponse
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = servicers.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -145,7 +145,7 @@ func TestQueryAminoTx(t *testing.T) {
 			var tx *sdk.TxResponse
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = servicers.Send(memCodec(), memCli, kb, cb.GetAddress(), kp.GetAddress(), "test", sdk.NewInt(1000), tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -182,15 +182,15 @@ func TestQueryValidators(t *testing.T) {
 			time.Sleep(2 * time.Second)
 			_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			got, err := VCA.QueryProviders(VCA.LastBlockHeight(), types2.QueryValidatorsParams{Page: 1, Limit: 1})
+			got, err := VCA.QueryServicers(VCA.LastBlockHeight(), types2.QueryValidatorsParams{Page: 1, Limit: 1})
 			assert.Nil(t, err)
 			res := got.Result.([]types2.Validator)
 			assert.Equal(t, 1, len(res))
-			got, err = VCA.QueryProviders(0, types2.QueryValidatorsParams{Page: 2, Limit: 1})
+			got, err = VCA.QueryServicers(0, types2.QueryValidatorsParams{Page: 2, Limit: 1})
 			assert.Nil(t, err)
 			res = got.Result.([]types2.Validator)
 			assert.Equal(t, 1, len(res))
-			got, err = VCA.QueryProviders(0, types2.QueryValidatorsParams{Page: 1, Limit: 1000})
+			got, err = VCA.QueryServicers(0, types2.QueryValidatorsParams{Page: 1, Limit: 1000})
 			assert.Nil(t, err)
 			res = got.Result.([]types2.Validator)
 			assert.Equal(t, 2, len(res))
@@ -199,14 +199,14 @@ func TestQueryValidators(t *testing.T) {
 		})
 	}
 }
-func TestQueryPlatforms(t *testing.T) {
+func TestQueryProviders(t *testing.T) {
 	tt := []struct {
 		name         string
 		memoryNodeFn func(t *testing.T, genesisState []byte) (tendermint *node.Node, keybase keys.Keybase, cleanup func())
 		*upgrades
 	}{
-		{name: "query platforms from amino account with amino codec", memoryNodeFn: NewInMemoryTendermintNodeAmino, upgrades: &upgrades{codecUpgrade: codecUpgrade{false, 7000}}},
-		{name: "query platforms from proto account with proto cdec", memoryNodeFn: NewInMemoryTendermintNodeProto, upgrades: &upgrades{codecUpgrade: codecUpgrade{true, 2}}},
+		{name: "query providers from amino account with amino codec", memoryNodeFn: NewInMemoryTendermintNodeAmino, upgrades: &upgrades{codecUpgrade: codecUpgrade{false, 7000}}},
+		{name: "query providers from proto account with proto cdec", memoryNodeFn: NewInMemoryTendermintNodeProto, upgrades: &upgrades{codecUpgrade: codecUpgrade{true, 2}}},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
@@ -224,12 +224,12 @@ func TestQueryPlatforms(t *testing.T) {
 
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = platforms.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for tx
-			got, err := VCA.QueryPlatforms(VCA.LastBlockHeight(), types3.QueryPlatformsWithOpts{
+			got, err := VCA.QueryProviders(VCA.LastBlockHeight(), types3.QueryProvidersWithOpts{
 				Page:  1,
 				Limit: 1,
 			})
@@ -239,7 +239,7 @@ func TestQueryPlatforms(t *testing.T) {
 				t.Fatalf("couldn't convert arg to slice")
 			}
 			assert.Equal(t, 1, slice.Len())
-			got, err = VCA.QueryPlatforms(VCA.LastBlockHeight(), types3.QueryPlatformsWithOpts{
+			got, err = VCA.QueryProviders(VCA.LastBlockHeight(), types3.QueryProvidersWithOpts{
 				Page:  2,
 				Limit: 1,
 			})
@@ -249,7 +249,7 @@ func TestQueryPlatforms(t *testing.T) {
 				t.Fatalf("couldn't convert arg to slice")
 			}
 			assert.Equal(t, 1, slice.Len())
-			got, err = VCA.QueryPlatforms(VCA.LastBlockHeight(), types3.QueryPlatformsWithOpts{
+			got, err = VCA.QueryProviders(VCA.LastBlockHeight(), types3.QueryProvidersWithOpts{
 				Page:  1,
 				Limit: 2,
 			})
@@ -284,7 +284,7 @@ func TestQueryValidator(t *testing.T) {
 			}
 			_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			got, err := VCA.QueryProvider(cb.GetAddress().String(), VCA.LastBlockHeight())
+			got, err := VCA.QueryServicer(cb.GetAddress().String(), VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.Equal(t, cb.GetAddress(), got.Address)
 			assert.False(t, got.Jailed)
@@ -432,7 +432,7 @@ func TestQuerySupply(t *testing.T) {
 			_, _, cleanup := tc.memoryNodeFn(t, oneAppTwoNodeGenesis())
 			_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			gotStaked, total, err := VCA.QueryTotalProviderCoins(VCA.LastBlockHeight())
+			gotStaked, total, err := VCA.QueryTotalServicerCoins(VCA.LastBlockHeight())
 			//fmt.Println(err)
 			assert.Nil(t, err)
 			//fmt.Println(gotStaked, total)
@@ -459,7 +459,7 @@ func TestQueryPOSParams(t *testing.T) {
 			_, _, cleanup := tc.memoryNodeFn(t, oneAppTwoNodeGenesis())
 			_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
-			got, err := VCA.QueryProviderParams(VCA.LastBlockHeight())
+			got, err := VCA.QueryServicerParams(VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.Equal(t, int64(5000), got.MaxValidators)
 			assert.Equal(t, int64(1000000), got.StakeMinimum)
@@ -645,12 +645,12 @@ func TestQueryStakedApp(t *testing.T) {
 			var chains = []string{"0001"}
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = platforms.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for  tx
-			got, err := VCA.QueryPlatform(kp.GetAddress().String(), VCA.LastBlockHeight())
+			got, err := VCA.QueryProvider(kp.GetAddress().String(), VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.NotNil(t, got)
 			assert.Equal(t, sdk.Staked, got.Status)
@@ -672,19 +672,19 @@ func TestRelayGenerator(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	var platformPrivateKey crypto.Ed25519PrivateKey
-	copy(platformPrivateKey[:], apkBz)
+	var providerPrivateKey crypto.Ed25519PrivateKey
+	copy(providerPrivateKey[:], apkBz)
 	aat := types.AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivateKey.PublicKey().RawString(),
-		ClientPublicKey:   platformPrivateKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderPublicKey: providerPrivateKey.PublicKey().RawString(),
+		ClientPublicKey:   providerPrivateKey.PublicKey().RawString(),
+		ProviderSignature: "",
 	}
-	sig, err := platformPrivateKey.Sign(aat.Hash())
+	sig, err := providerPrivateKey.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
-	aat.PlatformSignature = hex.EncodeToString(sig)
+	aat.ProviderSignature = hex.EncodeToString(sig)
 	payload := types.Payload{
 		Data: query,
 	}
@@ -701,7 +701,7 @@ func TestRelayGenerator(t *testing.T) {
 		},
 	}
 	relay.Proof.RequestHash = relay.RequestHashString()
-	sig, err = platformPrivateKey.Sign(relay.Proof.Hash())
+	sig, err = providerPrivateKey.Sign(relay.Proof.Hash())
 	if err != nil {
 		panic(err)
 	}
@@ -743,20 +743,20 @@ func TestQueryRelay(t *testing.T) {
 				Reply(200).
 				BodyString(expectedResponse)
 			_, kb, cleanup := tc.memoryNodeFn(t, genBz)
-			platformPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+			providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 			assert.Nil(t, err)
 			// setup AAT
 			aat := types.AAT{
 				Version:           "0.0.1",
-				PlatformPublicKey: platformPrivateKey.PublicKey().RawString(),
-				ClientPublicKey:   platformPrivateKey.PublicKey().RawString(),
-				PlatformSignature: "",
+				ProviderPublicKey: providerPrivateKey.PublicKey().RawString(),
+				ClientPublicKey:   providerPrivateKey.PublicKey().RawString(),
+				ProviderSignature: "",
 			}
-			sig, err := platformPrivateKey.Sign(aat.Hash())
+			sig, err := providerPrivateKey.Sign(aat.Hash())
 			if err != nil {
 				panic(err)
 			}
-			aat.PlatformSignature = hex.EncodeToString(sig)
+			aat.ProviderSignature = hex.EncodeToString(sig)
 			payload := types.Payload{
 				Data:    expectedRequest,
 				Headers: map[string]string{headerKey: headerVal},
@@ -775,7 +775,7 @@ func TestQueryRelay(t *testing.T) {
 				},
 			}
 			relay.Proof.RequestHash = relay.RequestHashString()
-			sig, err = platformPrivateKey.Sign(relay.Proof.Hash())
+			sig, err = providerPrivateKey.Sign(relay.Proof.Hash())
 			if err != nil {
 				panic(err)
 			}
@@ -794,7 +794,7 @@ func TestQueryRelay(t *testing.T) {
 			select {
 			case <-evtChan:
 				inv, err := types.GetEvidence(types.SessionHeader{
-					PlatformPubKey:     aat.PlatformPublicKey,
+					ProviderPubKey:     aat.ProviderPublicKey,
 					Chain:              relay.Proof.Blockchain,
 					SessionBlockHeight: relay.Proof.SessionBlockHeight,
 				}, types.RelayEvidence, sdk.NewInt(10000))
@@ -828,11 +828,11 @@ func TestQueryDispatch(t *testing.T) {
 			}
 			genBz, _, validators, app := fiveValidatorsOneAppGenesis()
 			_, kb, cleanup := tc.memoryNodeFn(t, genBz)
-			platformPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+			providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 			assert.Nil(t, err)
 			// Setup HandleDispatch Request
 			key := types.SessionHeader{
-				PlatformPubKey:     platformPrivateKey.PublicKey().RawString(),
+				ProviderPubKey:     providerPrivateKey.PublicKey().RawString(),
 				Chain:              sdk.PlaceholderHash,
 				SessionBlockHeight: 1,
 			}
@@ -842,7 +842,7 @@ func TestQueryDispatch(t *testing.T) {
 			res, err := VCA.HandleDispatch(key)
 			assert.Nil(t, err)
 			for _, val := range validators {
-				assert.Contains(t, res.Session.SessionProviders, val)
+				assert.Contains(t, res.Session.SessionServicers, val)
 			}
 			cleanup()
 			stopCli()

@@ -3,22 +3,22 @@ package types
 import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/platforms/exported"
+	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
-// "GetPlatformFromPublicKey" - Retrieves an platformlication from the platform store, using the platformKeeper (a link to the platforms module)
+// "GetProviderFromPublicKey" - Retrieves an providerlication from the provider store, using the providerKeeper (a link to the providers module)
 // using a hex string public key
-func GetPlatformFromPublicKey(ctx sdk.Ctx, platformsKeeper PlatformsKeeper, pubKey string) (platform exported.PlatformI, found bool) {
+func GetProviderFromPublicKey(ctx sdk.Ctx, providersKeeper ProvidersKeeper, pubKey string) (provider exported.ProviderI, found bool) {
 	pk, err := crypto.NewPublicKey(pubKey)
 	if err != nil {
 		return nil, false
 	}
-	return GetPlatform(ctx, platformsKeeper, pk.Address().Bytes())
+	return GetProvider(ctx, providersKeeper, pk.Address().Bytes())
 }
 
-// "GetPlatform" - Retrieves an platformlication from the platform store, using the platformKeeper (a link to the platforms module)
-func GetPlatform(ctx sdk.Ctx, platformsKeeper PlatformsKeeper, address sdk.Address) (a exported.PlatformI, found bool) {
-	a = platformsKeeper.Platform(ctx, address)
+// "GetProvider" - Retrieves an providerlication from the provider store, using the providerKeeper (a link to the providers module)
+func GetProvider(ctx sdk.Ctx, providersKeeper ProvidersKeeper, address sdk.Address) (a exported.ProviderI, found bool) {
+	a = providersKeeper.Provider(ctx, address)
 	if a == nil {
 		return a, false
 	}

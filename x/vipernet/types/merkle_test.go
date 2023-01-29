@@ -14,7 +14,7 @@ import (
 	"github.com/willf/bloom"
 )
 
-func TestMultiPlatformend(t *testing.T) {
+func TestMultiProviderend(t *testing.T) {
 	h1 := merkleHash([]byte("a"))
 	h2 := merkleHash([]byte("b"))
 	sum := uint64ToBytes(0, 1000000)
@@ -32,7 +32,7 @@ func TestMultiPlatformend(t *testing.T) {
 	runtime.ReadMemStats(&m)
 	//start = time.Now()
 	dest := make([]byte, MerkleHashLength*2+16)
-	y := merkleHash(MultiPlatformend(dest, h1, h2, sum))
+	y := merkleHash(MultiProviderend(dest, h1, h2, sum))
 	//fmt.Println(time.Since(start))
 	runtime.ReadMemStats(&m2)
 	//fmt.Println(m2.Alloc - m.Alloc)
@@ -41,27 +41,27 @@ func TestMultiPlatformend(t *testing.T) {
 
 func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 	ClearEvidence()
-	platformPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPrivateKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPublicKey := clientPrivateKey.PublicKey().RawString()
-	providerPubKey := getRandomPubKey()
+	servicerPubKey := getRandomPubKey()
 	ethereum := hex.EncodeToString([]byte{01})
 	validAAT := AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPubKey,
+		ProviderPublicKey: providerPubKey,
 		ClientPublicKey:   clientPublicKey,
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
-	platformSig, er := platformPrivateKey.Sign(validAAT.Hash())
+	providerSig, er := providerPrivateKey.Sign(validAAT.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validAAT.PlatformSignature = hex.EncodeToString(platformSig)
+	validAAT.ProviderSignature = hex.EncodeToString(providerSig)
 	i := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -72,7 +72,7 @@ func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 				Entropy:            3238283,
 				RequestHash:        validAAT.HashString(), // fake
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				Blockchain:         ethereum,
 				Token:              validAAT,
 				Signature:          "",
@@ -81,7 +81,7 @@ func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 				Entropy:            34939492,
 				RequestHash:        validAAT.HashString(), // fake
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				Blockchain:         ethereum,
 				Token:              validAAT,
 				Signature:          "",
@@ -90,7 +90,7 @@ func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 				Entropy:            12383,
 				RequestHash:        validAAT.HashString(), // fake
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				Blockchain:         ethereum,
 				Token:              validAAT,
 				Signature:          "",
@@ -99,7 +99,7 @@ func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 				Entropy:            96384,
 				RequestHash:        validAAT.HashString(), // fake
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				Blockchain:         ethereum,
 				Token:              validAAT,
 				Signature:          "",
@@ -108,7 +108,7 @@ func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 				Entropy:            96384812,
 				RequestHash:        validAAT.HashString(), // fake
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				Blockchain:         ethereum,
 				Token:              validAAT,
 				Signature:          "",
@@ -135,27 +135,27 @@ func TestEvidence_GenerateMerkleRoot(t *testing.T) {
 }
 
 func TestEvidence_GenerateMerkleProof(t *testing.T) {
-	platformPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPrivateKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPublicKey := clientPrivateKey.PublicKey().RawString()
-	providerPubKey := getRandomPubKey()
+	servicerPubKey := getRandomPubKey()
 	ethereum := hex.EncodeToString([]byte{01})
 	validAAT := AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPubKey,
+		ProviderPublicKey: providerPubKey,
 		ClientPublicKey:   clientPublicKey,
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
-	platformSig, er := platformPrivateKey.Sign(validAAT.Hash())
+	providerSig, er := providerPrivateKey.Sign(validAAT.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validAAT.PlatformSignature = hex.EncodeToString(platformSig)
+	validAAT.ProviderSignature = hex.EncodeToString(providerSig)
 	i := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -165,7 +165,7 @@ func TestEvidence_GenerateMerkleProof(t *testing.T) {
 				Entropy:            3238283,
 				RequestHash:        validAAT.HashString(), // fake
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				Blockchain:         ethereum,
 				Token:              validAAT,
 				Signature:          "",
@@ -174,7 +174,7 @@ func TestEvidence_GenerateMerkleProof(t *testing.T) {
 				Entropy:            34939492,
 				RequestHash:        validAAT.HashString(), // fake
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				Blockchain:         ethereum,
 				Token:              validAAT,
 				Signature:          "",
@@ -182,7 +182,7 @@ func TestEvidence_GenerateMerkleProof(t *testing.T) {
 			RelayProof{
 				Entropy:            12383,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -191,7 +191,7 @@ func TestEvidence_GenerateMerkleProof(t *testing.T) {
 			RelayProof{
 				Entropy:            96384,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -200,7 +200,7 @@ func TestEvidence_GenerateMerkleProof(t *testing.T) {
 			RelayProof{
 				Entropy:            96384812,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -217,27 +217,27 @@ func TestEvidence_GenerateMerkleProof(t *testing.T) {
 }
 
 func TestEvidence_VerifyMerkleProof(t *testing.T) {
-	platformPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPrivateKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPublicKey := clientPrivateKey.PublicKey().RawString()
-	providerPubKey := getRandomPubKey()
+	servicerPubKey := getRandomPubKey()
 	ethereum := hex.EncodeToString([]byte{01})
 	validAAT := AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPubKey,
+		ProviderPublicKey: providerPubKey,
 		ClientPublicKey:   clientPublicKey,
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
-	platformSig, er := platformPrivateKey.Sign(validAAT.Hash())
+	providerSig, er := providerPrivateKey.Sign(validAAT.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validAAT.PlatformSignature = hex.EncodeToString(platformSig)
+	validAAT.ProviderSignature = hex.EncodeToString(providerSig)
 	i := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -246,7 +246,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            83,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -255,7 +255,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            3492332332249492,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -264,7 +264,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            121212123232323383,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -273,7 +273,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            23121223232396384,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -282,7 +282,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            963223233238481322,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -294,7 +294,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 	i2 := Evidence{
 		Bloom: *bloom.New(10000, 4),
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -303,7 +303,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            82398289423,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -312,7 +312,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            34932332249492,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -321,7 +321,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            1212121232383,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -330,7 +330,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            23192932384,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -339,7 +339,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            2993223481322,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -348,7 +348,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            993223423981322,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -357,7 +357,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            90333981322,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -366,7 +366,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            2398123322,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,
@@ -375,7 +375,7 @@ func TestEvidence_VerifyMerkleProof(t *testing.T) {
 			&RelayProof{
 				Entropy:            99322342381322,
 				SessionBlockHeight: 1,
-				ServicerPubKey:     providerPubKey.RawString(),
+				ServicerPubKey:     servicerPubKey.RawString(),
 				RequestHash:        validAAT.HashString(), // fake
 				Blockchain:         ethereum,
 				Token:              validAAT,

@@ -18,7 +18,7 @@ type Proof interface {
 	ValidateBasic() sdk.Error                                                                                 // storeless validation check for the object
 	GetSigner() sdk.Address                                                                                   // returns the main signer(s) for the proof (used in messages)
 	SessionHeader() SessionHeader                                                                             // returns the session header
-	Validate(platformSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64) sdk.Error // validate the object
+	Validate(providerSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64) sdk.Error // validate the object
 	Store(max sdk.BigInt)                                                                                     // handle the proof after validation
 	ToProto() ProofI                                                                                          // convert to protobuf
 }
@@ -55,8 +55,8 @@ func (ps ProofIs) FromProofI() (res Proofs) {
 
 var _ Proof = RelayProof{} // ensure implements interface at compile time
 
-// "ValidateLocal" - Validates the proof object, where the owner of the proof is the local provider
-func (rp RelayProof) ValidateLocal(platformSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64, verifyAddr sdk.Address) sdk.Error {
+// "ValidateLocal" - Validates the proof object, where the owner of the proof is the local servicer
+func (rp RelayProof) ValidateLocal(providerSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64, verifyAddr sdk.Address) sdk.Error {
 	//Basic Validations
 	err := rp.ValidateBasic()
 	if err != nil {
@@ -68,9 +68,9 @@ func (rp RelayProof) ValidateLocal(platformSupportedBlockchains []string, sessio
 	}
 	// validate the public key correctness
 	if !sdk.Address(servicerPublicKey.Address()).Equals(verifyAddr) {
-		return NewInvalidNodePubKeyError(ModuleName) // the public key is not this providers, so they would not get paid
+		return NewInvalidNodePubKeyError(ModuleName) // the public key is not this servicers, so they would not get paid
 	}
-	err = rp.Validate(platformSupportedBlockchains, sessionNodeCount, sessionBlockHeight)
+	err = rp.Validate(providerSupportedBlockchains, sessionNodeCount, sessionBlockHeight)
 	if err != nil {
 		return err
 	}
@@ -78,21 +78,21 @@ func (rp RelayProof) ValidateLocal(platformSupportedBlockchains []string, sessio
 }
 
 // "Validate" - Validates the relay proof object
-func (rp RelayProof) Validate(platformSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64) sdk.Error {
+func (rp RelayProof) Validate(providerSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64) sdk.Error {
 	// validate the session block height
 	if rp.SessionBlockHeight != sessionBlockHeight {
 		return NewInvalidBlockHeightError(ModuleName)
 	}
 	// check for supported blockchain
 	c1 := false
-	for _, chain := range platformSupportedBlockchains {
+	for _, chain := range providerSupportedBlockchains {
 		if rp.Blockchain == chain {
 			c1 = true
 			break
 		}
 	}
 	if !c1 {
-		return NewUnsupportedBlockchainPlatformError(ModuleName)
+		return NewUnsupportedBlockchainProviderError(ModuleName)
 	}
 	return nil
 }
@@ -133,7 +133,7 @@ func (rp RelayProof) ValidateBasic() sdk.Error {
 // "SessionHeader" - Returns the session header corresponding with the proof
 func (rp RelayProof) SessionHeader() SessionHeader {
 	return SessionHeader{
-		PlatformPubKey:     rp.Token.PlatformPublicKey,
+		ProviderPubKey:     rp.Token.ProviderPublicKey,
 		Chain:              rp.Blockchain,
 		SessionBlockHeight: rp.SessionBlockHeight,
 	}
@@ -236,9 +236,9 @@ func (rp RelayProof) GetSigner() sdk.Address {
 var _ Proof = ChallengeProofInvalidData{} // compile time interface implementation
 
 // "ValidateLocal" - Validate local is used to validate a challenge request directly from a client
-func (c ChallengeProofInvalidData) ValidateLocal(h SessionHeader, maxRelays sdk.BigInt, supportedBlockchains []string, sessionNodeCount int, sessionProviders SessionProviders, selfAddr sdk.Address) sdk.Error {
+func (c ChallengeProofInvalidData) ValidateLocal(h SessionHeader, maxRelays sdk.BigInt, supportedBlockchains []string, sessionNodeCount int, sessionServicers SessionServicers, selfAddr sdk.Address) sdk.Error {
 	// check if verifyPubKey in session (must be in session to do challenges)
-	if !sessionProviders.Contains(selfAddr) {
+	if !sessionServicers.Contains(selfAddr) {
 		return NewNodeNotInSessionError(ModuleName)
 	}
 	sessionblockHeight := h.SessionBlockHeight
@@ -260,7 +260,7 @@ func (c ChallengeProofInvalidData) ValidateLocal(h SessionHeader, maxRelays sdk.
 }
 
 // "Validate" - validate is used to validate a challenge request
-func (c ChallengeProofInvalidData) Validate(platformSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64) sdk.Error {
+func (c ChallengeProofInvalidData) Validate(providerSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64) sdk.Error {
 	majResponse := c.MajorityResponses[0]
 	majResponse2 := c.MajorityResponses[1]
 	// check for duplicates
@@ -275,11 +275,11 @@ func (c ChallengeProofInvalidData) Validate(platformSupportedBlockchains []strin
 		majResponse.Proof.RequestHash != c.MinorityResponse.Proof.RequestHash {
 		return NewMismatchedRequestHashError(ModuleName)
 	}
-	// check for identical platform public keys
-	if majResponse.Proof.Token.PlatformPublicKey != majResponse2.Proof.Token.PlatformPublicKey ||
-		majResponse2.Proof.Token.PlatformPublicKey != c.MinorityResponse.Proof.Token.PlatformPublicKey ||
-		majResponse.Proof.Token.PlatformPublicKey != c.MinorityResponse.Proof.Token.PlatformPublicKey {
-		return NewMismatchedPlatformPubKeyError(ModuleName)
+	// check for identical provider public keys
+	if majResponse.Proof.Token.ProviderPublicKey != majResponse2.Proof.Token.ProviderPublicKey ||
+		majResponse2.Proof.Token.ProviderPublicKey != c.MinorityResponse.Proof.Token.ProviderPublicKey ||
+		majResponse.Proof.Token.ProviderPublicKey != c.MinorityResponse.Proof.Token.ProviderPublicKey {
+		return NewMismatchedProviderPubKeyError(ModuleName)
 	}
 	// check for identical session heights
 	if majResponse.Proof.SessionBlockHeight != majResponse2.Proof.SessionBlockHeight ||
@@ -300,13 +300,13 @@ func (c ChallengeProofInvalidData) Validate(platformSupportedBlockchains []strin
 	}
 	// check for supported blockchain
 	supported := false
-	for _, chain := range platformSupportedBlockchains {
+	for _, chain := range providerSupportedBlockchains {
 		if majResponse.Proof.Blockchain == chain {
 			supported = true
 		}
 	}
 	if !supported {
-		return NewUnsupportedBlockchainPlatformError(ModuleName)
+		return NewUnsupportedBlockchainProviderError(ModuleName)
 	}
 	// check signatures
 	pubKey1, err := crypto.NewPublicKey(majResponse.Proof.ServicerPubKey)
@@ -392,7 +392,7 @@ func (c ChallengeProofInvalidData) ValidateBasic() sdk.Error {
 // "SessionHeader" - Returns the session header for the challenge proof
 func (c ChallengeProofInvalidData) SessionHeader() SessionHeader {
 	return SessionHeader{
-		PlatformPubKey:     c.MinorityResponse.Proof.Token.PlatformPublicKey,
+		ProviderPubKey:     c.MinorityResponse.Proof.Token.ProviderPublicKey,
 		Chain:              c.MinorityResponse.Proof.Blockchain,
 		SessionBlockHeight: c.MinorityResponse.Proof.SessionBlockHeight,
 	}

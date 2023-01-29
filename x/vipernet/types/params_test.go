@@ -20,7 +20,7 @@ func TestParams_Validate(t *testing.T) {
 	ethereum := hex.EncodeToString([]byte{01})
 	validParams := DefaultParams()
 	validParams.SupportedBlockchains = []string{ethereum}
-	// invalid session provider count
+	// invalid session servicer count
 	invalidParamsSessionProviders := validParams
 	invalidParamsSessionProviders.SessionNodeCount = -1
 	// invalid waiting period
@@ -38,7 +38,7 @@ func TestParams_Validate(t *testing.T) {
 		hasError bool
 	}{
 		{
-			name:     "Invalid Params, session providers",
+			name:     "Invalid Params, session servicers",
 			params:   invalidParamsSessionProviders,
 			hasError: true,
 		},

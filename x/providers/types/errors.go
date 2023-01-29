@@ -10,147 +10,93 @@ import (
 type CodeType = sdk.CodeType
 
 const (
-	DefaultCodespace             sdk.CodespaceType = ModuleName
-	CodeInvalidValidator         CodeType          = 101
-	CodeInvalidDelegation        CodeType          = 102
-	CodeInvalidInput             CodeType          = 103
-	CodeValidatorJailed          CodeType          = 104
-	CodeValidatorNotJailed       CodeType          = 105
-	CodeMissingSelfDelegation    CodeType          = 106
-	CodeMissingSigningInfo       CodeType          = 108
-	CodeBadSend                  CodeType          = 109
-	CodeInvalidStatus            CodeType          = 110
-	CodeMinimumStake             CodeType          = 111
-	CodeNotEnoughCoins           CodeType          = 112
-	CodeValidatorTombstoned      CodeType          = 113
-	CodeCantHandleEvidence       CodeType          = 114
-	CodeNoChains                 CodeType          = 115
-	CodeNoServiceURL             CodeType          = 116
-	CodeWaitingValidator         CodeType          = 117
-	CodeInvalidServiceURL        CodeType          = 118
-	CodeInvalidNetworkIdentifier CodeType          = 119
-	CodeTooManyChains            CodeType          = 120
-	CodeStateConvertError        CodeType          = 121
-	CodeMinimumEditStake         CodeType          = 122
-	CodeNilOutputAddr            CodeType          = 123
-	CodeUnequalOutputAddr        CodeType          = 124
-	CodeUnauthorizedSigner       CodeType          = 125
-	CodeNilSigner                CodeType          = 126
+	DefaultCodespace          sdk.CodespaceType = ModuleName
+	CodeInvalidProvider       CodeType          = 101
+	CodeInvalidInput          CodeType          = 103
+	CodeProviderJailed        CodeType          = 104
+	CodeProviderNotJailed     CodeType          = 105
+	CodeMissingSelfDelegation CodeType          = 106
+	CodeInvalidStatus         CodeType          = 110
+	CodeMinimumStake          CodeType          = 111
+	CodeNotEnoughCoins        CodeType          = 112
+	CodeInvalidStakeAmount    CodeType          = 115
+	CodeNoChains              CodeType          = 116
+	CodeInvalidNetworkID      CodeType          = 117
+	CodeTooManyChains         CodeType          = 118
+	CodeMaxProviders          CodeType          = 119
+	CodeMinimumEditStake      CodeType          = 120
 )
 
-func ErrTooManyChains(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeTooManyChains, "can't stake for this many chains")
+func ErrTooManyChains(Codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(Codespace, CodeTooManyChains, "provider staking for too many chains")
 }
 
-func ErrValidatorWaitingToUnstake(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeWaitingValidator, "validator is currently waiting to unstake")
-}
-
-func ErrNoServiceURL(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeNoServiceURL, "validator must stake with a serviceurl")
-}
 func ErrNoChains(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeNoChains, "validator must stake with hosted blockchains")
 }
-func ErrNilValidatorAddr(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidInput, "validator address is nil")
+func ErrNilProviderAddr(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidInput, "provider address is nil")
 }
-func ErrNilSignerAddr(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeNilSigner, "signer address is nil")
+func ErrProviderStatus(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidStatus, "provider status is not valid")
 }
-func ErrNilOutputAddr(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeNilOutputAddr, "output address is nil")
+func ErrNoProviderFound(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidProvider, "provider does not exist for that address")
 }
-func ErrUnequalOutputAddr(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeUnequalOutputAddr, "output address is already set to a different value")
-}
-func ErrUnauthorizedSigner(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeUnauthorizedSigner, "the signer for this message is not the operator or the output address")
-}
-func ErrValidatorStatus(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidStatus, "validator status is not valid")
-}
-func ErrNoValidatorFound(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidValidator, "validator does not exist for that address")
+
+func ErrBadStakeAmount(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidStakeAmount, "the stake amount is invalid")
 }
 
 func ErrNotEnoughCoins(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeNotEnoughCoins, "validator does not have enough coins in their account")
+	return sdk.NewError(codespace, CodeNotEnoughCoins, "provider does not have enough coins in their account")
 }
 
-func ErrValidatorTombstoned(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeValidatorTombstoned, "Warning: validator is already tombstoned")
-}
-
-func ErrCantHandleEvidence(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeCantHandleEvidence, "Warning: the DS evidence is unable to be handled")
+func ErrMaxProviders(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeMaxProviders, "the threshold of the amount of providers authorized ")
 }
 
 func ErrMinimumStake(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeMinimumStake, "validator isn't staking above the minimum")
+	return sdk.NewError(codespace, CodeMinimumStake, "provider isn't staking above the minimum")
 }
 
-func ErrMinimumEditStake(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeMinimumEditStake, "validator must edit stake with a stake greater than or equal to current stake")
+func ErrProviderPubKeyExists(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidProvider, "provider already exist for this pubkey, must use new provider pubkey")
 }
 
-func ErrSameBinEditStake(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeMinimumEditStake, "validator must edit stake to a greater stake Bin than the current staked bin")
+func ErrProviderPubKeyTypeNotSupported(codespace sdk.CodespaceType, keyType string, supportedTypes []string) sdk.Error {
+	msg := fmt.Sprintf("provider pubkey type %s is not supported, must use %s", keyType, strings.Join(supportedTypes, ","))
+	return sdk.NewError(codespace, CodeInvalidProvider, msg)
 }
 
-func ErrValidatorPubKeyExists(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidValidator, "validator already exist for this pubkey, must use new validator pubkey")
+func ErrNoProviderForAddress(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidProvider, "that address is not associated with any known provider")
 }
 
-func ErrValidatorPubKeyTypeNotSupported(codespace sdk.CodespaceType, keyType string, supportedTypes []string) sdk.Error {
-	msg := fmt.Sprintf("validator pubkey type %s is not supported, must use %s", keyType, strings.Join(supportedTypes, ","))
-	return sdk.NewError(codespace, CodeInvalidValidator, msg)
+func ErrBadProviderAddr(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidProvider, "provider does not exist for that address")
 }
 
-func ErrBadSendAmount(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeBadSend, "the amount to send must be positive")
+func ErrProviderJailed(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeProviderJailed, "provider still jailed, cannot yet be unjailed")
 }
 
-func ErrBadDenom(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidDelegation, "invalid coin denomination")
+func ErrProviderNotJailed(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeProviderNotJailed, "provider not jailed, cannot be unjailed")
 }
 
-func ErrBadDelegationAmount(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidDelegation, "amount must be > 0")
+func ErrMissingProviderStake(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeMissingSelfDelegation, "provider has no stake; cannot be unjailed")
 }
 
-func ErrNoValidatorForAddress(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidValidator, "that address is not associated with any known validator")
-}
-
-func ErrValidatorJailed(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeValidatorJailed, "validator jailed")
-}
-
-func ErrValidatorNotJailed(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeValidatorNotJailed, "validator not jailed, cannot be unjailed")
-}
-
-func ErrMissingSelfDelegation(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeMissingSelfDelegation, "validator has no self-delegation; cannot be unjailed")
-}
-
-func ErrSelfDelegationTooLowToUnjail(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeValidatorNotJailed, "validator's self delegation less than MinSelfDelegation, cannot be unjailed")
-}
-
-func ErrNoSigningInfoFound(codespace sdk.CodespaceType, consAddr sdk.Address) sdk.Error {
-	return sdk.NewError(codespace, CodeMissingSigningInfo, fmt.Sprintf("no signing info found for address: %s", consAddr))
-}
-
-func ErrInvalidServiceURL(codespace sdk.CodespaceType, err error) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidServiceURL, fmt.Sprintf("the service url is not valid: "+err.Error()))
+func ErrStakeTooLow(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeProviderNotJailed, "provider's self delegation less than min stake, cannot be unjailed")
 }
 
 func ErrInvalidNetworkIdentifier(codespace sdk.CodespaceType, err error) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidNetworkIdentifier, fmt.Sprintf("the network Identifier is not valid: "+err.Error()))
+	return sdk.NewError(codespace, CodeInvalidNetworkID, "the providers network identifier is not valid: "+err.Error())
 }
 
-func ErrStateConversion(codespace sdk.CodespaceType, err error) sdk.Error {
-	return sdk.NewError(codespace, CodeStateConvertError, fmt.Sprintf("unable to convert state: "+err.Error()))
+func ErrMinimumEditStake(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeMinimumEditStake, "provider must edit stake with a stake greater than or equal to current stake")
 }

@@ -7,11 +7,11 @@ import (
 	"log"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	platformexported "github.com/vipernet-xyz/viper-network/x/platforms/exported"
-	"github.com/vipernet-xyz/viper-network/x/providers/exported"
+	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
+	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
-// "Session" - The relationship between an platformlication and the viper network
+// "Session" - The relationship between an providerlication and the viper network
 
 func (s Session) IsSealed() bool {
 	return false
@@ -22,14 +22,14 @@ func (s Session) Seal() CacheObject {
 }
 
 // "NewSession" - create a new session from seed data
-func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string, sessionProvidersCount int) (Session, sdk.Error) {
+func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string, sessionServicersCount int) (Session, sdk.Error) {
 	// first generate session key
-	sessionKey, err := NewSessionKey(sessionHeader.PlatformPubKey, sessionHeader.Chain, blockHash)
+	sessionKey, err := NewSessionKey(sessionHeader.ProviderPubKey, sessionHeader.Chain, blockHash)
 	if err != nil {
 		return Session{}, err
 	}
-	// then generate the service providers for that session
-	sessionProviders, err := NewSessionProviders(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionKey, sessionProvidersCount)
+	// then generate the service servicers for that session
+	sessionServicers, err := NewSessionServicers(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionKey, sessionServicersCount)
 	if err != nil {
 		return Session{}, err
 	}
@@ -37,12 +37,12 @@ func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader Session
 	return Session{
 		SessionKey:       sessionKey,
 		SessionHeader:    sessionHeader,
-		SessionProviders: sessionProviders,
+		SessionServicers: sessionServicers,
 	}, nil
 }
 
 // "Validate" - Validates a session object
-func (s Session) Validate(provider sdk.Address, platform platformexported.PlatformI, sessionNodeCount int) sdk.Error {
+func (s Session) Validate(servicer sdk.Address, provider providerexported.ProviderI, sessionNodeCount int) sdk.Error {
 	// validate chain
 	if len(s.SessionHeader.Chain) == 0 {
 		return NewEmptyNonNativeChainError(ModuleName)
@@ -51,16 +51,16 @@ func (s Session) Validate(provider sdk.Address, platform platformexported.Platfo
 	if s.SessionHeader.SessionBlockHeight < 1 {
 		return NewInvalidBlockHeightError(ModuleName)
 	}
-	// validate the platform public key
-	if err := PubKeyVerification(s.SessionHeader.PlatformPubKey); err != nil {
+	// validate the provider public key
+	if err := PubKeyVerification(s.SessionHeader.ProviderPubKey); err != nil {
 		return err
 	}
-	// validate platform corresponds to platformPubKey
-	if platform.GetPublicKey().RawString() != s.SessionHeader.PlatformPubKey {
-		return NewInvalidPlatformPubKeyError(ModuleName)
+	// validate provider corresponds to providerPubKey
+	if provider.GetPublicKey().RawString() != s.SessionHeader.ProviderPubKey {
+		return NewInvalidProviderPubKeyError(ModuleName)
 	}
-	// validate platform chains
-	chains := platform.GetChains()
+	// validate provider chains
+	chains := provider.GetChains()
 	found := false
 	for _, c := range chains {
 		if c == s.SessionHeader.Chain {
@@ -69,15 +69,15 @@ func (s Session) Validate(provider sdk.Address, platform platformexported.Platfo
 		}
 	}
 	if !found {
-		return NewUnsupportedBlockchainPlatformError(ModuleName)
+		return NewUnsupportedBlockchainProviderError(ModuleName)
 	}
-	// validate sessionProviders
-	err := s.SessionProviders.Validate(sessionNodeCount)
+	// validate sessionServicers
+	err := s.SessionServicers.Validate(sessionNodeCount)
 	if err != nil {
 		return err
 	}
-	// validate provider is of the session
-	if !s.SessionProviders.Contains(provider) {
+	// validate servicer is of the session
+	if !s.SessionServicers.Contains(servicer) {
 		return NewInvalidSessionError(ModuleName)
 	}
 	return nil
@@ -98,63 +98,63 @@ func (s Session) Key() ([]byte, error) {
 	return s.SessionHeader.Hash(), nil
 }
 
-// "SessionProviders" - Service providers in a session
-type SessionProviders []sdk.Address
+// "SessionServicers" - Service servicers in a session
+type SessionServicers []sdk.Address
 
-// "NewSessionProviders" - Generates providers for the session
-func NewSessionProviders(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, sessionKey SessionKey, sessionProvidersCount int) (sessionProviders SessionProviders, err sdk.Error) {
-	// all providersAddrs at session genesis
-	providersAddrs, totalProviders := keeper.GetValidatorsByChain(sessionCtx, chain)
-	// validate providersAddrs
-	if totalProviders < sessionProvidersCount {
-		return nil, NewInsufficientProvidersError(ModuleName)
+// "NewSessionServicers" - Generates servicers for the session
+func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, sessionKey SessionKey, sessionServicersCount int) (sessionServicers SessionServicers, err sdk.Error) {
+	// all servicersAddrs at session genesis
+	servicersAddrs, totalServicers := keeper.GetValidatorsByChain(sessionCtx, chain)
+	// validate servicersAddrs
+	if totalServicers < sessionServicersCount {
+		return nil, NewInsufficientServicersError(ModuleName)
 	}
-	sessionProviders = make(SessionProviders, sessionProvidersCount)
-	var provider exported.ValidatorI
+	sessionServicers = make(SessionServicers, sessionServicersCount)
+	var servicer exported.ValidatorI
 	//unique address map to avoid re-checking a pseudorandomly selected servicer
 	m := make(map[string]struct{})
-	// only select the providersAddrs if not jailed
-	for i, numOfProviders := 0, 0; ; i++ {
-		//if this is true we already checked all providers we got on getValidatorsBychain
-		if len(m) >= totalProviders {
-			return nil, NewInsufficientProvidersError(ModuleName)
+	// only select the servicersAddrs if not jailed
+	for i, numOfServicers := 0, 0; ; i++ {
+		//if this is true we already checked all servicers we got on getValidatorsBychain
+		if len(m) >= totalServicers {
+			return nil, NewInsufficientServicersError(ModuleName)
 		}
 		// generate the random index
-		index := PseudorandomSelection(sdk.NewInt(int64(totalProviders)), sessionKey)
+		index := PseudorandomSelection(sdk.NewInt(int64(totalServicers)), sessionKey)
 		// merkleHash the session key to provide new entropy
 		sessionKey = Hash(sessionKey)
-		// get the provider from the array
-		n := providersAddrs[index.Int64()]
+		// get the servicer from the array
+		n := servicersAddrs[index.Int64()]
 		//if we already have seen this address we continue as it's either on the list or discarded
 		if _, ok := m[n.String()]; ok {
 			continue
 		}
-		//add the provider address to the map
+		//add the servicer address to the map
 		m[n.String()] = struct{}{}
 
-		// cross check the provider from the `new` or `end` world state
-		provider = keeper.Validator(ctx, n)
+		// cross check the servicer from the `new` or `end` world state
+		servicer = keeper.Validator(ctx, n)
 		// if not found or jailed, don't add to session and continue
-		if provider == nil || provider.IsJailed() || !NodeHasChain(chain, provider) || sessionProviders.Contains(provider.GetAddress()) {
+		if servicer == nil || servicer.IsJailed() || !NodeHasChain(chain, servicer) || sessionServicers.Contains(servicer.GetAddress()) {
 			continue
 		}
-		// else add the provider to the session
-		sessionProviders[numOfProviders] = n
-		// increment the number of providersAddrs in the sessionProviders slice
-		numOfProviders++
+		// else add the servicer to the session
+		sessionServicers[numOfServicers] = n
+		// increment the number of servicersAddrs in the sessionServicers slice
+		numOfServicers++
 		// if maxing out the session count end loop
-		if numOfProviders == sessionProvidersCount {
+		if numOfServicers == sessionServicersCount {
 			break
 		}
 	}
-	// return the providersAddrs
-	return sessionProviders, nil
+	// return the servicersAddrs
+	return sessionServicers, nil
 }
 
-// "Validate" - Validates the session provider object
-func (sn SessionProviders) Validate(sessionProvidersCount int) sdk.Error {
-	if len(sn) < sessionProvidersCount {
-		return NewInsufficientProvidersError(ModuleName)
+// "Validate" - Validates the session servicer object
+func (sn SessionServicers) Validate(sessionServicersCount int) sdk.Error {
+	if len(sn) < sessionServicersCount {
+		return NewInsufficientServicersError(ModuleName)
 	}
 	for _, n := range sn {
 		if n == nil {
@@ -164,18 +164,18 @@ func (sn SessionProviders) Validate(sessionProvidersCount int) sdk.Error {
 	return nil
 }
 
-// "Contains" - Verifies if the session providers contains the provider using the address
-func (sn SessionProviders) Contains(addr sdk.Address) bool {
+// "Contains" - Verifies if the session servicers contains the servicer using the address
+func (sn SessionServicers) Contains(addr sdk.Address) bool {
 	// if nil return
 	if addr == nil {
 		return false
 	}
-	// loop over the providers
-	for _, provider := range sn {
-		if provider == nil {
+	// loop over the servicers
+	for _, servicer := range sn {
+		if servicer == nil {
 			continue
 		}
-		if provider.Equals(addr) {
+		if servicer.Equals(addr) {
 			return true
 		}
 	}
@@ -187,15 +187,15 @@ type SessionKey []byte
 
 // "sessionKey" - Used for custom json
 type sessionKey struct {
-	PlatformPublicKey string `json:"platform_pub_key"`
+	ProviderPublicKey string `json:"provider_pub_key"`
 	NonNativeChain    string `json:"chain"`
 	BlockHash         string `json:"blockchain"`
 }
 
 // "NewSessionKey" - generates the session key from metadata
-func NewSessionKey(platformPubKey string, chain string, blockHash string) (SessionKey, sdk.Error) {
-	// validate platformPubKey
-	if err := PubKeyVerification(platformPubKey); err != nil {
+func NewSessionKey(providerPubKey string, chain string, blockHash string) (SessionKey, sdk.Error) {
+	// validate providerPubKey
+	if err := PubKeyVerification(providerPubKey); err != nil {
 		return nil, err
 	}
 	// validate chain
@@ -208,7 +208,7 @@ func NewSessionKey(platformPubKey string, chain string, blockHash string) (Sessi
 	}
 	// marshal into json
 	seed, err := json.Marshal(sessionKey{
-		PlatformPublicKey: platformPubKey,
+		ProviderPublicKey: providerPubKey,
 		NonNativeChain:    chain,
 		BlockHash:         blockHash,
 	})
@@ -226,8 +226,8 @@ func (sk SessionKey) Validate() sdk.Error {
 
 // "ValidateHeader" - Validates the header of the session
 func (sh SessionHeader) ValidateHeader() sdk.Error {
-	// check the platform public key for validity
-	if err := PubKeyVerification(sh.PlatformPubKey); err != nil {
+	// check the provider public key for validity
+	if err := PubKeyVerification(sh.ProviderPubKey); err != nil {
 		return err
 	}
 	// verify the chain merkleHash
@@ -266,17 +266,17 @@ func BlockHash(ctx sdk.Context) string {
 	return hex.EncodeToString(ctx.BlockHeader().LastBlockId.Hash)
 }
 
-// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an Platform on a sessions
-func MaxPossibleRelays(platform platformexported.PlatformI, sessionNodeCount int64) sdk.BigInt {
+// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an Provider on a sessions
+func MaxPossibleRelays(provider providerexported.ProviderI, sessionNodeCount int64) sdk.BigInt {
 	//GetMaxRelays Max value is bound to math.MaxUint64,
-	//current worse case is 1 chain and 5 providers per session with a result of 3689348814741910323 which can be used safely as int64
-	return platform.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(platform.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
+	//current worse case is 1 chain and 5 servicers per session with a result of 3689348814741910323 which can be used safely as int64
+	return provider.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(provider.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
 }
 
-// "NodeHashChain" - Returns whether or not the provider has the relayChain
-func NodeHasChain(chain string, provider exported.ValidatorI) bool {
+// "NodeHashChain" - Returns whether or not the servicer has the relayChain
+func NodeHasChain(chain string, servicer exported.ValidatorI) bool {
 	hasChain := false
-	for _, c := range provider.GetChains() {
+	for _, c := range servicer.GetChains() {
 		if c == chain {
 			hasChain = true
 			break

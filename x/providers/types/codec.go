@@ -4,35 +4,25 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	"github.com/vipernet-xyz/viper-network/crypto"
-
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
-// Register concrete types on codec
+// RegisterCodec registers concrete types on the codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterStructure(LegacyMsgProtoStake{}, "pos/MsgProtoStake")
-	cdc.RegisterStructure(LegacyMsgBeginUnstake{}, "pos/MsgBeginUnstake")
-	cdc.RegisterStructure(LegacyMsgUnjail{}, "pos/MsgUnjail")
-	cdc.RegisterStructure(MsgSend{}, "pos/Send")
-	cdc.RegisterStructure(LegacyMsgStake{}, "pos/MsgStake")
-	cdc.RegisterStructure(MsgUnjail{}, "pos/8.0MsgUnjail")
-	cdc.RegisterStructure(MsgBeginUnstake{}, "pos/8.0MsgBeginUnstake")
-	cdc.RegisterStructure(MsgProtoStake{}, "pos/8.0MsgProtoStake")
-	cdc.RegisterStructure(MsgStake{}, "pos/8.0MsgStake")
-	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgUnjail{}, &MsgBeginUnstake{}, &MsgSend{}, &MsgStake{},
-		&LegacyMsgUnjail{}, &LegacyMsgBeginUnstake{}, &LegacyMsgStake{})
-	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgUnjail{}, &MsgBeginUnstake{}, &MsgSend{}, &MsgStake{},
-		&LegacyMsgUnjail{}, &LegacyMsgBeginUnstake{}, &LegacyMsgStake{})
-	cdc.RegisterInterface("providers/validatorI", (*exported.ValidatorI)(nil), &Validator{}, &LegacyValidator{})
+	cdc.RegisterStructure(MsgProtoStake{}, "providers/MsgProtoStake")
+	cdc.RegisterStructure(MsgStake{}, "providers/MsgProviderStake")
+	cdc.RegisterStructure(MsgBeginUnstake{}, "providers/MsgProviderBeginUnstake")
+	cdc.RegisterStructure(MsgUnjail{}, "providers/MsgProviderUnjail")
+	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgStake{}, &MsgBeginUnstake{}, &MsgUnjail{})
+	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgStake{}, &MsgBeginUnstake{}, &MsgUnjail{})
 	ModuleCdc = cdc
 }
 
-var ModuleCdc *codec.Codec // generic sealed codec to be used throughout this module
+// module wide codec
+var ModuleCdc *codec.Codec
 
 func init() {
 	ModuleCdc = codec.NewCodec(types.NewInterfaceRegistry())
 	RegisterCodec(ModuleCdc)
 	crypto.RegisterAmino(ModuleCdc.AminoCodec().Amino)
-	ModuleCdc.AminoCodec().Seal()
 }

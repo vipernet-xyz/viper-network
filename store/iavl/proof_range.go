@@ -15,7 +15,7 @@ type RangeProof struct {
 	// You don't need the right path because
 	// it can be derived from what we have.
 	LeftPath       PathToLeaf      `json:"left_path"`
-	InnerProviders []PathToLeaf    `json:"inner_providers"`
+	InnerServicers []PathToLeaf    `json:"inner_servicers"`
 	Leaves         []ProofLeafNode `json:"leaves"`
 
 	// memoize
@@ -51,8 +51,8 @@ func (proof *RangeProof) String() string {
 }
 
 func (proof *RangeProof) StringIndented(indent string) string {
-	istrs := make([]string, 0, len(proof.InnerProviders))
-	for _, ptl := range proof.InnerProviders {
+	istrs := make([]string, 0, len(proof.InnerServicers))
+	for _, ptl := range proof.InnerServicers {
 		istrs = append(istrs, ptl.stringIndented(indent+"    "))
 	}
 	lstrs := make([]string, 0, len(proof.Leaves))
@@ -61,7 +61,7 @@ func (proof *RangeProof) StringIndented(indent string) string {
 	}
 	return fmt.Sprintf(`RangeProof{
 %s  LeftPath: %v
-%s  InnerProviders:
+%s  InnerServicers:
 %s    %v
 %s  Leaves:
 %s    %v
@@ -221,15 +221,15 @@ func (proof *RangeProof) _computeRootHash() (rootHash []byte, treeEnd bool, err 
 	if len(proof.Leaves) == 0 {
 		return nil, false, errors.Wrap(ErrInvalidProof, "no leaves")
 	}
-	if len(proof.InnerProviders)+1 != len(proof.Leaves) {
-		return nil, false, errors.Wrap(ErrInvalidProof, "InnerProviders vs Leaves length mismatch, leaves should be 1 more.")
+	if len(proof.InnerServicers)+1 != len(proof.Leaves) {
+		return nil, false, errors.Wrap(ErrInvalidProof, "InnerServicers vs Leaves length mismatch, leaves should be 1 more.")
 	}
 
 	// Start from the left path and prove each leaf.
 
 	// shared across recursive calls
 	var leaves = proof.Leaves
-	var innersq = proof.InnerProviders
+	var innersq = proof.InnerServicers
 	var COMPUTEHASH func(path PathToLeaf, rightmost bool) (hash []byte, treeEnd bool, done bool, err error)
 
 	// rightmost: is the root a rightmost child of the tree?
@@ -256,7 +256,7 @@ func (proof *RangeProof) _computeRootHash() (rootHash []byte, treeEnd bool, err 
 		// Prove along path (until we run out of leaves).
 		for len(path) > 0 {
 
-			// Drop the leaf-most (last-most) inner providers from path
+			// Drop the leaf-most (last-most) inner servicers from path
 			// until we encounter one with a left hash.
 			// We assume that the left side is already verified.
 			// rpath: rest of path
@@ -426,7 +426,7 @@ func (t *ImmutableTree) getRangeProof(keyStart, keyEnd []byte, limit int) (proof
 			} else if pathCount < 0 { // Inner node.
 				// Only store if the node is not stored in currentPathToLeaf already. We track if we are
 				// still going through PathToLeaf using pathCount. When pathCount goes to -1, we
-				// start storing the other paths we took to get to the leaf providers. Also we skip
+				// start storing the other paths we took to get to the leaf servicers. Also we skip
 				// storing the left node, since we are traversing the tree starting from the left
 				// and don't need to store unnecessary info as we only need to go down the right
 				// path.
@@ -444,7 +444,7 @@ func (t *ImmutableTree) getRangeProof(keyStart, keyEnd []byte, limit int) (proof
 
 	return &RangeProof{
 		LeftPath:       path,
-		InnerProviders: allPathToLeafs,
+		InnerServicers: allPathToLeafs,
 		Leaves:         leaves,
 	}, keys, values, nil
 }

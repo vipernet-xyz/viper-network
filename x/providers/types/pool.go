@@ -7,14 +7,10 @@ import (
 )
 
 // names used as root for pool module accounts:
-// - StakingPool -> "staked_tokens_pool"
+// StakingPool -> "provider_staked_tokens_pool"
 const (
-	StakedPoolName = "staked_tokens_pool"
+	StakedPoolName = "provider_staked_tokens_pool"
 )
-
-type Pool struct {
-	Tokens sdk.BigInt
-}
 
 // Tokens - tracking staked token supply
 type StakingPool Pool
@@ -28,5 +24,5 @@ func NewPool(tokens sdk.BigInt) Pool {
 
 // String returns a human readable string representation of a pool.
 func (bp StakingPool) String() string {
-	return fmt.Sprintf(`Staked Tokens: %s`, bp.Tokens)
+	return fmt.Sprintf(`Staked Tokens:      %s`, bp.Tokens)
 }

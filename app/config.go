@@ -23,10 +23,10 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
-	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	"github.com/vipernet-xyz/viper-network/x/providers"
+	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -210,7 +210,7 @@ func UpdateConfig(datadir string) {
 		Version: "v1",
 	}
 	GlobalConfig.ViperConfig.ValidatorCacheSize = sdk.DefaultValidatorCacheSize
-	GlobalConfig.ViperConfig.PlatformCacheSize = sdk.DefaultPlatformCacheSize
+	GlobalConfig.ViperConfig.ProviderCacheSize = sdk.DefaultProviderCacheSize
 	GlobalConfig.ViperConfig.CtxCacheSize = sdk.DefaultCtxCacheSize
 	GlobalConfig.ViperConfig.RPCTimeout = sdk.DefaultRPCTimeout
 	GlobalConfig.ViperConfig.IavlCacheSize = sdk.DefaultIavlCacheSize
@@ -401,9 +401,9 @@ func InitViperCoreConfig(chains *types.HostedBlockchains, logger log.Logger) {
 	logger.Info("Initializing ctx cache")
 	sdk.InitCtxCache(GlobalConfig.ViperConfig.CtxCacheSize)
 	logger.Info("Initializing pos config")
-	providersTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
+	servicersTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
 	logger.Info("Initializing app config")
-	platformsTypes.InitConfig(GlobalConfig.ViperConfig.PlatformCacheSize)
+	providersTypes.InitConfig(GlobalConfig.ViperConfig.ProviderCacheSize)
 }
 
 func ShutdownViperCore() {
@@ -547,7 +547,7 @@ func HotReloadChains(chains *types.HostedBlockchains) {
 			}
 			m := make(map[string]types.HostedBlockchain)
 			for _, chain := range hostedChainsSlice {
-				if err := providersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+				if err := servicersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 					log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 				}
 				m[chain.ID] = chain
@@ -597,7 +597,7 @@ func NewHostedChains(generate bool) *types.HostedBlockchains {
 	}
 	m := make(map[string]types.HostedBlockchain)
 	for _, chain := range hostedChainsSlice {
-		if err := providersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+		if err := servicersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 			log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 		}
 		m[chain.ID] = chain
@@ -635,7 +635,7 @@ func generateChainsJson(chainsPath string) *types.HostedBlockchains {
 	}
 	m := make(map[string]types.HostedBlockchain)
 	for _, chain := range c {
-		if err := providersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+		if err := servicersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 			log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 		}
 		m[chain.ID] = chain
@@ -662,7 +662,7 @@ func GenerateHostedChains() (chains []types.HostedBlockchain) {
 			os.Exit(3)
 		}
 		ID = strings.Trim(strings.TrimSpace(ID), "\n")
-		if err := providersTypes.ValidateNetworkIdentifier(ID); err != nil {
+		if err := servicersTypes.ValidateNetworkIdentifier(ID); err != nil {
 			fmt.Println(err)
 			fmt.Println("please try again")
 			continue
@@ -724,11 +724,11 @@ func MakeCodec() {
 	cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	// register all the app module types
 	module.NewBasicManager(
-		platforms.PlatformModuleBasic{},
-		authentication.PlatformModuleBasic{},
-		governance.PlatformModuleBasic{},
-		providers.PlatformModuleBasic{},
-		viper.PlatformModuleBasic{},
+		providers.ProviderModuleBasic{},
+		authentication.ProviderModuleBasic{},
+		governance.ProviderModuleBasic{},
+		servicers.ProviderModuleBasic{},
+		viper.ProviderModuleBasic{},
 	).RegisterCodec(cdc)
 	// register the sdk types
 	sdk.RegisterCodec(cdc)

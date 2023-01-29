@@ -10,12 +10,12 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
-	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
-	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	"github.com/vipernet-xyz/viper-network/x/providers"
+	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
+	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -36,8 +36,8 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	app := NewViperBaseApp(logger, db, cache, iavlCacheSize, baseAppOptions...)
 	// setup subspaces
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
+	servicersSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
 	providersSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
-	platformsSubspace := sdk.NewSubspace(platformsTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	// The AuthKeeper handles address -> account lookups
 	app.accountKeeper = authentication.NewKeeper(
@@ -46,31 +46,31 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		authSubspace,
 		moduleAccountPermissions,
 	)
-	// The providersKeeper keeper handles viper core providers
+	// The servicersKeeper keeper handles viper core servicers
+	app.servicersKeeper = servicersKeeper.NewKeeper(
+		app.cdc,
+		app.Keys[servicersTypes.StoreKey],
+		app.accountKeeper,
+		servicersSubspace,
+		servicersTypes.DefaultCodespace,
+	)
+	// The providers keeper handles viper core applications
 	app.providersKeeper = providersKeeper.NewKeeper(
 		app.cdc,
 		app.Keys[providersTypes.StoreKey],
-		app.accountKeeper,
-		providersSubspace,
-		providersTypes.DefaultCodespace,
-	)
-	// The platforms keeper handles viper core applications
-	app.platformsKeeper = platformsKeeper.NewKeeper(
-		app.cdc,
-		app.Keys[platformsTypes.StoreKey],
-		app.providersKeeper,
+		app.servicersKeeper,
 		app.accountKeeper,
 		app.viperKeeper,
-		platformsSubspace,
-		platformsTypes.DefaultCodespace,
+		providersSubspace,
+		providersTypes.DefaultCodespace,
 	)
 	// The main viper core
 	app.viperKeeper = viperKeeper.NewKeeper(
 		app.Keys[viperTypes.StoreKey],
 		app.cdc,
 		app.accountKeeper,
+		app.servicersKeeper,
 		app.providersKeeper,
-		app.platformsKeeper,
 		hostedChains,
 		viperSubspace,
 	)
@@ -81,29 +81,29 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.Tkeys[viperTypes.StoreKey],
 		governanceTypes.DefaultCodespace,
 		app.accountKeeper,
-		authSubspace, providersSubspace, platformsSubspace, viperSubspace,
+		authSubspace, servicersSubspace, providersSubspace, viperSubspace,
 	)
 	// add the keybase to the viper core keeper
 	app.viperKeeper.TmNode = tmClient
-	// give viper keeper to providers module for easy cache clearing
+	// give viper keeper to servicers module for easy cache clearing
+	app.servicersKeeper.ViperKeeper = app.viperKeeper
 	app.providersKeeper.ViperKeeper = app.viperKeeper
-	app.platformsKeeper.ViperKeeper = app.viperKeeper
 	// setup module manager
 	app.mm = module.NewManager(
-		authentication.NewPlatformModule(app.accountKeeper),
-		providers.NewPlatformModule(app.providersKeeper),
-		platforms.NewPlatformModule(app.platformsKeeper),
-		viper.NewPlatformModule(app.viperKeeper),
-		governance.NewPlatformModule(app.governanceKeeper),
+		authentication.NewProviderModule(app.accountKeeper),
+		servicers.NewProviderModule(app.servicersKeeper),
+		providers.NewProviderModule(app.providersKeeper),
+		viper.NewProviderModule(app.viperKeeper),
+		governance.NewProviderModule(app.governanceKeeper),
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(providersTypes.ModuleName, platformsTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		authentication.ModuleName,
+		servicersTypes.ModuleName,
 		providersTypes.ModuleName,
-		platformsTypes.ModuleName,
 		viperTypes.ModuleName,
 		governance.ModuleName,
 	)

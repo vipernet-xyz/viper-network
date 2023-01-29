@@ -19,7 +19,7 @@ import (
 
 // CLIContext implements a typical CLI context created in SDK modules for
 // transaction handling and queries.
-type CLIContext struct { // TODO consider module passing clicontext instead of provider and keybase
+type CLIContext struct { // TODO consider module passing clicontext instead of servicer and keybase
 	Codec         *codec.Codec
 	Client        rpcclient.Client
 	FromAddress   sdk.Address
@@ -32,9 +32,9 @@ type CLIContext struct { // TODO consider module passing clicontext instead of p
 // NewCLIContext returns a new initialized CLIContext with parameters from the
 // command line using Viper. It takes a key name or address and populates the FromName and
 // FromAddress field accordingly.
-func NewCLIContext(provider rpcclient.Client, fromAddress sdk.Address, passphrase string) CLIContext {
+func NewCLIContext(servicer rpcclient.Client, fromAddress sdk.Address, passphrase string) CLIContext {
 	return CLIContext{
-		Client:        provider,
+		Client:        servicer,
 		Passphrase:    passphrase,
 		FromAddress:   fromAddress,
 		BroadcastMode: BroadcastSync,
@@ -105,20 +105,20 @@ func (ctx CLIContext) BroadcastTx(txBytes []byte) (res sdk.TxResponse, err error
 	return res, err
 }
 
-// BroadcastTxCommit broadcasts transaction bytes to a Tendermint provider and
-// waits for a commit. An error is only returned if there is no RPC provider
+// BroadcastTxCommit broadcasts transaction bytes to a Tendermint servicer and
+// waits for a commit. An error is only returned if there is no RPC servicer
 // connection or if broadcasting fails.
 //
 // NOTE: This should ideally not be used as the request may timeout but the tx
 // may still be included in a block. Use BroadcastTxAsync or BroadcastTxSync
 // instead.
 func (ctx CLIContext) BroadcastTxCommit(txBytes []byte) (sdk.TxResponse, error) {
-	provider, err := ctx.GetNode()
+	servicer, err := ctx.GetNode()
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
 
-	res, err := provider.BroadcastTxCommit(txBytes)
+	res, err := servicer.BroadcastTxCommit(txBytes)
 	if err != nil {
 		return sdk.NewResponseFormatBroadcastTxCommit(res), err
 	}
@@ -134,27 +134,27 @@ func (ctx CLIContext) BroadcastTxCommit(txBytes []byte) (sdk.TxResponse, error) 
 	return sdk.NewResponseFormatBroadcastTxCommit(res), nil
 }
 
-// BroadcastTxSync broadcasts transaction bytes to a Tendermint provider
+// BroadcastTxSync broadcasts transaction bytes to a Tendermint servicer
 // synchronously (i.e. returns after CheckTx execution).
 func (ctx CLIContext) BroadcastTxSync(txBytes []byte) (sdk.TxResponse, error) {
-	provider, err := ctx.GetNode()
+	servicer, err := ctx.GetNode()
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
 
-	res, err := provider.BroadcastTxSync(txBytes)
+	res, err := servicer.BroadcastTxSync(txBytes)
 	return sdk.NewResponseFormatBroadcastTx(res), err
 }
 
-// BroadcastTxAsync broadcasts transaction bytes to a Tendermint provider
+// BroadcastTxAsync broadcasts transaction bytes to a Tendermint servicer
 // asynchronously (i.e. returns immediately).
 func (ctx CLIContext) BroadcastTxAsync(txBytes []byte) (sdk.TxResponse, error) {
-	provider, err := ctx.GetNode()
+	servicer, err := ctx.GetNode()
 	if err != nil {
 		return sdk.TxResponse{}, err
 	}
 
-	res, err := provider.BroadcastTxAsync(txBytes)
+	res, err := servicer.BroadcastTxAsync(txBytes)
 	return sdk.NewResponseFormatBroadcastTx(res), err
 }
 
@@ -167,32 +167,32 @@ const (
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Query performs a query to a Tendermint provider with the provided path.
+// Query performs a query to a Tendermint servicer with the provided path.
 // It returns the result and height of the query upon success or an error if
 // the query fails.
 func (ctx CLIContext) Query(path string) ([]byte, int64, error) {
 	return ctx.query(path, nil)
 }
 
-// QueryWithData performs a query to a Tendermint provider with the provided path
+// QueryWithData performs a query to a Tendermint servicer with the provided path
 // and a data payload. It returns the result and height of the query upon success
 // or an error if the query fails.
 func (ctx CLIContext) QueryWithData(path string, data []byte) ([]byte, int64, error) {
 	return ctx.query(path, data)
 }
 
-// QueryStore performs a query to a Tendermint provider with the provided key and
+// QueryStore performs a query to a Tendermint servicer with the provided key and
 // store name. It returns the result and height of the query upon success
 // or an error if the query fails.
 func (ctx CLIContext) QueryStore(key bytes.HexBytes, storeName string) ([]byte, int64, error) {
 	return ctx.queryStore(key, storeName, "key")
 }
 
-// query performs a query to a Tendermint provider with the provided store name
+// query performs a query to a Tendermint servicer with the provided store name
 // and path. It returns the result and height of the query upon success
 // or an error if the query fails. If query height is invalid, an error will be returned.
 func (ctx CLIContext) query(path string, key bytes.HexBytes) (res []byte, height int64, err error) {
-	provider, err := ctx.GetNode()
+	servicer, err := ctx.GetNode()
 	if err != nil {
 		return res, height, err
 	}
@@ -202,7 +202,7 @@ func (ctx CLIContext) query(path string, key bytes.HexBytes) (res []byte, height
 		Prove:  false,
 	}
 
-	result, err := provider.ABCIQueryWithOptions(path, key, opts)
+	result, err := servicer.ABCIQueryWithOptions(path, key, opts)
 	if err != nil {
 		return res, height, err
 	}
@@ -215,7 +215,7 @@ func (ctx CLIContext) query(path string, key bytes.HexBytes) (res []byte, height
 	return resp.Value, resp.Height, nil
 }
 
-// queryStore performs a query to a Tendermint provider with the provided a store
+// queryStore performs a query to a Tendermint servicer with the provided a store
 // name and path. It returns the result and height of the query upon success
 // or an error if the query fails.
 func (ctx CLIContext) queryStore(key bytes.HexBytes, storeName, endPath string) ([]byte, int64, error) {

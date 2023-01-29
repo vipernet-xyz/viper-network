@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 
 func TestIsUniqueProof(t *testing.T) {
 	h := SessionHeader{
-		PlatformPubKey:     "0",
+		ProviderPubKey:     "0",
 		Chain:              "0001",
 		SessionBlockHeight: 0,
 	}
@@ -55,12 +55,12 @@ func TestIsUniqueProof(t *testing.T) {
 }
 
 func TestAllEvidence_AddGetEvidence(t *testing.T) {
-	platformPubKey := getRandomPubKey().RawString()
+	providerPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{0001})
 	header := SessionHeader{
-		PlatformPubKey:     platformPubKey,
+		ProviderPubKey:     providerPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
@@ -72,9 +72,9 @@ func TestAllEvidence_AddGetEvidence(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
@@ -83,12 +83,12 @@ func TestAllEvidence_AddGetEvidence(t *testing.T) {
 }
 
 func TestAllEvidence_DeleteEvidence(t *testing.T) {
-	platformPubKey := getRandomPubKey().RawString()
+	providerPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{0001})
 	header := SessionHeader{
-		PlatformPubKey:     platformPubKey,
+		ProviderPubKey:     providerPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
@@ -100,9 +100,9 @@ func TestAllEvidence_DeleteEvidence(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
@@ -114,17 +114,17 @@ func TestAllEvidence_DeleteEvidence(t *testing.T) {
 }
 
 func TestAllEvidence_GetTotalProofs(t *testing.T) {
-	platformPubKey := getRandomPubKey().RawString()
+	providerPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{0001})
 	header := SessionHeader{
-		PlatformPubKey:     platformPubKey,
+		ProviderPubKey:     providerPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
 	header2 := SessionHeader{
-		PlatformPubKey:     platformPubKey,
+		ProviderPubKey:     providerPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 101,
 	}
@@ -136,9 +136,9 @@ func TestAllEvidence_GetTotalProofs(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
@@ -150,9 +150,9 @@ func TestAllEvidence_GetTotalProofs(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
@@ -200,19 +200,19 @@ func TestClearCache(t *testing.T) {
 }
 
 func NewTestSession(t *testing.T, chain string) Session {
-	platformPubKey := getRandomPubKey()
+	providerPubKey := getRandomPubKey()
 	var vals []sdk.Address
 	for i := 0; i < 5; i++ {
-		providerPubKey := getRandomPubKey()
-		vals = append(vals, sdk.Address(providerPubKey.Address()))
+		servicerPubKey := getRandomPubKey()
+		vals = append(vals, sdk.Address(servicerPubKey.Address()))
 	}
 	return Session{
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey.RawString(),
+			ProviderPubKey:     providerPubKey.RawString(),
 			Chain:              chain,
 			SessionBlockHeight: 1,
 		},
-		SessionKey:       platformPubKey.RawBytes(), // fake
-		SessionProviders: vals,
+		SessionKey:       providerPubKey.RawBytes(), // fake
+		SessionServicers: vals,
 	}
 }

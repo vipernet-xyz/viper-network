@@ -1,13 +1,22 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 )
+
+// StakedRatio - Retrieve the fraction of the staking tokens which are currently staked
+func (k Keeper) StakedRatio(ctx sdk.Ctx) sdk.BigDec {
+	stakedPool := k.GetStakedPool(ctx)
+
+	stakeSupply := k.TotalTokens(ctx)
+	if stakeSupply.IsPositive() {
+		return stakedPool.GetCoins().AmountOf(k.StakeDenom(ctx)).ToDec().QuoInt(stakeSupply)
+	}
+	return sdk.ZeroDec()
+}
 
 // GetStakedTokens - Retrieve total staking tokens supply which is staked
 func (k Keeper) GetStakedTokens(ctx sdk.Ctx) sdk.BigInt {
@@ -15,7 +24,7 @@ func (k Keeper) GetStakedTokens(ctx sdk.Ctx) sdk.BigInt {
 	return stakedPool.GetCoins().AmountOf(k.StakeDenom(ctx))
 }
 
-// TotalTokens - Retrieve staking tokens from the total supply
+// TotalTokens - Retrieve total staking tokens from the total supply
 func (k Keeper) TotalTokens(ctx sdk.Ctx) sdk.BigInt {
 	return k.AccountKeeper.GetSupply(ctx).GetTotal().AmountOf(k.StakeDenom(ctx))
 }
@@ -25,28 +34,30 @@ func (k Keeper) GetStakedPool(ctx sdk.Ctx) (stakedPool exported.ModuleAccountI) 
 	return k.AccountKeeper.GetModuleAccount(ctx, types.StakedPoolName)
 }
 
-// coinsFromStakedToUnstaked - Transfer coins from the module account to the validator -> used in unstaking
-func (k Keeper) coinsFromStakedToUnstaked(ctx sdk.Ctx, validator types.Validator) error {
-	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), validator.StakedTokens))
-	output, _ := k.GetValidatorOutputAddress(ctx, validator.Address)
-	err := k.AccountKeeper.SendCoinsFromModuleToAccount(ctx, types.StakedPoolName, output, coins)
+// coinsFromStakedToUnstkaed - Transfer coins from the module account to the provider -> used in unstaking
+func (k Keeper) coinsFromStakedToUnstaked(ctx sdk.Ctx, provider types.Provider) sdk.Error {
+	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), provider.StakedTokens))
+	err := k.AccountKeeper.SendCoinsFromModuleToAccount(ctx, types.StakedPoolName, provider.Address, coins)
 	if err != nil {
-		return fmt.Errorf("unable to send coins from staked to unstaked for address: %s", validator.Address)
+		return err
 	}
 	return nil
 }
 
-// coinsFromUnstakedToStaked - Transfer coins from the module account to validator -> used in staking
-func (k Keeper) coinsFromUnstakedToStaked(ctx sdk.Ctx, address sdk.Address, amount sdk.BigInt) sdk.Error {
+// coinsFromUnstakedToStaked - Transfer coins from the module account to provider -> used in staking
+func (k Keeper) coinsFromUnstakedToStaked(ctx sdk.Ctx, provider types.Provider, amount sdk.BigInt) sdk.Error {
 	if amount.LT(sdk.ZeroInt()) {
-		return sdk.ErrInternal("cannot send a negative")
+		return sdk.ErrInternal("cannot stake a negative amount of coins")
 	}
 	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
-	err := k.AccountKeeper.SendCoinsFromAccountToModule(ctx, address, types.StakedPoolName, coins)
-	return err
+	err := k.AccountKeeper.SendCoinsFromAccountToModule(ctx, sdk.Address(provider.Address), types.StakedPoolName, coins)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-// burnStakedTokens - Removes coins from the staked pool module account
+// burnStakedTokens - Remove coins from the staked pool module account
 func (k Keeper) burnStakedTokens(ctx sdk.Ctx, amt sdk.BigInt) sdk.Error {
 	if !amt.IsPositive() {
 		return nil

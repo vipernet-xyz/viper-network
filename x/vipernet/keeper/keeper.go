@@ -14,7 +14,7 @@ import (
 type Keeper struct {
 	authKeeper        types.AuthKeeper
 	posKeeper         types.PosKeeper
-	platformKeeper    types.PlatformsKeeper
+	providerKeeper    types.ProvidersKeeper
 	TmNode            client.Client
 	hostedBlockchains *types.HostedBlockchains
 	Paramstore        sdk.Subspace
@@ -23,11 +23,11 @@ type Keeper struct {
 }
 
 // NewKeeper creates new instances of the vipernet module Keeper
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, authKeeper types.AuthKeeper, posKeeper types.PosKeeper, platformKeeper types.PlatformsKeeper, hostedChains *types.HostedBlockchains, paramstore sdk.Subspace) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, authKeeper types.AuthKeeper, posKeeper types.PosKeeper, providerKeeper types.ProvidersKeeper, hostedChains *types.HostedBlockchains, paramstore sdk.Subspace) Keeper {
 	return Keeper{
 		authKeeper:        authKeeper,
 		posKeeper:         posKeeper,
-		platformKeeper:    platformKeeper,
+		providerKeeper:    providerKeeper,
 		hostedBlockchains: hostedChains,
 		Paramstore:        paramstore.WithKeyTable(ParamKeyTable()),
 		storeKey:          storeKey,
@@ -39,7 +39,7 @@ func (k Keeper) Codec() *codec.Codec {
 	return k.Cdc
 }
 
-// "GetBlock" returns the block from the tendermint provider at a certain height
+// "GetBlock" returns the block from the tendermint servicer at a certain height
 func (k Keeper) GetBlock(height int) (*coretypes.ResultBlock, error) {
 	h := int64(height)
 	return k.TmNode.Block(&h)

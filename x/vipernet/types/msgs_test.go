@@ -30,8 +30,8 @@ func TestMsgClaim_GetSigners(t *testing.T) {
 }
 
 func TestMsgClaim_ValidateBasic(t *testing.T) {
-	platformPubKey := getRandomPubKey().RawString()
-	providerAddress := getRandomValidatorAddress()
+	providerPubKey := getRandomPubKey().RawString()
+	servicerAddress := getRandomValidatorAddress()
 	ethereum := hex.EncodeToString([]byte{01})
 	rootHash := Hash([]byte("fakeRoot"))
 	root := HashRange{
@@ -40,18 +40,18 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 	}
 	invalidClaimMessageSH := MsgClaim{
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     "",
+			ProviderPubKey:     "",
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
 		MerkleRoot:   root,
 		TotalProofs:  100,
-		FromAddress:  providerAddress,
+		FromAddress:  servicerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	invalidClaimMessageRoot := MsgClaim{
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -59,23 +59,23 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 			Hash: []byte("bad_root"),
 		},
 		TotalProofs:  100,
-		FromAddress:  providerAddress,
+		FromAddress:  servicerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	invalidClaimMessageRelays := MsgClaim{
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
 		MerkleRoot:   root,
 		TotalProofs:  -1,
-		FromAddress:  providerAddress,
+		FromAddress:  servicerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	invalidClaimMessageFromAddress := MsgClaim{
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
@@ -86,23 +86,23 @@ func TestMsgClaim_ValidateBasic(t *testing.T) {
 	}
 	invalidClaimMessageNoEvidence := MsgClaim{
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
 		MerkleRoot:  root,
 		TotalProofs: 100,
-		FromAddress: providerAddress,
+		FromAddress: servicerAddress,
 	}
 	validClaimMessage := MsgClaim{
 		SessionHeader: SessionHeader{
-			PlatformPubKey:     platformPubKey,
+			ProviderPubKey:     providerPubKey,
 			Chain:              ethereum,
 			SessionBlockHeight: 1,
 		},
 		MerkleRoot:   root,
 		TotalProofs:  100,
-		FromAddress:  providerAddress,
+		FromAddress:  servicerAddress,
 		EvidenceType: RelayEvidence,
 	}
 	tests := []struct {
@@ -183,8 +183,8 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPrivKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivKey.PublicKey().RawString()
-	platformPrivKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivKey.PublicKey().RawString()
+	providerPrivKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivKey.PublicKey().RawString()
 	hash1 := merkleHash([]byte("fake1"))
 	hash2 := merkleHash([]byte("fake2"))
 	hash3 := merkleHash([]byte("fake3"))
@@ -216,20 +216,20 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 			RequestHash:        servicerPubKey, // fake
 			Token: AAT{
 				Version:           "0.0.1",
-				PlatformPublicKey: platformPubKey,
+				ProviderPublicKey: providerPubKey,
 				ClientPublicKey:   clientPubKey,
-				PlatformSignature: "",
+				ProviderSignature: "",
 			},
 			Signature: "",
 		},
 		EvidenceType: RelayEvidence,
 	}
 	vprLeaf := validProofMessage.Leaf.(RelayProof)
-	signature, er := platformPrivKey.Sign(vprLeaf.Token.Hash())
+	signature, er := providerPrivKey.Sign(vprLeaf.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	vprLeaf.Token.PlatformSignature = hex.EncodeToString(signature)
+	vprLeaf.Token.ProviderSignature = hex.EncodeToString(signature)
 	clientSig, er := clientPrivKey.Sign(validProofMessage.Leaf.(RelayProof).Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -252,7 +252,7 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 	// invalid token
 	invalidProofMsgToken := validProofMessage
 	//vprLeaf = validProofMessage.Leaf.LegacyFromProto().(*RelayProof)
-	vprLeaf.Token.PlatformSignature = ""
+	vprLeaf.Token.ProviderSignature = ""
 	invalidProofMsgToken.Leaf = vprLeaf
 	// invalid blockchain
 	invalidProofMsgBlkchn := validProofMessage
@@ -285,7 +285,7 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 			hasError: true,
 		},
 		{
-			name:     "Invalid Proof Message, leafprovider index",
+			name:     "Invalid Proof Message, leafservicer index",
 			msg:      invalidProofMsgIndex,
 			hasError: true,
 		},

@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // SessionHeader defines the header for session information
 type SessionHeader struct {
-	PlatformPubKey  string `protobuf:"bytes,1,opt,name=platformlicationPubKey,proto3" json:"platform_public_key"`
+	ProviderPubKey  string `protobuf:"bytes,1,opt,name=providerlicationPubKey,proto3" json:"provider_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
 	SessionBlockHeight int64  `protobuf:"varint,3,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }
@@ -67,7 +67,7 @@ var xxx_messageInfo_SessionHeader proto.InternalMessageInfo
 type Session struct {
 	SessionHeader SessionHeader `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
 	SessionKey    SessionKey    `protobuf:"bytes,2,opt,name=sessionKey,proto3,casttype=SessionKey" json:"key"`
-	SessionProviders  SessionProviders  `protobuf:"bytes,3,rep,name=sessionProviders,proto3,castrepeated=SessionProviders" json:"providers"`
+	SessionServicers  SessionServicers  `protobuf:"bytes,3,rep,name=sessionServicers,proto3,castrepeated=SessionServicers" json:"servicers"`
 }
 
 func (m *Session) Reset()         { *m = Session{} }
@@ -269,8 +269,8 @@ func (m *ProofI) GetChallengeProof() *ChallengeProofInvalidData {
 	return nil
 }
 
-// XXX_OneofWrplatformers is for the internal use of the proto package.
-func (*ProofI) XXX_OneofWrplatformers() []interface{} {
+// XXX_OneofWrproviderers is for the internal use of the proto package.
+func (*ProofI) XXX_OneofWrproviderers() []interface{} {
 	return []interface{}{
 		(*ProofI_RelayProof)(nil),
 		(*ProofI_ChallengeProof)(nil),
@@ -441,9 +441,9 @@ var xxx_messageInfo_RelayResponse proto.InternalMessageInfo
 
 type AAT struct {
 	Version              string `protobuf:"bytes,1,opt,name=version,proto3" json:"version"`
-	PlatformPublicKey string `protobuf:"bytes,2,opt,name=platformlicationPublicKey,proto3" json:"platform_pub_key"`
+	ProviderPublicKey string `protobuf:"bytes,2,opt,name=providerlicationPublicKey,proto3" json:"provider_pub_key"`
 	ClientPublicKey      string `protobuf:"bytes,3,opt,name=clientPublicKey,proto3" json:"client_pub_key"`
-	PlatformSignature string `protobuf:"bytes,4,opt,name=platformlicationSignature,proto3" json:"signature"`
+	ProviderSignature string `protobuf:"bytes,4,opt,name=providerlicationSignature,proto3" json:"signature"`
 }
 
 func (m *AAT) Reset()         { *m = AAT{} }
@@ -746,10 +746,10 @@ func (m *SessionHeader) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.PlatformPubKey) > 0 {
-		i -= len(m.PlatformPubKey)
-		copy(dAtA[i:], m.PlatformPubKey)
-		i = encodeVarintViper(dAtA, i, uint64(len(m.PlatformPubKey)))
+	if len(m.ProviderPubKey) > 0 {
+		i -= len(m.ProviderPubKey)
+		copy(dAtA[i:], m.ProviderPubKey)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.ProviderPubKey)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -776,11 +776,11 @@ func (m *Session) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.SessionProviders) > 0 {
-		for iNdEx := len(m.SessionProviders) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.SessionProviders[iNdEx])
-			copy(dAtA[i:], m.SessionProviders[iNdEx])
-			i = encodeVarintViper(dAtA, i, uint64(len(m.SessionProviders[iNdEx])))
+	if len(m.SessionServicers) > 0 {
+		for iNdEx := len(m.SessionServicers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.SessionServicers[iNdEx])
+			copy(dAtA[i:], m.SessionServicers[iNdEx])
+			i = encodeVarintViper(dAtA, i, uint64(len(m.SessionServicers[iNdEx])))
 			i--
 			dAtA[i] = 0x1a
 		}
@@ -1250,10 +1250,10 @@ func (m *AAT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.PlatformSignature) > 0 {
-		i -= len(m.PlatformSignature)
-		copy(dAtA[i:], m.PlatformSignature)
-		i = encodeVarintViper(dAtA, i, uint64(len(m.PlatformSignature)))
+	if len(m.ProviderSignature) > 0 {
+		i -= len(m.ProviderSignature)
+		copy(dAtA[i:], m.ProviderSignature)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.ProviderSignature)))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -1264,10 +1264,10 @@ func (m *AAT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.PlatformPublicKey) > 0 {
-		i -= len(m.PlatformPublicKey)
-		copy(dAtA[i:], m.PlatformPublicKey)
-		i = encodeVarintViper(dAtA, i, uint64(len(m.PlatformPublicKey)))
+	if len(m.ProviderPublicKey) > 0 {
+		i -= len(m.ProviderPublicKey)
+		copy(dAtA[i:], m.ProviderPublicKey)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.ProviderPublicKey)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1423,7 +1423,7 @@ func (m *SessionHeader) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.PlatformPubKey)
+	l = len(m.ProviderPubKey)
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
@@ -1449,8 +1449,8 @@ func (m *Session) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
-	if len(m.SessionProviders) > 0 {
-		for _, b := range m.SessionProviders {
+	if len(m.SessionServicers) > 0 {
+		for _, b := range m.SessionServicers {
 			l = len(b)
 			n += 1 + l + sovViper(uint64(l))
 		}
@@ -1648,7 +1648,7 @@ func (m *AAT) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
-	l = len(m.PlatformPublicKey)
+	l = len(m.ProviderPublicKey)
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
@@ -1656,7 +1656,7 @@ func (m *AAT) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
-	l = len(m.PlatformSignature)
+	l = len(m.ProviderSignature)
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
@@ -1750,7 +1750,7 @@ func (m *SessionHeader) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PlatformPubKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ProviderPubKey", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1778,7 +1778,7 @@ func (m *SessionHeader) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.PlatformPubKey = string(dAtA[iNdEx:postIndex])
+			m.ProviderPubKey = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -1953,7 +1953,7 @@ func (m *Session) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SessionProviders", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SessionServicers", wireType)
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
@@ -1980,8 +1980,8 @@ func (m *Session) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SessionProviders = append(m.SessionProviders, make([]byte, postIndex-iNdEx))
-			copy(m.SessionProviders[len(m.SessionProviders)-1], dAtA[iNdEx:postIndex])
+			m.SessionServicers = append(m.SessionServicers, make([]byte, postIndex-iNdEx))
+			copy(m.SessionServicers[len(m.SessionServicers)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3292,7 +3292,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PlatformPublicKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ProviderPublicKey", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3320,7 +3320,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.PlatformPublicKey = string(dAtA[iNdEx:postIndex])
+			m.ProviderPublicKey = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
@@ -3356,7 +3356,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PlatformSignature", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ProviderSignature", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3384,7 +3384,7 @@ func (m *AAT) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.PlatformSignature = string(dAtA[iNdEx:postIndex])
+			m.ProviderSignature = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

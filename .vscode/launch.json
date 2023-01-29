@@ -208,7 +208,7 @@
             "name": "Docker .NET Core Attach (Preview)",
             "type": "docker",
             "request": "attach",
-            "platform": "netCore",
+            "provider": "netCore",
             "sourceFileMap": {
                 "/src": "${workspaceFolder}"
             }

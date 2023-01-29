@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
-	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
+	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
@@ -17,22 +17,22 @@ func TestKeeper_HandleRelay(t *testing.T) {
 	ethereum := hex.EncodeToString([]byte{01})
 	ctx, _, _, _, keeper, keys, kb := createTestInput(t, false)
 	mockCtx := new(Ctx)
-	ak := keeper.platformKeeper.(platformsKeeper.Keeper)
+	ak := keeper.providerKeeper.(providersKeeper.Keeper)
 	clientPrivateKey := getRandomPrivateKey()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
-	platformPrivateKey := getRandomPrivateKey()
-	apk := platformPrivateKey.PublicKey()
-	platformPubKey := apk.RawString()
-	// add platform to world state
-	platform := platformsTypes.NewPlatform(sdk.Address(apk.Address()), apk, []string{ethereum}, sdk.NewInt(10000000))
+	providerPrivateKey := getRandomPrivateKey()
+	apk := providerPrivateKey.PublicKey()
+	providerPubKey := apk.RawString()
+	// add provider to world state
+	provider := providersTypes.NewProvider(sdk.Address(apk.Address()), apk, []string{ethereum}, sdk.NewInt(10000000))
 	// calculate relays
-	platform.MaxRelays = ak.CalculatePlatformRelays(ctx, platform)
+	provider.MaxRelays = ak.CalculateProviderRelays(ctx, provider)
 	// set the vals from the data
-	ak.SetPlatform(ctx, platform)
-	ak.SetStakedPlatform(ctx, platform)
+	ak.SetProvider(ctx, provider)
+	ak.SetStakedProvider(ctx, provider)
 	kp, _ := kb.GetCoinbase()
 	npk := kp.PublicKey
-	providerPubKey := npk.RawString()
+	servicerPubKey := npk.RawString()
 	p := types.Payload{
 		Data:    "{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}",
 		Method:  "",
@@ -45,23 +45,23 @@ func TestKeeper_HandleRelay(t *testing.T) {
 		Proof: types.RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 976,
-			ServicerPubKey:     providerPubKey,
+			ServicerPubKey:     servicerPubKey,
 			Blockchain:         ethereum,
 			Token: types.AAT{
 				Version:           "0.0.1",
-				PlatformPublicKey: platformPubKey,
+				ProviderPublicKey: providerPubKey,
 				ClientPublicKey:   clientPubKey,
-				PlatformSignature: "",
+				ProviderSignature: "",
 			},
 			Signature: "",
 		},
 	}
 	validRelay.Proof.RequestHash = validRelay.RequestHashString()
-	platformSig, er := platformPrivateKey.Sign(validRelay.Proof.Token.Hash())
+	providerSig, er := providerPrivateKey.Sign(validRelay.Proof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validRelay.Proof.Token.PlatformSignature = hex.EncodeToString(platformSig)
+	validRelay.Proof.Token.ProviderSignature = hex.EncodeToString(providerSig)
 	clientSig, er := clientPrivateKey.Sign(validRelay.Proof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	providerTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
@@ -44,7 +44,7 @@ func TestKeeper_SessionFrequency(t *testing.T) {
 	sessFrequency := keeper.BlocksPerSession(ctx)
 	assert.NotNil(t, sessFrequency)
 	assert.NotEmpty(t, sessFrequency)
-	assert.Equal(t, int64(providerTypes.DefaultSessionBlocktime), sessFrequency)
+	assert.Equal(t, int64(servicerTypes.DefaultSessionBlocktime), sessFrequency)
 }
 
 func TestKeeper_ClaimSubmissionWindow(t *testing.T) {

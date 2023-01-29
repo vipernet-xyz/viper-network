@@ -1,83 +1,80 @@
-package providers
+package pos
 
 import (
 	"math/rand"
 	"testing"
 
-	types2 "github.com/vipernet-xyz/viper-network/codec/types"
-
-	"github.com/tendermint/tendermint/rpc/client/http"
+	types3 "github.com/vipernet-xyz/viper-network/codec/types"
 
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/store"
-	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	servicerskeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
+	servicerstypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tendermint/rpc/client"
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
+
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
-// : deadcode unused
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.PlatformModuleBasic{},
-		governance.PlatformModuleBasic{},
+		authentication.ProviderModuleBasic{},
+		governance.ProviderModuleBasic{},
+		servicers.ProviderModuleBasic{},
 	)
 )
 
-// : deadcode unused
 // create a codec used only for testing
 func makeTestCodec() *codec.Codec {
-	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
+	var cdc = codec.NewCodec(types3.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)
 	governance.RegisterCodec(cdc)
+	servicerstypes.RegisterCodec(cdc)
+	types.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 
 	return cdc
 }
 
-func GetTestTendermintClient() client.Client {
-	var tmNodeURI string
-	var defaultTMURI = "tcp://localhost:26657"
-
-	if tmNodeURI == "" {
-		c, _ := http.New(defaultTMURI, "/websocket")
-		return c
-	}
-	c, _ := http.New(tmNodeURI, "/websocket")
-	return c
+type MockViperKeeper struct {
 }
 
-// : deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authentication.Account, keeper.Keeper) {
+func (m MockViperKeeper) ClearSessionCache() {
+	return
+}
+
+var _ types.ViperKeeper = MockViperKeeper{}
+
+func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, keeper.Keeper, types.AuthKeeper, types.PosKeeper) {
 	initPower := int64(100000000000)
 	nAccs := int64(4)
-
 	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
-	keyPOS := sdk.NewKVStoreKey(types.ModuleName)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
-
+	servicersKey := sdk.NewKVStoreKey(servicerstypes.StoreKey)
+	providersKey := sdk.NewKVStoreKey(types.StoreKey)
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(servicersKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
-	ms.MountStoreWithDB(keyPOS, sdk.StoreTypeIAVL, db)
 	err := ms.LoadLatestVersion()
 	require.Nil(t, err)
-
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain"}, isCheckTx, log.NewNopLogger()).WithAppVersion("0.0.0")
 	ctx = ctx.WithConsensusParams(
 		&abci.ConsensusParams{
@@ -87,37 +84,35 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 		},
 	)
 	cdc := makeTestCodec()
-
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
 		types.StakedPoolName:            {authentication.Burner, authentication.Staking, authentication.Minter},
-		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Staking, authentication.Minter},
+		servicerstypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
+		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Staking},
 	}
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[authentication.NewModuleAddress(acc).String()] = true
 	}
 	valTokens := sdk.TokensFromConsensusPower(initPower)
-
 	accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
-	posSubspace := sdk.NewSubspace(types.DefaultParamspace)
-
+	servicersSubspace := sdk.NewSubspace(servicerstypes.DefaultParamspace)
+	providerSubspace := sdk.NewSubspace(types.DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
+	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
 	moduleManager := module.NewManager(
-		authentication.NewPlatformModule(ak),
+		authentication.NewProviderModule(ak),
+		servicers.NewProviderModule(nk),
 	)
-
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)
 
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
-	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-
-	keeper := keeper.NewKeeper(cdc, keyPOS, ak, posSubspace, sdk.CodespaceType("pos"))
-
-	params := types.DefaultParams()
-	keeper.SetParams(ctx, params)
-	return ctx, accs, keeper
+	_ = createTestAccs(ctx, int(nAccs), initialCoins, &ak)
+	keeper := keeper.NewKeeper(cdc, providersKey, nk, ak, MockViperKeeper{}, providerSubspace, "providers")
+	p := types.DefaultParams()
+	keeper.SetParams(ctx, p)
+	return ctx, keeper, ak, nk
 }
 
 // : unparam deadcode unused
@@ -135,22 +130,6 @@ func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *authen
 	return
 }
 
-//func addMintedCoinsToModule(t *testing.T, ctx sdk.Ctx, k *keeper.Keeper, module string) {
-//	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), sdk.NewInt(100000000000)))
-//	mintErr := k.supplyKeeper.MintCoins(ctx, module, coins.Add(coins))
-//	if mintErr != nil {
-//		t.Fail()
-//	}
-//}
-//
-//func sendFromModuleToAccount(t *testing.T, ctx sdk.Ctx, k *keeper.Keeper, module string, address sdk.Address, amount sdk.BigInt) {
-//	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
-//	err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, module, sdk.Address(address), coins)
-//	if err != nil {
-//		t.Fail()
-//	}
-//}
-
 func getRandomPubKey() crypto.Ed25519PublicKey {
 	var pub crypto.Ed25519PublicKey
 	_, err := rand.Read(pub[:])
@@ -160,69 +139,15 @@ func getRandomPubKey() crypto.Ed25519PublicKey {
 	return pub
 }
 
-func getRandomValidatorAddress() sdk.Address {
-	return sdk.Address(getRandomPubKey().Address())
-}
-
-func getValidator() types.Validator {
+func getProvider() types.Provider {
 	pub := getRandomPubKey()
-	pub2 := getRandomPubKey()
-	return types.Validator{
-		Address:       sdk.Address(pub.Address()),
-		StakedTokens:  sdk.NewInt(100000000000),
-		PublicKey:     pub,
-		Jailed:        false,
-		Status:        sdk.Staked,
-		ServiceURL:    "https://www.google.com:443",
-		Chains:        []string{"0001"},
-		OutputAddress: sdk.Address(pub2.Address()),
+	return types.Provider{
+		Address:      sdk.Address(pub.Address()),
+		StakedTokens: sdk.NewInt(100000000000),
+		PublicKey:    pub,
+		Jailed:       false,
+		Status:       sdk.Staked,
+		MaxRelays:    sdk.NewInt(100000000000),
+		Chains:       []string{"0001"},
 	}
-}
-
-func getStakedValidator() types.Validator {
-	return getValidator()
-}
-
-func getGenesisStateForTest(ctx sdk.Ctx, keeper keeper.Keeper, defaultparams bool) types.GenesisState {
-	keeper.SetPreviousProposer(ctx, sdk.GetAddress(getRandomPubKey()))
-	var prm = types.DefaultParams()
-
-	if !defaultparams {
-		prm = keeper.GetParams(ctx)
-	}
-	prevStateTotalPower := keeper.PrevStateValidatorsPower(ctx)
-	validators := keeper.GetAllValidators(ctx)
-	var prevStateValidatorPowers []types.PrevStatePowerMplatforming
-	keeper.IterateAndExecuteOverPrevStateValsByPower(ctx, func(addr sdk.Address, power int64) (stop bool) {
-		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMplatforming{Address: addr, Power: power})
-		return false
-	})
-	signingInfos := make(map[string]types.ValidatorSigningInfo)
-	missedBlocks := make(map[string][]types.MissedBlock)
-	keeper.IterateAndExecuteOverValSigningInfo(ctx, func(address sdk.Address, info types.ValidatorSigningInfo) (stop bool) {
-		addrstring := address.String()
-		signingInfos[addrstring] = info
-		localMissedBlocks := []types.MissedBlock{}
-
-		keeper.IterateAndExecuteOverMissedArray(ctx, address, func(index int64, missed bool) (stop bool) {
-			localMissedBlocks = append(localMissedBlocks, types.MissedBlock{Index: index, Missed: missed})
-			return false
-		})
-		missedBlocks[addrstring] = localMissedBlocks
-
-		return false
-	})
-	prevProposer := keeper.GetPreviousProposer(ctx)
-
-	return types.GenesisState{
-		Params:                   prm,
-		PrevStateTotalPower:      prevStateTotalPower,
-		PrevStateValidatorPowers: prevStateValidatorPowers,
-		Validators:               validators,
-		Exported:                 true,
-		SigningInfos:             signingInfos,
-		MissedBlocks:             missedBlocks,
-		PreviousProposer:         prevProposer,
-	}
-
 }

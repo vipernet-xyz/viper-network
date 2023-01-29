@@ -12,9 +12,9 @@ import (
 const (
 	// DefaultParamspace for params keeper
 	DefaultParamspace                 = ModuleName
-	DefaultSessionNodeCount           = int64(5)       // default number of providers in a session
+	DefaultSessionNodeCount           = int64(5)       // default number of servicers in a session
 	DefaultClaimSubmissionWindow      = int64(3)       // default sessions to submit a claim
-	DefaultClaimExpiration            = int64(24)      // default providers to exprie claims
+	DefaultClaimExpiration            = int64(24)      // default servicers to exprie claims
 	DefaultReplayAttackBurnMultiplier = int64(3)       // default replay attack burn multiplier
 	DefaultMinimumNumberOfProofs      = int64(10)      // default minimum number of proofs
 	DefaultBlockByteSize              = int64(4000000) // default block size in bytes
@@ -36,7 +36,7 @@ var _ types.ParamSet = (*Params)(nil)
 
 // "Params" - defines the governance set, high level settings for vipernet module
 type Params struct {
-	SessionNodeCount           int64    `json:"session_provider_count"`
+	SessionNodeCount           int64    `json:"session_servicer_count"`
 	ClaimSubmissionWindow      int64    `json:"proof_waiting_period"`
 	SupportedBlockchains       []string `json:"supported_blockchains"`
 	ClaimExpiration            int64    `json:"claim_expiration"` // per session
@@ -75,7 +75,7 @@ func DefaultParams() Params {
 func (p Params) Validate() error {
 	// session count constraints
 	if p.SessionNodeCount > 25 || p.SessionNodeCount < 1 {
-		return errors.New("invalid session provider count")
+		return errors.New("invalid session servicer count")
 	}
 	// claim submission window constraints
 	if p.ClaimSubmissionWindow < 2 {

@@ -194,7 +194,7 @@ func (node *Node) getByIndex(t *ImmutableTree, index int64) (key []byte, value [
 }
 
 // Computes the hash of the node without computing its descendants. Must be
-// called on providers which have descendant node hashes already computed.
+// called on servicers which have descendant node hashes already computed.
 func (node *Node) _hash() []byte {
 	if node.hash != nil {
 		return node.hash
@@ -215,7 +215,7 @@ func (node *Node) _hash() []byte {
 }
 
 // Hash the node and its descendants recursively. This usually mutates all
-// descendant providers. Returns the node hash and number of providers hashed.
+// descendant servicers. Returns the node hash and number of servicers hashed.
 func (node *Node) hashWithCount() ([]byte, int64) {
 	if node.hash != nil {
 		return node.hash, 0
@@ -255,7 +255,7 @@ func (node *Node) validate() error {
 	}
 
 	if node.height == 0 {
-		// Leaf providers
+		// Leaf servicers
 		if node.value == nil {
 			return errors.New("value cannot be nil for leaf node")
 		}
@@ -263,10 +263,10 @@ func (node *Node) validate() error {
 			return errors.New("leaf node cannot have children")
 		}
 		if node.size != 1 {
-			return errors.New("leaf providers must have size 1")
+			return errors.New("leaf servicers must have size 1")
 		}
 	} else {
-		// Inner providers
+		// Inner servicers
 		if node.value != nil {
 			return errors.New("value must be nil for non-leaf node")
 		}
@@ -293,7 +293,7 @@ func (node *Node) writeHashBytes(w io.Writer) error {
 		return errors.Wrap(err, "writing version")
 	}
 
-	// Key is not written for inner providers, unlike writeBytes.
+	// Key is not written for inner servicers, unlike writeBytes.
 
 	if node.isLeaf() {
 		err = amino.EncodeByteSlice(w, node.key)
@@ -371,7 +371,7 @@ func (node *Node) writeBytes(w io.Writer) error {
 		return errors.Wrap(cause, "writing version")
 	}
 
-	// Unlike writeHashBytes, key is written for inner providers.
+	// Unlike writeHashBytes, key is written for inner servicers.
 	cause = amino.EncodeByteSlice(w, node.key)
 	if cause != nil {
 		return errors.Wrap(cause, "writing key")
@@ -462,7 +462,7 @@ func (node *Node) traverseInRange(t *ImmutableTree, start, end []byte, ascending
 
 	if !node.isLeaf() {
 		if ascending {
-			// check lower providers, then higher
+			// check lower servicers, then higher
 			if afterStart {
 				stop = node.getLeftNode(t).traverseInRange(t, start, end, ascending, inclusive, depth+1, post, cb)
 			}
@@ -473,7 +473,7 @@ func (node *Node) traverseInRange(t *ImmutableTree, start, end []byte, ascending
 				stop = node.getRightNode(t).traverseInRange(t, start, end, ascending, inclusive, depth+1, post, cb)
 			}
 		} else {
-			// check the higher providers first
+			// check the higher servicers first
 			if beforeEnd {
 				stop = node.getRightNode(t).traverseInRange(t, start, end, ascending, inclusive, depth+1, post, cb)
 			}

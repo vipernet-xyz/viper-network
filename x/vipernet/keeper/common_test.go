@@ -23,12 +23,12 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	platforms "github.com/vipernet-xyz/viper-network/x/platforms"
-	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
-	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	"github.com/vipernet-xyz/viper-network/x/providers"
+	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
+	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
@@ -45,8 +45,8 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.PlatformModuleBasic{},
-		governance.PlatformModuleBasic{},
+		authentication.ProviderModuleBasic{},
+		governance.ProviderModuleBasic{},
 	)
 )
 
@@ -79,7 +79,7 @@ func makeTestCodec() *codec.Codec {
 }
 
 // : deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []providersTypes.Validator, []platformsTypes.Platform, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
+func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Validator, []providersTypes.Provider, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
 	sdk.VbCCache = sdk.NewCache(1)
 	initPower := int64(100000000000)
 	nAccs := int64(5)
@@ -99,21 +99,21 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []providersTypes.Va
 	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
+	servicersKey := sdk.NewKVStoreKey(servicersTypes.StoreKey)
 	providersKey := sdk.NewKVStoreKey(providersTypes.StoreKey)
-	platformsKey := sdk.NewKVStoreKey(platformsTypes.StoreKey)
 	viperKey := sdk.NewKVStoreKey(types.StoreKey)
 
 	keys := make(map[string]*sdk.KVStoreKey)
 	keys["params"] = keyParams
-	keys["pos"] = providersKey
-	keys["platformlication"] = platformsKey
+	keys["pos"] = servicersKey
+	keys["providerlication"] = providersKey
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(servicersKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(platformsKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(viperKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
 	err = ms.LoadLatestVersion()
@@ -138,8 +138,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []providersTypes.Va
 
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
-		platformsTypes.StakedPoolName:   {authentication.Burner, authentication.Staking, authentication.Minter},
-		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
+		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Staking, authentication.Minter},
+		servicersTypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
 		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Staking},
 	}
 
@@ -159,29 +159,29 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []providersTypes.Va
 	}
 	types.InitConfig(&hb, log.NewTMLogger(os.Stdout), sdk.DefaultTestingViperConfig())
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
-	providersSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
-	platformSubspace := sdk.NewSubspace(platformsTypes.DefaultParamspace)
+	servicersSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
+	providerSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(types.DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, authSubspace, maccPerms)
-	nk := providersKeeper.NewKeeper(cdc, providersKey, ak, providersSubspace, providersTypes.ModuleName)
-	platformk := platformsKeeper.NewKeeper(cdc, platformsKey, nk, ak, nil, platformSubspace, platformsTypes.ModuleName)
-	platformk.SetPlatform(ctx, getTestPlatform())
-	keeper := NewKeeper(viperKey, cdc, ak, nk, platformk, &hb, viperSubspace)
-	platformk.ViperKeeper = keeper
+	nk := servicersKeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, servicersTypes.ModuleName)
+	providerk := providersKeeper.NewKeeper(cdc, providersKey, nk, ak, nil, providerSubspace, providersTypes.ModuleName)
+	providerk.SetProvider(ctx, getTestProvider())
+	keeper := NewKeeper(viperKey, cdc, ak, nk, providerk, &hb, viperSubspace)
+	providerk.ViperKeeper = keeper
 	assert.Nil(t, err)
 	moduleManager := module.NewManager(
-		authentication.NewPlatformModule(ak),
-		providers.NewPlatformModule(nk),
-		platforms.NewPlatformModule(platformk),
+		authentication.NewProviderModule(ak),
+		servicers.NewProviderModule(nk),
+		providers.NewProviderModule(providerk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	ap := createTestPlatforms(ctx, int(nAccs), sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64)), platformk, ak)
+	ap := createTestProviders(ctx, int(nAccs), sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64)), providerk, ak)
 	vals := createTestValidators(ctx, int(nAccs), sdk.ZeroInt(), &nk, ak, kb)
-	platformk.SetParams(ctx, platformsTypes.DefaultParams())
-	nk.SetParams(ctx, providersTypes.DefaultParams())
+	providerk.SetParams(ctx, providersTypes.DefaultParams())
+	nk.SetParams(ctx, servicersTypes.DefaultParams())
 	defaultViperParams := types.DefaultParams()
 	defaultViperParams.SupportedBlockchains = []string{getTestSupportedBlockchain()}
 	keeper.SetParams(ctx, defaultViperParams)
@@ -189,8 +189,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []providersTypes.Va
 }
 
 var (
-	testPlatform           platformsTypes.Platform
-	testPlatformPrivateKey crypto.PrivateKey
+	testProvider           providersTypes.Provider
+	testProviderPrivateKey crypto.PrivateKey
 	testSupportedChain     string
 )
 
@@ -201,17 +201,17 @@ func getTestSupportedBlockchain() string {
 	return testSupportedChain
 }
 
-func getTestPlatformPrivateKey() crypto.PrivateKey {
-	if testPlatformPrivateKey == nil {
-		testPlatformPrivateKey = getRandomPrivateKey()
+func getTestProviderPrivateKey() crypto.PrivateKey {
+	if testProviderPrivateKey == nil {
+		testProviderPrivateKey = getRandomPrivateKey()
 	}
-	return testPlatformPrivateKey
+	return testProviderPrivateKey
 }
 
-func getTestPlatform() platformsTypes.Platform {
-	if testPlatform.Address == nil {
-		pk := getTestPlatformPrivateKey().PublicKey()
-		testPlatform = platformsTypes.Platform{
+func getTestProvider() providersTypes.Provider {
+	if testProvider.Address == nil {
+		pk := getTestProviderPrivateKey().PublicKey()
+		testProvider = providersTypes.Provider{
 			Address:                 sdk.Address(pk.Address()),
 			PublicKey:               pk,
 			Jailed:                  false,
@@ -222,7 +222,7 @@ func getTestPlatform() platformsTypes.Platform {
 			UnstakingCompletionTime: time.Time{},
 		}
 	}
-	return testPlatform
+	return testProvider
 }
 
 // : unparam deadcode unused
@@ -240,7 +240,7 @@ func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *authen
 	return
 }
 
-func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *providersKeeper.Keeper, ak authentication.Keeper, kb keys.Keybase) (accs providersTypes.Validators) {
+func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *servicersKeeper.Keeper, ak authentication.Keeper, kb keys.Keybase) (accs servicersTypes.Validators) {
 	ethereum := hex.EncodeToString([]byte{01})
 	for i := 0; i < numAccs-1; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
@@ -249,14 +249,14 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *pro
 		privKey2 := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey2 := privKey2.PublicKey()
 		addr2 := sdk.Address(pubKey2.Address())
-		val := providersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, addr2)
+		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, addr2)
 		// set the vals from the data
 		nk.SetValidator(ctx, val)
 		nk.SetStakedValidatorByChains(ctx, val)
 		// ensure there's a signing info entry for the val (used in slashing)
 		_, found := nk.GetValidatorSigningInfo(ctx, val.GetAddress())
 		if !found {
-			signingInfo := providersTypes.ValidatorSigningInfo{
+			signingInfo := servicersTypes.ValidatorSigningInfo{
 				Address:     val.GetAddress(),
 				StartHeight: ctx.BlockHeight(),
 				JailedUntil: time.Unix(0, 0),
@@ -265,19 +265,19 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *pro
 		}
 		accs = append(accs, val)
 	}
-	// add self provider to it
+	// add self servicer to it
 	kp, er := kb.GetCoinbase()
 	if er != nil {
 		panic(er)
 	}
-	val := providersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, kp.GetAddress())
+	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, kp.GetAddress())
 	// set the vals from the data
 	nk.SetValidator(ctx, val)
 	nk.SetStakedValidatorByChains(ctx, val)
 	// ensure there's a signing info entry for the val (used in slashing)
 	_, found := nk.GetValidatorSigningInfo(ctx, val.GetAddress())
 	if !found {
-		signingInfo := providersTypes.ValidatorSigningInfo{
+		signingInfo := servicersTypes.ValidatorSigningInfo{
 			Address:     val.GetAddress(),
 			StartHeight: ctx.BlockHeight(),
 			JailedUntil: time.Unix(0, 0),
@@ -285,7 +285,7 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *pro
 		nk.SetValidatorSigningInfo(ctx, val.GetAddress(), signingInfo)
 	}
 	accs = append(accs, val)
-	// end self provider logic
+	// end self servicer logic
 	stakedTokens := sdk.NewInt(int64(numAccs)).Mul(valCoins)
 	// take the staked amount and create the corresponding coins object
 	stakedCoins := sdk.NewCoins(sdk.NewCoin(nk.StakeDenom(ctx), stakedTokens))
@@ -293,7 +293,7 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *pro
 	stakedPool := nk.GetStakedPool(ctx)
 	// if the stakedPool is nil
 	if stakedPool == nil {
-		panic(fmt.Sprintf("%s module account has not been set", providersTypes.StakedPoolName))
+		panic(fmt.Sprintf("%s module account has not been set", servicersTypes.StakedPoolName))
 	}
 	// add coins if not provided on genesis (there's an option to provide the coins in genesis)
 	if stakedPool.GetCoins().IsZero() {
@@ -304,25 +304,25 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *pro
 	} else {
 		// if it is provided in the genesis file then ensure the two are equal
 		if !stakedPool.GetCoins().IsEqual(stakedCoins) {
-			panic(fmt.Sprintf("%s module account total does not equal the amount in each validator account", providersTypes.StakedPoolName))
+			panic(fmt.Sprintf("%s module account total does not equal the amount in each validator account", servicersTypes.StakedPoolName))
 		}
 	}
 	return
 }
 
-func createTestPlatforms(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak platformsKeeper.Keeper, sk authentication.Keeper) (accs platformsTypes.Platforms) {
+func createTestProviders(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak providersKeeper.Keeper, sk authentication.Keeper) (accs providersTypes.Providers) {
 	ethereum := hex.EncodeToString([]byte{01})
 	for i := 0; i < numAccs; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey := privKey.PublicKey()
 		addr := sdk.Address(pubKey.Address())
-		platform := platformsTypes.NewPlatform(addr, pubKey, []string{ethereum}, valCoins)
+		provider := providersTypes.NewProvider(addr, pubKey, []string{ethereum}, valCoins)
 		// set the vals from the data
 		// calculate relays
-		platform.MaxRelays = ak.CalculatePlatformRelays(ctx, platform)
-		ak.SetPlatform(ctx, platform)
-		ak.SetStakedPlatform(ctx, platform)
-		accs = append(accs, platform)
+		provider.MaxRelays = ak.CalculateProviderRelays(ctx, provider)
+		ak.SetProvider(ctx, provider)
+		ak.SetStakedProvider(ctx, provider)
+		accs = append(accs, provider)
 	}
 	stakedTokens := sdk.NewInt(int64(numAccs)).Mul(valCoins)
 	// take the staked amount and create the corresponding coins object
@@ -331,7 +331,7 @@ func createTestPlatforms(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak platf
 	stakedPool := ak.GetStakedPool(ctx)
 	// if the stakedPool is nil
 	if stakedPool == nil {
-		panic(fmt.Sprintf("%s module account has not been set", platformsTypes.StakedPoolName))
+		panic(fmt.Sprintf("%s module account has not been set", providersTypes.StakedPoolName))
 	}
 	// add coins if not provided on genesis (there's an option to provide the coins in genesis)
 	if stakedPool.GetCoins().IsZero() {
@@ -342,7 +342,7 @@ func createTestPlatforms(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak platf
 	} else {
 		// if it is provided in the genesis file then ensure the two are equal
 		if !stakedPool.GetCoins().IsEqual(stakedCoins) {
-			panic(fmt.Sprintf("%s module account total does not equal the amount in each platform account", platformsTypes.StakedPoolName))
+			panic(fmt.Sprintf("%s module account total does not equal the amount in each provider account", providersTypes.StakedPoolName))
 		}
 	}
 	return
@@ -366,7 +366,7 @@ func simulateRelays(t *testing.T, k Keeper, ctx *sdk.Ctx, maxRelays int) (npk cr
 	ethereum := hex.EncodeToString([]byte{01})
 	clientKey := getRandomPrivateKey()
 	validHeader = types.SessionHeader{
-		PlatformPubKey:     getTestPlatform().PublicKey.RawString(),
+		ProviderPubKey:     getTestProvider().PublicKey.RawString(),
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}
@@ -377,28 +377,28 @@ func simulateRelays(t *testing.T, k Keeper, ctx *sdk.Ctx, maxRelays int) (npk cr
 
 	// NOTE Add a minimum of 5 proofs to memInvoice to be able to create a merkle tree
 	for j := 0; j < maxRelays; j++ {
-		proof := createProof(getTestPlatformPrivateKey(), clientKey, npk, ethereum, j)
+		proof := createProof(getTestProviderPrivateKey(), clientKey, npk, ethereum, j)
 		types.SetProof(validHeader, types.RelayEvidence, proof, sdk.NewInt(100000))
 	}
 	mockCtx := new(Ctx)
 	mockCtx.On("KVStore", k.storeKey).Return((*ctx).KVStore(k.storeKey))
 	mockCtx.On("PrevCtx", validHeader.SessionBlockHeight).Return(*ctx, nil)
 	mockCtx.On("Logger").Return((*ctx).Logger())
-	keys = simulateRelayKeys{getTestPlatformPrivateKey(), clientKey}
+	keys = simulateRelayKeys{getTestProviderPrivateKey(), clientKey}
 	return
 }
 func createProof(private, client crypto.PrivateKey, npk crypto.PublicKey, chain string, entropy int) types.Proof {
 	aat := types.AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: private.PublicKey().RawString(),
+		ProviderPublicKey: private.PublicKey().RawString(),
 		ClientPublicKey:   client.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	sig, err := private.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
-	aat.PlatformSignature = hex.EncodeToString(sig)
+	aat.ProviderSignature = hex.EncodeToString(sig)
 	proof := types.RelayProof{
 		Entropy:            int64(entropy + 1),
 		RequestHash:        aat.HashString(), // fake

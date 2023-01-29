@@ -11,7 +11,7 @@ import (
 )
 
 func TestValidateGenesis(t *testing.T) {
-	platformPubKeyClaim := getRandomPubKey().RawString()
+	providerPubKeyClaim := getRandomPubKey().RawString()
 	pk := getRandomPubKey()
 	servicerAddr := pk.Address()
 	nn := hex.EncodeToString([]byte{01})
@@ -29,7 +29,7 @@ func TestValidateGenesis(t *testing.T) {
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				PlatformPubKey:     platformPubKeyClaim,
+				ProviderPubKey:     providerPubKeyClaim,
 				Chain:              nn,
 				SessionBlockHeight: 1,
 			},
@@ -48,7 +48,7 @@ func TestValidateGenesis(t *testing.T) {
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				PlatformPubKey:     platformPubKeyClaim,
+				ProviderPubKey:     providerPubKeyClaim,
 				Chain:              nn,
 				SessionBlockHeight: 1,
 			},
@@ -67,7 +67,7 @@ func TestValidateGenesis(t *testing.T) {
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				PlatformPubKey:     platformPubKeyClaim,
+				ProviderPubKey:     providerPubKeyClaim,
 				Chain:              nn,
 				SessionBlockHeight: 1,
 			},
@@ -106,7 +106,7 @@ func TestValidateGenesis(t *testing.T) {
 }
 
 func TestDefaultGenesisState(t *testing.T) {
-	platformPubKeyClaim := getRandomPubKey().RawString()
+	providerPubKeyClaim := getRandomPubKey().RawString()
 	pk := getRandomPubKey()
 	servicerAddr := pk.Address()
 	nn := hex.EncodeToString([]byte{01})
@@ -124,7 +124,7 @@ func TestDefaultGenesisState(t *testing.T) {
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				PlatformPubKey:     platformPubKeyClaim,
+				ProviderPubKey:     providerPubKeyClaim,
 				Chain:              nn,
 				SessionBlockHeight: 1,
 			},

@@ -14,20 +14,20 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 	relayTimeStart := time.Now()
 	// get the latest session block height because this relay will correspond with the latest session
 	sessionBlockHeight := k.GetLatestSessionBlockHeight(ctx)
-	// get self provider (your validator) from the current state
+	// get self servicer (your validator) from the current state
 	pk, err := k.GetSelfPrivKey(ctx)
 	if err != nil {
 		return nil, err
 	}
 	selfAddr := sdk.Address(pk.PublicKey().Address())
-	// retrieve the nonNative blockchains your provider is hosting
+	// retrieve the nonNative blockchains your servicer is hosting
 	hostedBlockchains := k.GetHostedBlockchains()
 	// ensure the validity of the relay
-	maxPossibleRelays, err := relay.Validate(ctx, k.posKeeper, k.platformKeeper, k, selfAddr, hostedBlockchains, sessionBlockHeight)
+	maxPossibleRelays, err := relay.Validate(ctx, k.posKeeper, k.providerKeeper, k, selfAddr, hostedBlockchains, sessionBlockHeight)
 	if err != nil {
 		if vc.GlobalViperConfig.RelayErrors {
 			ctx.Logger().Error(
-				fmt.Sprintf("could not validate relay for platform: %s for chainID: %v with error: %s",
+				fmt.Sprintf("could not validate relay for provider: %s for chainID: %v with error: %s",
 					relay.Proof.ServicerPubKey,
 					relay.Proof.Blockchain,
 					err.Error(),
@@ -35,7 +35,7 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 			)
 			ctx.Logger().Debug(
 				fmt.Sprintf(
-					"could not validate relay for platform: %s, for chainID %v on provider %s, at session height: %v, with error: %s",
+					"could not validate relay for provider: %s, for chainID %v on servicer %s, at session height: %v, with error: %s",
 					relay.Proof.ServicerPubKey,
 					relay.Proof.Blockchain,
 					selfAddr.String(),
@@ -80,7 +80,7 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 
 // "HandleChallenge" - Handles a client relay response challenge request
 func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidData) (*vc.ChallengeResponse, sdk.Error) {
-	// get self provider (your validator) from the current state
+	// get self servicer (your validator) from the current state
 	selfNode := k.GetSelfAddress(ctx)
 	sessionBlkHeight := k.GetLatestSessionBlockHeight(ctx)
 	// get the session context
@@ -88,14 +88,14 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 	if er != nil {
 		return nil, sdk.ErrInternal(er.Error())
 	}
-	// get the platformlication that staked on behalf of the client
-	platform, found := k.GetPlatformFromPublicKey(sessionCtx, challenge.MinorityResponse.Proof.Token.PlatformPublicKey)
+	// get the providerlication that staked on behalf of the client
+	provider, found := k.GetProviderFromPublicKey(sessionCtx, challenge.MinorityResponse.Proof.Token.ProviderPublicKey)
 	if !found {
-		return nil, vc.NewPlatformNotFoundError(vc.ModuleName)
+		return nil, vc.NewProviderNotFoundError(vc.ModuleName)
 	}
 	// generate header
 	header := vc.SessionHeader{
-		PlatformPubKey:     challenge.MinorityResponse.Proof.Token.PlatformPublicKey,
+		ProviderPubKey:     challenge.MinorityResponse.Proof.Token.ProviderPublicKey,
 		Chain:              challenge.MinorityResponse.Proof.Blockchain,
 		SessionBlockHeight: sessionCtx.BlockHeight(),
 	}
@@ -116,12 +116,12 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 		vc.SetSession(session)
 	}
 	// validate the challenge
-	err := challenge.ValidateLocal(header, platform.GetMaxRelays(), platform.GetChains(), int(k.SessionNodeCount(sessionCtx)), session.SessionProviders, selfNode)
+	err := challenge.ValidateLocal(header, provider.GetMaxRelays(), provider.GetChains(), int(k.SessionNodeCount(sessionCtx)), session.SessionServicers, selfNode)
 	if err != nil {
 		return nil, err
 	}
 	// store the challenge in memory
-	challenge.Store(platform.GetMaxRelays())
+	challenge.Store(provider.GetMaxRelays())
 	// update metric
 	vc.GlobalServiceMetric().AddChallengeFor(header.Chain)
 	return &vc.ChallengeResponse{Response: fmt.Sprintf("successfully stored challenge proof for %s", challenge.MinorityResponse.Proof.ServicerPubKey)}, nil

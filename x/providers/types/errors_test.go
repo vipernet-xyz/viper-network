@@ -2,469 +2,354 @@ package types
 
 import (
 	"fmt"
-	"math/rand"
-	"reflect"
 	"strings"
 	"testing"
 
-	"github.com/vipernet-xyz/viper-network/types"
-
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	tmtypes "github.com/tendermint/tendermint/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
-var codespace = types.CodespaceType(ModuleName)
+var codespace = sdk.CodespaceType("provider")
 
-func TestErrBadDelegationAmount(t *testing.T) {
+func TestError_ErrNoChains(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Bad Delegation Amount", args{codespace: codespace}, types.NewError(codespace, CodeInvalidDelegation, "amount must be > 0")},
+		{
+			name: "returns error for stake on unhosted blockchain",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(116), "validator must stake with hosted blockchains"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrBadDelegationAmount(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrBadDelegationAmount() = %v, want %v", got, tt.want)
+			if got := ErrNoChains(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrorNoChains(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrBadDenom(t *testing.T) {
+func TestError_ErrNilProviderAddr(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Bad coin Denom", args{codespace: codespace}, types.NewError(codespace, CodeInvalidDelegation, "invalid coin denomination")},
+		{
+			name: "returns error provider address is nil",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(103), "provider address is nil"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrBadDenom(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrBadDenom() = %v, want %v", got, tt.want)
+			if got := ErrNilProviderAddr(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrNilProviderAddr(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrBadSendAmount(t *testing.T) {
+func TestError_ErrProviderStatus(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Bad Send Amount", args{codespace: codespace}, types.NewError(codespace, CodeBadSend, "the amount to send must be positive")},
+		{
+			name: "returns error status is invalid",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(110), "provider status is not valid"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrBadSendAmount(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrBadSendAmount() = %v, want %v", got, tt.want)
+			if got := ErrProviderStatus(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrProviderStatus(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrBadValidatorAddr(t *testing.T) {
+func TestError_ErrNoProviderFound(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Bad Validator Address", args{codespace: codespace}, types.NewError(codespace, CodeInvalidValidator, "validator does not exist for that address")},
+		{
+			name: "returns error provider not found for address",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(101), "provider does not exist for that address"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNoValidatorFound(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNoValidatorFound() = %v, want %v", got, tt.want)
+			if got := ErrNoProviderFound(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrNoProviderFound(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrCantHandleEvidence(t *testing.T) {
+func TestError_ErrBadStakeAmount(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Can't Store Evidence", args{codespace: codespace}, types.NewError(codespace, CodeCantHandleEvidence, "Warning: the DS evidence is unable to be handled")},
+		{
+			name: "returns error stake amount is invalid",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(115), "the stake amount is invalid"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrCantHandleEvidence(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrCantHandleEvidence() = %v, want %v", got, tt.want)
+			if got := ErrBadStakeAmount(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrBadStakeAmount(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrMinimumStake(t *testing.T) {
+func TestError_ErrNotEnoughCoins(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Minimun Stake", args{codespace: codespace}, types.NewError(codespace, CodeMinimumStake, "validator isn't staking above the minimum")},
+		{
+			name: "returns error provider does not have enough coins",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(112), "provider does not have enough coins in their account"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrMinimumStake(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrMinimumStake() = %v, want %v", got, tt.want)
+			if got := ErrNotEnoughCoins(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrNotEnoughCoins(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrMissingSelfDelegation(t *testing.T) {
+func TestError_ErrProviderPubKeyExists(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Missing Self Delegation", args{codespace: codespace}, types.NewError(codespace, CodeMissingSelfDelegation, "validator has no self-delegation; cannot be unjailed")},
+		{
+			name: "returns error provider already exists for public key",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(101), "provider already exist for this pubkey, must use new provider pubkey"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrMissingSelfDelegation(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrMissingSelfDelegation() = %v, want %v", got, tt.want)
+			if got := ErrProviderPubKeyExists(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrProviderPubKeyExists(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrNilValidatorAddr(t *testing.T) {
+func TestError_ErrMinimumStake(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Nil Validator Address", args{codespace: codespace}, types.NewError(codespace, CodeInvalidInput, "validator address is nil")},
+		{
+			name: "returns error provider staking lower than minimum",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(111), "provider isn't staking above the minimum"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNilValidatorAddr(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNilValidatorAddr() = %v, want %v", got, tt.want)
+			if got := ErrMinimumStake(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrMinimumStake(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrNoChains(t *testing.T) {
+func TestError_ErrNoProviderFoundForAddress(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"No Chains", args{codespace: codespace}, types.NewError(codespace, CodeNoChains, "validator must stake with hosted blockchains")},
+		{
+			name: "returns error providerlicaiton not found",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(101), "that address is not associated with any known provider"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNoChains(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNoChains() = %v, want %v", got, tt.want)
+			if got := ErrNoProviderForAddress(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrNoProviderForAddress(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrNoServiceURL(t *testing.T) {
+func TestError_ErrBadProviderAddr(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"No Service URL", args{codespace: codespace}, types.NewError(codespace, CodeNoServiceURL, "validator must stake with a serviceurl")},
+		{
+			name: "returns error provider does not exist for address",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(101), "provider does not exist for that address"),
+		},
 	}
+
 	for _, tt := range tests {
+
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNoServiceURL(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNoServiceURL() = %v, want %v", got, tt.want)
+			if got := ErrBadProviderAddr(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrBadProviderAddr(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrNoSigningInfoFound(t *testing.T) {
+func TestError_ErrProviderNotJailed(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
-		consAddr  types.Address
+		codespace sdk.CodespaceType
 	}
-	var pub ed25519.PubKeyEd25519
-	_, err := rand.Read(pub[:])
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
-	ca := types.Address(pub.Address())
-
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"No Signing Info Found", args{codespace: codespace, consAddr: ca}, types.NewError(codespace, CodeMissingSigningInfo, fmt.Sprintf("no signing info found for address: %s", ca))},
+		{
+			name: "returns error provider is not jailed",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(105), "provider not jailed, cannot be unjailed"),
+		},
 	}
+
 	for _, tt := range tests {
+
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNoSigningInfoFound(tt.args.codespace, tt.args.consAddr); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNoSigningInfoFound() = %v, want %v", got, tt.want)
+			if got := ErrProviderNotJailed(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrProviderNotJailed(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrNoValidatorForAddress(t *testing.T) {
+func TestError_ErrMissingProviderStake(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"No Validator For Address", args{codespace: codespace}, types.NewError(codespace, CodeInvalidValidator, "that address is not associated with any known validator")},
+		{
+			name: "returns error provider has no stake",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(106), "provider has no stake; cannot be unjailed"),
+		},
 	}
+
 	for _, tt := range tests {
+
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNoValidatorForAddress(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNoValidatorForAddress() = %v, want %v", got, tt.want)
+			if got := ErrMissingProviderStake(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrMissingProviderStake(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrNoValidatorFound(t *testing.T) {
+func TestError_ErrStakeTooLow(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"No Validator Found", args{codespace: codespace}, types.NewError(codespace, CodeInvalidValidator, "validator does not exist for that address")},
+		{
+			name: "returns error provider stke lower than delegation",
+			args: args{codespace},
+			want: sdk.NewError(codespace, sdk.CodeType(105), "provider's self delegation less than min stake, cannot be unjailed"),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNoValidatorFound(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNoValidatorFound() = %v, want %v", got, tt.want)
+			if got := ErrStakeTooLow(tt.args.codespace); got.Error() != tt.want.Error() {
+				t.Errorf("ErrStakeTooLow(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func TestErrNotEnoughCoins(t *testing.T) {
+func TestError_ErrProviderPubKeyTypeNotSupported(t *testing.T) {
 	type args struct {
-		codespace types.CodespaceType
+		codespace sdk.CodespaceType
+		types     []string
+		keyType   string
 	}
 	tests := []struct {
 		name string
-		args args
-		want types.Error
+		args
+		want sdk.Error
 	}{
-		{"Not Enough Coins", args{codespace: codespace}, types.NewError(codespace, CodeNotEnoughCoins, "validator does not have enough coins in their account")},
+		{
+			name: "returns error provider does not exist",
+			args: args{codespace, []string{"ed25519", "blake2b"}, "int"},
+			want: sdk.NewError(
+				codespace,
+				sdk.CodeType(101),
+				fmt.Sprintf("provider pubkey type %s is not supported, must use %s", "int", strings.Join([]string{"ed25519", "blake2b"}, ","))),
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrNotEnoughCoins(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrNotEnoughCoins() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrSelfDelegationTooLowToUnjail(t *testing.T) {
-	type args struct {
-		codespace types.CodespaceType
-	}
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Self Delegation Too Low To Unjail", args{codespace: codespace}, types.NewError(codespace, CodeValidatorNotJailed, "validator's self delegation less than MinSelfDelegation, cannot be unjailed")},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrSelfDelegationTooLowToUnjail(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrSelfDelegationTooLowToUnjail() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrValidatorJailed(t *testing.T) {
-	type args struct {
-		codespace types.CodespaceType
-	}
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Validator Jailed", args{codespace: codespace}, types.NewError(codespace, CodeValidatorJailed, "validator jailed")},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrValidatorJailed(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrValidatorJailed() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrValidatorNotJailed(t *testing.T) {
-	type args struct {
-		codespace types.CodespaceType
-	}
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Validator Not Jailed", args{codespace: codespace}, types.NewError(codespace, CodeValidatorNotJailed, "validator not jailed, cannot be unjailed")},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrValidatorNotJailed(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrValidatorNotJailed() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrValidatorPubKeyExists(t *testing.T) {
-	type args struct {
-		codespace types.CodespaceType
-	}
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Validator Public Key Exist", args{codespace: codespace}, types.NewError(codespace, CodeInvalidValidator, "validator already exist for this pubkey, must use new validator pubkey")},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrValidatorPubKeyExists(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrValidatorPubKeyExists() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrValidatorPubKeyTypeNotSupported(t *testing.T) {
-	type args struct {
-		codespace      types.CodespaceType
-		keyType        string
-		supportedTypes []string
-	}
-
-	keyType := "secp256k1"
-	keyTypes := []string{tmtypes.ABCIPubKeyTypeEd25519}
-	msg := fmt.Sprintf("validator pubkey type %s is not supported, must use %s", keyType, strings.Join(keyTypes, ","))
-
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Validator Public Key type Not Supported", args{codespace: codespace, keyType: keyType, supportedTypes: keyTypes}, types.NewError(codespace, CodeInvalidValidator, msg)},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrValidatorPubKeyTypeNotSupported(tt.args.codespace, tt.args.keyType, tt.args.supportedTypes); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrValidatorPubKeyTypeNotSupported() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrValidatorStatus(t *testing.T) {
-	type args struct {
-		codespace types.CodespaceType
-	}
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Validator Status", args{codespace: codespace}, types.NewError(codespace, CodeInvalidStatus, "validator status is not valid")},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrValidatorStatus(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrValidatorStatus() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrValidatorTombstoned(t *testing.T) {
-	type args struct {
-		codespace types.CodespaceType
-	}
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Validator Already Tombstoned", args{codespace: codespace}, types.NewError(codespace, CodeValidatorTombstoned, "Warning: validator is already tombstoned")},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrValidatorTombstoned(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrValidatorTombstoned() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestErrValidatorWaitingToUnstake(t *testing.T) {
-	type args struct {
-		codespace types.CodespaceType
-	}
-	tests := []struct {
-		name string
-		args args
-		want types.Error
-	}{
-		{"Validator Waiting To Unstake", args{codespace: codespace}, types.NewError(codespace, CodeWaitingValidator, "validator is currently waiting to unstake")},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ErrValidatorWaitingToUnstake(tt.args.codespace); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ErrValidatorWaitingToUnstake() = %v, want %v", got, tt.want)
+			if got := ErrProviderPubKeyTypeNotSupported(tt.args.codespace, tt.args.keyType, tt.args.types); got.Error() != tt.want.Error() {
+				t.Errorf("ErrProviderPubKeyTypeNotSupported(): returns %v but want %v", got, tt.want)
 			}
 		})
 	}

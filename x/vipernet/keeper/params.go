@@ -10,8 +10,8 @@ func ParamKeyTable() sdk.KeyTable {
 	return sdk.NewKeyTable().RegisterParamSet(&types.Params{})
 }
 
-// "SessionNodeCount" - Returns the session provider count parameter from the paramstore
-// Number of providers dispatched in a single session
+// "SessionNodeCount" - Returns the session servicer count parameter from the paramstore
+// Number of servicers dispatched in a single session
 func (k Keeper) SessionNodeCount(ctx sdk.Ctx) (res int64) {
 	k.Paramstore.Get(ctx, types.KeySessionNodeCount, &res)
 	return
@@ -25,7 +25,7 @@ func (k Keeper) ClaimExpiration(ctx sdk.Ctx) (res int64) {
 }
 
 // "ReplayAttackBurn" - Returns the replay attack burn parameter from the paramstore
-// The multiplier for how heavily providers are burned for replay attacks
+// The multiplier for how heavily servicers are burned for replay attacks
 func (k Keeper) ReplayAttackBurnMultiplier(ctx sdk.Ctx) (res int64) {
 	k.Paramstore.Get(ctx, types.KeyReplayAttackBurnMultiplier, &res)
 	return

@@ -15,87 +15,87 @@ import (
 )
 
 var (
-	_ module.PlatformModule      = PlatformModule{}
-	_ module.PlatformModuleBasic = PlatformModuleBasic{}
+	_ module.ProviderModule      = ProviderModule{}
+	_ module.ProviderModuleBasic = ProviderModuleBasic{}
 )
 
 const moduleName = "governance"
 
-// PlatformModuleBasic app module basics object
-type PlatformModuleBasic struct{}
+// ProviderModuleBasic app module basics object
+type ProviderModuleBasic struct{}
 
 // Name module name
-func (PlatformModuleBasic) Name() string {
+func (ProviderModuleBasic) Name() string {
 	return moduleName
 }
 
 // RegisterCodec register module codec
-func (PlatformModuleBasic) RegisterCodec(cdc *codec.Codec) {
+func (ProviderModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	types.RegisterCodec(cdc)
 }
 
 // DefaultGenesis default genesis state
-func (PlatformModuleBasic) DefaultGenesis() json.RawMessage {
+func (ProviderModuleBasic) DefaultGenesis() json.RawMessage {
 	return types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 // ValidateGenesis module validate genesis
-func (PlatformModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
+func (ProviderModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
 
-// PlatformModule implements an platform module for the staking module.
-type PlatformModule struct {
-	PlatformModuleBasic
+// ProviderModule implements an provider module for the staking module.
+type ProviderModule struct {
+	ProviderModuleBasic
 	keeper keeper.Keeper
 }
 
-func (pm PlatformModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+func (pm ProviderModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	return &abci.ConsensusParams{}
 }
 
-// NewPlatformModule creates a new PlatformModule object
-func NewPlatformModule(keeper keeper.Keeper) PlatformModule {
-	return PlatformModule{
-		PlatformModuleBasic: PlatformModuleBasic{},
+// NewProviderModule creates a new ProviderModule object
+func NewProviderModule(keeper keeper.Keeper) ProviderModule {
+	return ProviderModule{
+		ProviderModuleBasic: ProviderModuleBasic{},
 		keeper:              keeper,
 	}
 }
 
 // Name returns the staking module's name.
-func (PlatformModule) Name() string {
+func (ProviderModule) Name() string {
 	return types.ModuleName
 }
 
 // RegisterInvariants registers the staking module invariants.
-func (pm PlatformModule) RegisterInvariants(_ sdk.InvariantRegistry) {
+func (pm ProviderModule) RegisterInvariants(_ sdk.InvariantRegistry) {
 }
 
-func (pm PlatformModule) UpgradeCodec(ctx sdk.Ctx) {
+func (pm ProviderModule) UpgradeCodec(ctx sdk.Ctx) {
 	pm.keeper.UpgradeCodec(ctx)
 }
 
 // Route returns the message routing key for the staking module.
-func (PlatformModule) Route() string {
+func (ProviderModule) Route() string {
 	return types.RouterKey
 }
 
 // NewHandler returns an sdk.Handler for the staking module.
-func (pm PlatformModule) NewHandler() sdk.Handler {
+func (pm ProviderModule) NewHandler() sdk.Handler {
 	return NewHandler(pm.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.
-func (PlatformModule) QuerierRoute() string {
+func (ProviderModule) QuerierRoute() string {
 	return types.QuerierRoute
 }
 
 // NewQuerierHandler returns the staking module sdk.Querier.
-func (pm PlatformModule) NewQuerierHandler() sdk.Querier {
+func (pm ProviderModule) NewQuerierHandler() sdk.Querier {
 	return keeper.NewQuerier(pm.keeper)
 }
 
 // InitGenesis performs genesis initialization for the pos module. It returns
 // no validator updates.
-func (pm PlatformModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
+func (pm ProviderModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if ctx.AppVersion() == "" {
 		fmt.Println(fmt.Errorf("must set app version in context, set with ctx.WithAppVersion(<version>)").Error())
@@ -111,13 +111,13 @@ func (pm PlatformModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.V
 
 // ExportGenesis returns the exported genesis state as raw bytes for the staking
 // module.
-func (pm PlatformModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
+func (pm ProviderModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
 	gs := pm.keeper.ExportGenesis(ctx)
 	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // BeginBlock module begin-block
-func (pm PlatformModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+func (pm ProviderModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 
 	ActivateAdditionalParametersACL(ctx, pm)
 
@@ -143,7 +143,7 @@ func (pm PlatformModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 }
 
 // ActivateAdditionalParametersACL ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
-func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm PlatformModule) {
+func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm ProviderModule) {
 
 	// activate BlockSizeModify params
 	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
@@ -156,16 +156,16 @@ func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm PlatformModule) {
 	//activate RSCALKey params
 	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
 		params := pm.keeper.GetParams(ctx)
-		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "MinServicerStakeBinWidth"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "ServicerStakeWeight"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "MaxServicerStakeBin"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.ProvidersSubspace, "ServicerStakeBinExponent"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "MinServicerStakeBinWidth"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "ServicerStakeWeight"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "MaxServicerStakeBin"), pm.keeper.GetDAOOwner(ctx))
+		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "ServicerStakeBinExponent"), pm.keeper.GetDAOOwner(ctx))
 		pm.keeper.SetParams(ctx, params)
 	}
 }
 
 // EndBlock returns the end blocker for the staking module. It returns no validator
 // updates.
-func (pm PlatformModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (pm ProviderModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }

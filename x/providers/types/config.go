@@ -1,7 +1,7 @@
 package types
 
-var ValidatorCacheSize int64 = 10000
+var ProviderCacheSize int64 = 5
 
-func InitConfig(validatorCacheSize int64) {
-	ValidatorCacheSize = validatorCacheSize
+func InitConfig(providerCacheSize int64) {
+	ProviderCacheSize = providerCacheSize
 }

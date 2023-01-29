@@ -9,7 +9,7 @@ import (
 
 const (
 	ACLKeySep         = "/"
-	ProvidersSubspace = "pos"
+	ServicersSubspace = "pos"
 	VipercoreSubspace = "vipernet"
 )
 

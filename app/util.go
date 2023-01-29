@@ -15,8 +15,8 @@ import (
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 )
 
-func GenerateAAT(platformPubKey, clientPubKey string, key crypto.PrivateKey) (aatjson []byte, err error) {
-	aat, er := viperKeeper.AATGeneration(platformPubKey, clientPubKey, key)
+func GenerateAAT(providerPubKey, clientPubKey string, key crypto.PrivateKey) (aatjson []byte, err error) {
+	aat, er := viperKeeper.AATGeneration(providerPubKey, clientPubKey, key)
 	if er != nil {
 		return nil, er
 	}

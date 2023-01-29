@@ -14,10 +14,10 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	platformsKeeper "github.com/vipernet-xyz/viper-network/x/platforms/keeper"
-	platformsTypes "github.com/vipernet-xyz/viper-network/x/platforms/types"
 	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
+	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -40,8 +40,8 @@ type ViperCoreApp struct {
 	Tkeys map[string]*sdk.TransientStoreKey
 	// Keepers for each module
 	accountKeeper    authentication.Keeper
-	platformsKeeper  platformsKeeper.Keeper
 	providersKeeper  providersKeeper.Keeper
+	servicersKeeper  servicersKeeper.Keeper
 	governanceKeeper governanceKeeper.Keeper
 	viperKeeper      viperKeeper.Keeper
 	// Module Manager
@@ -57,9 +57,9 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, providersTypes.StoreKey, platformsTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
 	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(providersTypes.TStoreKey, platformsTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -199,11 +199,11 @@ var (
 	// module account permissions
 	moduleAccountPermissions = map[string][]string{
 		authentication.FeeCollectorName: {authentication.Burner, authentication.Minter, authentication.Staking},
+		servicersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
-		platformsTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Minter, authentication.Staking},
-		providersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
-		platformsTypes.ModuleName:       nil,
+		servicersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
+		providersTypes.ModuleName:       nil,
 	}
 )
 

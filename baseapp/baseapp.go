@@ -21,7 +21,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
-	types2 "github.com/vipernet-xyz/viper-network/x/platforms/types"
+	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/tendermint/tendermint/evidence"
 	"github.com/tendermint/tendermint/node"
@@ -516,7 +516,7 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	switch path[0] {
 	// "/app" prefix for special application queries
 	case "app":
-		return handleQueryPlatform(app, path, req)
+		return handleQueryProvider(app, path, req)
 	case "store":
 		return handleQueryStore(app, path, req)
 
@@ -531,7 +531,7 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	return sdk.ErrUnknownRequest(msg).QueryResult()
 }
 
-func handleQueryPlatform(app *BaseApp, path []string, req abci.RequestQuery) (res abci.ResponseQuery) {
+func handleQueryProvider(app *BaseApp, path []string, req abci.RequestQuery) (res abci.ResponseQuery) {
 	if len(path) >= 2 {
 		var result sdk.Result
 
@@ -813,7 +813,7 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 		msg := tx.GetMsg()
 		messageType = msg.Type()
 		recipient = msg.GetRecipient()
-		if signerPK == nil || messageType == types2.MsgPlatformStakeName {
+		if signerPK == nil || messageType == types2.MsgProviderStakeName {
 			signers := msg.GetSigners()
 			if len(signers) >= 1 {
 				signer = signers[0]

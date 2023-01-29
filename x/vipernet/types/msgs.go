@@ -41,7 +41,7 @@ func (msg MsgClaim) ValidateBasic() sdk.Error {
 		return NewEmptyProofsError(ModuleName)
 	}
 	// validate the public key format
-	if err := PubKeyVerification(msg.SessionHeader.PlatformPubKey); err != nil {
+	if err := PubKeyVerification(msg.SessionHeader.ProviderPubKey); err != nil {
 		return NewPubKeyError(ModuleName, err)
 	}
 	// validate the address format
@@ -88,13 +88,13 @@ func (msg MsgClaim) GetRecipient() sdk.Address {
 	return nil
 }
 
-// "IsEmpty" - Returns true if the EvidenceType == 0, this should only hplatformen on initialization and MsgClaim{} calls
+// "IsEmpty" - Returns true if the EvidenceType == 0, this should only hprovideren on initialization and MsgClaim{} calls
 func (msg MsgClaim) IsEmpty() bool {
 	return msg.EvidenceType == 0
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// "MsgProof" - Proves the previous claim by providing the merkle Proof and the leaf provider
+// "MsgProof" - Proves the previous claim by providing the merkle Proof and the leaf servicer
 type MsgProof struct {
 	MerkleProof  MerkleProof  `json:"merkle_proofs"` // the merkleProof needed to verify the proofs
 	Leaf         Proof        `json:"leaf"`          // the needed to verify the Proof

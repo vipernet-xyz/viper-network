@@ -13,9 +13,9 @@ import (
 )
 
 func TestRelayProof_ValidateLocal(t *testing.T) {
-	platformPrivateKey := GetRandomPrivateKey()
+	providerPrivateKey := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	sPK := getRandomPubKey()
 	servicerPubKey := sPK.RawString()
 	verifyAddr := sPK.Address()
@@ -34,17 +34,17 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
-	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
+	providerSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
+	validProof.Token.ProviderSignature = hex.EncodeToString(providerSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -68,13 +68,13 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 	invalidProofNotHostedBlockchain.Blockchain = bitcoin
 	// invalid Proof AAT
 	invalidProofInvalidAAT := validProof
-	invalidProofInvalidAAT.Token.PlatformSignature = hex.EncodeToString(clientSignature) // wrong signature
+	invalidProofInvalidAAT.Token.ProviderSignature = hex.EncodeToString(clientSignature) // wrong signature
 	// invalid Proof Request ID
 	invalidProofRequestHash := validProof
 	invalidProofRequestHash.RequestHash = servicerPubKey
 	// invalid Proof no client signature
 	invalidProofClientSignature := validProof
-	invalidProofClientSignature.Signature = hex.EncodeToString(platformSignature) // wrong signature
+	invalidProofClientSignature.Signature = hex.EncodeToString(providerSignature) // wrong signature
 	tests := []struct {
 		name             string
 		proof            Proof
@@ -164,7 +164,7 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 }
 
 func TestRelayProof_Bytes(t *testing.T) {
-	platformPubKey := getRandomPubKey().RawString()
+	providerPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -176,9 +176,9 @@ func TestRelayProof_Bytes(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
@@ -191,7 +191,7 @@ func TestRelayProof_Bytes(t *testing.T) {
 }
 
 func TestRelayProof_HashAndHashString(t *testing.T) {
-	platformPubKey := getRandomPubKey().RawString()
+	providerPubKey := getRandomPubKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := getRandomPubKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -203,9 +203,9 @@ func TestRelayProof_HashAndHashString(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
@@ -216,9 +216,9 @@ func TestRelayProof_HashAndHashString(t *testing.T) {
 }
 
 func TestRelayProof_ValidateBasic(t *testing.T) {
-	platformPrivateKey := GetRandomPrivateKey()
+	providerPrivateKey := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -230,17 +230,17 @@ func TestRelayProof_ValidateBasic(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
-	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
+	providerSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
+	validProof.Token.ProviderSignature = hex.EncodeToString(providerSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -323,9 +323,9 @@ func TestRelayProof_ValidateBasic(t *testing.T) {
 }
 
 func TestRelayProof_SessionHeader(t *testing.T) {
-	platformPrivateKey := GetRandomPrivateKey()
+	providerPrivateKey := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
@@ -337,19 +337,19 @@ func TestRelayProof_SessionHeader(t *testing.T) {
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
-	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
+	providerSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
+	validProof.Token.ProviderSignature = hex.EncodeToString(providerSignature)
 	sh := SessionHeader{
-		PlatformPubKey:     validProof.Token.PlatformPublicKey,
+		ProviderPubKey:     validProof.Token.ProviderPublicKey,
 		Chain:              validProof.Blockchain,
 		SessionBlockHeight: validProof.SessionBlockHeight,
 	}
@@ -403,7 +403,7 @@ func TestChallengeProofInvalidData_ValidateBasic(t *testing.T) {
 }
 
 func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
-	validChallengeProofIVD, servicer1PK, servicer2PK, servicer3PK, platformPK, _, reporterPK := NewValidChallengeProof(t)
+	validChallengeProofIVD, servicer1PK, servicer2PK, servicer3PK, providerPK, _, reporterPK := NewValidChallengeProof(t)
 	safeCopyChallenge := func(c ChallengeProofInvalidData) ChallengeProofInvalidData {
 		p := ChallengeProofInvalidData{
 			MajorityResponses: make([]RelayResponse, 2),
@@ -416,7 +416,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	ser1PubKey := servicer1PK.PublicKey()
 	ser2PubKey := servicer2PK.PublicKey()
 	ser3PubKey := servicer3PK.PublicKey()
-	platformPubKey := platformPK.PublicKey()
+	providerPubKey := providerPK.PublicKey()
 	reporterPubKey := reporterPK.PublicKey()
 	// invalid challenge Proof duplicate
 	invalidProofDup := safeCopyChallenge(validChallengeProofIVD)
@@ -445,13 +445,13 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	minResp.Signature = hex.EncodeToString(sig)
 	invalidProofAllMajority.MinorityResponse = minResp
 	ethereum := hex.EncodeToString([]byte{01})
-	sessionProviders := SessionProviders{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(platformPubKey.Address())}
+	sessionServicers := SessionServicers{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(providerPubKey.Address())}
 	tests := []struct {
 		name                 string
 		proof                ChallengeProofInvalidData
 		maxRelays            sdk.BigInt
 		supportedBlockchains []string
-		sessionProviders     SessionProviders
+		sessionServicers     SessionServicers
 		reporterAddress      sdk.Address
 		hasError             bool
 	}{
@@ -460,7 +460,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                validChallengeProofIVD,
 			maxRelays:            sdk.NewInt(100000),
 			supportedBlockchains: []string{ethereum},
-			sessionProviders:     sessionProviders,
+			sessionServicers:     sessionServicers,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             false,
 		},
@@ -469,7 +469,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                validChallengeProofIVD,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionProviders:     sessionProviders,
+			sessionServicers:     sessionServicers,
 			reporterAddress:      sdk.Address([]byte("fake")),
 			hasError:             true,
 		},
@@ -478,7 +478,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                invalidProofDup,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionProviders:     sessionProviders,
+			sessionServicers:     sessionServicers,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -487,7 +487,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                invalidProofNoMajority,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionProviders:     sessionProviders,
+			sessionServicers:     sessionServicers,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -496,7 +496,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                invalidProofAllMajority,
 			maxRelays:            sdk.NewInt(10000),
 			supportedBlockchains: []string{ethereum},
-			sessionProviders:     sessionProviders,
+			sessionServicers:     sessionServicers,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -505,7 +505,7 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 			proof:                validChallengeProofIVD,
 			maxRelays:            sdk.ZeroInt(),
 			supportedBlockchains: []string{ethereum},
-			sessionProviders:     sessionProviders,
+			sessionServicers:     sessionServicers,
 			reporterAddress:      sdk.Address(reporterPubKey.Address()),
 			hasError:             true,
 		},
@@ -513,11 +513,11 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := SessionHeader{
-				PlatformPubKey:     tt.proof.MinorityResponse.Proof.Token.PlatformPublicKey,
+				ProviderPubKey:     tt.proof.MinorityResponse.Proof.Token.ProviderPublicKey,
 				Chain:              tt.proof.MinorityResponse.Proof.Blockchain,
 				SessionBlockHeight: tt.proof.MinorityResponse.Proof.SessionBlockHeight,
 			}
-			if err := tt.proof.ValidateLocal(h, tt.maxRelays, tt.supportedBlockchains, 5, tt.sessionProviders, tt.reporterAddress); (err != nil) != tt.hasError {
+			if err := tt.proof.ValidateLocal(h, tt.maxRelays, tt.supportedBlockchains, 5, tt.sessionServicers, tt.reporterAddress); (err != nil) != tt.hasError {
 				fmt.Println(tt.name)
 				fmt.Println(err)
 				t.Fatalf(err.Error())
@@ -526,13 +526,13 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	}
 }
 
-func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, ser1 crypto.PrivateKey, ser2 crypto.PrivateKey, ser3 crypto.PrivateKey, platform crypto.PrivateKey, cli crypto.PrivateKey, repor crypto.PrivateKey) {
-	platformPrivateKey := GetRandomPrivateKey()
+func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, ser1 crypto.PrivateKey, ser2 crypto.PrivateKey, ser3 crypto.PrivateKey, provider crypto.PrivateKey, cli crypto.PrivateKey, repor crypto.PrivateKey) {
+	providerPrivateKey := GetRandomPrivateKey()
 	servicerPrivKey1 := GetRandomPrivateKey()
 	servicerPrivKey2 := GetRandomPrivateKey()
 	servicerPrivKey3 := GetRandomPrivateKey()
 	clientPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	servicerPubKey := servicerPrivKey1.PublicKey().RawString()
 	servicerPubKey2 := servicerPrivKey2.PublicKey().RawString()
 	servicerPubKey3 := servicerPrivKey3.PublicKey().RawString()
@@ -549,17 +549,17 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
-	platformSignature, er := platformPrivateKey.Sign(validProof.Token.Hash())
+	providerSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.PlatformSignature = hex.EncodeToString(platformSignature)
+	validProof.Token.ProviderSignature = hex.EncodeToString(providerSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -574,17 +574,17 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
-	platformSignature, er = platformPrivateKey.Sign(validProof2.Token.Hash())
+	providerSignature, er = providerPrivateKey.Sign(validProof2.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof2.Token.PlatformSignature = hex.EncodeToString(platformSignature)
+	validProof2.Token.ProviderSignature = hex.EncodeToString(providerSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof2.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -599,17 +599,17 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		Blockchain:         ethereum,
 		Token: AAT{
 			Version:           "0.0.1",
-			PlatformPublicKey: platformPubKey,
+			ProviderPublicKey: providerPubKey,
 			ClientPublicKey:   clientPubKey,
-			PlatformSignature: "",
+			ProviderSignature: "",
 		},
 		Signature: "",
 	}
-	platformSignature, er = platformPrivateKey.Sign(validProof3.Token.Hash())
+	providerSignature, er = providerPrivateKey.Sign(validProof3.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof3.Token.PlatformSignature = hex.EncodeToString(platformSignature)
+	validProof3.Token.ProviderSignature = hex.EncodeToString(providerSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof3.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -659,13 +659,13 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 		},
 		MinorityResponse: minResp,
 		ReporterAddress:  sdk.Address(reporterAddr),
-	}, servicerPrivKey1, servicerPrivKey2, servicerPrivKey3, platformPrivateKey, clientPrivateKey, reporterPrivKey
+	}, servicerPrivKey1, servicerPrivKey2, servicerPrivKey3, providerPrivateKey, clientPrivateKey, reporterPrivKey
 }
 
 func TestChallengeProofInvalidData_SessionHeader(t *testing.T) {
 	c, _, _, _, _, _, _ := NewValidChallengeProof(t)
 	assert.Equal(t, c.SessionHeader(), SessionHeader{
-		PlatformPubKey:     c.MinorityResponse.Proof.Token.PlatformPublicKey,
+		ProviderPubKey:     c.MinorityResponse.Proof.Token.ProviderPublicKey,
 		Chain:              c.MinorityResponse.Proof.Blockchain,
 		SessionBlockHeight: c.MinorityResponse.Proof.SessionBlockHeight,
 	})

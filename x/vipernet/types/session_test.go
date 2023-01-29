@@ -8,17 +8,17 @@ import (
 )
 
 func TestNewSessionKey(t *testing.T) {
-	platformPubKey := getRandomPubKey()
+	providerPubKey := getRandomPubKey()
 	ctx := newContext(t, false).WithAppVersion("0.0.0")
 	blockhash := hex.EncodeToString(ctx.BlockHeader().LastBlockId.Hash)
 	ethereum := hex.EncodeToString([]byte{01})
 	bitcoin := hex.EncodeToString([]byte{02})
-	key1, err := NewSessionKey(platformPubKey.RawString(), ethereum, blockhash)
+	key1, err := NewSessionKey(providerPubKey.RawString(), ethereum, blockhash)
 	assert.Nil(t, err)
 	assert.NotNil(t, key1)
 	assert.NotEmpty(t, key1)
 	assert.Nil(t, HashVerification(hex.EncodeToString(key1)))
-	key2, err := NewSessionKey(platformPubKey.RawString(), bitcoin, blockhash)
+	key2, err := NewSessionKey(providerPubKey.RawString(), bitcoin, blockhash)
 	assert.Nil(t, err)
 	assert.NotNil(t, key2)
 	assert.NotEmpty(t, key2)
@@ -36,7 +36,7 @@ func TestSessionKey_Validate(t *testing.T) {
 	assert.Nil(t, realKey.Validate())
 }
 
-//func TestNewSessionProviders(t *testing.T) {
+//func TestNewSessionServicers(t *testing.T) {
 //	fakeSessionKey, err := hex.DecodeString("36f028580bb02cc8272a9a020f4200e346e276ae664e45ee80745574e2f5ab80")
 //	if err != nil {
 //		t.Fatalf(err.Error())
@@ -90,8 +90,8 @@ func TestSessionKey_Validate(t *testing.T) {
 //		t.Fatalf(err.Error())
 //	}
 //	ethereum := hex.EncodeToString([]byte{01})
-//	var allProviders []exported.ValidatorI
-//	provider12 := providersTypes.Validator{
+//	var allServicers []exported.ValidatorI
+//	servicer12 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey12.Address()),
 //		PublicKey:               fakePubKey12,
 //		Jailed:                  false,
@@ -101,7 +101,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider1 := providersTypes.Validator{
+//	servicer1 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey1.Address()),
 //		PublicKey:               (fakePubKey1),
 //		Jailed:                  false,
@@ -111,7 +111,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider2 := providersTypes.Validator{
+//	servicer2 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey2.Address()),
 //		PublicKey:               (fakePubKey2),
 //		Jailed:                  false,
@@ -121,7 +121,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider3 := providersTypes.Validator{
+//	servicer3 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey3.Address()),
 //		PublicKey:               (fakePubKey3),
 //		Jailed:                  false,
@@ -131,7 +131,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider4 := providersTypes.Validator{
+//	servicer4 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey4.Address()),
 //		PublicKey:               (fakePubKey4),
 //		Jailed:                  false,
@@ -141,7 +141,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider5 := providersTypes.Validator{
+//	servicer5 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey5.Address()),
 //		PublicKey:               (fakePubKey5),
 //		Jailed:                  false,
@@ -151,7 +151,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider6 := providersTypes.Validator{
+//	servicer6 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey6.Address()),
 //		PublicKey:               (fakePubKey6),
 //		Jailed:                  false,
@@ -161,7 +161,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider7 := providersTypes.Validator{
+//	servicer7 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey7.Address()),
 //		PublicKey:               (fakePubKey7),
 //		Jailed:                  false,
@@ -171,7 +171,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider8 := providersTypes.Validator{
+//	servicer8 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey8.Address()),
 //		PublicKey:               (fakePubKey8),
 //		Jailed:                  false,
@@ -181,7 +181,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider9 := providersTypes.Validator{
+//	servicer9 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey9.Address()),
 //		PublicKey:               (fakePubKey9),
 //		Jailed:                  false,
@@ -191,7 +191,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider10 := providersTypes.Validator{
+//	servicer10 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey10.Address()),
 //		PublicKey:               (fakePubKey10),
 //		Jailed:                  false,
@@ -201,7 +201,7 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	provider11 := providersTypes.Validator{
+//	servicer11 := servicersTypes.Validator{
 //		Address:                 sdk.Address(fakePubKey11.Address()),
 //		PublicKey:               (fakePubKey11),
 //		Jailed:                  false,
@@ -211,41 +211,41 @@ func TestSessionKey_Validate(t *testing.T) {
 //		StakedTokens:            sdk.NewInt(100000),
 //		UnstakingCompletionTime: time.Time{},
 //	}
-//	allProviders = make([]exported.ValidatorI, 12)
-//	allProviders[0] = provider12
-//	allProviders[1] = provider1
-//	allProviders[2] = provider2
-//	allProviders[3] = provider3
-//	allProviders[4] = provider4
-//	allProviders[5] = provider5
-//	allProviders[6] = provider6
-//	allProviders[7] = provider7
-//	allProviders[8] = provider8
-//	allProviders[9] = provider9
-//	allProviders[10] = provider10
-//	allProviders[11] = provider11
-//	k := MockPosKeeper{Validators: allProviders}
-//	sessionProviders, err := NewSessionProviders(newContext(t, false).WithPlatformVersion("0.0.0"), newContext(t, false).WithPlatformVersion("0.0.0"), k, ethereum, fakeSessionKey, 5)
+//	allServicers = make([]exported.ValidatorI, 12)
+//	allServicers[0] = servicer12
+//	allServicers[1] = servicer1
+//	allServicers[2] = servicer2
+//	allServicers[3] = servicer3
+//	allServicers[4] = servicer4
+//	allServicers[5] = servicer5
+//	allServicers[6] = servicer6
+//	allServicers[7] = servicer7
+//	allServicers[8] = servicer8
+//	allServicers[9] = servicer9
+//	allServicers[10] = servicer10
+//	allServicers[11] = servicer11
+//	k := MockPosKeeper{Validators: allServicers}
+//	sessionServicers, err := NewSessionServicers(newContext(t, false).WithProviderVersion("0.0.0"), newContext(t, false).WithProviderVersion("0.0.0"), k, ethereum, fakeSessionKey, 5)
 //	assert.Nil(t, err)
-//	assert.Len(t, sessionProviders, 5)
-//	assert.Contains(t, sessionProviders, allProviders[0].(providersTypes.Validator))
-//	assert.Contains(t, sessionProviders, allProviders[1].(providersTypes.Validator))
-//	assert.NotContains(t, sessionProviders, allProviders[2].(providersTypes.Validator))
-//	assert.NotContains(t, sessionProviders, allProviders[3].(providersTypes.Validator))
-//	assert.Contains(t, sessionProviders, allProviders[4].(providersTypes.Validator))
-//	assert.NotContains(t, sessionProviders, allProviders[5].(providersTypes.Validator))
-//	assert.NotContains(t, sessionProviders, allProviders[6].(providersTypes.Validator))
-//	assert.Contains(t, sessionProviders, allProviders[7].(providersTypes.Validator))
-//	assert.Contains(t, sessionProviders, allProviders[8].(providersTypes.Validator))
-//	assert.NotContains(t, sessionProviders, allProviders[9].(providersTypes.Validator))
-//	assert.NotContains(t, sessionProviders, allProviders[10].(providersTypes.Validator))
-//	assert.NotContains(t, sessionProviders, allProviders[11].(providersTypes.Validator))
-//	assert.True(t, sessionProviders.Contains(provider12))
-//	assert.True(t, sessionProviders.Contains(provider8))
-//	assert.True(t, sessionProviders.Contains(provider7))
-//	assert.True(t, sessionProviders.Contains(provider4))
-//	assert.True(t, sessionProviders.Contains(provider1))
-//	assert.False(t, sessionProviders.Contains(provider2))
-//	assert.Nil(t, sessionProviders.Validate(5))
-//	assert.NotNil(t, SessionProviders(make([]exported.ValidatorI, 5)).Validate(5))
+//	assert.Len(t, sessionServicers, 5)
+//	assert.Contains(t, sessionServicers, allServicers[0].(servicersTypes.Validator))
+//	assert.Contains(t, sessionServicers, allServicers[1].(servicersTypes.Validator))
+//	assert.NotContains(t, sessionServicers, allServicers[2].(servicersTypes.Validator))
+//	assert.NotContains(t, sessionServicers, allServicers[3].(servicersTypes.Validator))
+//	assert.Contains(t, sessionServicers, allServicers[4].(servicersTypes.Validator))
+//	assert.NotContains(t, sessionServicers, allServicers[5].(servicersTypes.Validator))
+//	assert.NotContains(t, sessionServicers, allServicers[6].(servicersTypes.Validator))
+//	assert.Contains(t, sessionServicers, allServicers[7].(servicersTypes.Validator))
+//	assert.Contains(t, sessionServicers, allServicers[8].(servicersTypes.Validator))
+//	assert.NotContains(t, sessionServicers, allServicers[9].(servicersTypes.Validator))
+//	assert.NotContains(t, sessionServicers, allServicers[10].(servicersTypes.Validator))
+//	assert.NotContains(t, sessionServicers, allServicers[11].(servicersTypes.Validator))
+//	assert.True(t, sessionServicers.Contains(servicer12))
+//	assert.True(t, sessionServicers.Contains(servicer8))
+//	assert.True(t, sessionServicers.Contains(servicer7))
+//	assert.True(t, sessionServicers.Contains(servicer4))
+//	assert.True(t, sessionServicers.Contains(servicer1))
+//	assert.False(t, sessionServicers.Contains(servicer2))
+//	assert.Nil(t, sessionServicers.Validate(5))
+//	assert.NotNil(t, SessionServicers(make([]exported.ValidatorI, 5)).Validate(5))
 //}

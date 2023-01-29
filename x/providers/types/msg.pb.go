@@ -26,18 +26,16 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type MsgProtoStake struct {
-	Publickey     []byte                                            `protobuf:"bytes,1,opt,name=Publickey,proto3" json:"public_key" yaml:"public_key"`
-	Chains        []string                                          `protobuf:"bytes,2,rep,name=Chains,proto3" json:"chains" yaml:"chains"`
-	Value         github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
-	ServiceUrl    string                                            `protobuf:"bytes,4,opt,name=ServiceUrl,proto3" json:"service_url" yaml:"service_url"`
-	OutputAddress github_com_viper_network_viper_core_types.Address `protobuf:"bytes,5,opt,name=OutputAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"output_address,omitempty" yaml:"output_address"`
+	PubKey []byte                                           `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3" json:"pubkey" yaml:"pubkey"`
+	Chains []string                                         `protobuf:"bytes,2,rep,name=chains,proto3" json:"chains" yaml:"chains"`
+	Value  github_com_viper_network_viper_core_types.BigInt `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
 }
 
 func (m *MsgProtoStake) Reset()         { *m = MsgProtoStake{} }
 func (m *MsgProtoStake) String() string { return proto.CompactTextString(m) }
 func (*MsgProtoStake) ProtoMessage()    {}
 func (*MsgProtoStake) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0de9b62fa75e413f, []int{0}
+	return fileDescriptor_fd58e5eb64f87460, []int{0}
 }
 func (m *MsgProtoStake) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -66,56 +64,19 @@ func (m *MsgProtoStake) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgProtoStake proto.InternalMessageInfo
 
-type LegacyMsgProtoStake struct {
-	Publickey  []byte                                           `protobuf:"bytes,1,opt,name=Publickey,proto3" json:"public_key" yaml:"public_key"`
-	Chains     []string                                         `protobuf:"bytes,2,rep,name=Chains,proto3" json:"chains" yaml:"chains"`
-	Value      github_com_viper_network_viper_core_types.BigInt `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
-	ServiceUrl string                                           `protobuf:"bytes,4,opt,name=ServiceUrl,proto3" json:"service_url" yaml:"service_url"`
+func (*MsgProtoStake) XXX_MessageName() string {
+	return "x.providers.MsgProtoStake"
 }
-
-func (m *LegacyMsgProtoStake) Reset()         { *m = LegacyMsgProtoStake{} }
-func (m *LegacyMsgProtoStake) String() string { return proto.CompactTextString(m) }
-func (*LegacyMsgProtoStake) ProtoMessage()    {}
-func (*LegacyMsgProtoStake) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0de9b62fa75e413f, []int{1}
-}
-func (m *LegacyMsgProtoStake) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *LegacyMsgProtoStake) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_LegacyMsgProtoStake.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *LegacyMsgProtoStake) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LegacyMsgProtoStake.Merge(m, src)
-}
-func (m *LegacyMsgProtoStake) XXX_Size() int {
-	return m.Size()
-}
-func (m *LegacyMsgProtoStake) XXX_DiscardUnknown() {
-	xxx_messageInfo_LegacyMsgProtoStake.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_LegacyMsgProtoStake proto.InternalMessageInfo
 
 type MsgBeginUnstake struct {
-	Address github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=Address,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"validator_address" yaml:"validator_address"`
-	Signer  github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=Signer,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"signer_address,omitempty" yaml:"signer_address"`
+	Address github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=Address,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"provider_address" yaml:"provider_address"`
 }
 
 func (m *MsgBeginUnstake) Reset()         { *m = MsgBeginUnstake{} }
 func (m *MsgBeginUnstake) String() string { return proto.CompactTextString(m) }
 func (*MsgBeginUnstake) ProtoMessage()    {}
 func (*MsgBeginUnstake) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0de9b62fa75e413f, []int{2}
+	return fileDescriptor_fd58e5eb64f87460, []int{1}
 }
 func (m *MsgBeginUnstake) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -144,53 +105,19 @@ func (m *MsgBeginUnstake) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgBeginUnstake proto.InternalMessageInfo
 
-type LegacyMsgBeginUnstake struct {
-	Address github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=Address,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"validator_address" yaml:"validator_address"`
+func (*MsgBeginUnstake) XXX_MessageName() string {
+	return "x.providers.MsgBeginUnstake"
 }
-
-func (m *LegacyMsgBeginUnstake) Reset()         { *m = LegacyMsgBeginUnstake{} }
-func (m *LegacyMsgBeginUnstake) String() string { return proto.CompactTextString(m) }
-func (*LegacyMsgBeginUnstake) ProtoMessage()    {}
-func (*LegacyMsgBeginUnstake) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0de9b62fa75e413f, []int{3}
-}
-func (m *LegacyMsgBeginUnstake) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *LegacyMsgBeginUnstake) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_LegacyMsgBeginUnstake.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *LegacyMsgBeginUnstake) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LegacyMsgBeginUnstake.Merge(m, src)
-}
-func (m *LegacyMsgBeginUnstake) XXX_Size() int {
-	return m.Size()
-}
-func (m *LegacyMsgBeginUnstake) XXX_DiscardUnknown() {
-	xxx_messageInfo_LegacyMsgBeginUnstake.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_LegacyMsgBeginUnstake proto.InternalMessageInfo
 
 type MsgUnjail struct {
-	ValidatorAddr github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=ValidatorAddr,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address" yaml:"address"`
-	Signer        github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=Signer,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"signer_address" yaml:"signer_address"`
+	ProviderAddr github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=ProviderAddr,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address" yaml:"address"`
 }
 
 func (m *MsgUnjail) Reset()         { *m = MsgUnjail{} }
 func (m *MsgUnjail) String() string { return proto.CompactTextString(m) }
 func (*MsgUnjail) ProtoMessage()    {}
 func (*MsgUnjail) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0de9b62fa75e413f, []int{4}
+	return fileDescriptor_fd58e5eb64f87460, []int{2}
 }
 func (m *MsgUnjail) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -219,156 +146,45 @@ func (m *MsgUnjail) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUnjail proto.InternalMessageInfo
 
-type LegacyMsgUnjail struct {
-	ValidatorAddr github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=ValidatorAddr,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address" yaml:"address"`
-}
-
-func (m *LegacyMsgUnjail) Reset()         { *m = LegacyMsgUnjail{} }
-func (m *LegacyMsgUnjail) String() string { return proto.CompactTextString(m) }
-func (*LegacyMsgUnjail) ProtoMessage()    {}
-func (*LegacyMsgUnjail) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0de9b62fa75e413f, []int{5}
-}
-func (m *LegacyMsgUnjail) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *LegacyMsgUnjail) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_LegacyMsgUnjail.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *LegacyMsgUnjail) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LegacyMsgUnjail.Merge(m, src)
-}
-func (m *LegacyMsgUnjail) XXX_Size() int {
-	return m.Size()
-}
-func (m *LegacyMsgUnjail) XXX_DiscardUnknown() {
-	xxx_messageInfo_LegacyMsgUnjail.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_LegacyMsgUnjail proto.InternalMessageInfo
-
-type MsgSend struct {
-	FromAddress github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=FromAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"from_address" yaml:"from_address"`
-	ToAddress   github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=ToAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"to_address" yaml:"to_address"`
-	Amount      github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"amount" yaml:"amount"`
-}
-
-func (m *MsgSend) Reset()         { *m = MsgSend{} }
-func (m *MsgSend) String() string { return proto.CompactTextString(m) }
-func (*MsgSend) ProtoMessage()    {}
-func (*MsgSend) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0de9b62fa75e413f, []int{6}
-}
-func (m *MsgSend) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSend) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSend.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSend) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSend.Merge(m, src)
-}
-func (m *MsgSend) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSend) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSend.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSend proto.InternalMessageInfo
-
-func (m *MsgSend) GetFromAddress() github_com_viper_network_viper_core_types.Address {
-	if m != nil {
-		return m.FromAddress
-	}
-	return nil
-}
-
-func (m *MsgSend) GetToAddress() github_com_viper_network_viper_core_types.Address {
-	if m != nil {
-		return m.ToAddress
-	}
-	return nil
-}
-
-func (*MsgSend) XXX_MessageName() string {
-	return "x.providers.MsgSend"
+func (*MsgUnjail) XXX_MessageName() string {
+	return "x.providers.MsgUnjail"
 }
 func init() {
 	proto.RegisterType((*MsgProtoStake)(nil), "x.providers.MsgProtoStake")
-	proto.RegisterType((*LegacyMsgProtoStake)(nil), "x.providers.LegacyMsgProtoStake")
 	proto.RegisterType((*MsgBeginUnstake)(nil), "x.providers.MsgBeginUnstake")
-	proto.RegisterType((*LegacyMsgBeginUnstake)(nil), "x.providers.LegacyMsgBeginUnstake")
 	proto.RegisterType((*MsgUnjail)(nil), "x.providers.MsgUnjail")
-	proto.RegisterType((*LegacyMsgUnjail)(nil), "x.providers.LegacyMsgUnjail")
-	proto.RegisterType((*MsgSend)(nil), "x.providers.MsgSend")
 }
 
-func init() { proto.RegisterFile("x/providers/msg.proto", fileDescriptor_0de9b62fa75e413f) }
+func init() { proto.RegisterFile("x/providers/msg.proto", fileDescriptor_fd58e5eb64f87460) }
 
-var fileDescriptor_0de9b62fa75e413f = []byte{
-	// 679 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x56, 0xcf, 0x6b, 0x13, 0x4f,
-	0x1c, 0xcd, 0xa4, 0xdf, 0x26, 0x64, 0x9a, 0xb4, 0x74, 0xfb, 0x2d, 0x2c, 0x0a, 0x99, 0xb2, 0x22,
-	0xf4, 0x60, 0x13, 0xa5, 0xb7, 0xde, 0x1a, 0x51, 0x10, 0x0d, 0xd6, 0xc4, 0x8a, 0x88, 0x50, 0xb7,
-	0x9b, 0xe9, 0x74, 0xbb, 0x3f, 0x66, 0xd9, 0x99, 0x8d, 0xc9, 0x45, 0xc4, 0x53, 0x2f, 0x42, 0x8f,
-	0x7a, 0x2b, 0x5e, 0xf4, 0x4f, 0x29, 0x78, 0xe9, 0xb1, 0x78, 0x18, 0xa4, 0xbd, 0xc8, 0x1e, 0x73,
-	0x14, 0x0f, 0x92, 0x9d, 0xdd, 0x6e, 0x36, 0x07, 0x29, 0x29, 0xa8, 0x07, 0x6f, 0x99, 0xf7, 0x99,
-	0x99, 0xf7, 0xf6, 0xbd, 0x4f, 0x3e, 0x0c, 0x9c, 0xef, 0xd5, 0x5d, 0xda, 0xc1, 0xac, 0xee, 0x30,
-	0x52, 0xf3, 0x7c, 0xca, 0xa9, 0x52, 0xec, 0xd5, 0x22, 0xe8, 0xca, 0xff, 0x84, 0x12, 0x1a, 0x61,
-	0xf5, 0xe1, 0x2f, 0x59, 0xd6, 0x4e, 0xa6, 0x60, 0xa5, 0xc9, 0xc8, 0xc6, 0x70, 0xd1, 0xe6, 0xba,
-	0x85, 0x95, 0x75, 0x58, 0xda, 0x08, 0xb6, 0x6d, 0xd3, 0xb0, 0x70, 0x5f, 0x05, 0x4b, 0x60, 0xb9,
-	0xdc, 0xb8, 0x16, 0x0a, 0x04, 0xbd, 0x08, 0xdc, 0xb2, 0x70, 0x7f, 0x20, 0xd0, 0x7c, 0x5f, 0x77,
-	0xec, 0x35, 0x2d, 0xc5, 0xb4, 0x56, 0x7a, 0x4a, 0x59, 0x85, 0x85, 0xdb, 0xbb, 0xba, 0xe9, 0x32,
-	0x35, 0xbf, 0x34, 0xb5, 0x5c, 0x6a, 0x5c, 0x0d, 0x05, 0x2a, 0x18, 0x11, 0x32, 0x10, 0xa8, 0x22,
-	0xcf, 0xca, 0xb5, 0xd6, 0x8a, 0xb7, 0x2a, 0x04, 0x4e, 0x77, 0x75, 0x3b, 0xc0, 0xea, 0xd4, 0x12,
-	0x58, 0x2e, 0x35, 0x1e, 0x1d, 0x09, 0x94, 0xfb, 0x22, 0xd0, 0x4d, 0x62, 0xf2, 0xdd, 0x60, 0xbb,
-	0x66, 0x50, 0xa7, 0xee, 0x51, 0x8b, 0xaf, 0xb8, 0x98, 0xbf, 0xa4, 0xbe, 0x55, 0xf7, 0xa8, 0x61,
-	0x61, 0xbe, 0x62, 0x50, 0x1f, 0xd7, 0x79, 0xdf, 0xc3, 0xac, 0xd6, 0x30, 0xc9, 0x3d, 0x97, 0x87,
-	0x02, 0xc9, 0x8b, 0x06, 0x02, 0x95, 0x25, 0x55, 0xb4, 0xd4, 0x5a, 0x12, 0x56, 0xee, 0x40, 0xd8,
-	0xc6, 0x7e, 0xd7, 0x34, 0xf0, 0xa6, 0x6f, 0xab, 0xff, 0x45, 0x6c, 0xd7, 0x43, 0x81, 0x66, 0x98,
-	0x44, 0xb7, 0x02, 0xdf, 0x1e, 0x08, 0xa4, 0xc8, 0xb3, 0x23, 0xa0, 0xd6, 0x1a, 0x39, 0xa8, 0x1c,
-	0x00, 0x58, 0x79, 0x18, 0x70, 0x2f, 0xe0, 0xeb, 0x9d, 0x8e, 0x8f, 0x19, 0x53, 0xa7, 0x23, 0xb3,
-	0xf6, 0x42, 0x81, 0x54, 0x1a, 0x15, 0xb6, 0x74, 0x59, 0xb9, 0x41, 0x1d, 0x93, 0x63, 0xc7, 0xe3,
-	0x43, 0xeb, 0x16, 0xe5, 0xbd, 0xd9, 0x1d, 0xda, 0x77, 0x81, 0x6e, 0x5d, 0xfc, 0x4b, 0x63, 0xc6,
-	0x56, 0x56, 0xc0, 0x5a, 0x79, 0xff, 0x10, 0xe5, 0xde, 0x1d, 0x22, 0xf0, 0xed, 0x10, 0x01, 0xed,
-	0x73, 0x1e, 0x2e, 0x3c, 0xc0, 0x44, 0x37, 0xfa, 0xff, 0x02, 0x9e, 0x20, 0xe0, 0x31, 0x37, 0x3f,
-	0xe6, 0xe1, 0x5c, 0x93, 0x91, 0x06, 0x26, 0xa6, 0xbb, 0xe9, 0xb2, 0xc8, 0xc9, 0xd7, 0x00, 0x16,
-	0x93, 0xf0, 0xa5, 0x91, 0x3b, 0xa1, 0x40, 0xf3, 0x5d, 0xdd, 0x36, 0x3b, 0x3a, 0xa7, 0x7e, 0x92,
-	0xee, 0x40, 0x20, 0xf5, 0x5c, 0x68, 0xb6, 0x34, 0x61, 0xf0, 0x09, 0xad, 0xf2, 0x06, 0xc0, 0x42,
-	0xdb, 0x24, 0x2e, 0xf6, 0xd5, 0x7c, 0xda, 0x7e, 0x2c, 0x42, 0x7e, 0xd5, 0x7e, 0xd9, 0x1d, 0x13,
-	0xaa, 0x88, 0x99, 0xc7, 0x9c, 0xfa, 0x04, 0xe0, 0xe2, 0x79, 0xdf, 0xfd, 0x65, 0x7e, 0x8d, 0x49,
-	0x7d, 0x9b, 0x87, 0xa5, 0x26, 0x23, 0x9b, 0xee, 0x9e, 0x6e, 0xda, 0x4a, 0x0f, 0x56, 0x9e, 0x24,
-	0x7c, 0xc3, 0xfd, 0xb1, 0xc6, 0x56, 0x28, 0x50, 0x31, 0x55, 0x36, 0x2b, 0x95, 0x5d, 0xf2, 0x8f,
-	0x9b, 0x21, 0x52, 0x7a, 0x63, 0x21, 0xbe, 0x08, 0x05, 0x9a, 0xcd, 0x46, 0xf4, 0x5b, 0xa2, 0x7b,
-	0x0f, 0xe0, 0xdc, 0x79, 0x74, 0x7f, 0xda, 0x95, 0x31, 0x6d, 0x3f, 0xf2, 0xb0, 0xd8, 0x64, 0xa4,
-	0x8d, 0xdd, 0x8e, 0xf2, 0x0a, 0xce, 0xdc, 0xf5, 0xa9, 0x93, 0xed, 0xa5, 0xe7, 0xa1, 0x40, 0xe5,
-	0x1d, 0x9f, 0x3a, 0x23, 0x96, 0x2d, 0x48, 0x59, 0xa3, 0xe8, 0x84, 0xda, 0x46, 0x09, 0x95, 0x2e,
-	0x2c, 0x3d, 0xa6, 0x09, 0xbb, 0x8c, 0xec, 0xe9, 0x70, 0x84, 0x72, 0x3a, 0xc2, 0x1d, 0x8f, 0xd0,
-	0x14, 0x9b, 0x90, 0x39, 0xa5, 0x52, 0x2c, 0x58, 0xd0, 0x1d, 0x1a, 0xb8, 0x3c, 0x9e, 0xa1, 0xed,
-	0x4b, 0xcc, 0xd0, 0xf8, 0xa6, 0x74, 0x5e, 0xcb, 0xb5, 0xd6, 0x8a, 0x0b, 0x6b, 0xe5, 0xc4, 0xfa,
-	0xfd, 0x0f, 0x08, 0x34, 0xee, 0x1f, 0x9d, 0x56, 0xc1, 0xf1, 0x69, 0x15, 0x7c, 0x3d, 0xad, 0x82,
-	0x83, 0xb3, 0x6a, 0xee, 0xf8, 0xac, 0x9a, 0x3b, 0x39, 0xab, 0xe6, 0x9e, 0x5d, 0xe8, 0x93, 0x92,
-	0x87, 0x49, 0x24, 0x62, 0xbb, 0x10, 0x3d, 0x3e, 0x56, 0x7f, 0x06, 0x00, 0x00, 0xff, 0xff, 0x6a,
-	0x0a, 0x12, 0xe0, 0xb0, 0x08, 0x00, 0x00,
+var fileDescriptor_fd58e5eb64f87460 = []byte{
+	// 414 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x52, 0x31, 0x8f, 0xd3, 0x30,
+	0x18, 0x8d, 0x39, 0x91, 0xa8, 0xd6, 0x1d, 0x9c, 0x02, 0x43, 0x75, 0x48, 0x71, 0x95, 0xa9, 0xcb,
+	0x25, 0xa0, 0x63, 0xba, 0xed, 0xb2, 0x01, 0xaa, 0x04, 0x41, 0xb7, 0xb0, 0x9c, 0x9c, 0x9c, 0xe5,
+	0xa6, 0x49, 0x63, 0x2b, 0x76, 0xa0, 0xd9, 0x19, 0x2a, 0xb1, 0x30, 0x32, 0x56, 0x8c, 0xfc, 0x92,
+	0x8e, 0x1d, 0x11, 0x83, 0x85, 0xda, 0x05, 0x65, 0xac, 0xc4, 0xc2, 0x84, 0x12, 0x07, 0x75, 0xa0,
+	0x43, 0xa5, 0xdb, 0xfc, 0xde, 0xf3, 0xe7, 0xf7, 0x9e, 0xfc, 0xc1, 0xd3, 0x99, 0x8f, 0x39, 0x17,
+	0xfe, 0x54, 0x50, 0x8f, 0x17, 0x4c, 0x32, 0xdb, 0x9c, 0x79, 0x0d, 0x73, 0xf6, 0x98, 0x32, 0xca,
+	0x5a, 0xca, 0x6f, 0x4e, 0x5a, 0x75, 0x7f, 0x03, 0x78, 0x32, 0x12, 0xf4, 0x75, 0x03, 0xde, 0x4a,
+	0x9c, 0x12, 0xfb, 0x39, 0xb4, 0x78, 0x19, 0xdd, 0xa4, 0xa4, 0xea, 0x83, 0x01, 0x18, 0x1e, 0x07,
+	0x4f, 0x6a, 0x85, 0x4c, 0x5e, 0x46, 0x29, 0xa9, 0xb6, 0x0a, 0x9d, 0x54, 0x78, 0x9a, 0x5d, 0xba,
+	0x1a, 0xbb, 0x61, 0x23, 0xbc, 0x22, 0x95, 0x7d, 0x01, 0xcd, 0x78, 0x8c, 0x93, 0x5c, 0xf4, 0xef,
+	0x0d, 0x8e, 0x86, 0x3d, 0x3d, 0xa4, 0x99, 0xdd, 0x90, 0xc6, 0x6e, 0xd8, 0x09, 0x36, 0x85, 0xf7,
+	0xdf, 0xe3, 0xac, 0x24, 0xfd, 0xa3, 0x01, 0x18, 0xf6, 0x82, 0x37, 0x4b, 0x85, 0x8c, 0x1f, 0x0a,
+	0x3d, 0xa5, 0x89, 0x1c, 0x97, 0x91, 0x17, 0xb3, 0xa9, 0xcf, 0x59, 0x2a, 0xcf, 0x73, 0x22, 0x3f,
+	0xb0, 0x22, 0xf5, 0x39, 0x8b, 0x53, 0x22, 0xcf, 0x63, 0x56, 0x10, 0x5f, 0x56, 0x9c, 0x08, 0x2f,
+	0x48, 0xe8, 0x8b, 0x5c, 0xd6, 0x0a, 0xe9, 0x87, 0xb6, 0x0a, 0x1d, 0x6b, 0xab, 0x16, 0xba, 0xa1,
+	0xa6, 0x2f, 0x4f, 0xe7, 0x0b, 0x64, 0x7c, 0x59, 0x20, 0xf0, 0x6b, 0x81, 0xc0, 0xfc, 0x2b, 0x02,
+	0xee, 0x37, 0x00, 0x1f, 0x8e, 0x04, 0x0d, 0x08, 0x4d, 0xf2, 0xeb, 0x5c, 0xb4, 0xcd, 0x3f, 0x02,
+	0x68, 0x5d, 0xdd, 0xde, 0x16, 0x44, 0x88, 0xae, 0xfa, 0xa4, 0x56, 0xe8, 0x11, 0xe6, 0x3c, 0x4b,
+	0x62, 0x2c, 0x13, 0x96, 0xdf, 0x60, 0x2d, 0x6f, 0x15, 0x3a, 0xd3, 0x3e, 0x7b, 0x44, 0xf7, 0x8f,
+	0x42, 0xcf, 0x0e, 0xaf, 0xd0, 0x39, 0x86, 0xff, 0xac, 0xf7, 0x84, 0xfd, 0x04, 0x60, 0x6f, 0x24,
+	0xe8, 0x75, 0x3e, 0xc1, 0x49, 0x66, 0x67, 0xd0, 0xba, 0xe2, 0xbc, 0xb9, 0xdd, 0xa5, 0x0c, 0x6b,
+	0x85, 0xac, 0x5d, 0xb2, 0x07, 0x5d, 0xb2, 0x3b, 0xa6, 0xd1, 0x16, 0xff, 0xa7, 0x09, 0x5e, 0x2e,
+	0xd7, 0x0e, 0x58, 0xad, 0x1d, 0xf0, 0x73, 0xed, 0x80, 0xcf, 0x1b, 0xc7, 0x58, 0x6d, 0x1c, 0xe3,
+	0xfb, 0xc6, 0x31, 0xde, 0x1d, 0xf4, 0x71, 0xdd, 0x82, 0xb6, 0x76, 0x91, 0xd9, 0x6e, 0xe1, 0xc5,
+	0xdf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x10, 0x7e, 0x3d, 0x78, 0xb7, 0x02, 0x00, 0x00,
 }
 
 func (this *MsgProtoStake) Equal(that interface{}) bool {
@@ -390,7 +206,7 @@ func (this *MsgProtoStake) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if !bytes.Equal(this.Publickey, that1.Publickey) {
+	if !bytes.Equal(this.PubKey, that1.PubKey) {
 		return false
 	}
 	if len(this.Chains) != len(that1.Chains) {
@@ -402,50 +218,6 @@ func (this *MsgProtoStake) Equal(that interface{}) bool {
 		}
 	}
 	if !this.Value.Equal(that1.Value) {
-		return false
-	}
-	if this.ServiceUrl != that1.ServiceUrl {
-		return false
-	}
-	if !bytes.Equal(this.OutputAddress, that1.OutputAddress) {
-		return false
-	}
-	return true
-}
-func (this *LegacyMsgProtoStake) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*LegacyMsgProtoStake)
-	if !ok {
-		that2, ok := that.(LegacyMsgProtoStake)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !bytes.Equal(this.Publickey, that1.Publickey) {
-		return false
-	}
-	if len(this.Chains) != len(that1.Chains) {
-		return false
-	}
-	for i := range this.Chains {
-		if this.Chains[i] != that1.Chains[i] {
-			return false
-		}
-	}
-	if !this.Value.Equal(that1.Value) {
-		return false
-	}
-	if this.ServiceUrl != that1.ServiceUrl {
 		return false
 	}
 	return true
@@ -458,33 +230,6 @@ func (this *MsgBeginUnstake) Equal(that interface{}) bool {
 	that1, ok := that.(*MsgBeginUnstake)
 	if !ok {
 		that2, ok := that.(MsgBeginUnstake)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !bytes.Equal(this.Address, that1.Address) {
-		return false
-	}
-	if !bytes.Equal(this.Signer, that1.Signer) {
-		return false
-	}
-	return true
-}
-func (this *LegacyMsgBeginUnstake) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*LegacyMsgBeginUnstake)
-	if !ok {
-		that2, ok := that.(LegacyMsgBeginUnstake)
 		if ok {
 			that1 = &that2
 		} else {
@@ -520,64 +265,7 @@ func (this *MsgUnjail) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if !bytes.Equal(this.ValidatorAddr, that1.ValidatorAddr) {
-		return false
-	}
-	if !bytes.Equal(this.Signer, that1.Signer) {
-		return false
-	}
-	return true
-}
-func (this *LegacyMsgUnjail) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*LegacyMsgUnjail)
-	if !ok {
-		that2, ok := that.(LegacyMsgUnjail)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !bytes.Equal(this.ValidatorAddr, that1.ValidatorAddr) {
-		return false
-	}
-	return true
-}
-func (this *MsgSend) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*MsgSend)
-	if !ok {
-		that2, ok := that.(MsgSend)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !bytes.Equal(this.FromAddress, that1.FromAddress) {
-		return false
-	}
-	if !bytes.Equal(this.ToAddress, that1.ToAddress) {
-		return false
-	}
-	if !this.Amount.Equal(that1.Amount) {
+	if !bytes.Equal(this.ProviderAddr, that1.ProviderAddr) {
 		return false
 	}
 	return true
@@ -602,20 +290,6 @@ func (m *MsgProtoStake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.OutputAddress) > 0 {
-		i -= len(m.OutputAddress)
-		copy(dAtA[i:], m.OutputAddress)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.OutputAddress)))
-		i--
-		dAtA[i] = 0x2a
-	}
-	if len(m.ServiceUrl) > 0 {
-		i -= len(m.ServiceUrl)
-		copy(dAtA[i:], m.ServiceUrl)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.ServiceUrl)))
-		i--
-		dAtA[i] = 0x22
-	}
 	{
 		size := m.Value.Size()
 		i -= size
@@ -635,66 +309,10 @@ func (m *MsgProtoStake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x12
 		}
 	}
-	if len(m.Publickey) > 0 {
-		i -= len(m.Publickey)
-		copy(dAtA[i:], m.Publickey)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.Publickey)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *LegacyMsgProtoStake) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *LegacyMsgProtoStake) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *LegacyMsgProtoStake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.ServiceUrl) > 0 {
-		i -= len(m.ServiceUrl)
-		copy(dAtA[i:], m.ServiceUrl)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.ServiceUrl)))
-		i--
-		dAtA[i] = 0x22
-	}
-	{
-		size := m.Value.Size()
-		i -= size
-		if _, err := m.Value.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintMsg(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x1a
-	if len(m.Chains) > 0 {
-		for iNdEx := len(m.Chains) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Chains[iNdEx])
-			copy(dAtA[i:], m.Chains[iNdEx])
-			i = encodeVarintMsg(dAtA, i, uint64(len(m.Chains[iNdEx])))
-			i--
-			dAtA[i] = 0x12
-		}
-	}
-	if len(m.Publickey) > 0 {
-		i -= len(m.Publickey)
-		copy(dAtA[i:], m.Publickey)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.Publickey)))
+	if len(m.PubKey) > 0 {
+		i -= len(m.PubKey)
+		copy(dAtA[i:], m.PubKey)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.PubKey)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -717,43 +335,6 @@ func (m *MsgBeginUnstake) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *MsgBeginUnstake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Signer) > 0 {
-		i -= len(m.Signer)
-		copy(dAtA[i:], m.Signer)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.Signer)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *LegacyMsgBeginUnstake) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *LegacyMsgBeginUnstake) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *LegacyMsgBeginUnstake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -788,94 +369,10 @@ func (m *MsgUnjail) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Signer) > 0 {
-		i -= len(m.Signer)
-		copy(dAtA[i:], m.Signer)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.Signer)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.ValidatorAddr) > 0 {
-		i -= len(m.ValidatorAddr)
-		copy(dAtA[i:], m.ValidatorAddr)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.ValidatorAddr)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *LegacyMsgUnjail) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *LegacyMsgUnjail) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *LegacyMsgUnjail) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.ValidatorAddr) > 0 {
-		i -= len(m.ValidatorAddr)
-		copy(dAtA[i:], m.ValidatorAddr)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.ValidatorAddr)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSend) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSend) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSend) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size := m.Amount.Size()
-		i -= size
-		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintMsg(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x1a
-	if len(m.ToAddress) > 0 {
-		i -= len(m.ToAddress)
-		copy(dAtA[i:], m.ToAddress)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.ToAddress)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.FromAddress) > 0 {
-		i -= len(m.FromAddress)
-		copy(dAtA[i:], m.FromAddress)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.FromAddress)))
+	if len(m.ProviderAddr) > 0 {
+		i -= len(m.ProviderAddr)
+		copy(dAtA[i:], m.ProviderAddr)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.ProviderAddr)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -899,7 +396,7 @@ func (m *MsgProtoStake) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Publickey)
+	l = len(m.PubKey)
 	if l > 0 {
 		n += 1 + l + sovMsg(uint64(l))
 	}
@@ -911,60 +408,10 @@ func (m *MsgProtoStake) Size() (n int) {
 	}
 	l = m.Value.Size()
 	n += 1 + l + sovMsg(uint64(l))
-	l = len(m.ServiceUrl)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	l = len(m.OutputAddress)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	return n
-}
-
-func (m *LegacyMsgProtoStake) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Publickey)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	if len(m.Chains) > 0 {
-		for _, s := range m.Chains {
-			l = len(s)
-			n += 1 + l + sovMsg(uint64(l))
-		}
-	}
-	l = m.Value.Size()
-	n += 1 + l + sovMsg(uint64(l))
-	l = len(m.ServiceUrl)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
 	return n
 }
 
 func (m *MsgBeginUnstake) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	l = len(m.Signer)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	return n
-}
-
-func (m *LegacyMsgBeginUnstake) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -983,46 +430,10 @@ func (m *MsgUnjail) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ValidatorAddr)
+	l = len(m.ProviderAddr)
 	if l > 0 {
 		n += 1 + l + sovMsg(uint64(l))
 	}
-	l = len(m.Signer)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	return n
-}
-
-func (m *LegacyMsgUnjail) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.ValidatorAddr)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgSend) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.FromAddress)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	l = len(m.ToAddress)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	l = m.Amount.Size()
-	n += 1 + l + sovMsg(uint64(l))
 	return n
 }
 
@@ -1063,7 +474,7 @@ func (m *MsgProtoStake) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Publickey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PubKey", wireType)
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
@@ -1090,9 +501,9 @@ func (m *MsgProtoStake) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Publickey = append(m.Publickey[:0], dAtA[iNdEx:postIndex]...)
-			if m.Publickey == nil {
-				m.Publickey = []byte{}
+			m.PubKey = append(m.PubKey[:0], dAtA[iNdEx:postIndex]...)
+			if m.PubKey == nil {
+				m.PubKey = []byte{}
 			}
 			iNdEx = postIndex
 		case 2:
@@ -1160,257 +571,6 @@ func (m *MsgProtoStake) Unmarshal(dAtA []byte) error {
 			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ServiceUrl", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ServiceUrl = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OutputAddress", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OutputAddress = append(m.OutputAddress[:0], dAtA[iNdEx:postIndex]...)
-			if m.OutputAddress == nil {
-				m.OutputAddress = []byte{}
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipMsg(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *LegacyMsgProtoStake) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowMsg
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: LegacyMsgProtoStake: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: LegacyMsgProtoStake: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Publickey", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Publickey = append(m.Publickey[:0], dAtA[iNdEx:postIndex]...)
-			if m.Publickey == nil {
-				m.Publickey = []byte{}
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Chains", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Chains = append(m.Chains, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ServiceUrl", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ServiceUrl = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -1463,127 +623,6 @@ func (m *MsgBeginUnstake) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgBeginUnstake: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = append(m.Address[:0], dAtA[iNdEx:postIndex]...)
-			if m.Address == nil {
-				m.Address = []byte{}
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Signer == nil {
-				m.Signer = []byte{}
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipMsg(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *LegacyMsgBeginUnstake) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowMsg
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: LegacyMsgBeginUnstake: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: LegacyMsgBeginUnstake: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1675,7 +714,7 @@ func (m *MsgUnjail) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddr", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ProviderAddr", wireType)
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
@@ -1702,285 +741,9 @@ func (m *MsgUnjail) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ValidatorAddr = append(m.ValidatorAddr[:0], dAtA[iNdEx:postIndex]...)
-			if m.ValidatorAddr == nil {
-				m.ValidatorAddr = []byte{}
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Signer == nil {
-				m.Signer = []byte{}
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipMsg(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *LegacyMsgUnjail) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowMsg
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: LegacyMsgUnjail: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: LegacyMsgUnjail: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddr", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ValidatorAddr = append(m.ValidatorAddr[:0], dAtA[iNdEx:postIndex]...)
-			if m.ValidatorAddr == nil {
-				m.ValidatorAddr = []byte{}
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipMsg(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSend) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowMsg
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSend: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSend: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FromAddress", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FromAddress = append(m.FromAddress[:0], dAtA[iNdEx:postIndex]...)
-			if m.FromAddress == nil {
-				m.FromAddress = []byte{}
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ToAddress", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ToAddress = append(m.ToAddress[:0], dAtA[iNdEx:postIndex]...)
-			if m.ToAddress == nil {
-				m.ToAddress = []byte{}
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthMsg
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
+			m.ProviderAddr = append(m.ProviderAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ProviderAddr == nil {
+				m.ProviderAddr = []byte{}
 			}
 			iNdEx = postIndex
 		default:

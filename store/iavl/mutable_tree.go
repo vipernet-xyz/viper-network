@@ -24,7 +24,7 @@ var ErrVersionDoesNotExist = errors.New("version does not exist")
 type MutableTree struct {
 	*ImmutableTree                  // The current, working tree.
 	lastSaved      *ImmutableTree   // The most recently saved tree.
-	orphans        map[string]int64 // Providers removed by changes to working tree.
+	orphans        map[string]int64 // Servicers removed by changes to working tree.
 	versions       map[int64]bool   // The previous, saved versions of the tree.
 	ndb            *nodeDB
 }
@@ -90,8 +90,8 @@ func (tree *MutableTree) String() string {
 	return tree.ndb.String()
 }
 
-// Set/Remove will orphan at most tree.Height providers,
-// balancing the tree after a Set/Remove will orphan at most 3 providers.
+// Set/Remove will orphan at most tree.Height servicers,
+// balancing the tree after a Set/Remove will orphan at most 3 servicers.
 func (tree *MutableTree) prepareOrphansSlice() []*Node {
 	return make([]*Node, 0, tree.Height()+3)
 }
@@ -178,7 +178,7 @@ func (tree *MutableTree) Remove(key []byte) ([]byte, bool) {
 }
 
 // remove tries to remove a key from the tree and if removed, returns its
-// value, providers orphaned and 'true'.
+// value, servicers orphaned and 'true'.
 func (tree *MutableTree) remove(key []byte) (value []byte, orphaned []*Node, removed bool) {
 	if tree.root == nil {
 		return nil, nil, false
@@ -203,7 +203,7 @@ func (tree *MutableTree) remove(key []byte) (value []byte, orphaned []*Node, rem
 // - the node that replaces the orig. node after remove
 // - new leftmost leaf key for tree after successfully removing 'key' if changed.
 // - the removed value
-// - the orphaned providers.
+// - the orphaned servicers.
 func (tree *MutableTree) recursiveRemove(node *Node, key []byte, orphans *[]*Node) (newHash []byte, newSelf *Node, newKey []byte, newValue []byte) {
 	version := tree.version + 1
 
@@ -630,7 +630,7 @@ func (tree *MutableTree) balance(node *Node, orphans *[]*Node) (newSelf *Node) {
 func (tree *MutableTree) addOrphans(orphans []*Node) {
 	for _, node := range orphans {
 		if !node.persisted {
-			// We don't need to orphan providers that were never persisted.
+			// We don't need to orphan servicers that were never persisted.
 			continue
 		}
 		if len(node.hash) == 0 {

@@ -53,7 +53,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 			ctx.Logger().Info("the session is ongoing, so will not send the claim-tx yet")
 			continue
 		}
-		// if the blockchain in the evidence is not supported then delete it because providers don't get paid/challenged for unsupported blockchains
+		// if the blockchain in the evidence is not supported then delete it because servicers don't get paid/challenged for unsupported blockchains
 		if !k.IsViperSupportedBlockchain(sessionCtx.WithBlockHeight(evidence.SessionHeader.SessionBlockHeight), evidence.SessionHeader.Chain) {
 			ctx.Logger().Info(fmt.Sprintf("claim for %s blockchain isn't viper supported, so will not send. Deleting evidence\n", evidence.SessionHeader.Chain))
 			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType); err != nil {
@@ -72,12 +72,12 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 			}
 			continue
 		}
-		platform, found := k.GetPlatformFromPublicKey(sessionCtx, evidence.PlatformPubKey)
+		provider, found := k.GetProviderFromPublicKey(sessionCtx, evidence.ProviderPubKey)
 		if !found {
-			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the claim transaction with platform %s not found with evidence %v", evidence.PlatformPubKey, evidence))
+			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the claim transaction with provider %s not found with evidence %v", evidence.ProviderPubKey, evidence))
 		}
 		// generate the merkle root for this evidence
-		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(platform, k.SessionNodeCount(sessionCtx)).Int64())
+		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(provider, k.SessionNodeCount(sessionCtx)).Int64())
 		// generate the auto txbuilder and clictx
 		txBuilder, cliCtx, err := newTxBuilderAndCliCtx(ctx, &vc.MsgClaim{}, n, kp, k)
 		if err != nil {
@@ -114,24 +114,24 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	if !k.IsViperSupportedBlockchain(sessionContext, claim.SessionHeader.Chain) {
 		return vc.NewChainNotSupportedErr(vc.ModuleName)
 	}
-	// get the provider from the keeper (at the state of the start of the session)
+	// get the servicer from the keeper (at the state of the start of the session)
 	_, found := k.GetNode(sessionContext, claim.FromAddress)
 	// if not found return not found error
 	if !found {
 		return vc.NewNodeNotFoundErr(vc.ModuleName)
 	}
-	// get the platformlication (at the state of the start of the session)
-	platform, found := k.GetPlatformFromPublicKey(sessionContext, claim.SessionHeader.PlatformPubKey)
+	// get the providerlication (at the state of the start of the session)
+	provider, found := k.GetProviderFromPublicKey(sessionContext, claim.SessionHeader.ProviderPubKey)
 	// if not found return not found error
 	if !found {
-		return vc.NewPlatformNotFoundError(vc.ModuleName)
+		return vc.NewProviderNotFoundError(vc.ModuleName)
 	}
 	if vc.ModuleCdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.MaxRelayProtKey) {
-		if vc.MaxPossibleRelays(platform, k.SessionNodeCount(sessionContext)).LT(sdk.NewInt(claim.TotalProofs)) {
+		if vc.MaxPossibleRelays(provider, k.SessionNodeCount(sessionContext)).LT(sdk.NewInt(claim.TotalProofs)) {
 			return vc.NewOverServiceError(vc.ModuleName)
 		}
 	}
-	// get the session provider count for the time of the session
+	// get the session servicer count for the time of the session
 	sessionNodeCount := int(k.SessionNodeCount(sessionContext))
 	// check cache
 	session, found := vc.GetSession(claim.SessionHeader)
@@ -148,12 +148,12 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 		// create a new session to validate
 		session, err = vc.NewSession(sessionContext, sessionEndCtx, k.posKeeper, claim.SessionHeader, hex.EncodeToString(hash), sessionNodeCount)
 		if err != nil {
-			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", platform.GetPublicKey().RawString(), claim.SessionHeader.Chain).Error())
+			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", provider.GetPublicKey().RawString(), claim.SessionHeader.Chain).Error())
 			return err
 		}
 	}
 	// validate the session
-	err = session.Validate(claim.FromAddress, platform, sessionNodeCount)
+	err = session.Validate(claim.FromAddress, provider, sessionNodeCount)
 	if err != nil {
 		return err
 	}

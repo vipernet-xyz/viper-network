@@ -13,7 +13,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/providers/exported"
+	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
 const DEFAULTHTTPMETHOD = "POST"
@@ -26,7 +26,7 @@ type Relay struct {
 }
 
 // "Validate" - Checks the validity of a relay request using store data
-func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper PlatformsKeeper, viperKeeper ViperKeeper, provider sdk.Address, hb *HostedBlockchains, sessionBlockHeight int64) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
+func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper ProvidersKeeper, viperKeeper ViperKeeper, servicer sdk.Address, hb *HostedBlockchains, sessionBlockHeight int64) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
 	// validate payload
 	if err := r.Payload.Validate(); err != nil {
 		return sdk.ZeroInt(), NewEmptyPayloadDataError(ModuleName)
@@ -52,18 +52,18 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper Platf
 	if er != nil {
 		return sdk.ZeroInt(), sdk.ErrInternal(er.Error())
 	}
-	// get the platformlication that staked on behalf of the client
-	platform, found := GetPlatformFromPublicKey(sessionCtx, platformsKeeper, r.Proof.Token.PlatformPublicKey)
+	// get the providerlication that staked on behalf of the client
+	provider, found := GetProviderFromPublicKey(sessionCtx, providersKeeper, r.Proof.Token.ProviderPublicKey)
 	if !found {
-		return sdk.ZeroInt(), NewPlatformNotFoundError(ModuleName)
+		return sdk.ZeroInt(), NewProviderNotFoundError(ModuleName)
 	}
-	// get session provider count from that session height
+	// get session servicer count from that session height
 	sessionNodeCount := viperKeeper.SessionNodeCount(sessionCtx)
 	// get max possible relays
-	maxPossibleRelays = MaxPossibleRelays(platform, sessionNodeCount)
+	maxPossibleRelays = MaxPossibleRelays(provider, sessionNodeCount)
 	// generate the session header
 	header := SessionHeader{
-		PlatformPubKey:     r.Proof.Token.PlatformPublicKey,
+		ProviderPubKey:     r.Proof.Token.ProviderPublicKey,
 		Chain:              r.Proof.Blockchain,
 		SessionBlockHeight: r.Proof.SessionBlockHeight,
 	}
@@ -81,7 +81,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper Platf
 		return sdk.ZeroInt(), NewOverServiceError(ModuleName)
 	}
 	// validate the Proof
-	if err := r.Proof.ValidateLocal(platform.GetChains(), int(sessionNodeCount), sessionBlockHeight, provider); err != nil {
+	if err := r.Proof.ValidateLocal(provider.GetChains(), int(sessionNodeCount), sessionBlockHeight, servicer); err != nil {
 		return sdk.ZeroInt(), err
 	}
 	// check cache
@@ -101,7 +101,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, platformsKeeper Platf
 		SetSession(session)
 	}
 	// validate the session
-	err = session.Validate(provider, platform, int(sessionNodeCount))
+	err = session.Validate(servicer, provider, int(sessionNodeCount))
 	if err != nil {
 		return sdk.ZeroInt(), err
 	}
@@ -231,13 +231,13 @@ func InitClientBlockAllowance(allowance int) {
 	GlobalViperConfig.ClientBlockSyncAllowance = allowance
 }
 
-// "Validate" - The provider validates the response after signing
+// "Validate" - The servicer validates the response after signing
 func (rr RelayResponse) Validate() sdk.Error {
 	// cannot contain empty response
 	if rr.Response == "" {
 		return NewEmptyResponseError(ModuleName)
 	}
-	// cannot contain empty signature (providers must be accountable)
+	// cannot contain empty signature (servicers must be accountable)
 	if rr.Signature == "" || len(rr.Signature) == crypto.Ed25519SignatureSize {
 		return NewResponseSignatureError(ModuleName)
 	}
@@ -283,7 +283,7 @@ type DispatchResponse struct {
 type DispatchSession struct {
 	SessionHeader    `json:"header"`
 	SessionKey       `json:"key"`
-	SessionProviders []exported.ValidatorI `json:"providers"`
+	SessionServicers []exported.ValidatorI `json:"servicers"`
 }
 
 // "executeHTTPRequest" takes in the raw json string and forwards it to the RPC endpoint
@@ -301,7 +301,7 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, met
 	}
 	// add headers if needed
 	if len(headers) == 0 {
-		req.Header.Set("Content-Type", "platformlication/json")
+		req.Header.Set("Content-Type", "providerlication/json")
 	} else {
 		for k, v := range headers {
 			req.Header.Set(k, v)

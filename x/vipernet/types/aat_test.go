@@ -8,19 +8,19 @@ import (
 )
 
 func TestAAT_VersionIsIncluded(t *testing.T) {
-	platformPrivKey := GetRandomPrivateKey()
+	providerPrivKey := GetRandomPrivateKey()
 	clientPrivKey := GetRandomPrivateKey()
 	var AATNoVersion = AAT{
 		Version:           "",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	var AATWithVersion = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	tests := []struct {
 		name     string
@@ -46,19 +46,19 @@ func TestAAT_VersionIsIncluded(t *testing.T) {
 }
 
 func TestAAT_VersionIsSupported(t *testing.T) {
-	platformPrivKey := GetRandomPrivateKey()
+	providerPrivKey := GetRandomPrivateKey()
 	clientPrivKey := GetRandomPrivateKey()
 	var AATNotSupportedVersion = AAT{
 		Version:           "0.0.11",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	var AATSupported = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	tests := []struct {
 		name     string
@@ -84,25 +84,25 @@ func TestAAT_VersionIsSupported(t *testing.T) {
 }
 
 func TestAAT_ValidateVersion(t *testing.T) {
-	platformPrivKey := GetRandomPrivateKey()
+	providerPrivKey := GetRandomPrivateKey()
 	clientPrivKey := GetRandomPrivateKey()
 	var AATVersionMissing = AAT{
 		Version:           "",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	var AATNotSupportedVersion = AAT{
 		Version:           "0.0.11",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	var AATSupported = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	tests := []struct {
 		name     string
@@ -133,25 +133,25 @@ func TestAAT_ValidateVersion(t *testing.T) {
 }
 
 func TestAAT_ValidateMessage(t *testing.T) {
-	platformPrivKey := GetRandomPrivateKey()
+	providerPrivKey := GetRandomPrivateKey()
 	clientPubKey := getRandomPubKey()
-	var AATInvalidPlatformPubKey = AAT{
+	var AATInvalidProviderPubKey = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PubKey().Address().String(),
+		ProviderPublicKey: providerPrivKey.PubKey().Address().String(),
 		ClientPublicKey:   clientPubKey.RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	var AATInvalidClientPubKey = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPubKey.Address().String(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	var AATValidMessage = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPubKey.RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	tests := []struct {
 		name     string
@@ -159,8 +159,8 @@ func TestAAT_ValidateMessage(t *testing.T) {
 		hasError bool
 	}{
 		{
-			name:     "AAT doesn't have a valid platform pub key",
-			aat:      AATInvalidPlatformPubKey,
+			name:     "AAT doesn't have a valid provider pub key",
+			aat:      AATInvalidProviderPubKey,
 			hasError: true,
 		},
 		{
@@ -182,38 +182,38 @@ func TestAAT_ValidateMessage(t *testing.T) {
 }
 
 func TestAAT_ValidateSignature(t *testing.T) {
-	platformPrivKey := GetRandomPrivateKey()
+	providerPrivKey := GetRandomPrivateKey()
 	clientPrivKey := GetRandomPrivateKey()
 	var AATMissingSignature = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	var AATInvalidSignature = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	// sign with the client (invalid)
 	clientSignature, err := clientPrivKey.Sign(AATInvalidSignature.Hash())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	AATInvalidSignature.PlatformSignature = hex.EncodeToString(clientSignature)
-	// sign with the platformlication
+	AATInvalidSignature.ProviderSignature = hex.EncodeToString(clientSignature)
+	// sign with the providerlication
 	var AATValidSignature = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
-	platformSignature, err := platformPrivKey.Sign(AATValidSignature.Hash())
+	providerSignature, err := providerPrivKey.Sign(AATValidSignature.Hash())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	AATValidSignature.PlatformSignature = hex.EncodeToString(platformSignature)
+	AATValidSignature.ProviderSignature = hex.EncodeToString(providerSignature)
 	tests := []struct {
 		name     string
 		aat      AAT
@@ -243,32 +243,32 @@ func TestAAT_ValidateSignature(t *testing.T) {
 }
 
 func TestAAT_HashString(t *testing.T) {
-	platformPrivKey := GetRandomPrivateKey()
+	providerPrivKey := GetRandomPrivateKey()
 	clientPrivKey := GetRandomPrivateKey()
 	var AAT = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	assert.True(t, len(AAT.Hash()) == HashLength)
 	assert.True(t, HashVerification(AAT.HashString()) == nil)
 }
 
 func TestAAT_Validate(t *testing.T) {
-	platformPrivKey := GetRandomPrivateKey()
+	providerPrivKey := GetRandomPrivateKey()
 	clientPrivKey := GetRandomPrivateKey()
 	var AAT = AAT{
 		Version:           "0.0.1",
-		PlatformPublicKey: platformPrivKey.PublicKey().RawString(),
+		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
 		ClientPublicKey:   clientPrivKey.PublicKey().RawString(),
-		PlatformSignature: "",
+		ProviderSignature: "",
 	}
 	// sign with the client (invalid)
-	platformlicationSignature, err := platformPrivKey.Sign(AAT.Hash())
+	providerlicationSignature, err := providerPrivKey.Sign(AAT.Hash())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	AAT.PlatformSignature = hex.EncodeToString(platformlicationSignature)
+	AAT.ProviderSignature = hex.EncodeToString(providerlicationSignature)
 	assert.Nil(t, AAT.Validate())
 }

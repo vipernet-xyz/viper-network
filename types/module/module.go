@@ -1,15 +1,15 @@
 /*
 Package module contains application module patterns and associated "manager" functionality.
 The module pattern has been broken down by:
-  - independent module functionality (PlatformModuleBasic)
-  - inter-dependent module genesis functionality (PlatformModuleGenesis)
-  - inter-dependent module full functionality (PlatformModule)
+  - independent module functionality (ProviderModuleBasic)
+  - inter-dependent module genesis functionality (ProviderModuleGenesis)
+  - inter-dependent module full functionality (ProviderModule)
 
 inter-dependent module functionality is module functionality which somehow
 depends on other modules, typically through the module keeper.  Many of the
 module keepers are dependent on each other, thus in order to access the full
 set of module functionality we need to define all the keepers/params-store/keys
-etc. This full set of advanced functionality is defined by the PlatformModule interface.
+etc. This full set of advanced functionality is defined by the ProviderModule interface.
 
 Independent module functions are separated to allow for the construction of the
 basic application structures required early on in the application definition
@@ -20,8 +20,8 @@ have to manually register all of the codecs for all the modules. This basic
 procedure as well as other basic patterns are handled through the use of
 BasicManager.
 
-Lastly the interface for genesis functionality (PlatformModuleGenesis) has been
-separated out from full module functionality (PlatformModule) so that modules which
+Lastly the interface for genesis functionality (ProviderModuleGenesis) has been
+separated out from full module functionality (ProviderModule) so that modules which
 are only used for genesis can take advantage of the Module patterns without
 needlessly defining many placeholder functions
 */
@@ -38,8 +38,8 @@ import (
 )
 
 // __________________________________________________________________________________________
-// PlatformModuleBasic is the standard form for basic non-dependant elements of an application module.
-type PlatformModuleBasic interface {
+// ProviderModuleBasic is the standard form for basic non-dependant elements of an application module.
+type ProviderModuleBasic interface {
 	Name() string
 	RegisterCodec(*codec.Codec)
 
@@ -48,11 +48,11 @@ type PlatformModuleBasic interface {
 	ValidateGenesis(json.RawMessage) error
 }
 
-// collections of PlatformModuleBasic
-type BasicManager map[string]PlatformModuleBasic
+// collections of ProviderModuleBasic
+type BasicManager map[string]ProviderModuleBasic
 
-func NewBasicManager(modules ...PlatformModuleBasic) BasicManager {
-	moduleMap := make(map[string]PlatformModuleBasic)
+func NewBasicManager(modules ...ProviderModuleBasic) BasicManager {
+	moduleMap := make(map[string]ProviderModuleBasic)
 	for _, module := range modules {
 		moduleMap[module.Name()] = module
 	}
@@ -86,16 +86,16 @@ func (bm BasicManager) ValidateGenesis(genesis map[string]json.RawMessage) error
 }
 
 // _________________________________________________________
-// PlatformModuleGenesis is the standard form for an application module genesis functions
-type PlatformModuleGenesis interface {
-	PlatformModuleBasic
+// ProviderModuleGenesis is the standard form for an application module genesis functions
+type ProviderModuleGenesis interface {
+	ProviderModuleBasic
 	InitGenesis(sdk.Ctx, json.RawMessage) []abci.ValidatorUpdate
 	ExportGenesis(sdk.Ctx) json.RawMessage
 }
 
-// PlatformModule is the standard form for an application module
-type PlatformModule interface {
-	PlatformModuleGenesis
+// ProviderModule is the standard form for an application module
+type ProviderModule interface {
+	ProviderModuleGenesis
 
 	// registers
 	RegisterInvariants(sdk.InvariantRegistry)
@@ -114,43 +114,43 @@ type PlatformModule interface {
 
 // ___________________________
 // app module
-type GenesisOnlyPlatformModule struct {
-	PlatformModuleGenesis
+type GenesisOnlyProviderModule struct {
+	ProviderModuleGenesis
 }
 
-func (gam GenesisOnlyPlatformModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+func (gam GenesisOnlyProviderModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	return &abci.ConsensusParams{}
 }
 
-func (gam GenesisOnlyPlatformModule) UpgradeCodec(sdk.Ctx) {}
+func (gam GenesisOnlyProviderModule) UpgradeCodec(sdk.Ctx) {}
 
-// NewGenesisOnlyPlatformModule creates a new GenesisOnlyPlatformModule object
-func NewGenesisOnlyPlatformModule(amg PlatformModuleGenesis) PlatformModule {
-	return GenesisOnlyPlatformModule{
-		PlatformModuleGenesis: amg,
+// NewGenesisOnlyProviderModule creates a new GenesisOnlyProviderModule object
+func NewGenesisOnlyProviderModule(amg ProviderModuleGenesis) ProviderModule {
+	return GenesisOnlyProviderModule{
+		ProviderModuleGenesis: amg,
 	}
 }
 
 // register invariants
-func (GenesisOnlyPlatformModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+func (GenesisOnlyProviderModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // module message route ngame
-func (GenesisOnlyPlatformModule) Route() string { return "" }
+func (GenesisOnlyProviderModule) Route() string { return "" }
 
 // module handler
-func (GenesisOnlyPlatformModule) NewHandler() sdk.Handler { return nil }
+func (GenesisOnlyProviderModule) NewHandler() sdk.Handler { return nil }
 
 // module querier route ngame
-func (GenesisOnlyPlatformModule) QuerierRoute() string { return "" }
+func (GenesisOnlyProviderModule) QuerierRoute() string { return "" }
 
 // module querier
-func (gam GenesisOnlyPlatformModule) NewQuerierHandler() sdk.Querier { return nil }
+func (gam GenesisOnlyProviderModule) NewQuerierHandler() sdk.Querier { return nil }
 
 // module begin-block
-func (gam GenesisOnlyPlatformModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {}
+func (gam GenesisOnlyProviderModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {}
 
 // module end-block
-func (GenesisOnlyPlatformModule) EndBlock(_ sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (GenesisOnlyProviderModule) EndBlock(_ sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
@@ -158,7 +158,7 @@ func (GenesisOnlyPlatformModule) EndBlock(_ sdk.Ctx, _ abci.RequestEndBlock) []a
 // module manager provides the high level utility for managing and executing
 // operations for a group of modules
 type Manager struct {
-	Modules            map[string]PlatformModule
+	Modules            map[string]ProviderModule
 	OrderInitGenesis   []string
 	OrderExportGenesis []string
 	OrderBeginBlockers []string
@@ -166,9 +166,9 @@ type Manager struct {
 }
 
 // NewModuleManager creates a new Manager object
-func NewManager(modules ...PlatformModule) *Manager {
+func NewManager(modules ...ProviderModule) *Manager {
 
-	moduleMap := make(map[string]PlatformModule)
+	moduleMap := make(map[string]ProviderModule)
 	var modulesStr []string
 	for _, module := range modules {
 		moduleMap[module.Name()] = module
@@ -184,12 +184,12 @@ func NewManager(modules ...PlatformModule) *Manager {
 	}
 }
 
-func (m Manager) GetModule(name string) *PlatformModule {
+func (m Manager) GetModule(name string) *ProviderModule {
 	appModule := m.Modules[name]
 	return &appModule
 }
 
-func (m *Manager) SetModule(name string, module PlatformModule) {
+func (m *Manager) SetModule(name string, module ProviderModule) {
 	m.Modules[name] = module
 }
 

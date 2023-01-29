@@ -9,7 +9,7 @@ import (
 // sending a series of messages in a signed transaction given a TxBuilder and a
 // QueryContext. It ensures that the account exists, has a proper number and
 // sequence set. In addition, it builds and signs a transaction with the
-// supplied messages. Finally, it broadcasts the signed transaction to a provider.
+// supplied messages. Finally, it broadcasts the signed transaction to a servicer.
 func CompleteAndBroadcastTxCLI(txBldr authentication.TxBuilder, cliCtx CLIContext, msgs sdk.ProtoMsg, legacyCodec bool) (*sdk.TxResponse, error) {
 	//txBldr, err := PrepareTxBuilder(txBldr, cliCtx)
 	//if err != nil {
@@ -23,7 +23,7 @@ func CompleteAndBroadcastTxCLI(txBldr authentication.TxBuilder, cliCtx CLIContex
 		if err != nil {
 			return nil, err
 		}
-		// broadcast to a Tendermint provider
+		// broadcast to a Tendermint servicer
 		tx, err := cliCtx.BroadcastTx(txBytes)
 		if err != nil {
 			return nil, err
@@ -35,7 +35,7 @@ func CompleteAndBroadcastTxCLI(txBldr authentication.TxBuilder, cliCtx CLIContex
 		if err != nil {
 			return nil, err
 		}
-		// broadcast to a Tendermint provider
+		// broadcast to a Tendermint servicer
 		tx, err := cliCtx.BroadcastTx(txBytes)
 		if err != nil {
 			return nil, err

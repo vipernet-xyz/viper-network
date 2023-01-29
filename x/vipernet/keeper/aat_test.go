@@ -15,8 +15,8 @@ func TestAATGeneration(t *testing.T) {
 	assert.Nil(t, err)
 	privkey, err := mintkey.UnarmorDecryptPrivKey(kp.PrivKeyArmor, passphrase)
 	assert.Nil(t, err)
-	platformPubKey := kp.PublicKey
-	res, err := AATGeneration(platformPubKey.RawString(), platformPubKey.RawString(), privkey)
+	providerPubKey := kp.PublicKey
+	res, err := AATGeneration(providerPubKey.RawString(), providerPubKey.RawString(), privkey)
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
 	assert.Nil(t, res.Validate())

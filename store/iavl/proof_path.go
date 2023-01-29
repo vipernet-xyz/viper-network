@@ -35,7 +35,7 @@ func (pwl pathWithLeaf) computeRootHash() []byte {
 //----------------------------------------
 
 // PathToLeaf represents an inner path to a leaf node.
-// Note that the providers are ordered such that the last one is closest
+// Note that the servicers are ordered such that the last one is closest
 // to the root of the tree.
 type PathToLeaf []ProofInnerNode
 

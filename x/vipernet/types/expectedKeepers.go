@@ -4,30 +4,30 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
-	platformexported "github.com/vipernet-xyz/viper-network/x/platforms/exported"
-	providersexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
+	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
+	servicersexported "github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
 type PosKeeper interface {
-	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, platformAddress sdk.Address) sdk.BigInt
+	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, providerAddress sdk.Address) sdk.BigInt
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
-	Validator(ctx sdk.Ctx, addr sdk.Address) providersexported.ValidatorI
+	Validator(ctx sdk.Ctx, addr sdk.Address) servicersexported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
 	BurnForChallenge(ctx sdk.Ctx, challenges sdk.BigInt, address sdk.Address)
 	JailValidator(ctx sdk.Ctx, addr sdk.Address)
-	AllValidators(ctx sdk.Ctx) (validators []providersexported.ValidatorI)
-	GetStakedValidators(ctx sdk.Ctx) (validators []providersexported.ValidatorI)
+	AllValidators(ctx sdk.Ctx) (validators []servicersexported.ValidatorI)
+	GetStakedValidators(ctx sdk.Ctx) (validators []servicersexported.ValidatorI)
 	BlocksPerSession(ctx sdk.Ctx) (res int64)
 	StakeDenom(ctx sdk.Ctx) (res string)
 	GetValidatorsByChain(ctx sdk.Ctx, networkID string) (validators []sdk.Address, total int)
 }
 
-type PlatformsKeeper interface {
+type ProvidersKeeper interface {
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
-	Platform(ctx sdk.Ctx, addr sdk.Address) platformexported.PlatformI
-	AllPlatforms(ctx sdk.Ctx) (platformlications []platformexported.PlatformI)
+	Provider(ctx sdk.Ctx, addr sdk.Address) providerexported.ProviderI
+	AllProviders(ctx sdk.Ctx) (providerlications []providerexported.ProviderI)
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
-	JailPlatform(ctx sdk.Ctx, addr sdk.Address)
+	JailProvider(ctx sdk.Ctx, addr sdk.Address)
 }
 
 type ViperKeeper interface {

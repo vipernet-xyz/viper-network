@@ -11,12 +11,12 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	exported2 "github.com/vipernet-xyz/viper-network/x/platforms/exported"
+	exported2 "github.com/vipernet-xyz/viper-network/x/providers/exported"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	platformsType "github.com/vipernet-xyz/viper-network/x/platforms/types"
-	"github.com/vipernet-xyz/viper-network/x/providers/exported"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersType "github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
+	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
@@ -25,10 +25,10 @@ import (
 func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique relay here
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
-	platformPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPrivateKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	npk := getRandomPubKey()
-	providerPubKey := npk.RawString()
+	servicerPubKey := npk.RawString()
 	ethereum := hex.EncodeToString([]byte{01})
 	bitcoin := hex.EncodeToString([]byte{02})
 	p := Payload{
@@ -43,23 +43,23 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		Proof: RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 1,
-			ServicerPubKey:     providerPubKey,
+			ServicerPubKey:     servicerPubKey,
 			Blockchain:         ethereum,
 			Token: AAT{
 				Version:           "0.0.1",
-				PlatformPublicKey: platformPubKey,
+				ProviderPublicKey: providerPubKey,
 				ClientPublicKey:   clientPubKey,
-				PlatformSignature: "",
+				ProviderSignature: "",
 			},
 			Signature: "",
 		},
 	}
 	validRelay.Proof.RequestHash = validRelay.RequestHashString()
-	platformSig, er := platformPrivateKey.Sign(validRelay.Proof.Token.Hash())
+	providerSig, er := providerPrivateKey.Sign(validRelay.Proof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validRelay.Proof.Token.PlatformSignature = hex.EncodeToString(platformSig)
+	validRelay.Proof.Token.ProviderSignature = hex.EncodeToString(providerSig)
 	clientSig, er := clientPrivateKey.Sign(validRelay.Proof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -68,7 +68,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 	// invalid payload empty data and method
 	invalidPayloadEmpty := validRelay
 	invalidPayloadEmpty.Payload.Data = ""
-	selfNode := providersTypes.Validator{
+	selfNode := servicersTypes.Validator{
 		Address:                 sdk.Address(npk.Address()),
 		PublicKey:               npk,
 		Jailed:                  false,
@@ -78,10 +78,10 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		StakedTokens:            sdk.NewInt(100000),
 		UnstakingCompletionTime: time.Time{},
 	}
-	var noEthereumProviders []exported.ValidatorI
+	var noEthereumServicers []exported.ValidatorI
 	for i := 0; i < 4; i++ {
 		pubKey := getRandomPubKey()
-		noEthereumProviders = append(noEthereumProviders, providersTypes.Validator{
+		noEthereumServicers = append(noEthereumServicers, servicersTypes.Validator{
 			Address:                 sdk.Address(pubKey.Address()),
 			PublicKey:               pubKey,
 			Jailed:                  false,
@@ -92,7 +92,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 			UnstakingCompletionTime: time.Time{},
 		})
 	}
-	noEthereumProviders = append(noEthereumProviders, selfNode)
+	noEthereumServicers = append(noEthereumServicers, selfNode)
 	hb := HostedBlockchains{
 		M: map[string]HostedBlockchain{ethereum: {
 			ID:  ethereum,
@@ -100,7 +100,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		}},
 	}
 	pubKey := getRandomPubKey()
-	platform := platformsType.Platform{
+	provider := providersType.Provider{
 		Address:                 sdk.Address(pubKey.Address()),
 		PublicKey:               pubKey,
 		Jailed:                  false,
@@ -113,18 +113,18 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 	tests := []struct {
 		name         string
 		relay        Relay
-		provider     providersTypes.Validator
-		platform     platformsType.Platform
-		allProviders []exported.ValidatorI
+		servicer     servicersTypes.Validator
+		provider     providersType.Provider
+		allServicers []exported.ValidatorI
 		hb           *HostedBlockchains
 		hasError     bool
 	}{
 		{
-			name:         "invalid relay: not enough service providers",
+			name:         "invalid relay: not enough service servicers",
 			relay:        validRelay,
-			provider:     selfNode,
-			platform:     platform,
-			allProviders: noEthereumProviders,
+			servicer:     selfNode,
+			provider:     provider,
+			allServicers: noEthereumServicers,
 			hb:           &hb,
 			hasError:     true,
 		},
@@ -132,10 +132,10 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			k := MockPosKeeper{Validators: tt.allProviders}
-			k2 := MockPlatformsKeeper{Platforms: []exported2.PlatformI{tt.platform}}
+			k := MockPosKeeper{Validators: tt.allServicers}
+			k2 := MockProvidersKeeper{Providers: []exported2.ProviderI{tt.provider}}
 			k3 := MockViperKeeper{}
-			_, err := tt.relay.Validate(newContext(t, false).WithAppVersion("0.0.0"), k, k2, k3, tt.provider.Address, tt.hb, 1)
+			_, err := tt.relay.Validate(newContext(t, false).WithAppVersion("0.0.0"), k, k2, k3, tt.servicer.Address, tt.hb, 1)
 			assert.Equal(t, err != nil, tt.hasError)
 		})
 		ClearSessionCache()
@@ -145,10 +145,10 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 func TestRelay_Execute(t *testing.T) {
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
-	platformPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPrivateKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	npk := getRandomPubKey()
-	providerPubKey := npk.RawString()
+	servicerPubKey := npk.RawString()
 	ethereum := hex.EncodeToString([]byte{01})
 	p := Payload{
 		Data:    "foo",
@@ -161,13 +161,13 @@ func TestRelay_Execute(t *testing.T) {
 		Proof: RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 1,
-			ServicerPubKey:     providerPubKey,
+			ServicerPubKey:     servicerPubKey,
 			Blockchain:         ethereum,
 			Token: AAT{
 				Version:           "0.0.1",
-				PlatformPublicKey: platformPubKey,
+				ProviderPublicKey: providerPubKey,
 				ClientPublicKey:   clientPubKey,
-				PlatformSignature: "",
+				ProviderSignature: "",
 			},
 			Signature: "",
 		},
@@ -194,10 +194,10 @@ func TestRelay_Execute(t *testing.T) {
 func TestRelay_HandleProof(t *testing.T) {
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
-	platformPrivateKey := GetRandomPrivateKey()
-	platformPubKey := platformPrivateKey.PublicKey().RawString()
+	providerPrivateKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
 	npk := getRandomPubKey()
-	providerPubKey := npk.RawString()
+	servicerPubKey := npk.RawString()
 	ethereum := hex.EncodeToString([]byte{01})
 	p := Payload{
 		Data:    "foo",
@@ -210,13 +210,13 @@ func TestRelay_HandleProof(t *testing.T) {
 		Proof: RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 1,
-			ServicerPubKey:     providerPubKey,
+			ServicerPubKey:     servicerPubKey,
 			Blockchain:         ethereum,
 			Token: AAT{
 				Version:           "0.0.1",
-				PlatformPublicKey: platformPubKey,
+				ProviderPublicKey: providerPubKey,
 				ClientPublicKey:   clientPubKey,
-				PlatformSignature: "",
+				ProviderSignature: "",
 			},
 			Signature: "",
 		},
@@ -224,7 +224,7 @@ func TestRelay_HandleProof(t *testing.T) {
 	validRelay.Proof.RequestHash = validRelay.RequestHashString()
 	validRelay.Proof.Store(sdk.NewInt(100000))
 	res := GetProof(SessionHeader{
-		PlatformPubKey:     platformPubKey,
+		ProviderPubKey:     providerPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
 	}, RelayEvidence, 0)
@@ -232,10 +232,10 @@ func TestRelay_HandleProof(t *testing.T) {
 }
 
 func TestRelayResponse_BytesAndHash(t *testing.T) {
+	servicerPrivKey := GetRandomPrivateKey()
+	servicerPubKey := servicerPrivKey.PublicKey().RawString()
 	providerPrivKey := GetRandomPrivateKey()
-	providerPubKey := providerPrivKey.PublicKey().RawString()
-	platformPrivKey := GetRandomPrivateKey()
-	platformPublicKey := platformPrivKey.PublicKey().RawString()
+	providerPublicKey := providerPrivKey.PublicKey().RawString()
 	cliPrivKey := GetRandomPrivateKey()
 	cliPublicKey := cliPrivKey.PublicKey().RawString()
 	relayResp := RelayResponse{
@@ -244,31 +244,31 @@ func TestRelayResponse_BytesAndHash(t *testing.T) {
 		Proof: RelayProof{
 			Entropy:            230942034,
 			SessionBlockHeight: 1,
-			RequestHash:        providerPubKey,
-			ServicerPubKey:     providerPubKey,
+			RequestHash:        servicerPubKey,
+			ServicerPubKey:     servicerPubKey,
 			Blockchain:         hex.EncodeToString(merkleHash([]byte("foo"))),
 			Token: AAT{
 				Version:           "0.0.1",
-				PlatformPublicKey: platformPublicKey,
+				ProviderPublicKey: providerPublicKey,
 				ClientPublicKey:   cliPublicKey,
-				PlatformSignature: "",
+				ProviderSignature: "",
 			},
 			Signature: "",
 		},
 	}
-	platformSig, err := platformPrivKey.Sign(relayResp.Proof.Token.Hash())
+	providerSig, err := providerPrivKey.Sign(relayResp.Proof.Token.Hash())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	relayResp.Proof.Token.PlatformSignature = hex.EncodeToString(platformSig)
+	relayResp.Proof.Token.ProviderSignature = hex.EncodeToString(providerSig)
 	assert.NotNil(t, relayResp.Hash())
 	assert.Equal(t, hex.EncodeToString(relayResp.Hash()), relayResp.HashString())
 	storedHashString := relayResp.HashString()
-	providerSig, err := providerPrivKey.Sign(relayResp.Hash())
+	servicerSig, err := servicerPrivKey.Sign(relayResp.Hash())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	relayResp.Signature = hex.EncodeToString(providerSig)
+	relayResp.Signature = hex.EncodeToString(servicerSig)
 	assert.Equal(t, storedHashString, relayResp.HashString())
 }
 
@@ -296,16 +296,16 @@ type MockValidatorI interface {
 	GetChains() []string
 }
 
-type MockPlatformsKeeper struct {
-	Platforms []exported2.PlatformI
+type MockProvidersKeeper struct {
+	Providers []exported2.ProviderI
 }
 
-func (m MockPlatformsKeeper) GetStakedTokens(ctx sdk.Ctx) sdk.BigInt {
+func (m MockProvidersKeeper) GetStakedTokens(ctx sdk.Ctx) sdk.BigInt {
 	panic("implement me")
 }
 
-func (m MockPlatformsKeeper) Platform(ctx sdk.Ctx, addr sdk.Address) exported2.PlatformI {
-	for _, v := range m.Platforms {
+func (m MockProvidersKeeper) Provider(ctx sdk.Ctx, addr sdk.Address) exported2.ProviderI {
+	for _, v := range m.Providers {
 		if v.GetAddress().Equals(addr) {
 			return v
 		}
@@ -313,15 +313,15 @@ func (m MockPlatformsKeeper) Platform(ctx sdk.Ctx, addr sdk.Address) exported2.P
 	return nil
 }
 
-func (m MockPlatformsKeeper) AllPlatforms(ctx sdk.Ctx) (platformlications []exported2.PlatformI) {
+func (m MockProvidersKeeper) AllProviders(ctx sdk.Ctx) (providerlications []exported2.ProviderI) {
 	panic("implement me")
 }
 
-func (m MockPlatformsKeeper) TotalTokens(ctx sdk.Ctx) sdk.BigInt {
+func (m MockProvidersKeeper) TotalTokens(ctx sdk.Ctx) sdk.BigInt {
 	panic("implement me")
 }
 
-func (m MockPlatformsKeeper) JailPlatform(ctx sdk.Ctx, addr sdk.Address) {
+func (m MockProvidersKeeper) JailProvider(ctx sdk.Ctx, addr sdk.Address) {
 	panic("implement me")
 }
 
@@ -353,7 +353,7 @@ func (m MockPosKeeper) GetValidatorsByChain(ctx sdk.Ctx, networkID string) (vali
 	return
 }
 
-func (m MockPosKeeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, platformAdddress sdk.Address) sdk.BigInt {
+func (m MockPosKeeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, providerAdddress sdk.Address) sdk.BigInt {
 	panic("implement me")
 }
 

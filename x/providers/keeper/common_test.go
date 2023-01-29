@@ -5,18 +5,20 @@ import (
 	"testing"
 
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
-
-	"github.com/vipernet-xyz/viper-network/crypto"
-	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
-
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
+	"github.com/vipernet-xyz/viper-network/crypto"
+	"github.com/vipernet-xyz/viper-network/types/module"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	"github.com/vipernet-xyz/viper-network/x/providers/exported"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	servicerskeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
+	servicerstypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store"
@@ -25,10 +27,11 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 )
 
+// : deadcode unused
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.PlatformModuleBasic{},
-		governance.PlatformModuleBasic{},
+		authentication.ProviderModuleBasic{},
+		servicers.ProviderModuleBasic{},
 	)
 )
 
@@ -38,12 +41,16 @@ func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)
 	governance.RegisterCodec(cdc)
+	servicerstypes.RegisterCodec(cdc)
+	types.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
+
 	return cdc
 }
 
-type MockViperKeeper struct{}
+type MockViperKeeper struct {
+}
 
 func (m MockViperKeeper) ClearSessionCache() {
 	return
@@ -59,12 +66,15 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
-	keyPOS := sdk.NewKVStoreKey(types.ModuleName)
+	servicersKey := sdk.NewKVStoreKey(servicerstypes.StoreKey)
+	appsKey := sdk.NewKVStoreKey(types.StoreKey)
+
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(keyPOS, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(servicersKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(appsKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
 	err := ms.LoadLatestVersion()
 	require.Nil(t, err)
@@ -82,27 +92,31 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
 		types.StakedPoolName:            {authentication.Burner, authentication.Staking, authentication.Minter},
-		types.ModuleName:                {authentication.Burner, authentication.Staking, authentication.Minter},
+		servicerstypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
+		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
 	}
+
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[authentication.NewModuleAddress(acc).String()] = true
 	}
 	valTokens := sdk.TokensFromConsensusPower(initPower)
 	accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
-	posSubspace := sdk.NewSubspace(DefaultParamspace)
+	servicersSubspace := sdk.NewSubspace(servicerstypes.DefaultParamspace)
+	appSubspace := sdk.NewSubspace(DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
+	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
 	moduleManager := module.NewManager(
-		authentication.NewPlatformModule(ak),
+		authentication.NewProviderModule(ak),
+		servicers.NewProviderModule(nk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	keeper := NewKeeper(cdc, keyPOS, ak, posSubspace, "pos")
-	keeper.ViperKeeper = MockViperKeeper{}
-	params := types.DefaultParams()
-	keeper.SetParams(ctx, params)
+	keeper := NewKeeper(cdc, appsKey, nk, ak, MockViperKeeper{}, appSubspace, "apps")
+	p := types.DefaultParams()
+	keeper.SetParams(ctx, p)
 	return ctx, accs, keeper
 }
 
@@ -146,42 +160,41 @@ func getRandomPubKey() crypto.Ed25519PublicKey {
 	return pub
 }
 
-func getRandomValidatorAddress() sdk.Address {
+func getRandomProviderAddress() sdk.Address {
 	return sdk.Address(getRandomPubKey().Address())
 }
 
-func getValidator() types.Validator {
+func getProvider() types.Provider {
 	pub := getRandomPubKey()
-	return types.Validator{
-		Address:       sdk.Address(pub.Address()),
-		StakedTokens:  sdk.NewInt(100000000000),
-		PublicKey:     pub,
-		Jailed:        false,
-		Status:        sdk.Staked,
-		ServiceURL:    "https://www.google.com:443",
-		Chains:        []string{"0001", "0002", "FFFF"},
-		OutputAddress: nil,
+	return types.Provider{
+		Address:      sdk.Address(pub.Address()),
+		StakedTokens: sdk.NewInt(100000000000),
+		PublicKey:    pub,
+		Jailed:       false,
+		Status:       sdk.Staked,
+		MaxRelays:    sdk.NewInt(100000000000),
+		Chains:       []string{"0001"},
 	}
 }
 
-func getStakedValidator() types.Validator {
-	return getValidator()
+func getStakedProvider() types.Provider {
+	return getProvider()
 }
 
-func getUnstakedValidator() types.Validator {
-	v := getValidator()
+func getUnstakedProvider() types.Provider {
+	v := getProvider()
 	return v.UpdateStatus(sdk.Unstaked)
 }
 
-func getUnstakingValidator() types.Validator {
-	v := getValidator()
+func getUnstakingProvider() types.Provider {
+	v := getProvider()
 	return v.UpdateStatus(sdk.Unstaking)
 }
 
-func modifyFn(i *int) func(index int64, Validator exported.ValidatorI) (stop bool) {
-	return func(index int64, validator exported.ValidatorI) (stop bool) {
-		val := validator.(types.Validator)
-		val.StakedTokens = sdk.NewInt(100)
+func modifyFn(i *int) func(index int64, provider exported.ProviderI) (stop bool) {
+	return func(index int64, provider exported.ProviderI) (stop bool) {
+		app := provider.(types.Provider)
+		app.StakedTokens = sdk.NewInt(100)
 		if index == 1 {
 			stop = true
 		}

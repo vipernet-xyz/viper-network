@@ -9,8 +9,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	"github.com/vipernet-xyz/viper-network/x/providers"
-	"github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/stretchr/testify/assert"
 	tmTypes "github.com/tendermint/tendermint/types"
@@ -42,13 +42,13 @@ func TestBuildSignMultisig(t *testing.T) {
 	var tx *sdk.TxResponse
 	<-evtChan // Wait for block
 	memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-	tx, err = providers.Send(memCodec(), memCli, kb, cb.GetAddress(), sdk.Address(pms.Address()), "test", sdk.NewInt(100000000), true)
+	tx, err = servicers.Send(memCodec(), memCli, kb, cb.GetAddress(), sdk.Address(pms.Address()), "test", sdk.NewInt(100000000), true)
 	fmt.Println("HERE: ", tx)
 	assert.Nil(t, err)
 	assert.NotNil(t, tx)
 
 	<-evtChan // Wait for tx
-	txRaw, err := providers.RawTx(memCodec(), memCli, sdk.Address(pms.Address()), bz)
+	txRaw, err := servicers.RawTx(memCodec(), memCli, sdk.Address(pms.Address()), bz)
 	assert.Nil(t, err)
 	fmt.Println(txRaw)
 	assert.Zero(t, txRaw.Code)

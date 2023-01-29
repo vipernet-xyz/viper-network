@@ -1,155 +1,108 @@
-package providers
+package pos
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
-	"time"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
-
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func TestExportGenesis(t *testing.T) {
-	type args struct {
-		ctx    sdk.Context
-		keeper keeper.Keeper
-	}
-
-	context, _, kpr := createTestInput(t, true)
-
+func TestPos_InitGenesis(t *testing.T) {
 	tests := []struct {
 		name string
-		args args
-		want types.GenesisState
 	}{
-		{"Test Export Genesis", args{
-			ctx:    context,
-			keeper: kpr,
-		}, getGenesisStateForTest(context, kpr, false)},
+		{name: "set init genesis"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ExportGenesis(tt.args.ctx, tt.args.keeper); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ExportGenesis() = %v, want %v", got, tt.want)
+			context, keeper, supplyKeeper, posKeeper := createTestInput(t, true)
+			state := types.DefaultGenesisState()
+			InitGenesis(context, keeper, supplyKeeper, posKeeper, state)
+			if got := keeper.GetParams(context); got != state.Params {
+				t.Errorf("InitGenesis()= got %v, want %v", got, state.Params)
 			}
 		})
 	}
 }
-
-func TestInitGenesis(t *testing.T) {
-	type args struct {
-		ctx          sdk.Context
-		keeper       keeper.Keeper
-		supplyKeeper types.AuthKeeper
-		data         types.GenesisState
-	}
-
-	context, _, kpr := createTestInput(t, true)
-
-	validator := getStakedValidator()
-	consAddress := validator.GetAddress()
-	kpr.SetPreviousProposer(context, consAddress)
-
+func TestPos_ExportGenesis(t *testing.T) {
 	tests := []struct {
-		name    string
-		args    args
-		wantRes []abci.ValidatorUpdate
-	}{}
+		name string
+	}{
+		{name: "get genesis from provider"},
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotRes := InitGenesis(tt.args.ctx, tt.args.keeper, tt.args.supplyKeeper, tt.args.data); !reflect.DeepEqual(gotRes, tt.wantRes) {
-				t.Errorf("InitGenesis() = %v, want %v", gotRes, tt.wantRes)
+			context, keeper, supplyKeeper, posKeeper := createTestInput(t, true)
+			state := types.DefaultGenesisState()
+			InitGenesis(context, keeper, supplyKeeper, posKeeper, state)
+			state.Exported = true // Export genesis returns an exported state
+			if got := ExportGenesis(context, keeper); !reflect.DeepEqual(got, state) {
+				t.Errorf("\nExportGenesis()=\nGot-> %v\nWant-> %v", got, state.Params)
 			}
 		})
 	}
 }
+func TestPos_ValidateGeneis(t *testing.T) {
+	provider := getProvider()
 
-func TestValidateGenesis(t *testing.T) {
-	type args struct {
-		data types.GenesisState
-	}
+	jailedProvider := getProvider()
+	jailedProvider.Jailed = true
 
-	ctx, _, k := createTestInput(t, true)
-	datafortest := getGenesisStateForTest(ctx, k, true)
-	datafortest2 := getGenesisStateForTest(ctx, k, true)
-	datafortest3 := getGenesisStateForTest(ctx, k, true)
-	datafortest4 := getGenesisStateForTest(ctx, k, true)
-	datafortest5 := getGenesisStateForTest(ctx, k, true)
-	datafortest6 := getGenesisStateForTest(ctx, k, true)
-	datafortest7 := getGenesisStateForTest(ctx, k, true)
-	datafortest8 := getGenesisStateForTest(ctx, k, false)
+	zeroStakeProvider := getProvider()
+	zeroStakeProvider.StakedTokens = sdk.NewInt(0)
 
-	datafortest2.Params.SlashFractionDowntime = sdk.NewDec(-3)
-	datafortest3.Params.SlashFractionDoubleSign = sdk.NewDec(-3)
-	datafortest4.Params.MinSignedPerWindow = sdk.NewDec(-3)
-	datafortest5.Params.MaxEvidenceAge = 30 * time.Second
-	datafortest6.Params.DowntimeJailDuration = 30 * time.Second
-	datafortest7.Params.SignedBlocksWindow = 9
-
+	singleTokenProvider := getProvider()
+	singleTokenProvider.StakedTokens = sdk.NewInt(1)
 	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
+		name      string
+		state     types.GenesisState
+		providers types.Providers
+		params    bool
+		want      interface{}
 	}{
-		{"Test ValidateGenesis", args{data: datafortest}, false},
-		{"Test ValidateGenesis 2", args{data: datafortest2}, true},
-		{"Test ValidateGenesis 3", args{data: datafortest3}, true},
-		{"Test ValidateGenesis 4", args{data: datafortest4}, true},
-		{"Test ValidateGenesis 5", args{data: datafortest5}, true},
-		{"Test ValidateGenesis 6", args{data: datafortest6}, true},
-		{"Test ValidateGenesis 7", args{data: datafortest7}, true},
-		{"Test ValidateGenesis 8", args{data: datafortest8}, true},
+		{
+			name:      "valdiates genesis for provider",
+			providers: types.Providers{provider},
+			want:      nil,
+		},
+		{
+			name:      "errs if invalid params",
+			providers: types.Providers{provider},
+			params:    true,
+			want:      fmt.Errorf("staking parameter StakeMimimum must be a positive integer"),
+		},
+		{
+			name:      "errs if dupplicate provider in geneiss state",
+			providers: types.Providers{provider, provider},
+			want:      fmt.Errorf("duplicate provider in genesis state: address %v", provider.GetAddress()),
+		},
+		{
+			name:      "errs if jailed provider staked",
+			providers: types.Providers{jailedProvider},
+			want:      fmt.Errorf("provider is staked and jailed in genesis state: address %v", jailedProvider.GetAddress()),
+		},
+		{
+			name:      "errs if staked with zero tokens",
+			providers: types.Providers{zeroStakeProvider},
+			want:      fmt.Errorf("staked/unstaked genesis provider cannot have zero stake, provider: %v", zeroStakeProvider),
+		},
+		{
+			name:      "errs if lower or equal than minimum stake ",
+			providers: types.Providers{singleTokenProvider},
+			want:      fmt.Errorf("provider has less than minimum stake: %v", singleTokenProvider),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := ValidateGenesis(tt.args.data); (err != nil) != tt.wantErr {
-				t.Errorf("ValidateGenesis() error = %v, wantErr %v", err, tt.wantErr)
+			state := types.DefaultGenesisState()
+			state.Providers = tt.providers
+			if tt.params {
+				state.Params.MinProviderStake = 0
 			}
-		})
-	}
-}
-
-func Test_validateGenesisStateValidators(t *testing.T) {
-	type args struct {
-		validators   []types.Validator
-		minimumStake sdk.BigInt
-	}
-
-	ctx, _, k := createTestInput(t, true)
-
-	testdata := getGenesisStateForTest(ctx, k, true)
-
-	val1 := getStakedValidator()
-	val1.Jailed = true
-	val2 := val1
-
-	valList := []types.Validator{val1, val2}
-
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{"Test ValidateGenesisStateValidators", args{
-			validators:   testdata.Validators,
-			minimumStake: sdk.OneInt(),
-		}, false},
-		{"Test ValidateGenesisStateValidators 2 duplicatedValidator", args{
-			validators:   valList,
-			minimumStake: sdk.OneInt(),
-		}, true},
-		{"Test ValidateGenesisStateValidators 3 jailed staked", args{
-			validators:   []types.Validator{val1},
-			minimumStake: sdk.OneInt(),
-		}, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := validateGenesisStateValidators(tt.args.validators, tt.args.minimumStake); (err != nil) != tt.wantErr {
-				t.Errorf("validateGenesisStateValidators() error = %v, wantErr %v", err, tt.wantErr)
+			if got := ValidateGenesis(state); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ValidateGenesis()= got %v, want %v", got, tt.want)
 			}
 		})
 	}

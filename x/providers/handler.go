@@ -1,9 +1,8 @@
-package providers
+package pos
 
 import (
 	"fmt"
 	"reflect"
-	"time"
 
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -12,77 +11,50 @@ import (
 )
 
 func NewHandler(k keeper.Keeper) sdk.Handler {
-	return func(ctx sdk.Ctx, msg sdk.Msg, signer crypto.PublicKey) sdk.Result {
+	return func(ctx sdk.Ctx, msg sdk.Msg, _ crypto.PublicKey) sdk.Result {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		// convert to value for switch consistency
 		if reflect.ValueOf(msg).Kind() == reflect.Ptr {
 			msg = reflect.Indirect(reflect.ValueOf(msg)).Interface().(sdk.Msg)
 		}
-		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-			switch msg := msg.(type) {
-			case types.MsgBeginUnstake:
-				return handleMsgBeginUnstake(ctx, msg, k)
-			case types.MsgUnjail:
-				return handleMsgUnjail(ctx, msg, k)
-			case types.MsgSend:
-				return handleMsgSend(ctx, msg, k)
-			case types.MsgStake:
-				return handleStake(ctx, msg, k, signer)
-			default:
-				errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
-				return sdk.ErrUnknownRequest(errMsg).Result()
-			}
-		} else {
-			switch msg := msg.(type) {
-			case types.LegacyMsgBeginUnstake:
-				return legacyHandleMsgBeginUnstake(ctx, msg, k)
-			case types.LegacyMsgUnjail:
-				return legacyHandleMsgUnjail(ctx, msg, k)
-			case types.MsgSend:
-				return handleMsgSend(ctx, msg, k)
-			case types.LegacyMsgStake:
-				return legacyHandleMsgStake(ctx, msg, k, signer)
-			default:
-				errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
-				return sdk.ErrUnknownRequest(errMsg).Result()
-			}
+		switch msg := msg.(type) {
+		case types.MsgStake:
+			return handleStake(ctx, msg, k)
+		case types.MsgBeginUnstake:
+			return handleMsgBeginUnstake(ctx, msg, k)
+		case types.MsgUnjail:
+			return handleMsgUnjail(ctx, msg, k)
+		default:
+			errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
+			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 	}
 }
 
-func handleStake(ctx sdk.Ctx, msg types.MsgStake, k keeper.Keeper, signer crypto.PublicKey) sdk.Result {
-	defer sdk.TimeTrack(time.Now())
-
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		err := msg.CheckServiceUrlLength(msg.ServiceUrl)
-		if err != nil {
-			return err.Result()
-		}
-	}
-
-	pk := msg.PublicKey
+func handleStake(ctx sdk.Ctx, msg types.MsgStake, k keeper.Keeper) sdk.Result {
+	pk := msg.PubKey
 	addr := pk.Address()
-	// create validator object using the message fields
-	validator := types.NewValidator(sdk.Address(addr), pk, msg.Chains, msg.ServiceUrl, sdk.ZeroInt(), msg.Output)
+	ctx.Logger().Info("Begin Staking Provider Message received from " + sdk.Address(pk.Address()).String())
+	// create provider object using the message fields
+	provider := types.NewProvider(sdk.Address(addr), pk, msg.Chains, sdk.ZeroInt())
+	ctx.Logger().Info("Validate Provider Can Stake " + sdk.Address(addr).String())
 	// check if they can stake
-	if err := k.ValidateValidatorStaking(ctx, validator, msg.Value, sdk.Address(signer.Address())); err != nil {
-		if sdk.ShowTimeTrackData {
-			result := err.Result()
-			fmt.Println(result.String())
-		}
+	if err := k.ValidateProviderStaking(ctx, provider, msg.Value); err != nil {
+		ctx.Logger().Error(fmt.Sprintf("Validate Provider Can Stake Error, at height: %d with address: %s", ctx.BlockHeight(), sdk.Address(addr).String()))
 		return err.Result()
 	}
-	// change the validator state to staked
-	err := k.StakeValidator(ctx, validator, msg.Value, signer)
+	ctx.Logger().Info("Change Provider state to Staked " + sdk.Address(addr).String())
+	// change the provider state to staked
+	err := k.StakeProvider(ctx, provider, msg.Value)
 	if err != nil {
-		if sdk.ShowTimeTrackData {
-			result := err.Result()
-			fmt.Println(result.String())
-		}
 		return err.Result()
 	}
 	// create the event
 	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeCreateProvider,
+			sdk.NewAttribute(types.AttributeKeyProvider, sdk.Address(addr).String()),
+		),
 		sdk.NewEvent(
 			types.EventTypeStake,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
@@ -99,30 +71,21 @@ func handleStake(ctx sdk.Ctx, msg types.MsgStake, k keeper.Keeper, signer crypto
 }
 
 func handleMsgBeginUnstake(ctx sdk.Ctx, msg types.MsgBeginUnstake, k keeper.Keeper) sdk.Result {
-	defer sdk.TimeTrack(time.Now())
-
-	ctx.Logger().Info("Begin Unstaking Message received from " + msg.Address.String())
-	// move coins from the msg.Address account to a (self-delegation) delegator account
-	// the validator account and global shares are updated within here
-	validator, found := k.GetValidator(ctx, msg.Address)
+	provider, found := k.GetProvider(ctx, msg.Address)
 	if !found {
-		return types.ErrNoValidatorFound(k.Codespace()).Result()
+		ctx.Logger().Error(fmt.Sprintf("Provider Not Found at height: %d", ctx.BlockHeight()) + msg.Address.String())
+		return types.ErrNoProviderFound(k.Codespace()).Result()
 	}
-	err, valid := keeper.ValidateValidatorMsgSigner(validator, msg.Signer, k)
-	if !valid {
+	if err := k.ValidateProviderBeginUnstaking(ctx, provider); err != nil {
+		ctx.Logger().Error(fmt.Sprintf("Provider Unstake Validation Not Successful, at height: %d", ctx.BlockHeight()) + msg.Address.String())
 		return err.Result()
 	}
-
-	if err := k.ValidateValidatorBeginUnstaking(ctx, validator); err != nil {
-		return err.Result()
-	}
-	if err := k.WaitToBeginUnstakingValidator(ctx, validator); err != nil {
-		return err.Result()
-	}
+	ctx.Logger().Info("Starting to Unstake Provider " + msg.Address.String())
+	k.BeginUnstakingProvider(ctx, provider)
 	// create the event
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.EventTypeWaitingToBeginUnstaking,
+			types.EventTypeBeginUnstake,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Address.String()),
 		),
@@ -135,66 +98,20 @@ func handleMsgBeginUnstake(ctx sdk.Ctx, msg types.MsgBeginUnstake, k keeper.Keep
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }
 
-// Validators must submit a transaction to unjail itself after todo
+// Providers must submit a transaction to unjail itself after todo
 // having been jailed (and thus unstaked) for downtime
 func handleMsgUnjail(ctx sdk.Ctx, msg types.MsgUnjail, k keeper.Keeper) sdk.Result {
-	defer sdk.TimeTrack(time.Now())
-
-	ctx.Logger().Info("Unjail Message received from " + msg.ValidatorAddr.String())
-	addr, err := k.ValidateUnjailMessage(ctx, msg)
+	consAddr, err := k.ValidateUnjailMessage(ctx, msg)
 	if err != nil {
 		return err.Result()
 	}
-	k.UnjailValidator(ctx, addr)
+	k.UnjailProvider(ctx, consAddr)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorAddr.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.ProviderAddr.String()),
 		),
 	)
 	return sdk.Result{Events: ctx.EventManager().Events()}
-}
-
-func handleMsgSend(ctx sdk.Ctx, msg types.MsgSend, k keeper.Keeper) sdk.Result {
-	defer sdk.TimeTrack(time.Now())
-
-	ctx.Logger().Info("Send Message from " + msg.FromAddress.String() + " received")
-	err := k.SendCoins(ctx, msg.FromAddress, msg.ToAddress, msg.Amount)
-	if err != nil {
-		return err.Result()
-	}
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-		),
-	)
-	return sdk.Result{Events: ctx.EventManager().Events()}
-}
-
-func legacyHandleMsgBeginUnstake(ctx sdk.Ctx, msg types.LegacyMsgBeginUnstake, k keeper.Keeper) sdk.Result {
-	m := types.MsgBeginUnstake{
-		Address: msg.Address,
-		Signer:  msg.Address,
-	}
-	return handleMsgBeginUnstake(ctx, m, k)
-}
-
-func legacyHandleMsgUnjail(ctx sdk.Ctx, msg types.LegacyMsgUnjail, k keeper.Keeper) sdk.Result {
-	m := types.MsgUnjail{
-		ValidatorAddr: msg.ValidatorAddr,
-		Signer:        msg.ValidatorAddr,
-	}
-	return handleMsgUnjail(ctx, m, k)
-}
-
-func legacyHandleMsgStake(ctx sdk.Ctx, msg types.LegacyMsgStake, k keeper.Keeper, signer crypto.PublicKey) sdk.Result {
-	m := types.MsgStake{
-		PublicKey:  msg.PublicKey,
-		Chains:     msg.Chains,
-		Value:      msg.Value,
-		ServiceUrl: msg.ServiceUrl,
-	}
-	return handleStake(ctx, m, k, signer)
 }

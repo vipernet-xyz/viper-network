@@ -3,8 +3,19 @@ package types
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
-	posexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
+	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
+
+type PosKeeper interface {
+	StakeDenom(ctx sdk.Ctx) (res string)
+	// GetStakedTokens total staking tokens supply which is staked
+	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
+}
+
+type ViperKeeper interface {
+	// clear the cache of validators for sessions and relays
+	ClearSessionCache()
+}
 
 // AuthKeeper defines the expected supply Keeper (noalias)
 type AuthKeeper interface {
@@ -38,31 +49,22 @@ type AuthKeeper interface {
 	HasCoins(ctx sdk.Ctx, addr sdk.Address, amt sdk.Coins) bool
 	// send coins
 	SendCoins(ctx sdk.Ctx, fromAddr sdk.Address, toAddr sdk.Address, amt sdk.Coins) sdk.Error
-	// get account
-	GetAccount(ctx sdk.Ctx, addr sdk.Address) authexported.Account
 }
 
-type ViperKeeper interface {
-	// clear the cache of validators for sessions and relays
-	ClearSessionCache()
-}
-
-// ValidatorSet expected properties for the set of all validators (noalias)
-type ValidatorSet interface {
-	// iterate through validators by address, execute func for each validator
-	IterateAndExecuteOverVals(sdk.Ctx, func(index int64, validator posexported.ValidatorI) (stop bool))
-	// iterate through staked validators by address, execute func for each validator
-	IterateAndExecuteOverStakedVals(sdk.Ctx, func(index int64, validator posexported.ValidatorI) (stop bool))
-	// iterate through the validator set of the prevState block by address, execute func for each validator
-	IterateAndExecuteOverPrevStateVals(sdk.Ctx, func(index int64, validator posexported.ValidatorI) (stop bool))
-	// get a particular validator by address
-	Validator(sdk.Ctx, sdk.Address) posexported.ValidatorI
-	// total staked tokens within the validator set
+// ProviderSet expected properties for the set of all providers (noalias)
+type ProviderSet interface {
+	// iterate through providers by address, execute func for each provider
+	IterateAndExecuteOverProviders(sdk.Ctx, func(index int64, provider providerexported.ProviderI) (stop bool))
+	// iterate through staked providers by address, execute func for each provider
+	IterateAndExecuteOverStakedProviders(sdk.Ctx, func(index int64, provider providerexported.ProviderI) (stop bool))
+	// get a particular provider by address
+	Provider(sdk.Ctx, sdk.Address) providerexported.ProviderI
+	// total staked tokens within the provider set
 	TotalTokens(sdk.Ctx) sdk.BigInt
-	// jail a validator
-	JailValidator(sdk.Ctx, sdk.Address)
-	// unjail a validator
-	UnjailValidator(sdk.Ctx, sdk.Address)
-	// MaxValidators returns the maximum amount of staked validators
-	MaxValidators(sdk.Ctx) int64
+	// jail a provider
+	JailProvider(sdk.Ctx, sdk.Address)
+	// unjail a provider
+	UnjailProvider(sdk.Ctx, sdk.Address)
+	// MaxProviders returns the maximum amount of staked providers
+	MaxProviders(sdk.Ctx) int64
 }

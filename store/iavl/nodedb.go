@@ -30,7 +30,7 @@ var (
 	// of the node being orphaned.
 	orphanKeyFormat = NewKeyFormat('o', int64Size, int64Size, hashSize) // o<last-version><first-version><hash>
 
-	// Root providers are indexed separately by their version
+	// Root servicers are indexed separately by their version
 	rootKeyFormat = NewKeyFormat('r', int64Size) // r<version>
 )
 
@@ -205,15 +205,15 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 		}
 	}
 
-	// First, delete all active providers in the current (latest) version whose node version is after
+	// First, delete all active servicers in the current (latest) version whose node version is after
 	// the given version.
-	err = ndb.deleteProvidersFrom(version, root)
+	err = ndb.deleteServicersFrom(version, root)
 	if err != nil {
 		return err
 	}
 
 	// Next, delete orphans:
-	// - Remove orphan entries *and referred providers* with fromVersion >= version
+	// - Remove orphan entries *and referred servicers* with fromVersion >= version
 	// - Remove orphan entries with toVersion >= version-1 (since orphans at latest are not orphans)
 	ndb.traverseOrphans(func(key, hash []byte) {
 		var fromVersion, toVersion int64
@@ -236,21 +236,21 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 	return nil
 }
 
-// deleteProvidersFrom deletes the given node and any descendants that have versions after the given
+// deleteServicersFrom deletes the given node and any descendants that have versions after the given
 // (inclusive). It is mainly used via LoadVersionForOverwriting, to delete the current version.
-func (ndb *nodeDB) deleteProvidersFrom(version int64, hash []byte) error {
+func (ndb *nodeDB) deleteServicersFrom(version int64, hash []byte) error {
 	if len(hash) == 0 {
 		return nil
 	}
 
 	node := ndb.GetNode(hash)
 	if node.leftHash != nil {
-		if err := ndb.deleteProvidersFrom(version, node.leftHash); err != nil {
+		if err := ndb.deleteServicersFrom(version, node.leftHash); err != nil {
 			return err
 		}
 	}
 	if node.rightHash != nil {
-		if err := ndb.deleteProvidersFrom(version, node.rightHash); err != nil {
+		if err := ndb.deleteServicersFrom(version, node.rightHash); err != nil {
 			return err
 		}
 	}
@@ -263,9 +263,9 @@ func (ndb *nodeDB) deleteProvidersFrom(version int64, hash []byte) error {
 	return nil
 }
 
-// Saves orphaned providers to disk under a special prefix.
+// Saves orphaned servicers to disk under a special prefix.
 // version: the new version being saved.
-// orphans: the orphan providers created since version-1
+// orphans: the orphan servicers created since version-1
 func (ndb *nodeDB) SaveOrphans(version int64, orphans map[string]int64) {
 	ndb.mtx.Lock()
 	defer ndb.mtx.Unlock()
@@ -286,7 +286,7 @@ func (ndb *nodeDB) saveOrphan(hash []byte, fromVersion, toVersion int64) {
 	ndb.batch.Set(key, hash)
 }
 
-// deleteOrphans deletes orphaned providers from disk, and the associated orphan
+// deleteOrphans deletes orphaned servicers from disk, and the associated orphan
 // entries.
 func (ndb *nodeDB) deleteOrphans(version int64) {
 	// Will be zero if there is no previous version.
@@ -516,10 +516,10 @@ func (ndb *nodeDB) decrVersionReaders(version int64) {
 
 ////////////////// Utility and test functions /////////////////////////////////
 
-func (ndb *nodeDB) leafProviders() []*Node {
+func (ndb *nodeDB) leafServicers() []*Node {
 	leaves := []*Node{}
 
-	ndb.traverseProviders(func(hash []byte, node *Node) {
+	ndb.traverseServicers(func(hash []byte, node *Node) {
 		if node.isLeaf() {
 			leaves = append(leaves, node)
 		}
@@ -527,13 +527,13 @@ func (ndb *nodeDB) leafProviders() []*Node {
 	return leaves
 }
 
-func (ndb *nodeDB) providers() []*Node {
-	providers := []*Node{}
+func (ndb *nodeDB) servicers() []*Node {
+	servicers := []*Node{}
 
-	ndb.traverseProviders(func(hash []byte, node *Node) {
-		providers = append(providers, node)
+	ndb.traverseServicers(func(hash []byte, node *Node) {
+		servicers = append(servicers, node)
 	})
-	return providers
+	return servicers
 }
 
 func (ndb *nodeDB) orphans() [][]byte {
@@ -561,8 +561,8 @@ func (ndb *nodeDB) size() int {
 	return size
 }
 
-func (ndb *nodeDB) traverseProviders(fn func(hash []byte, node *Node)) {
-	providers := []*Node{}
+func (ndb *nodeDB) traverseServicers(fn func(hash []byte, node *Node)) {
+	servicers := []*Node{}
 
 	ndb.traversePrefix(nodeKeyFormat.Key(), func(key, value []byte) {
 		node, err := MakeNode(value)
@@ -570,14 +570,14 @@ func (ndb *nodeDB) traverseProviders(fn func(hash []byte, node *Node)) {
 			panic(fmt.Sprintf("Couldn't decode node from database: %v", err))
 		}
 		nodeKeyFormat.Scan(key, &node.hash)
-		providers = append(providers, node)
+		servicers = append(servicers, node)
 	})
 
-	sort.Slice(providers, func(i, j int) bool {
-		return bytes.Compare(providers[i].key, providers[j].key) < 0
+	sort.Slice(servicers, func(i, j int) bool {
+		return bytes.Compare(servicers[i].key, servicers[j].key) < 0
 	})
 
-	for _, n := range providers {
+	for _, n := range servicers {
 		fn(n.hash, n)
 	}
 }
@@ -596,7 +596,7 @@ func (ndb *nodeDB) String() string {
 	})
 	str += "\n"
 
-	ndb.traverseProviders(func(hash []byte, node *Node) {
+	ndb.traverseServicers(func(hash []byte, node *Node) {
 		switch {
 		case len(hash) == 0:
 			str += "<nil>\n"

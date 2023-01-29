@@ -24,7 +24,7 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.PlatformModuleBasic{},
+		authentication.ProviderModuleBasic{},
 	)
 )
 
@@ -86,7 +86,7 @@ func createTestKeeperAndContext(t *testing.T, isCheckTx bool) (sdk.Context, Keep
 	ak.GetModuleAccount(ctx, "FAKE")
 	pk := NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, governanceTypes.DefaultParamspace, ak, akSubspace)
 	moduleManager := module.NewManager(
-		authentication.NewPlatformModule(ak),
+		authentication.NewProviderModule(ak),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)

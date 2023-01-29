@@ -10,7 +10,7 @@ import (
 	"github.com/willf/bloom"
 )
 
-// "Evidence" - A proof of work/burn for providers.
+// "Evidence" - A proof of work/burn for servicers.
 type Evidence struct {
 	Bloom         bloom.BloomFilter        `json:"bloom_filter"` // used to check if proof contains
 	SessionHeader `json:"evidence_header"` // the session h serves as an identifier for the evidence
@@ -69,7 +69,7 @@ func (e *Evidence) GenerateMerkleProof(height int64, index int, maxRelays int64)
 	return
 }
 
-// "Evidence" - A proof of work/burn for providers.
+// "Evidence" - A proof of work/burn for servicers.
 type evidence struct {
 	BloomBytes    []byte                   `json:"bloom_bytes"`
 	SessionHeader `json:"evidence_header"` // the session h serves as an identifier for the evidence

@@ -6,58 +6,51 @@ import (
 
 // query endpoints supported by the staking Querier
 const (
-	QueryValidators     = "validators"
-	QueryValidator      = "validator"
-	QueryStakedPool     = "stakedPool"
-	QueryUnstakedPool   = "unstakedPool"
-	QueryParameters     = "parameters"
-	QueryTotalSupply    = "total_supply"
-	QuerySigningInfo    = "signingInfo"
-	QuerySigningInfos   = "signingInfos"
-	QueryAccountBalance = "account_balance"
-	QueryAccount        = "account"
+	QueryProviders            = "providers"
+	QueryProvider             = "provider"
+	QueryProviderStakedPool   = "providerStakedPool"
+	QueryProviderUnstakedPool = "providerUnstakedPool"
+	QueryParameters           = "parameters"
 )
 
-type QueryValidatorParams struct {
+type QueryProviderParams struct {
 	Address sdk.Address
 }
 
-func NewQueryValidatorParams(validatorAddr sdk.Address) QueryValidatorParams {
-	return QueryValidatorParams{
-		Address: validatorAddr,
+func NewQueryProviderParams(providerAddr sdk.Address) QueryProviderParams {
+	return QueryProviderParams{
+		Address: providerAddr,
 	}
 }
 
-type QueryValidatorsParams struct {
-	StakingStatus sdk.StakeStatus `json:"staking_status"`
-	JailedStatus  int             `json:"jailed_status"`
-	Blockchain    string          `json:"blockchain"`
+type QueryProvidersParams struct {
+	Page, Limit int
+}
+
+func NewQueryProvidersParams(page, limit int) QueryProvidersParams {
+	return QueryProvidersParams{page, limit}
+}
+
+type QueryUnstakingProvidersParams struct {
+	Page, Limit int
+}
+
+type QueryProvidersWithOpts struct {
 	Page          int             `json:"page"`
 	Limit         int             `json:"per_page"`
+	StakingStatus sdk.StakeStatus `json:"staking_status"`
+	Blockchain    string          `json:"blockchain"`
 }
 
-// "IsValid" - Checks that the validator is valid for the options passed
-func (opts QueryValidatorsParams) IsValid(val Validator) bool {
-	if opts.JailedStatus != 0 {
-		switch opts.JailedStatus {
-		case 1: // 1 is jailed
-			if !val.Jailed {
-				return false
-			}
-		case 2: // 2 is unjailed
-			if val.Jailed {
-				return false
-			}
-		}
-	}
+func (opts QueryProvidersWithOpts) IsValid(provider Provider) bool {
 	if opts.StakingStatus != 0 {
-		if opts.StakingStatus != val.Status {
+		if opts.StakingStatus != provider.Status {
 			return false
 		}
 	}
 	if opts.Blockchain != "" {
 		var contains bool
-		for _, chain := range val.Chains {
+		for _, chain := range provider.Chains {
 			if chain == opts.Blockchain {
 				contains = true
 				break
@@ -70,50 +63,6 @@ func (opts QueryValidatorsParams) IsValid(val Validator) bool {
 	return true
 }
 
-type QueryAccountBalanceParams struct {
-	sdk.Address
-}
-
-type QueryAccountParams struct {
-	sdk.Address
-}
-
-type QueryUnstakingValidatorsParams struct {
+type QueryStakedProvidersParams struct {
 	Page, Limit int
-}
-
-func NewQueryUnstakingValidatorsParams(page, limit int) QueryUnstakingValidatorsParams {
-	return QueryUnstakingValidatorsParams{page, limit}
-}
-
-type QueryStakedValidatorsParams struct {
-	Page, Limit int
-}
-
-func NewQueryStakedValidatorsParams(page, limit int) QueryStakedValidatorsParams {
-	return QueryStakedValidatorsParams{page, limit}
-}
-
-type QueryUnstakedValidatorsParams struct {
-	Page, Limit int
-}
-
-func NewQueryUnstakedValidatorsParams(page, limit int) QueryUnstakedValidatorsParams {
-	return QueryUnstakedValidatorsParams{page, limit}
-}
-
-type QuerySigningInfoParams struct {
-	Address sdk.Address
-}
-
-func NewQuerySigningInfoParams(consAddr sdk.Address) QuerySigningInfoParams {
-	return QuerySigningInfoParams{consAddr}
-}
-
-type QuerySigningInfosParams struct {
-	Page, Limit int
-}
-
-func NewQuerySigningInfosParams(page, limit int) QuerySigningInfosParams {
-	return QuerySigningInfosParams{page, limit}
 }

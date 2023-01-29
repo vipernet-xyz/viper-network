@@ -23,8 +23,8 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Operating System or Platform:**
-Please indicate the platform(s) where the bug is happening.
+**Operating System or Provider:**
+Please indicate the provider(s) where the bug is happening.
 
 **Additional context**
 Add any other context about the problem here.

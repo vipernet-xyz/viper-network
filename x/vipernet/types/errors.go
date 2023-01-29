@@ -16,14 +16,14 @@ const (
 	CodePublKeyDecodeError                 = 6
 	CodeEmptyChainError                    = 8
 	CodeEmptyBlockIDError                  = 9
-	CodePlatformPubKeyError                = 10
+	CodeProviderPubKeyError                = 10
 	CodeEmptyProofsError                   = 11
-	CodeUnsupportedBlockchainPlatformError = 13
+	CodeUnsupportedBlockchainProviderError = 13
 	CodeInvalidSessionError                = 14
-	CodeInsufficientProvidersError         = 17
+	CodeInsufficientServicersError         = 17
 	CodeEmptyNonNativeChainError           = 18
 	CodeInvalidSessionKeyError             = 19
-	CodeFilterProvidersError               = 20
+	CodeFilterServicersError               = 20
 	CodeXORError                           = 21
 	CodeInvalidHashError                   = 22
 	CodeEmptyBlockHashError                = 23
@@ -48,7 +48,7 @@ const (
 	CodePubKeySizeError                    = 42
 	CodeEmptyKeybaseError                  = 43
 	CodeSelfNotFoundError                  = 44
-	CodePlatformNotFoundError              = 45
+	CodeProviderNotFoundError              = 45
 	CodeChainNotHostedError                = 46
 	CodeInvalidHostedChainsError           = 47
 	CodeNodeNotFoundError                  = 48
@@ -64,7 +64,7 @@ const (
 	CodeInvalidBlockchainHashLengthError   = 58
 	CodeEmptySessionKeyError               = 59
 	CodeInvalidBlockHeightError            = 60
-	CodeInvalidPlatformPubKeyError         = 61
+	CodeInvalidProviderPubKeyError         = 61
 	CodeInvalidHashLengthError             = 62
 	CodeInvalidLeafCousinProofsCombo       = 63
 	CodeEmptyAddressError                  = 64
@@ -82,7 +82,7 @@ const (
 	CodeUnsupportedBlockchainError         = 76
 	CodeDuplicatePublicKeyError            = 77
 	CodeMismatchedRequestHashError         = 78
-	CodeNewMismatchedPlatformPubKeyError   = 79
+	CodeNewMismatchedProviderPubKeyError   = 79
 	CodeMismatchedSessionHeightError       = 80
 	CodeMismatchedBlockchainsError         = 81
 	CodeNoMajorityResponseError            = 82
@@ -97,16 +97,16 @@ const (
 )
 
 var (
-	MissingTokenVersionError           = errors.New("the platformlication authentication token version is missing")
-	UnsupportedTokenVersionError       = errors.New("the platformlication authentication token version is not supported")
-	MissingPlatformPublicKeyError      = errors.New("the platformlicaiton public key included in the AAT is not valid")
+	MissingTokenVersionError           = errors.New("the providerlication authentication token version is missing")
+	UnsupportedTokenVersionError       = errors.New("the providerlication authentication token version is not supported")
+	MissingProviderPublicKeyError      = errors.New("the providerlicaiton public key included in the AAT is not valid")
 	MissingClientPublicKeyError        = errors.New("the client public key included in the AAT is not valid")
-	InvalidTokenSignatureErorr         = errors.New("the platformlication signature on the AAT is not valid")
+	InvalidTokenSignatureErorr         = errors.New("the providerlication signature on the AAT is not valid")
 	NegativeICCounterError             = errors.New("the IC counter is less than 0")
 	MaximumEntropyError                = errors.New("the entropy exceeds the maximum allowed relays")
-	NodeNotInSessionError              = errors.New("the provider is not within the session")
-	InvalidNodePubKeyError             = errors.New("the provider public key in the service Proof does not match this providers public key")
-	InvalidTokenError                  = errors.New("the platformlication authentication token is invalid")
+	NodeNotInSessionError              = errors.New("the servicer is not within the session")
+	InvalidNodePubKeyError             = errors.New("the servicer public key in the service Proof does not match this servicers public key")
+	InvalidTokenError                  = errors.New("the providerlication authentication token is invalid")
 	EmptyProofsError                   = errors.New("the service proofs object is empty")
 	DuplicateProofError                = errors.New("the Proof with specific merkleHash already found, check entropy")
 	InvalidEntropyError                = errors.New("the entropy included in the relay request is invalid")
@@ -115,19 +115,19 @@ var (
 	EmptyBlockchainError               = errors.New("the blockchain included in the relay request is empty")
 	EmptyPayloadDataError              = errors.New("the payload data of the relay request is empty")
 	UnsupportedBlockchainError         = errors.New("the blockchain in this request is not supported")
-	UnsupportedBlockchainPlatformError = errors.New("the blockchain in the relay request is not supported for this platform")
-	UnsupportedBlockchainNodeError     = errors.New("the blockchain in the relay request is not supported on this provider")
+	UnsupportedBlockchainProviderError = errors.New("the blockchain in the relay request is not supported for this provider")
+	UnsupportedBlockchainNodeError     = errors.New("the blockchain in the relay request is not supported on this servicer")
 	HttpStatusCodeError                = errors.New("HTTP status code returned not okay: ")
-	InvalidSessionError                = errors.New("this provider (self) is not responsible for this session provided by the client")
+	InvalidSessionError                = errors.New("this servicer (self) is not responsible for this session provided by the client")
 	ServiceSessionGenerationError      = errors.New("unable to generate a session for the seed data: ")
-	NotStakedBlockchainError           = errors.New("the blockchain is not staked for this platformlication")
-	EmptyPlatformPubKeyError           = errors.New("the public key of the platformlication is of Length 0")
+	NotStakedBlockchainError           = errors.New("the blockchain is not staked for this providerlication")
+	EmptyProviderPubKeyError           = errors.New("the public key of the providerlication is of Length 0")
 	EmptyNonNativeChainError           = errors.New("the non-native chain is of Length 0")
 	EmptyBlockIDError                  = errors.New("the block addr is of Length 0")
-	InsufficientProvidersError         = errors.New("there are less than the minimum session providers found")
+	InsufficientServicersError         = errors.New("there are less than the minimum session servicers found")
 	EmptySessionKeyError               = errors.New("the session key passed is of Length 0")
 	MismatchedByteArraysError          = errors.New("the byte arrays are not of the same Length")
-	FilterProvidersError               = errors.New("unable to filter providers: ")
+	FilterServicersError               = errors.New("unable to filter servicers: ")
 	XORError                           = errors.New("error XORing the keys: ")
 	PubKeyDecodeError                  = errors.New("error decoding the string into hex bytes")
 	InvalidHashError                   = errors.New("the hash is invalid: ")
@@ -140,12 +140,12 @@ var (
 	InvalidSignatureError              = errors.New("the signature could not be verified with the message and pub key")
 	PubKeySizeError                    = errors.New("the public key is not the correct cap")
 	KeybaseError                       = errors.New("the keybase is invalid: ")
-	SelfNotFoundError                  = errors.New("the self provider is not within the world state")
-	PlatformNotFoundError              = errors.New("the platform could not be found in the world state")
+	SelfNotFoundError                  = errors.New("the self servicer is not within the world state")
+	ProviderNotFoundError              = errors.New("the provider could not be found in the world state")
 	RequestHashError                   = errors.New("the request hash does not match the payload hash")
 	InvalidHostedChainError            = errors.New("invalid hosted chain error")
 	ChainNotHostedError                = errors.New("the blockchain requested is not hosted")
-	NodeNotFoundErr                    = errors.New("the provider is not found in world state")
+	NodeNotFoundErr                    = errors.New("the servicer is not found in world state")
 	InvalidProofsError                 = errors.New("the proofs provided are invalid or less than the minimum requirement")
 	InconsistentPubKeyError            = errors.New("the public keys in the proofs are inconsistent")
 	InvalidChainParamsError            = errors.New("the required params for a nonNative blockchain are invalid")
@@ -157,25 +157,25 @@ var (
 	JSONMarshalError                   = errors.New("unable to marshal object into json: ")
 	InvalidNetworkIDLengthError        = errors.New("the netid Length is invalid")
 	InvalidBlockHeightError            = errors.New("the block height passed is invalid")
-	InvalidPlatformPubKeyError         = errors.New("the platform public key is invalid")
+	InvalidProviderPubKeyError         = errors.New("the provider public key is invalid")
 	InvalidHashLengthError             = errors.New("the merkleHash Length is not valid")
 	InvalidLeafCousinProofsCombo       = errors.New("the merkle relayProof combo for the cousin and leaf is invalid")
 	EmptyAddressError                  = errors.New("the address provided is empty")
 	ClaimNotFoundError                 = errors.New("the claim was not found for the key given")
 	InvalidMerkleVerifyError           = errors.New("claim resulted in an invalid merkle Proof")
 	EmptyMerkleTreeError               = errors.New("the merkle tree is empty")
-	NodeNotFoundError                  = errors.New("the provider of the merkle tree requested is not found")
+	NodeNotFoundError                  = errors.New("the servicer of the merkle tree requested is not found")
 	ExpiredProofsSubmissionError       = errors.New("the opportunity of window to submit the Proof has closed because the secret has been revealed")
 	AddressError                       = errors.New("the address is invalid")
-	OverServiceError                   = errors.New("the max number of relays serviced for this provider is exceeded")
+	OverServiceError                   = errors.New("the max number of relays serviced for this servicer is exceeded")
 	UninitializedKeybaseError          = errors.New("the keybase is nil")
 	CousinLeafEquivalentError          = errors.New("the cousin and leaf cannot be equal")
 	InvalidRootError                   = errors.New("the merkle root passed is invalid")
-	MerkleNodeNotFoundError            = errors.New("the merkle provider cannot be found")
+	MerkleNodeNotFoundError            = errors.New("the merkle servicer cannot be found")
 	OutOfSyncRequestError              = errors.New("the request block height is out of sync with the current block height")
 	DuplicatePublicKeyError            = errors.New("the public key is duplicated in the proof")
 	MismatchedRequestHashError         = errors.New("the request hashes included in the proof do not match")
-	MismatchedPlatformPubKeyError      = errors.New("the platformlication public keys included in the proofs do not match")
+	MismatchedProviderPubKeyError      = errors.New("the providerlication public keys included in the proofs do not match")
 	MismatchedSessionHeightError       = errors.New("the session block heights included in the proofs do not match")
 	MismatchedBlockchainsError         = errors.New("the non-native blockchains provided in the proofs do not match")
 	NoMajorityResponseError            = errors.New("no majority can be established between all of the responses")
@@ -253,8 +253,8 @@ func NewInvalidHashLengthError(codespace sdk.CodespaceType) sdk.Error {
 func NewInvalidNetIDLengthError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidNetworkIDError, InvalidNetworkIDLengthError.Error())
 }
-func NewInvalidPlatformPubKeyError(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidPlatformPubKeyError, InvalidPlatformPubKeyError.Error())
+func NewInvalidProviderPubKeyError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidProviderPubKeyError, InvalidProviderPubKeyError.Error())
 }
 
 func NewInvalidBlockHeightError(codespace sdk.CodespaceType) sdk.Error {
@@ -277,8 +277,8 @@ func NewMismatchedRequestHashError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeMismatchedRequestHashError, MismatchedRequestHashError.Error())
 }
 
-func NewMismatchedPlatformPubKeyError(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeNewMismatchedPlatformPubKeyError, MismatchedPlatformPubKeyError.Error())
+func NewMismatchedProviderPubKeyError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeNewMismatchedProviderPubKeyError, MismatchedProviderPubKeyError.Error())
 }
 
 func NewMismatchedSessionHeightError(codespace sdk.CodespaceType) sdk.Error {
@@ -341,8 +341,8 @@ func NewErrorChainNotHostedError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeChainNotHostedError, ChainNotHostedError.Error())
 }
 
-func NewPlatformNotFoundError(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodePlatformNotFoundError, PlatformNotFoundError.Error())
+func NewProviderNotFoundError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeProviderNotFoundError, ProviderNotFoundError.Error())
 }
 
 func NewSelfNotFoundError(codespace sdk.CodespaceType) sdk.Error {
@@ -429,8 +429,8 @@ func NewXORError(codespace sdk.CodespaceType, err error) sdk.Error {
 	return sdk.NewError(codespace, CodeXORError, XORError.Error()+err.Error())
 }
 
-func NewFilterProvidersError(codespace sdk.CodespaceType, err error) sdk.Error {
-	return sdk.NewError(codespace, CodeFilterProvidersError, FilterProvidersError.Error()+err.Error())
+func NewFilterServicersError(codespace sdk.CodespaceType, err error) sdk.Error {
+	return sdk.NewError(codespace, CodeFilterServicersError, FilterServicersError.Error()+err.Error())
 }
 
 func NewInvalidSessionKeyError(codespace sdk.CodespaceType, err error) sdk.Error {
@@ -441,16 +441,16 @@ func NewEmptyNonNativeChainError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeEmptyNonNativeChainError, EmptyNonNativeChainError.Error())
 }
 
-func NewInsufficientProvidersError(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInsufficientProvidersError, InsufficientProvidersError.Error())
+func NewInsufficientServicersError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInsufficientServicersError, InsufficientServicersError.Error())
 }
 
 func NewInvalidSessionError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidSessionError, InvalidSessionError.Error())
 }
 
-func NewUnsupportedBlockchainPlatformError(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeUnsupportedBlockchainPlatformError, UnsupportedBlockchainPlatformError.Error())
+func NewUnsupportedBlockchainProviderError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeUnsupportedBlockchainProviderError, UnsupportedBlockchainProviderError.Error())
 }
 
 func NewEmptyProofsError(codespace sdk.CodespaceType) sdk.Error {
