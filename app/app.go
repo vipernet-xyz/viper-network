@@ -7,6 +7,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/authentication/ante"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
@@ -115,7 +116,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	} else {
 		app.SetInitChainer(app.InitChainerWithGenesis)
 	}
-	app.SetAnteHandler(authentication.NewAnteHandler(app.accountKeeper))
+	app.SetAnteHandler(ante.NewAnteHandler(app.accountKeeper))
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 	// initialize stores
