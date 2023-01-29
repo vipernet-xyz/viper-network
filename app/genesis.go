@@ -24,7 +24,7 @@ import (
 
 var mainnetGenesis = `{ }`
 
-var testnetGenesis = `{  }`
+var testnetGenesis = `{ }`
 
 func GenesisStateFromJson(json string) GenesisState {
 	genDoc, err := tmType.GenesisDocFromJSON([]byte(json))
