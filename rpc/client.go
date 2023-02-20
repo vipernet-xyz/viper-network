@@ -238,7 +238,7 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth types.BasicAut
 	}
 	// add headers if needed
 	if len(headers) == 0 {
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", "provider/json")
 	} else {
 		for k, v := range headers {
 			req.Header.Set(k, v)

@@ -147,7 +147,7 @@ func WriteResponse(w http.ResponseWriter, jsn, path, ip string) {
 		WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		fmt.Println(err.Error())
 	} else {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
 		_, err := w.Write(b)
 		if err != nil {
 			fmt.Println(fmt.Errorf("error in RPC Handler WriteResponse: %v", err))
@@ -156,7 +156,7 @@ func WriteResponse(w http.ResponseWriter, jsn, path, ip string) {
 }
 
 func WriteRaw(w http.ResponseWriter, jsn, path, ip string) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte(jsn))
 	if err != nil {
@@ -165,7 +165,7 @@ func WriteRaw(w http.ResponseWriter, jsn, path, ip string) {
 }
 
 func WriteJSONResponse(w http.ResponseWriter, jsn, path, ip string) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Type", "provider/json; charset=utf-8")
 	var raw map[string]interface{}
 	if err := json.Unmarshal([]byte(jsn), &raw); err != nil {
 		WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -181,7 +181,7 @@ func WriteJSONResponse(w http.ResponseWriter, jsn, path, ip string) {
 }
 
 func WriteJSONResponseWithCode(w http.ResponseWriter, jsn, path, ip string, code int) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Type", "provider/json; charset=utf-8")
 	var raw map[string]interface{}
 	if err := json.Unmarshal([]byte(jsn), &raw); err != nil {
 		WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -197,7 +197,7 @@ func WriteJSONResponseWithCode(w http.ResponseWriter, jsn, path, ip string, code
 }
 
 func WriteErrorResponse(w http.ResponseWriter, errorCode int, errorMsg string) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
 	w.WriteHeader(errorCode)
 	err := json.NewEncoder(w).Encode(&rpcError{
 		Code:    errorCode,

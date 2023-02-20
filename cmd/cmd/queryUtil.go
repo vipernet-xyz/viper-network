@@ -122,7 +122,7 @@ func QueryRPC(path string, jsonArgs []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "provider/json")
 	client := &http.Client{
 		Timeout: types.GetRPCTimeout() * time.Millisecond,
 	}
@@ -159,7 +159,7 @@ func QuerySecuredRPC(path string, jsonArgs []byte, token sdk.AuthToken) (string,
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "provider/json")
 	q := req.URL.Query()
 	q.Add("authtoken", token.Value)
 	req.URL.RawQuery = q.Encode()

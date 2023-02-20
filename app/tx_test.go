@@ -640,14 +640,14 @@ func TestChangeParamsSimpleTx(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err := governance.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "application/StabilityAdjustment", 100, "test", 1000000, false)
+			tx, err := governance.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "provider/StabilityAdjustment", 100, "test", 1000000, false)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			select {
 			case _ = <-evtChan:
 				//fmt.Println(res)
 				assert.Nil(t, err)
-				o, _ := VCA.QueryParam(VCA.LastBlockHeight(), "application/StabilityAdjustment")
+				o, _ := VCA.QueryParam(VCA.LastBlockHeight(), "provider/StabilityAdjustment")
 				assert.Equal(t, "100", o.Value)
 				cleanup()
 				stopCli()

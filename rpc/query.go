@@ -414,7 +414,7 @@ func Servicers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
 	_, err = w.Write(j)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
@@ -623,7 +623,7 @@ func Providers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
 	_, err = w.Write(j)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
