@@ -88,7 +88,7 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 	if er != nil {
 		return nil, sdk.ErrInternal(er.Error())
 	}
-	// get the providerlication that staked on behalf of the client
+	// get the provider that staked on behalf of the client
 	provider, found := k.GetProviderFromPublicKey(sessionCtx, challenge.MinorityResponse.Proof.Token.ProviderPublicKey)
 	if !found {
 		return nil, vc.NewProviderNotFoundError(vc.ModuleName)

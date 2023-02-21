@@ -8,7 +8,7 @@ import (
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
-// "AATGeneration" - Generates an providerlication authentication token with an providerlication public key hex string
+// "AATGeneration" - Generates an provider authentication token with an provider public key hex string
 // a client public key hex string, a passphrase and a keybase. The contract is that the keybase contains the provider pub key
 // and the passphrase corresponds to the provider public key keypair.
 func AATGeneration(providerPubKey string, clientPubKey string, key crypto.PrivateKey) (vc.AAT, sdk.Error) {

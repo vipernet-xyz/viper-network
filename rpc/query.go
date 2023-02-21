@@ -16,7 +16,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	providerTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/julienschmidt/httprouter"
@@ -51,8 +51,8 @@ type HeightAndValidatorOptsParams struct {
 }
 
 type HeightAndProviderOptsParams struct {
-	Height int64                                `json:"height"`
-	Opts   providerTypes.QueryProvidersWithOpts `json:"opts"`
+	Height int64                                 `json:"height"`
+	Opts   providersTypes.QueryProvidersWithOpts `json:"opts"`
 }
 
 type PaginateAddrParams struct {

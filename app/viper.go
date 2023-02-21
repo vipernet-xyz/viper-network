@@ -208,5 +208,5 @@ var (
 )
 
 const (
-	appName = "viper-core"
+	appName = "viper-network"
 )

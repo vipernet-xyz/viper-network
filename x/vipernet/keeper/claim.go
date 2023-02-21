@@ -120,7 +120,7 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	if !found {
 		return vc.NewNodeNotFoundErr(vc.ModuleName)
 	}
-	// get the providerlication (at the state of the start of the session)
+	// get the provider (at the state of the start of the session)
 	provider, found := k.GetProviderFromPublicKey(sessionContext, claim.SessionHeader.ProviderPubKey)
 	// if not found return not found error
 	if !found {

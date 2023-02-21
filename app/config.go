@@ -26,7 +26,7 @@ import (
 	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
-	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
+	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -78,7 +78,7 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 	GlobalConfig.ViperConfig.Cache = useCache
 	// init AuthToken
-	InitAuthToken(GlobalConfig.ViperConfig.GenerateTokenOnStart)
+	InitAuthToken()
 	// init the keyfiles
 	InitKeyfiles()
 	// get hosted blockchains
@@ -401,7 +401,7 @@ func InitViperCoreConfig(chains *types.HostedBlockchains, logger log.Logger) {
 	logger.Info("Initializing ctx cache")
 	sdk.InitCtxCache(GlobalConfig.ViperConfig.CtxCacheSize)
 	logger.Info("Initializing pos config")
-	servicersTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
+	servicerTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
 	logger.Info("Initializing app config")
 	providersTypes.InitConfig(GlobalConfig.ViperConfig.ProviderCacheSize)
 }
@@ -547,7 +547,7 @@ func HotReloadChains(chains *types.HostedBlockchains) {
 			}
 			m := make(map[string]types.HostedBlockchain)
 			for _, chain := range hostedChainsSlice {
-				if err := servicersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+				if err := servicerTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 					log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 				}
 				m[chain.ID] = chain
@@ -597,7 +597,7 @@ func NewHostedChains(generate bool) *types.HostedBlockchains {
 	}
 	m := make(map[string]types.HostedBlockchain)
 	for _, chain := range hostedChainsSlice {
-		if err := servicersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+		if err := servicerTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 			log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 		}
 		m[chain.ID] = chain
@@ -635,7 +635,7 @@ func generateChainsJson(chainsPath string) *types.HostedBlockchains {
 	}
 	m := make(map[string]types.HostedBlockchain)
 	for _, chain := range c {
-		if err := servicersTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
+		if err := servicerTypes.ValidateNetworkIdentifier(chain.ID); err != nil {
 			log2.Fatal(fmt.Sprintf("invalid ID: %s in network identifier in %s file", chain.ID, GlobalConfig.ViperConfig.ChainsName))
 		}
 		m[chain.ID] = chain
@@ -662,7 +662,7 @@ func GenerateHostedChains() (chains []types.HostedBlockchain) {
 			os.Exit(3)
 		}
 		ID = strings.Trim(strings.TrimSpace(ID), "\n")
-		if err := servicersTypes.ValidateNetworkIdentifier(ID); err != nil {
+		if err := servicerTypes.ValidateNetworkIdentifier(ID); err != nil {
 			fmt.Println(err)
 			fmt.Println("please try again")
 			continue
@@ -722,7 +722,7 @@ func Codec() *codec.Codec {
 func MakeCodec() {
 	// create a new codec
 	cdc = codec.NewCodec(types2.NewInterfaceRegistry())
-	// register all the app module types
+	// register all of the app module types
 	module.NewBasicManager(
 		providers.ProviderModuleBasic{},
 		authentication.ProviderModuleBasic{},
@@ -869,25 +869,7 @@ func GetDefaultConfig(datadir string) string {
 	return string(jsonbytes)
 }
 
-func InitAuthToken(generateToken bool) {
-	//Example authentication.json located in the config folder
-	//{
-	//	"Value": "S6fvg51BOeUO89HafOhF6jPuT",
-	//	"Issued": "2022-06-20T16:06:47.419153-04:00"
-	//}
-
-	if generateToken {
-		//default behaviour: generate a new token on each start.
-		GenerateToken()
-	} else {
-		//new: if config is set to false use existing authentication.json and do not generate
-		//User should make sure file exist, else execution will end with error ("cannot open/create authentication token json file:"...)
-		t := GetAuthTokenFromFile()
-		AuthToken = t
-	}
-}
-
-func GenerateToken() {
+func InitAuthToken() {
 	var t = sdk.AuthToken{
 		Value:  rand.Str(25),
 		Issued: time.Now(),
@@ -900,18 +882,18 @@ func GenerateToken() {
 
 	jsonFile, err := os.OpenFile(configFilepath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		log2.Fatalf("cannot open/create authentication token json file: " + err.Error())
+		log2.Fatalf("canot open/create auth token json file: " + err.Error())
 	}
 	err = jsonFile.Truncate(0)
 
 	b, err := json.MarshalIndent(t, "", "    ")
 	if err != nil {
-		log2.Fatalf("cannot marshal authentication token into json: " + err.Error())
+		log2.Fatalf("cannot marshal auth token into json: " + err.Error())
 	}
 	// write to the file
 	_, err = jsonFile.Write(b)
 	if err != nil {
-		log2.Fatalf("cannot write authentication token to json file: " + err.Error())
+		log2.Fatalf("cannot write auth token to json file: " + err.Error())
 	}
 
 	AuthToken = t
@@ -926,17 +908,17 @@ func GetAuthTokenFromFile() sdk.AuthToken {
 	defer jsonFile.Close()
 
 	if _, err := os.Stat(configFilepath); err == nil {
-		jsonFile, err = os.OpenFile(configFilepath, os.O_RDONLY, os.ModePerm)
+		jsonFile, err = os.OpenFile(configFilepath, os.O_RDWR, os.ModePerm)
 		if err != nil {
-			log2.Fatalf("cannot open authentication token json file: " + err.Error())
+			log2.Fatalf("cannot open config json file: " + err.Error())
 		}
 		b, err := ioutil.ReadAll(jsonFile)
 		if err != nil {
-			log2.Fatalf("cannot read authentication token json file: " + err.Error())
+			log2.Fatalf("cannot read config file: " + err.Error())
 		}
 		err = json.Unmarshal(b, &t)
 		if err != nil {
-			log2.Fatalf("cannot read authentication token json file into json: " + err.Error())
+			log2.Fatalf("cannot read config file into json: " + err.Error())
 		}
 	}
 

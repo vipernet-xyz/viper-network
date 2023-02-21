@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // SessionHeader defines the header for session information
 type SessionHeader struct {
-	ProviderPubKey  string `protobuf:"bytes,1,opt,name=providerlicationPubKey,proto3" json:"provider_public_key"`
+	ProviderPubKey  string `protobuf:"bytes,1,opt,name=providerPubKey,proto3" json:"provider_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
 	SessionBlockHeight int64  `protobuf:"varint,3,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }
@@ -441,9 +441,9 @@ var xxx_messageInfo_RelayResponse proto.InternalMessageInfo
 
 type AAT struct {
 	Version              string `protobuf:"bytes,1,opt,name=version,proto3" json:"version"`
-	ProviderPublicKey string `protobuf:"bytes,2,opt,name=providerlicationPublicKey,proto3" json:"provider_pub_key"`
+	ProviderPublicKey string `protobuf:"bytes,2,opt,name=providerPublicKey,proto3" json:"provider_pub_key"`
 	ClientPublicKey      string `protobuf:"bytes,3,opt,name=clientPublicKey,proto3" json:"client_pub_key"`
-	ProviderSignature string `protobuf:"bytes,4,opt,name=providerlicationSignature,proto3" json:"signature"`
+	ProviderSignature string `protobuf:"bytes,4,opt,name=providerSignature,proto3" json:"signature"`
 }
 
 func (m *AAT) Reset()         { *m = AAT{} }

@@ -511,7 +511,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl := govTypes.ACL{}
 		acl = make([]govTypes.ACLPair, 0)
 		acl.SetOwner("provider/MinimumProviderStake", kp.GetAddress())
-		acl.SetOwner("provider/AppUnstakingTime", kp.GetAddress())
+		acl.SetOwner("provider/ProviderUnstakingTime", kp.GetAddress())
 		acl.SetOwner("provider/BaseRelaysPerVIPR", kp.GetAddress())
 		acl.SetOwner("provider/MaxProviders", kp.GetAddress())
 		acl.SetOwner("provider/MaximumChains", kp.GetAddress())

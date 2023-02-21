@@ -26,7 +26,7 @@ jobs:
       - run: go build app/cmd/viper_main/main.go
       # Cache build
       - save_cache:
-          key: viper-core-build-{{ .Environment.CIRCLE_SHA1 }}
+          key: viper-network-build-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - /home/circleci/go/src/viper
       # Run tests
@@ -43,14 +43,14 @@ jobs:
     steps:
       # Restore build cache
       - restore_cache:
-          key: viper-core-build-{{ .Environment.CIRCLE_SHA1 }}
+          key: viper-network-build-{{ .Environment.CIRCLE_SHA1 }}
       # Run tests
       - run:
           name: 'test'
           command: go test -short -p 1 ./...
           no_output_timeout: 20m
   # Job to trigger the Viper Core deployments CI with a specific branch
-  trigger-viper-core-deployments-branches:
+  trigger-viper-network-deployments-branches:
     docker:
       - image: cimg/go:1.17
         environment:
@@ -59,7 +59,7 @@ jobs:
     steps:
       # Restore build cache
       - restore_cache:
-          key: viper-core-build-{{ .Environment.CIRCLE_SHA1 }}
+          key: viper-network-build-{{ .Environment.CIRCLE_SHA1 }}
       # Show the current branch
       - run: # test what branch we're on.
           name: "Current Branch"
@@ -78,7 +78,7 @@ jobs:
     steps:
       # Restore build cache
       - restore_cache:
-          key: viper-core-build-{{ .Environment.CIRCLE_SHA1 }}
+          key: viper-network-build-{{ .Environment.CIRCLE_SHA1 }}
       # Show the current Tag
       - run: # test what tag we're on.
           name: "Current Tag"
@@ -97,7 +97,7 @@ workflows:
       - test:
           requires:
             - build
-      - trigger-viper-core-deployments-branches:
+      - trigger-viper-network-deployments-branches:
           requires:
             - test
           filters:
@@ -127,7 +127,7 @@ workflows:
                 - /^stable-.*/
             branches:
               ignore: /.*/
-      - trigger-viper-core-deployments-tags:
+      - trigger-viper-network-deployments-tags:
           requires:
             - test
           filters:

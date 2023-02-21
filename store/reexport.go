@@ -5,7 +5,7 @@ import (
 	stypes "github.com/vipernet-xyz/viper-network/store/types"
 )
 
-// Import viper-core/types/store.go for convenience.
+// Import viper-network/types/store.go for convenience.
 // nolint
 type (
 	PruningOptions   = types.PruningOptions

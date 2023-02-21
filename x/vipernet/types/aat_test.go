@@ -202,7 +202,7 @@ func TestAAT_ValidateSignature(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	AATInvalidSignature.ProviderSignature = hex.EncodeToString(clientSignature)
-	// sign with the providerlication
+	// sign with the provider
 	var AATValidSignature = AAT{
 		Version:           "0.0.1",
 		ProviderPublicKey: providerPrivKey.PublicKey().RawString(),
@@ -265,10 +265,10 @@ func TestAAT_Validate(t *testing.T) {
 		ProviderSignature: "",
 	}
 	// sign with the client (invalid)
-	providerlicationSignature, err := providerPrivKey.Sign(AAT.Hash())
+	providerSignature, err := providerPrivKey.Sign(AAT.Hash())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	AAT.ProviderSignature = hex.EncodeToString(providerlicationSignature)
+	AAT.ProviderSignature = hex.EncodeToString(providerSignature)
 	assert.Nil(t, AAT.Validate())
 }

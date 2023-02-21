@@ -43,10 +43,10 @@ package baseapp
 //	sdk.RegisterCodec(cdc)
 //
 //	// register test types
-//	cdc.RegisterConcrete(&txTest{}, "viper-core/baseapp/txTest", nil)
-//	cdc.RegisterConcrete(&msgCounter{}, "viper-core/baseapp/msgCounter", nil)
-//	cdc.RegisterConcrete(&msgCounter2{}, "viper-core/baseapp/msgCounter2", nil)
-//	cdc.RegisterConcrete(&msgNoRoute{}, "viper-core/baseapp/msgNoRoute", nil)
+//	cdc.RegisterConcrete(&txTest{}, "viper-network/baseapp/txTest", nil)
+//	cdc.RegisterConcrete(&msgCounter{}, "viper-network/baseapp/msgCounter", nil)
+//	cdc.RegisterConcrete(&msgCounter2{}, "viper-network/baseapp/msgCounter2", nil)
+//	cdc.RegisterConcrete(&msgNoRoute{}, "viper-network/baseapp/msgNoRoute", nil)
 //}
 //
 //// simple one store baseapp
@@ -819,7 +819,7 @@ package baseapp
 //		// new codec so we can encode the tx, but we shouldn't be able to decode
 //		newCdc := codec.New()
 //		registerTestCodec(newCdc)
-//		newCdc.RegisterConcrete(&msgNoDecode{}, "viper-core/baseapp/msgNoDecode", nil)
+//		newCdc.RegisterConcrete(&msgNoDecode{}, "viper-network/baseapp/msgNoDecode", nil)
 //
 //		txBytes, err := newCdc.MarshalBinaryLengthPrefixed(tx)
 //		require.NoError(t, err)

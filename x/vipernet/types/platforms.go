@@ -6,7 +6,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 )
 
-// "GetProviderFromPublicKey" - Retrieves an providerlication from the provider store, using the providerKeeper (a link to the providers module)
+// "GetProviderFromPublicKey" - Retrieves an provider from the provider store, using the providerKeeper (a link to the providers module)
 // using a hex string public key
 func GetProviderFromPublicKey(ctx sdk.Ctx, providersKeeper ProvidersKeeper, pubKey string) (provider exported.ProviderI, found bool) {
 	pk, err := crypto.NewPublicKey(pubKey)
@@ -16,7 +16,7 @@ func GetProviderFromPublicKey(ctx sdk.Ctx, providersKeeper ProvidersKeeper, pubK
 	return GetProvider(ctx, providersKeeper, pk.Address().Bytes())
 }
 
-// "GetProvider" - Retrieves an providerlication from the provider store, using the providerKeeper (a link to the providers module)
+// "GetProvider" - Retrieves an provider from the provider store, using the providerKeeper (a link to the providers module)
 func GetProvider(ctx sdk.Ctx, providersKeeper ProvidersKeeper, address sdk.Address) (a exported.ProviderI, found bool) {
 	a = providersKeeper.Provider(ctx, address)
 	if a == nil {

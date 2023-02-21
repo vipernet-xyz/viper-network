@@ -52,7 +52,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper Provi
 	if er != nil {
 		return sdk.ZeroInt(), sdk.ErrInternal(er.Error())
 	}
-	// get the providerlication that staked on behalf of the client
+	// get the provider that staked on behalf of the client
 	provider, found := GetProviderFromPublicKey(sessionCtx, providersKeeper, r.Proof.Token.ProviderPublicKey)
 	if !found {
 		return sdk.ZeroInt(), NewProviderNotFoundError(ModuleName)
@@ -301,7 +301,7 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, met
 	}
 	// add headers if needed
 	if len(headers) == 0 {
-		req.Header.Set("Content-Type", "providerlication/json")
+		req.Header.Set("Content-Type", "provider/json")
 	} else {
 		for k, v := range headers {
 			req.Header.Set(k, v)

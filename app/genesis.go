@@ -139,7 +139,7 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl := governanceTypes.ACL{}
 	acl = make([]governanceTypes.ACLPair, 0)
 	acl.SetOwner("provider/MinimumProviderStake", addr)
-	acl.SetOwner("provider/AppUnstakingTime", addr)
+	acl.SetOwner("provider/ProviderUnstakingTime", addr)
 	acl.SetOwner("provider/BaseRelaysPerVIPR", addr)
 	acl.SetOwner("provider/MaxProviders", addr)
 	acl.SetOwner("provider/MaximumChains", addr)

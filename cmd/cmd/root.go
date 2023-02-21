@@ -69,7 +69,7 @@ func init() {
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start [--keybase=(true | false)]",
-	Short: "starts viper-core daemon",
+	Short: "starts viper-network daemon",
 	Long:  `Starts the Viper servicer, picks up the config from the assigned <datadir>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		t := time.Unix(1625263200, 0) // Friday, July 2, 2021 6:00:00 PM GMT-04:00
@@ -122,7 +122,7 @@ func start(cmd *cobra.Command, args []string) {
 // resetCmd represents the reset command
 var resetCmd = &cobra.Command{
 	Use:   "reset",
-	Short: "Reset viper-core",
+	Short: "Reset viper-network",
 	Long:  `Reset the Viper servicer daemon`,
 	Run:   app.ResetWorldState,
 }
@@ -138,8 +138,8 @@ var version = &cobra.Command{
 
 var stopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Stop viper-core",
-	Long:  `Stop viper-core`,
+	Short: "Stop viper-network",
+	Long:  `Stop viper-network`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		res, err := QuerySecuredRPC(GetStopPath, []byte{}, app.GetAuthTokenFromFile())

@@ -11,7 +11,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
-// "Session" - The relationship between an providerlication and the viper network
+// "Session" - The relationship between an provider and the viper network
 
 func (s Session) IsSealed() bool {
 	return false

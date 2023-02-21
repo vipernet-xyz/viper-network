@@ -155,13 +155,13 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 		}
 		return servicerAddr, claim, vc.NewInvalidMerkleVerifyError(vc.ModuleName)
 	}
-	// get the providerlication
-	providerlication, found := k.GetProviderFromPublicKey(sessionCtx, claim.SessionHeader.ProviderPubKey)
+	// get the provider
+	provider, found := k.GetProviderFromPublicKey(sessionCtx, claim.SessionHeader.ProviderPubKey)
 	if !found {
 		return servicerAddr, claim, vc.NewProviderNotFoundError(vc.ModuleName)
 	}
 	// validate the proof depending on the type of proof it is
-	er := proof.GetLeaf().Validate(providerlication.GetChains(), int(k.SessionNodeCount(sessionCtx)), claim.SessionHeader.SessionBlockHeight)
+	er := proof.GetLeaf().Validate(provider.GetChains(), int(k.SessionNodeCount(sessionCtx)), claim.SessionHeader.SessionBlockHeight)
 	if er != nil {
 		return nil, claim, er
 	}
@@ -170,7 +170,7 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 }
 
 func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) (tokens sdk.BigInt, err sdk.Error) {
-	//providerlication address
+	//provider address
 	providerAddress := sdk.Address(claim.SessionHeader.ProviderPubKey)
 	// convert to value for switch consistency
 	l := proof.GetLeaf()

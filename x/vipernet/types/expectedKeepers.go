@@ -25,7 +25,7 @@ type PosKeeper interface {
 type ProvidersKeeper interface {
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
 	Provider(ctx sdk.Ctx, addr sdk.Address) providerexported.ProviderI
-	AllProviders(ctx sdk.Ctx) (providerlications []providerexported.ProviderI)
+	AllProviders(ctx sdk.Ctx) (providers []providerexported.ProviderI)
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
 	JailProvider(ctx sdk.Ctx, addr sdk.Address)
 }

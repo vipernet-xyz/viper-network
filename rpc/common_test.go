@@ -380,30 +380,30 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/SlashFractionDoubleSign", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDowntime", kp.GetAddress())
 		acl.SetOwner("authentication/FeeMultipliers", kp.GetAddress())
-		acl.SetOwner("providerlication/ProviderStakeMinimum", kp.GetAddress())
+		acl.SetOwner("provider/ProviderStakeMinimum", kp.GetAddress())
 		acl.SetOwner("vipercore/ClaimExpiration", kp.GetAddress())
 		acl.SetOwner("vipercore/SessionNodeCount", kp.GetAddress())
 		acl.SetOwner("vipercore/MinimumNumberOfProofs", kp.GetAddress())
 		acl.SetOwner("vipercore/ReplayAttackBurnMultiplier", kp.GetAddress())
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
-		acl.SetOwner("providerlication/StabilityAdjustment", kp.GetAddress())
-		acl.SetOwner("providerlication/AppUnstakingTime", kp.GetAddress())
-		acl.SetOwner("providerlication/ParticipationRateOn", kp.GetAddress())
+		acl.SetOwner("provider/StabilityAdjustment", kp.GetAddress())
+		acl.SetOwner("provider/", kp.GetAddress())
+		acl.SetOwner("provider/ParticipationRateOn", kp.GetAddress())
 		acl.SetOwner("pos/MaxEvidenceAge", kp.GetAddress())
 		acl.SetOwner("pos/MinSignedPerWindow", kp.GetAddress())
 		acl.SetOwner("pos/StakeMinimum", kp.GetAddress())
 		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
 		acl.SetOwner("pos/RelaysToTokensMultiplier", kp.GetAddress())
-		acl.SetOwner("providerlication/BaseRelaysPerVIPR", kp.GetAddress())
+		acl.SetOwner("provider/BaseRelaysPerVIPR", kp.GetAddress())
 		acl.SetOwner("vipercore/ClaimSubmissionWindow", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())
 		acl.SetOwner("pos/SignedBlocksWindow", kp.GetAddress())
 		acl.SetOwner("pos/BlocksPerSession", kp.GetAddress())
-		acl.SetOwner("providerlication/MaxProviders", kp.GetAddress())
+		acl.SetOwner("provider/MaxProviders", kp.GetAddress())
 		acl.SetOwner("governance/daoOwner", kp.GetAddress())
 		acl.SetOwner("governance/upgrade", kp.GetAddress())
-		acl.SetOwner("providerlication/MaximumChains", kp.GetAddress())
+		acl.SetOwner("provider/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaxJailedBlocks", kp.GetAddress())
 		testACL = acl
@@ -411,7 +411,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 	return testACL
 }
 
-func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators servicersTypes.Validators, providerlication providersTypes.Provider) {
+func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators servicersTypes.Validators, provider providersTypes.Provider) {
 	kb := getInMemoryKeybase()
 	// create keypairs
 	kp1, err := kb.GetCoinbase()
@@ -492,11 +492,11 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	// marshal into json
 	res := memCodec().MustMarshalJSON(posGenesisState)
 	defaultGenesis[servicersTypes.ModuleName] = res
-	// setup providerlications
+	// setup providers
 	rawApps := defaultGenesis[providersTypes.ModuleName]
 	var providersGenesisState providersTypes.GenesisState
 	memCodec().MustUnmarshalJSON(rawApps, &providersGenesisState)
-	// providerlication 1
+	// provider 1
 	providersGenesisState.Providers = append(providersGenesisState.Providers, providersTypes.Provider{
 		Address:                 kp2.GetAddress(),
 		PublicKey:               kp2.PublicKey,

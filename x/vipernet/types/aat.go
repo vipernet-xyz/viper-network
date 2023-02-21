@@ -87,7 +87,7 @@ func (a AAT) ValidateVersion() error {
 
 // "ValidateMessage" - Confirms the message field of the AAT
 func (a AAT) ValidateMessage() error {
-	// check for valid providerlication public key
+	// check for valid provider public key
 	if len(a.ProviderPublicKey) == 0 {
 		return MissingProviderPublicKeyError
 	}

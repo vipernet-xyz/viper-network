@@ -106,7 +106,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 	keys := make(map[string]*sdk.KVStoreKey)
 	keys["params"] = keyParams
 	keys["pos"] = servicersKey
-	keys["providerlication"] = providersKey
+	keys["provider"] = providersKey
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)

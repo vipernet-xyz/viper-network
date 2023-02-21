@@ -313,7 +313,7 @@ func (m MockProvidersKeeper) Provider(ctx sdk.Ctx, addr sdk.Address) exported2.P
 	return nil
 }
 
-func (m MockProvidersKeeper) AllProviders(ctx sdk.Ctx) (providerlications []exported2.ProviderI) {
+func (m MockProvidersKeeper) AllProviders(ctx sdk.Ctx) (providers []exported2.ProviderI) {
 	panic("implement me")
 }
 
