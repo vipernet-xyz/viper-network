@@ -23,7 +23,6 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 
 	var coins sdk.BigInt
 
-	//check if it is enabled, if so scale the rewards
 	if k.Cdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
 		//grab stake
 		validator, found := k.GetValidator(ctx, address)
@@ -71,10 +70,9 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	// get the dao and proposer % ex DAO .1 or 10% Proposer .05 or 5%
 	daoAllocation := sdk.NewDec(k.DAOAllocation(ctx))
 	proposerAllocation := sdk.NewDec(k.ProposerAllocation(ctx))
-	providerAllocation := sdk.NewDec(k.ProviderAllocation(ctx))
-	daoProposerAndproviderAllocation := daoAllocation.Add(proposerAllocation).Add(providerAllocation)
+	daoAndProposerAllocation := daoAllocation.Add(proposerAllocation)
 	// get the new percentages based on the total. This is needed because the servicer (relayer) cut has already been allocated
-	daoAllocation = daoAllocation.Quo(daoProposerAndproviderAllocation)
+	daoAllocation = daoAllocation.Quo(daoAndProposerAllocation)
 	// dao cut calculation truncates int ex: 1.99uvipr = 1uvipr
 	daoCut := feesCollected.ToDec().Mul(daoAllocation).TruncateInt()
 	// proposer is whatever is left

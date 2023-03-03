@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/vipernet-xyz/viper-network/codec"
@@ -163,13 +164,11 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 			ctx := tt.args.ctx
 			k.blockReward(tt.args.ctx, tt.args.previousProposer)
 			acc := k.GetAccount(ctx, tt.args.Output)
-			acc1 := k.GetAccount(ctx, tt.args.aOutput)
 			assert.False(t, acc.Coins.IsZero())
-			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(2500)))))
+			fmt.Println(acc.Coins)
+			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(3334)))))
 			acc = k.GetAccount(ctx, tt.args.previousProposer)
-			acc1 = k.GetAccount(ctx, tt.args.provider)
 			assert.True(t, acc.Coins.IsZero())
-			assert.True(t, acc1.Coins.IsZero())
 		})
 	}
 
