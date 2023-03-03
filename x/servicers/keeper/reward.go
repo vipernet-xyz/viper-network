@@ -77,12 +77,8 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	daoAllocation = daoAllocation.Quo(daoProposerAndproviderAllocation)
 	// dao cut calculation truncates int ex: 1.99uvipr = 1uvipr
 	daoCut := feesCollected.ToDec().Mul(daoAllocation).TruncateInt()
-	// get the new percentages based on the total. This is needed because the servicer (relayer) cut has already been allocated
-	providerAllocation = providerAllocation.Quo(daoProposerAndproviderAllocation)
-	// provider cut calculation truncates int ex: 1.99uvipr = 1uvipr
-	providerCut := feesCollected.ToDec().Mul(providerAllocation).TruncateInt()
 	// proposer is whatever is left
-	proposerCut := feesCollected.Sub(daoCut).Sub(providerCut)
+	proposerCut := feesCollected.Sub(daoCut)
 	// send to the two parties
 	feeAddr := feesCollector.GetAddress()
 	err := k.AccountKeeper.SendCoinsFromAccountToModule(ctx, feeAddr, governanceTypes.DAOAccountName, sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, daoCut)))
