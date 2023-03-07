@@ -13,23 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/vipernet-xyz/viper-network/baseapp"
-	"github.com/vipernet-xyz/viper-network/codec"
-	types2 "github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto"
-	kb "github.com/vipernet-xyz/viper-network/crypto/keys"
-	"github.com/vipernet-xyz/viper-network/store"
-	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/types/module"
-	"github.com/vipernet-xyz/viper-network/x/authentication"
-	"github.com/vipernet-xyz/viper-network/x/governance"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
-	"github.com/vipernet-xyz/viper-network/x/servicers"
-	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
-	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
-
 	kitlevel "github.com/go-kit/kit/log/level"
 	"github.com/go-kit/kit/log/term"
 	"github.com/spf13/cobra"
@@ -46,6 +29,23 @@ import (
 	"github.com/tendermint/tendermint/rpc/client/http"
 	"github.com/tendermint/tendermint/rpc/client/local"
 	dbm "github.com/tendermint/tm-db"
+	"github.com/vipernet-xyz/viper-network/baseapp"
+	"github.com/vipernet-xyz/viper-network/codec"
+	types2 "github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/crypto"
+	kb "github.com/vipernet-xyz/viper-network/crypto/keys"
+	"github.com/vipernet-xyz/viper-network/store"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/module"
+	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/governance"
+	providers "github.com/vipernet-xyz/viper-network/x/providers"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	"github.com/vipernet-xyz/viper-network/x/servicers"
+	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
+	transfer "github.com/vipernet-xyz/viper-network/x/transfer"
+	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
+	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -724,11 +724,12 @@ func MakeCodec() {
 	cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	// register all of the app module types
 	module.NewBasicManager(
-		providers.ProviderModuleBasic{},
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
-		viper.ProviderModuleBasic{},
+		providers.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		servicers.AppModuleBasic{},
+		transfer.AppModuleBasic{},
+		viper.AppModuleBasic{},
 	).RegisterCodec(cdc)
 	// register the sdk types
 	sdk.RegisterCodec(cdc)

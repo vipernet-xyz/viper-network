@@ -18,6 +18,7 @@ import (
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
+	transfer "github.com/vipernet-xyz/viper-network/x/transfer"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
@@ -46,11 +47,12 @@ func newDefaultGenesisState() []byte {
 	}
 	pubKey := cb.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.ProviderModuleBasic{},
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
-		viper.ProviderModuleBasic{},
+		providers.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		servicers.AppModuleBasic{},
+		transfer.AppModuleBasic{},
+		viper.AppModuleBasic{},
 	).DefaultGenesis()
 	// setup account genesis
 	rawAuth := defaultGenesis[authentication.ModuleName]

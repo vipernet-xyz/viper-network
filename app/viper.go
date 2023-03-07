@@ -18,6 +18,8 @@ import (
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
+	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
+	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -43,6 +45,7 @@ type ViperCoreApp struct {
 	providersKeeper  providersKeeper.Keeper
 	servicersKeeper  servicersKeeper.Keeper
 	governanceKeeper governanceKeeper.Keeper
+	transferKeeper   transferKeeper.Keeper
 	viperKeeper      viperKeeper.Keeper
 	// Module Manager
 	mm *module.Manager
@@ -57,9 +60,9 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, viperTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, viperTypes.StoreKey)
 	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -204,6 +207,7 @@ var (
 		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Minter, authentication.Staking},
 		servicersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
 		providersTypes.ModuleName:       nil,
+		transferTypes.ModuleName:        {authentication.Burner, authentication.Minter},
 	}
 )
 

@@ -30,9 +30,9 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		servicers.AppModuleBasic{},
 	)
 )
 
@@ -101,8 +101,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, keeper.Keeper, type
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
 	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
 	moduleManager := module.NewManager(
-		authentication.NewProviderModule(ak),
-		servicers.NewProviderModule(nk),
+		authentication.NewAppModule(ak),
+		servicers.NewAppModule(nk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)

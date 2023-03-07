@@ -17,6 +17,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
+	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
+	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -39,6 +41,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	servicersSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
 	providersSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
+	transferSubspace := sdk.NewSubspace(transferTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	// The AuthKeeper handles address -> account lookups
 	app.accountKeeper = authentication.NewKeeper(
@@ -84,6 +87,19 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.accountKeeper,
 		authSubspace, servicersSubspace, providersSubspace, viperSubspace,
 	)
+
+	app.transferKeeper = transferKeeper.NewKeeper(
+		app.cdc,
+		app.Keys[transferTypes.StoreKey],
+		transferSubspace,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		scopedTransferKeeper,
+	)
+
 	// add the keybase to the viper core keeper
 	app.viperKeeper.TmNode = tmClient
 	// give viper keeper to servicers module for easy cache clearing
@@ -91,11 +107,11 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	app.providersKeeper.ViperKeeper = app.viperKeeper
 	// setup module manager
 	app.mm = module.NewManager(
-		authentication.NewProviderModule(app.accountKeeper),
-		servicers.NewProviderModule(app.servicersKeeper),
-		providers.NewProviderModule(app.providersKeeper),
-		viper.NewProviderModule(app.viperKeeper),
-		governance.NewProviderModule(app.governanceKeeper),
+		authentication.NewAppModule(app.accountKeeper),
+		servicers.NewAppModule(app.servicersKeeper),
+		providers.NewAppModule(app.providersKeeper),
+		viper.NewAppModule(app.viperKeeper),
+		governance.NewAppModule(app.governanceKeeper),
 	)
 	// setup the order of begin and end blockers
 	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)

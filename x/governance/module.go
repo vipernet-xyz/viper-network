@@ -15,87 +15,87 @@ import (
 )
 
 var (
-	_ module.ProviderModule      = ProviderModule{}
-	_ module.ProviderModuleBasic = ProviderModuleBasic{}
+	_ module.AppModule      = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
 const moduleName = "governance"
 
-// ProviderModuleBasic app module basics object
-type ProviderModuleBasic struct{}
+// AppModuleBasic app module basics object
+type AppModuleBasic struct{}
 
 // Name module name
-func (ProviderModuleBasic) Name() string {
+func (AppModuleBasic) Name() string {
 	return moduleName
 }
 
 // RegisterCodec register module codec
-func (ProviderModuleBasic) RegisterCodec(cdc *codec.Codec) {
+func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	types.RegisterCodec(cdc)
 }
 
 // DefaultGenesis default genesis state
-func (ProviderModuleBasic) DefaultGenesis() json.RawMessage {
+func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 	return types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 // ValidateGenesis module validate genesis
-func (ProviderModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
+func (AppModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
 
-// ProviderModule implements an provider module for the staking module.
-type ProviderModule struct {
-	ProviderModuleBasic
+// AppModule implements an provider module for the staking module.
+type AppModule struct {
+	AppModuleBasic
 	keeper keeper.Keeper
 }
 
-func (pm ProviderModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+func (pm AppModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	return &abci.ConsensusParams{}
 }
 
-// NewProviderModule creates a new ProviderModule object
-func NewProviderModule(keeper keeper.Keeper) ProviderModule {
-	return ProviderModule{
-		ProviderModuleBasic: ProviderModuleBasic{},
-		keeper:              keeper,
+// NewAppModule creates a new AppModule object
+func NewAppModule(keeper keeper.Keeper) AppModule {
+	return AppModule{
+		AppModuleBasic: AppModuleBasic{},
+		keeper:         keeper,
 	}
 }
 
 // Name returns the staking module's name.
-func (ProviderModule) Name() string {
+func (AppModule) Name() string {
 	return types.ModuleName
 }
 
 // RegisterInvariants registers the staking module invariants.
-func (pm ProviderModule) RegisterInvariants(_ sdk.InvariantRegistry) {
+func (pm AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {
 }
 
-func (pm ProviderModule) UpgradeCodec(ctx sdk.Ctx) {
+func (pm AppModule) UpgradeCodec(ctx sdk.Ctx) {
 	pm.keeper.UpgradeCodec(ctx)
 }
 
 // Route returns the message routing key for the staking module.
-func (ProviderModule) Route() string {
+func (AppModule) Route() string {
 	return types.RouterKey
 }
 
 // NewHandler returns an sdk.Handler for the staking module.
-func (pm ProviderModule) NewHandler() sdk.Handler {
+func (pm AppModule) NewHandler() sdk.Handler {
 	return NewHandler(pm.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.
-func (ProviderModule) QuerierRoute() string {
+func (AppModule) QuerierRoute() string {
 	return types.QuerierRoute
 }
 
 // NewQuerierHandler returns the staking module sdk.Querier.
-func (pm ProviderModule) NewQuerierHandler() sdk.Querier {
+func (pm AppModule) NewQuerierHandler() sdk.Querier {
 	return keeper.NewQuerier(pm.keeper)
 }
 
 // InitGenesis performs genesis initialization for the pos module. It returns
 // no validator updates.
-func (pm ProviderModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
+func (pm AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if ctx.AppVersion() == "" {
 		fmt.Println(fmt.Errorf("must set app version in context, set with ctx.WithAppVersion(<version>)").Error())
@@ -111,13 +111,13 @@ func (pm ProviderModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.V
 
 // ExportGenesis returns the exported genesis state as raw bytes for the staking
 // module.
-func (pm ProviderModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
+func (pm AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
 	gs := pm.keeper.ExportGenesis(ctx)
 	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // BeginBlock module begin-block
-func (pm ProviderModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 
 	ActivateAdditionalParametersACL(ctx, pm)
 
@@ -143,7 +143,7 @@ func (pm ProviderModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 }
 
 // ActivateAdditionalParametersACL ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
-func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm ProviderModule) {
+func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm AppModule) {
 
 	// activate BlockSizeModify params
 	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
@@ -166,6 +166,6 @@ func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm ProviderModule) {
 
 // EndBlock returns the end blocker for the staking module. It returns no validator
 // updates.
-func (pm ProviderModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (pm AppModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }

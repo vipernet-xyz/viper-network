@@ -45,8 +45,8 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
 	)
 )
 
@@ -170,9 +170,9 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 	providerk.ViperKeeper = keeper
 	assert.Nil(t, err)
 	moduleManager := module.NewManager(
-		authentication.NewProviderModule(ak),
-		servicers.NewProviderModule(nk),
-		providers.NewProviderModule(providerk),
+		authentication.NewAppModule(ak),
+		servicers.NewAppModule(nk),
+		providers.NewAppModule(providerk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)

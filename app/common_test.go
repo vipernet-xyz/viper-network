@@ -303,11 +303,11 @@ func memCodec() *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			providers.ProviderModuleBasic{},
-			authentication.ProviderModuleBasic{},
-			governance.ProviderModuleBasic{},
-			servicers.ProviderModuleBasic{},
-			viper.ProviderModuleBasic{},
+			providers.AppModuleBasic{},
+			authentication.AppModuleBasic{},
+			governance.AppModuleBasic{},
+			servicers.AppModuleBasic{},
+			viper.AppModuleBasic{},
 		).RegisterCodec(memCDC)
 		sdk.RegisterCodec(memCDC)
 		crypto.RegisterAmino(memCDC.AminoCodec().Amino)
@@ -319,11 +319,11 @@ func memCodecMod(upgrade bool) *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			providers.ProviderModuleBasic{},
-			authentication.ProviderModuleBasic{},
-			governance.ProviderModuleBasic{},
-			servicers.ProviderModuleBasic{},
-			viper.ProviderModuleBasic{},
+			providers.AppModuleBasic{},
+			authentication.AppModuleBasic{},
+			governance.AppModuleBasic{},
+			servicers.AppModuleBasic{},
+			viper.AppModuleBasic{},
 		).RegisterCodec(memCDC)
 		sdk.RegisterCodec(memCDC)
 		crypto.RegisterAmino(memCDC.AminoCodec().Amino)
@@ -422,11 +422,11 @@ func oneAppTwoNodeGenesis() []byte {
 	pubKey := kp1.PublicKey
 	pubKey2 := kp2.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.ProviderModuleBasic{},
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
-		viper.ProviderModuleBasic{},
+		providers.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		servicers.AppModuleBasic{},
+		viper.AppModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
 	rawPOS := defaultGenesis[servicersTypes.ModuleName]
@@ -574,11 +574,11 @@ func twoValTwoNodeGenesisState8() (genbz []byte, vals []servicersTypes.Validator
 	pubKey3 := kp3.PublicKey
 	pubkey4 := kp4.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.ProviderModuleBasic{},
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
-		viper.ProviderModuleBasic{},
+		providers.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		servicers.AppModuleBasic{},
+		viper.AppModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
 	rawPOS := defaultGenesis[servicersTypes.ModuleName]
@@ -687,11 +687,11 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []servicersTypes.Validator)
 	pubKey3 := kp3.PublicKey
 	pubkey4 := kp4.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.ProviderModuleBasic{},
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
-		viper.ProviderModuleBasic{},
+		providers.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		servicers.AppModuleBasic{},
+		viper.AppModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
 	rawPOS := defaultGenesis[servicersTypes.ModuleName]
@@ -805,11 +805,11 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	pubKey4 := kys[3].PublicKey()
 	pubKey5 := kys[4].PublicKey()
 	defaultGenesis := module.NewBasicManager(
-		providers.ProviderModuleBasic{},
-		authentication.ProviderModuleBasic{},
-		governance.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
-		viper.ProviderModuleBasic{},
+		providers.AppModuleBasic{},
+		authentication.AppModuleBasic{},
+		governance.AppModuleBasic{},
+		servicers.AppModuleBasic{},
+		viper.AppModuleBasic{},
 	).DefaultGenesis()
 	// setup validators
 	rawPOS := defaultGenesis[servicersTypes.ModuleName]

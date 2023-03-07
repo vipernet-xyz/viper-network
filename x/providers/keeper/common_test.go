@@ -30,8 +30,8 @@ import (
 // : deadcode unused
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.ProviderModuleBasic{},
-		servicers.ProviderModuleBasic{},
+		authentication.AppModuleBasic{},
+		servicers.AppModuleBasic{},
 	)
 )
 
@@ -107,8 +107,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authenticatio
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
 	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
 	moduleManager := module.NewManager(
-		authentication.NewProviderModule(ak),
-		servicers.NewProviderModule(nk),
+		authentication.NewAppModule(ak),
+		servicers.NewAppModule(nk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)
