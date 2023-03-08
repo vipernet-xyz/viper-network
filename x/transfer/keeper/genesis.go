@@ -9,7 +9,7 @@ import (
 )
 
 // InitGenesis initializes the ibc-transfer state and binds to PortID.
-func (k Keeper) InitGenesis(ctx sdk.Context, state types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Ctx, state types.GenesisState) {
 	k.SetPort(ctx, state.PortId)
 
 	for _, trace := range state.DenomTraces {
