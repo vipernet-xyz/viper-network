@@ -6,10 +6,10 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 func (suite *TransferTestSuite) TestOnChanOpenInit() {

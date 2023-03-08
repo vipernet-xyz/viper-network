@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 // TestMustMarshalProtoJSON tests that the memo field is only emitted (marshalled) if it is populated

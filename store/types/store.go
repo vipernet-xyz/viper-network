@@ -106,6 +106,8 @@ type CommitMultiStore interface {
 	CopyStore() *Store
 }
 
+// KVStore
+
 //---------subsp-------------------------------
 // KVStore
 

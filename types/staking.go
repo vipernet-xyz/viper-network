@@ -8,7 +8,7 @@ import (
 const (
 	// default stake denomination
 	DefaultStakeDenom = "uvipr"
-
+	DefaultBondDenom  = "uvipr"
 	// Delay, in blocks, between when validator updates are returned to the
 	// consensus-engine and when they are applied. For example, if
 	// ValidatorUpdateDelay is set to X, and if a validator set update is

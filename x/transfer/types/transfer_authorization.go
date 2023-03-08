@@ -4,6 +4,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	sdk1 "github.com/vipernet-xyz/viper-network/types"
 
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
@@ -23,7 +24,7 @@ func NewTransferAuthorization(allocations ...Allocation) *TransferAuthorization 
 
 // MsgTypeURL implements Authorization.MsgTypeURL.
 func (a TransferAuthorization) MsgTypeURL() string {
-	return sdk.MsgTypeURL(&MsgTransfer{})
+	return sdk1.MsgTypeURL(&MsgTransfer{})
 }
 
 // Accept implements Authorization.Accept.

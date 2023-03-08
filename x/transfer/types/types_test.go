@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 type TypesTestSuite struct {

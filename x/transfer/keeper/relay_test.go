@@ -3,14 +3,13 @@ package keeper_test
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 // test sending from chainA to chainB using both coin that orignate on
@@ -156,7 +155,7 @@ func (suite *KeeperTestSuite) TestSendTransfer() {
 func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	var (
 		trace    types.DenomTrace
-		amount   math.Int
+		amount   sdk.BigInt
 		receiver string
 		memo     string
 	)
@@ -270,7 +269,7 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 		successAck = channeltypes.NewResultAcknowledgement([]byte{byte(1)})
 		failedAck  = channeltypes.NewErrorAcknowledgement(fmt.Errorf("failed packet transfer"))
 		trace      types.DenomTrace
-		amount     math.Int
+		amount     sdk.BigInt
 		path       *ibctesting.Path
 	)
 
@@ -352,7 +351,7 @@ func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
 	var (
 		trace  types.DenomTrace
 		path   *ibctesting.Path
-		amount math.Int
+		amount sdk.BigInt
 		sender string
 	)
 

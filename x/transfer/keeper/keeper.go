@@ -3,23 +3,24 @@ package keeper
 import (
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/store/prefix"
+	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	paramtypes "github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/x/transfer/exported"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 // Keeper defines the IBC fungible transfer keeper
 type Keeper struct {
 	storeKey   storetypes.StoreKey
-	cdc        codec.BinaryCodec
+	cdc        *codec.Codec
+	Cdc        codec.BinaryCodec
 	paramSpace paramtypes.Subspace
 
 	ics4Wrapper   porttypes.ICS4Wrapper
@@ -32,7 +33,7 @@ type Keeper struct {
 
 // NewKeeper creates a new IBC transfer Keeper instance
 func NewKeeper(
-	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
+	cdc *codec.Codec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
 	ics4Wrapper porttypes.ICS4Wrapper, channelKeeper types.ChannelKeeper, portKeeper types.PortKeeper,
 	authKeeper types.AccountKeeper, bankKeeper types.BankKeeper, scopedKeeper exported.ScopedKeeper,
 ) Keeper {
@@ -61,7 +62,7 @@ func NewKeeper(
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", "x/"+exported.ModuleName+"-"+types.ModuleName)
+	return ctx.Logger1().With("module", "x/"+exported.ModuleName+"-"+types.ModuleName)
 }
 
 // IsBound checks if the transfer module is already bound to the desired port
@@ -78,9 +79,10 @@ func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
 }
 
 // GetPort returns the portID for the transfer module. Used in ExportGenesis
-func (k Keeper) GetPort(ctx sdk.Context) string {
+func (k Keeper) GetPort(ctx sdk.Ctx) string {
 	store := ctx.KVStore(k.storeKey)
-	return string(store.Get(types.PortKey))
+	p, _ := store.Get(types.PortKey)
+	return string(p)
 }
 
 // SetPort sets the portID for the transfer module. Used in InitGenesis
@@ -92,7 +94,7 @@ func (k Keeper) SetPort(ctx sdk.Context, portID string) {
 // GetDenomTrace retreives the full identifiers trace and base denomination from the store.
 func (k Keeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (types.DenomTrace, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DenomTraceKey)
-	bz := store.Get(denomTraceHash)
+	bz, _ := store.Get(denomTraceHash)
 	if len(bz) == 0 {
 		return types.DenomTrace{}, false
 	}
@@ -104,7 +106,8 @@ func (k Keeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) 
 // HasDenomTrace checks if a the key with the given denomination trace hash exists on the store.
 func (k Keeper) HasDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DenomTraceKey)
-	return store.Has(denomTraceHash)
+	h, _ := store.Has(denomTraceHash)
+	return h
 }
 
 // SetDenomTrace sets a new {trace hash -> denom trace} pair to the store.
@@ -115,7 +118,7 @@ func (k Keeper) SetDenomTrace(ctx sdk.Context, denomTrace types.DenomTrace) {
 }
 
 // GetAllDenomTraces returns the trace information for all the denominations.
-func (k Keeper) GetAllDenomTraces(ctx sdk.Context) types.Traces {
+func (k Keeper) GetAllDenomTraces(ctx sdk.Ctx) types.Traces {
 	traces := types.Traces{}
 	k.IterateDenomTraces(ctx, func(denomTrace types.DenomTrace) bool {
 		traces = append(traces, denomTrace)
@@ -127,9 +130,9 @@ func (k Keeper) GetAllDenomTraces(ctx sdk.Context) types.Traces {
 
 // IterateDenomTraces iterates over the denomination traces in the store
 // and performs a callback function.
-func (k Keeper) IterateDenomTraces(ctx sdk.Context, cb func(denomTrace types.DenomTrace) bool) {
+func (k Keeper) IterateDenomTraces(ctx sdk.Ctx, cb func(denomTrace types.DenomTrace) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.DenomTraceKey)
+	iterator, _ := sdk.KVStorePrefixIterator(store, types.DenomTraceKey)
 
 	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
 	for ; iterator.Valid(); iterator.Next() {
@@ -150,4 +153,17 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 // passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
+}
+
+func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
+	if ctx.IsOnUpgradeHeight() {
+		k.ConvertState(ctx)
+	}
+}
+
+func (k Keeper) ConvertState(ctx sdk.Ctx) {
+	k.cdc.SetUpgradeOverride(false)
+	params := k.GetParams(ctx)
+	k.SetParams(ctx, params)
+	k.cdc.DisableUpgradeOverride()
 }

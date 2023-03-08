@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/syndtr/goleveldb/leveldb/opt"
-	"log"
 	"regexp"
 	"runtime"
 	"strconv"
 	"time"
 
+	"github.com/syndtr/goleveldb/leveldb/opt"
+	log "github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 )
 
@@ -138,7 +138,7 @@ func TimeTrack(start time.Time) {
 	runtimeFunc := regexp.MustCompile(`^.*\.(.*)$`)
 	name := runtimeFunc.ReplaceAllString(funcObj.Name(), "$1")
 	if ShowTimeTrackData {
-		log.Println(fmt.Sprintf("%s took %s", name, elapsed))
+		fmt.Println(fmt.Sprintf("%s took %s", name, elapsed))
 	}
 }
 
@@ -149,4 +149,10 @@ func ContainsString(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func LogDeferred(logger log.Logger, f func() error) {
+	if err := f(); err != nil {
+		logger.Error(err.Error())
+	}
 }

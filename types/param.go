@@ -52,6 +52,11 @@ func (s *Subspace) SetCodec(cdc *codec.Codec) {
 	s.cdc = cdc
 }
 
+// HasKeyTable returns if the Subspace has a KeyTable registered.
+func (s Subspace) HasKeyTable() bool {
+	return len(s.table.m) > 0
+}
+
 // WithKeyTable initializes KeyTable and returns modified Subspace
 func (s Subspace) WithKeyTable(table KeyTable) Subspace {
 	if table.m == nil {
@@ -437,4 +442,29 @@ type ParamSetPairs []ParamSetPair
 // Interface for structs containing parameters for a module
 type ParamSet interface {
 	ParamSetPairs() ParamSetPairs
+}
+
+type (
+	ValueValidatorFn func(value interface{}) error
+
+	// ParamSetPair is used for associating paramsubspace key and field of param
+	// structs.
+	ParamSetPair1 struct {
+		Key         []byte
+		Value       interface{}
+		ValidatorFn ValueValidatorFn
+	}
+)
+
+// NewParamSetPair creates a new ParamSetPair instance.
+func NewParamSetPair(key []byte, value interface{}, vfn ValueValidatorFn) ParamSetPair1 {
+	return ParamSetPair1{key, value, vfn}
+}
+
+// ParamSetPairs Slice of KeyFieldPair
+type ParamSetPairs1 []ParamSetPair1
+
+// ParamSet defines an interface for structs containing parameters for a module
+type ParamSet1 interface {
+	ParamSetPairs() ParamSetPairs1
 }

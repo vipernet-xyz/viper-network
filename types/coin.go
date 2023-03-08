@@ -572,7 +572,7 @@ func removeZeroCoins(coins Coins) Coins {
 //-----------------------------------------------------------------------------
 // Sort interface
 
-//nolint
+// nolint
 func (coins Coins) Len() int           { return len(coins) }
 func (coins Coins) Less(i, j int) bool { return coins[i].Denom < coins[j].Denom }
 func (coins Coins) Swap(i, j int)      { coins[i], coins[j] = coins[j], coins[i] }
@@ -682,4 +682,25 @@ func findDup(coins Coins) int {
 	}
 
 	return -1
+}
+
+// ValidateDenom is the default validation function for Coin.Denom.
+func ValidateDenom(denom string) error {
+	if !reDnm.MatchString(denom) {
+		return fmt.Errorf("invalid denom: %s", denom)
+	}
+	return nil
+}
+
+// ParseCoinNormalized parses and normalize a cli input for one coin type, returning errors if invalid or on an empty string
+// as well.
+// Expected format: "{amount}{denomination}"
+func ParseCoinNormalized(coinStr string) (coin Coin, err error) {
+	decCoin, err := ParseDecCoin(coinStr)
+	if err != nil {
+		return Coin{}, err
+	}
+
+	coin, _ = NormalizeDecCoin(decCoin).TruncateDecimal()
+	return coin, nil
 }

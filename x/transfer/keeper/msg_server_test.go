@@ -1,11 +1,11 @@
 package keeper_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgTransfer() {

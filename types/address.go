@@ -6,11 +6,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+	"sync"
 
+	"github.com/cosmos/cosmos-sdk/types/bech32"
+	"github.com/hashicorp/golang-lru/simplelru"
+	tmCrypto "github.com/tendermint/tendermint/crypto"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
-
-	tmCrypto "github.com/tendermint/tendermint/crypto"
+	"github.com/vipernet-xyz/viper-network/internal/conv"
 	"gopkg.in/yaml.v2"
 )
 
@@ -28,6 +32,11 @@ type AddressI interface {
 	String() string
 	Format(s fmt.State, verb rune)
 }
+
+var (
+	accAddrMu    sync.Mutex
+	accAddrCache *simplelru.LRU
+)
 
 // Ensure that different address types implement the interface
 var (
@@ -202,6 +211,7 @@ var _ codec.ProtoMarshaler = &Addresses{}
 // Address a wrapper around bytes meant to represent an address.
 // When marshaled to a string or JSON.
 type Addresses []Address
+type AccAddress []byte
 
 func (a *Addresses) Reset() {
 	*a = Addresses{}
@@ -274,4 +284,76 @@ func AddressFromHex(address string) (addr Address, err error) {
 	}
 
 	return bz, nil
+}
+
+var errBech32EmptyAddress = errors.New("decoding Bech32 address failed: must provide a non empty address")
+
+// GetFromBech32 decodes a bytestring from a Bech32 encoded string.
+func GetFromBech32(bech32str, prefix string) ([]byte, error) {
+	if len(bech32str) == 0 {
+		return nil, errBech32EmptyAddress
+	}
+
+	hrp, bz, err := bech32.DecodeAndConvert(bech32str)
+	if err != nil {
+		return nil, err
+	}
+
+	if hrp != prefix {
+		return nil, fmt.Errorf("invalid Bech32 prefix; expected %s, got %s", prefix, hrp)
+	}
+
+	return bz, nil
+}
+
+// AccAddressFromBech32 creates an AccAddress from a Bech32 string.
+func AccAddressFromBech32(address string) (addr AccAddress, err error) {
+	if len(strings.TrimSpace(address)) == 0 {
+		return AccAddress{}, errors.New("empty address string is not allowed")
+	}
+
+	bech32PrefixAccAddr := GetConfig().GetBech32AccountAddrPrefix()
+
+	bz, err := GetFromBech32(address, bech32PrefixAccAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	err = VerifyAddressFormat(bz)
+	if err != nil {
+		return nil, err
+	}
+
+	return AccAddress(bz), nil
+}
+
+// Returns boolean for whether an AccAddress is empty
+func (aa AccAddress) Empty() bool {
+	return len(aa) == 0
+}
+
+// String implements the Stringer interface.
+func (aa AccAddress) String() string {
+	if aa.Empty() {
+		return ""
+	}
+
+	key := conv.UnsafeBytesToStr(aa)
+	accAddrMu.Lock()
+	defer accAddrMu.Unlock()
+	addr, ok := accAddrCache.Get(key)
+	if ok {
+		return addr.(string)
+	}
+	return cacheBech32Addr(GetConfig().GetBech32AccountAddrPrefix(), aa, accAddrCache, key)
+}
+
+// cacheBech32Addr is not concurrency safe. Concurrent access to cache causes race condition.
+func cacheBech32Addr(prefix string, addr []byte, cache *simplelru.LRU, cacheKey string) string {
+	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
+	if err != nil {
+		panic(err)
+	}
+	cache.Add(cacheKey, bech32Addr)
+	return bech32Addr
 }

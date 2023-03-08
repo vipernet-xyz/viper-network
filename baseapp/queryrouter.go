@@ -4,12 +4,39 @@ import (
 	"fmt"
 	"os"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding"
 )
 
 type queryRouter struct {
 	routes map[string]sdk.Querier
 }
+
+// GRPCQueryRouter routes ABCI Query requests to GRPC handlers
+type GRPCQueryRouter struct {
+	routes      map[string]GRPCQueryHandler
+	cdc         encoding.Codec
+	serviceData []serviceData
+}
+
+// serviceData represents a gRPC service, along with its handler.
+type serviceData struct {
+	serviceDesc *grpc.ServiceDesc
+	handler     interface{}
+}
+
+// NewGRPCQueryRouter creates a new GRPCQueryRouter
+func NewGRPCQueryRouter() *GRPCQueryRouter {
+	return &GRPCQueryRouter{
+		routes: map[string]GRPCQueryHandler{},
+	}
+}
+
+// GRPCQueryHandler defines a function type which handles ABCI Query requests
+// using gRPC
+type GRPCQueryHandler = func(ctx sdk.Context, req abci.RequestQuery) (abci.ResponseQuery, error)
 
 var _ sdk.QueryRouter = NewQueryRouter()
 

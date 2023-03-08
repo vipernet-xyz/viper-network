@@ -1,6 +1,8 @@
 package keys
 
 import (
+	tmcrypto "github.com/cometbft/cometbft/crypto"
+	proto "github.com/cosmos/gogoproto/proto"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/types"
 )
@@ -75,3 +77,18 @@ func readKeyPair(bz []byte) (kp KeyPair, err error) {
 	err = cdc.UnmarshalBinaryLengthPrefixed(bz, &kp)
 	return
 }
+
+// PubKey defines a public key and extends proto.Message.
+type PubKey interface {
+	proto.Message
+
+	Address() Address
+	Bytes() []byte
+	VerifySignature(msg []byte, sig []byte) bool
+	Equals(PubKey) bool
+	Type() string
+}
+
+type (
+	Address = tmcrypto.Address
+)

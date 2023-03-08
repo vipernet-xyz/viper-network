@@ -17,8 +17,22 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer"
+
+	/*"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/capability"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"*/
 	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
+
+	/*ibc "github.com/cosmos/ibc-go/v3/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
+	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	ibcporttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"*/
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -97,7 +111,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		&app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
-		scopedTransferKeeper,
+		app.scopedTransferKeeper,
 	)
 
 	// add the keybase to the viper core keeper
@@ -111,6 +125,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		servicers.NewAppModule(app.servicersKeeper),
 		providers.NewAppModule(app.providersKeeper),
 		viper.NewAppModule(app.viperKeeper),
+		transfer.NewAppModule(app.transferKeeper),
 		governance.NewAppModule(app.governanceKeeper),
 	)
 	// setup the order of begin and end blockers
@@ -121,6 +136,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		authentication.ModuleName,
 		servicersTypes.ModuleName,
 		providersTypes.ModuleName,
+		transferTypes.ModuleName,
 		viperTypes.ModuleName,
 		governance.ModuleName,
 	)

@@ -6,7 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/vipernet-xyz/viper-network/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"

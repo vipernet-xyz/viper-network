@@ -6,16 +6,16 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	"github.com/vipernet-xyz/viper-network/x/transfer/keeper"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 // IBCModule implements the ICS26 interface for transfer given the transfer keeper.
@@ -168,7 +168,7 @@ func (im IBCModule) OnChanCloseConfirm(
 func (im IBCModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
-	relayer sdk.AccAddress,
+	relayer sdk.Addresses,
 ) ibcexported.Acknowledgement {
 	logger := im.keeper.Logger(ctx)
 	ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
@@ -224,7 +224,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
-	relayer sdk.AccAddress,
+	relayer sdk.Addresses,
 ) error {
 	var ack channeltypes.Acknowledgement
 	if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
@@ -276,7 +276,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 func (im IBCModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
-	relayer sdk.AccAddress,
+	relayer sdk.Addresses,
 ) error {
 	var data types.FungibleTokenPacketData
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {

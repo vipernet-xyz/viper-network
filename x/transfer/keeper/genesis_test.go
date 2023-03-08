@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 func (suite *KeeperTestSuite) TestGenesis() {

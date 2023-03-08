@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 func TestParseDenomTrace(t *testing.T) {

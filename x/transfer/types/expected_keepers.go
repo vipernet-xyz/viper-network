@@ -1,9 +1,9 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication/types"
 
 	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
@@ -12,7 +12,7 @@ import (
 
 // AccountKeeper defines the contract required for account APIs.
 type AccountKeeper interface {
-	GetModuleAddress(name string) sdk.AccAddress
+	GetModuleAddress(name string) sdk.Addresses
 	GetModuleAccount(ctx sdk.Context, name string) types.ModuleAccountI
 }
 

@@ -71,6 +71,7 @@ type UnpackInterfacesMessage interface {
 type interfaceRegistry struct {
 	interfaceNames map[string]reflect.Type
 	interfaceImpls map[reflect.Type]interfaceMap
+	implInterfaces map[reflect.Type]reflect.Type
 }
 
 type interfaceMap = map[string]reflect.Type
@@ -170,5 +171,20 @@ func UnpackInterfaces(x interface{}, unpacker AnyUnpacker) error {
 	if msg, ok := x.(UnpackInterfacesMessage); ok {
 		return msg.UnpackInterfaces(unpacker)
 	}
+	return nil
+}
+
+// EnsureRegistered ensures there is a registered interface for the given concrete type.
+//
+// Returns an error if not, and nil if so.
+func (registry *interfaceRegistry) EnsureRegistered(impl interface{}) error {
+	if reflect.ValueOf(impl).Kind() != reflect.Ptr {
+		return fmt.Errorf("%T is not a pointer", impl)
+	}
+
+	if _, found := registry.implInterfaces[reflect.TypeOf(impl)]; !found {
+		return fmt.Errorf("%T does not have a registered interface", impl)
+	}
+
 	return nil
 }

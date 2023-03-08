@@ -1,6 +1,9 @@
 package types
 
-import "github.com/golang/protobuf/proto" // nolint
+import (
+	gp "github.com/cosmos/gogoproto/proto"
+	"github.com/golang/protobuf/proto" // nolint
+)
 
 type Msg interface {
 	// Return the message type.
@@ -28,6 +31,20 @@ type Msg interface {
 
 	// Returns an BigInt for the ProtoMsg
 	GetFee() BigInt
+}
+
+// Msg defines the interface a transaction message must fulfill.
+type Msg1 interface {
+	proto.Message
+
+	// ValidateBasic does a simple validation check that
+	// doesn't require access to any other information.
+	ValidateBasic() error
+
+	// GetSigners returns the addrs of signers that must sign.
+	// CONTRACT: All signatures must be present to be valid.
+	// CONTRACT: Returns addrs in some deterministic order.
+	GetSigners() []AccAddress
 }
 
 var _ Msg = ProtoMsg(nil)
@@ -81,3 +98,8 @@ type TxDecoder func(txBytes []byte, blockHeight int64) (Tx, Error)
 
 // TxEncoder marshals transaction to bytes
 type TxEncoder func(tx Tx, blockHeight int64) ([]byte, error)
+
+// MsgTypeURL returns the TypeURL of a `sdk.Msg`.
+func MsgTypeURL(msg Msg1) string {
+	return "/" + gp.MessageName(msg)
+}

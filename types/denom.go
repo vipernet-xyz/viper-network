@@ -8,6 +8,9 @@ import (
 // multipliers (e.g. 1atom = 10^-6uatom).
 var denomUnits = map[string]BigDec{}
 
+// baseDenom is the denom of smallest unit registered
+var baseDenom string
+
 // RegisterDenom registers a denomination with a corresponding unit. If the
 // denomination is already registered, an error will be returned.
 func RegisterDenom(denom string, unit BigDec) error {
@@ -61,4 +64,51 @@ func ConvertCoin(coin Coin, denom string) (Coin, error) {
 	}
 
 	return NewCoin(denom, coin.Amount.ToDec().Mul(srcUnit.Quo(dstUnit)).TruncateInt()), nil
+}
+
+// ConvertDecCoin attempts to convert a decimal coin to a given denomination. If the given
+// denomination is invalid or if neither denomination is registered, an error
+// is returned.
+func ConvertDecCoin(coin DecCoin, denom string) (DecCoin, error) {
+	if err := ValidateDenom(denom); err != nil {
+		return DecCoin{}, err
+	}
+
+	srcUnit, ok := GetDenomUnit(coin.Denom)
+	if !ok {
+		return DecCoin{}, fmt.Errorf("source denom not registered: %s", coin.Denom)
+	}
+
+	dstUnit, ok := GetDenomUnit(denom)
+	if !ok {
+		return DecCoin{}, fmt.Errorf("destination denom not registered: %s", denom)
+	}
+
+	if srcUnit.Equal(dstUnit) {
+		return NewDecCoinFromDec(denom, coin.Amount), nil
+	}
+
+	return NewDecCoinFromDec(denom, coin.Amount.Mul(srcUnit).Quo(dstUnit)), nil
+}
+
+// GetBaseDenom returns the denom of smallest unit registered
+func GetBaseDenom() (string, error) {
+	if baseDenom == "" {
+		return "", fmt.Errorf("no denom is registered")
+	}
+	return baseDenom, nil
+}
+
+// NormalizeDecCoin try to convert a decimal coin to the smallest unit registered,
+// returns original one if failed.
+func NormalizeDecCoin(coin DecCoin) DecCoin {
+	base, err := GetBaseDenom()
+	if err != nil {
+		return coin
+	}
+	newCoin, err := ConvertDecCoin(coin, base)
+	if err != nil {
+		return coin
+	}
+	return newCoin
 }

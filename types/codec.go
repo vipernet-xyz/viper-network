@@ -1,6 +1,8 @@
 package types
 
-import "github.com/vipernet-xyz/viper-network/codec"
+import (
+	"github.com/vipernet-xyz/viper-network/codec"
+)
 
 // // Register the sdk message type
 //

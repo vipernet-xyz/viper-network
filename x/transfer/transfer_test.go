@@ -3,12 +3,12 @@ package transfer_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 type TransferTestSuite struct {

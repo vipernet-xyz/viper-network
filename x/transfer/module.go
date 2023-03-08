@@ -5,19 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
+	"github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/client/cli"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 var (
@@ -34,31 +31,28 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec implements AppModuleBasic interface
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
+// RegisterCodec registers the staking module's types for the given codec.
+func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
+	types.RegisterCodec(cdc)
 }
 
-// RegisterInterfaces registers module concrete types into protobuf Any.
-func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	types.RegisterInterfaces(registry)
+func (am AppModule) UpgradeCodec(ctx sdk.Ctx) {
+	am.keeper.UpgradeCodec(ctx)
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the ibc
-// transfer module.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesisState())
+// NewHandler returns an sdk.Handler for the staking module.
+func (am AppModule) NewHandler() sdk.Handler {
+	return NewHandler(am.keeper)
 }
 
-// ValidateGenesis performs genesis state validation for the ibc transfer module.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var gs types.GenesisState
-	if err := cdc.UnmarshalJSON(bz, &gs); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	}
-
-	return gs.Validate()
+// DefaultGenesis returns default genesis state as raw bytes for the staking
+// module.
+func (AppModuleBasic) DefaultGenesis() json.RawMessage {
+	return types.ModuleCdc.MustMarshalJSON(types.DefaultGenesisState())
 }
+
+// ValidateGenesis module validate genesis
+func (AppModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the ibc-transfer module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -66,16 +60,6 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 	if err != nil {
 		panic(err)
 	}
-}
-
-// GetTxCmd implements AppModuleBasic interface
-func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
-}
-
-// GetQueryCmd implements AppModuleBasic interface
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
 }
 
 // AppModule represents the AppModule for this module
@@ -89,6 +73,10 @@ func NewAppModule(k keeper.Keeper) AppModule {
 	return AppModule{
 		keeper: k,
 	}
+}
+
+func (am AppModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+	return &abci.ConsensusParams{}
 }
 
 // RegisterInvariants implements the AppModule interface
@@ -107,30 +95,53 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	}
 }
 
-// InitGenesis performs genesis initialization for the ibc-transfer module. It returns
-// no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+// InitGenesis module init-genesis
+func (am AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
-	cdc.MustUnmarshalJSON(data, &genesisState)
-	am.keeper.InitGenesis(ctx, genesisState)
+	if data == nil {
+		genesisState = types.DefaultGenesisState()
+	} else {
+		types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	}
+	InitGenesis(ctx, am.keeper.AccountKeeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the ibc-transfer
+// ExportGenesis returns the exported genesis state as raw bytes for the staking
 // module.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
 	gs := am.keeper.ExportGenesis(ctx)
-	return cdc.MustMarshalJSON(gs)
+	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return 2 }
 
-// BeginBlock implements the AppModule interface
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
+// BeginBlock module begin-block
+func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 }
 
 // EndBlock implements the AppModule interface
-func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
+}
+
+// Name returns the staking module's name.
+func (AppModule) Name() string {
+	return types.ModuleName
+}
+
+// Route returns the message routing key for the staking module.
+func (AppModule) Route() string {
+	return types.RouterKey
+}
+
+// QuerierRoute returns the staking module's querier route name.
+func (AppModule) QuerierRoute() string {
+	return types.QuerierRoute
+}
+
+// NewQuerierHandler returns the staking module sdk.Querier.
+func (pm AppModule) NewQuerierHandler() sdk.Querier {
+	return keeper.NewQuerier(pm.keeper)
 }

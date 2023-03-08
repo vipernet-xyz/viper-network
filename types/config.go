@@ -11,10 +11,11 @@ import (
 // TmConfig is the structure that holds the SDK configuration parameters.
 // This could be used to initialize certain configuration parameters for the SDK.
 type SDKConfig struct {
-	mtx             sync.RWMutex
-	sealed          bool
-	txEncoder       TxEncoder
-	addressVerifier func([]byte) error
+	mtx                 sync.RWMutex
+	sealed              bool
+	txEncoder           TxEncoder
+	addressVerifier     func([]byte) error
+	bech32AddressPrefix map[string]string
 }
 
 type ViperConfig struct {
@@ -242,4 +243,9 @@ func (config *SDKConfig) GetTxEncoder() TxEncoder {
 // GetAddressVerifier returns the function to verify that Addresses have the correct format
 func (config *SDKConfig) GetAddressVerifier() func([]byte) error {
 	return config.addressVerifier
+}
+
+// GetBech32AccountAddrPrefix returns the Bech32 prefix for account address
+func (config *SDKConfig) GetBech32AccountAddrPrefix() string {
+	return config.bech32AddressPrefix["account_addr"]
 }

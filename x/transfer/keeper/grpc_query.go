@@ -6,13 +6,13 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/vipernet-xyz/viper-network/store/prefix"
+	query "github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 var _ types.QueryServer = Keeper{}

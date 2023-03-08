@@ -3,7 +3,8 @@ package types
 import (
 	"fmt"
 
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	paramtypes "github.com/vipernet-xyz/viper-network/types"
+	//"github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
 const (
@@ -21,6 +22,7 @@ var (
 	KeySendEnabled = []byte("SendEnabled")
 	// KeyReceiveEnabled is store's key for ReceiveEnabled Params
 	KeyReceiveEnabled = []byte("ReceiveEnabled")
+	KeyStakeDenom     = []byte("StakeDenom")
 )
 
 // ParamKeyTable type declaration for parameters
@@ -51,8 +53,8 @@ func (p Params) Validate() error {
 }
 
 // ParamSetPairs implements params.ParamSet
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
+func (p *Params) ParamSetPairs1() paramtypes.ParamSetPairs1 {
+	return paramtypes.ParamSetPairs1{
 		paramtypes.NewParamSetPair(KeySendEnabled, p.SendEnabled, validateEnabledType),
 		paramtypes.NewParamSetPair(KeyReceiveEnabled, p.ReceiveEnabled, validateEnabledType),
 	}

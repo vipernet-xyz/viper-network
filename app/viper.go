@@ -6,11 +6,16 @@ import (
 
 	"github.com/tendermint/tendermint/libs/os"
 
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	ibckeeper "github.com/vipernet-xyz/ibc-go/v7/modules/core/keeper"
 	bam "github.com/vipernet-xyz/viper-network/baseapp"
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
+	authkeeper "github.com/vipernet-xyz/viper-network/x/authentication/keeper"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
@@ -41,12 +46,18 @@ type ViperCoreApp struct {
 	Keys  map[string]*sdk.KVStoreKey
 	Tkeys map[string]*sdk.TransientStoreKey
 	// Keepers for each module
-	accountKeeper    authentication.Keeper
-	providersKeeper  providersKeeper.Keeper
-	servicersKeeper  servicersKeeper.Keeper
-	governanceKeeper governanceKeeper.Keeper
-	transferKeeper   transferKeeper.Keeper
-	viperKeeper      viperKeeper.Keeper
+	accountKeeper        authentication.Keeper
+	providersKeeper      providersKeeper.Keeper
+	servicersKeeper      servicersKeeper.Keeper
+	governanceKeeper     governanceKeeper.Keeper
+	transferKeeper       transferKeeper.Keeper
+	IBCKeeper            *ibckeeper.Keeper
+	AccountKeeper        authkeeper.Keeper
+	BankKeeper           bankkeeper.Keeper
+	EvidenceKeeper       evidencekeeper.Keeper
+	scopedTransferKeeper capabilitykeeper.ScopedKeeper
+
+	viperKeeper viperKeeper.Keeper
 	// Module Manager
 	mm *module.Manager
 }

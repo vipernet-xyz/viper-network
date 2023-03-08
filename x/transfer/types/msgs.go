@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"

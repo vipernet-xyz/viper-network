@@ -3,52 +3,30 @@ package types
 import (
 	"bytes"
 
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	"github.com/cosmos/gogoproto/jsonpb"
 	"github.com/cosmos/gogoproto/proto"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	"github.com/gogo/protobuf/jsonpb"
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/crypto"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
-// RegisterLegacyAminoCodec registers the necessary x/ibc transfer interfaces and concrete types
-// on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
-func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgTransfer{}, "cosmos-sdk/MsgTransfer", nil)
+// RegisterCodec registers concrete types on the codec
+func RegisterCodec(cdc *codec.Codec) {
+	cdc.RegisterStructure(MsgTransfer{}, "transfer/Msgtransfer")
+	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgTransfer{})
+	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgTransfer{})
+	ModuleCdc = cdc
+
 }
 
-// RegisterInterfaces register the ibc transfer module interfaces to protobuf
-// Any.
-func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgTransfer{})
-
-	registry.RegisterImplementations(
-		(*authz.Authorization)(nil),
-		&TransferAuthorization{},
-	)
-
-	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
-}
-
-var (
-	amino = codec.NewLegacyAmino()
-
-	// ModuleCdc references the global x/ibc-transfer module codec. Note, the codec
-	// should ONLY be used in certain instances of tests and for JSON encoding.
-	//
-	// The actual codec used for serialization should be provided to x/ibc transfer and
-	// defined at the application level.
-	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
-
-	// AminoCdc is a amino codec created to support amino json compatible msgs.
-	AminoCdc = codec.NewAminoCodec(amino)
-)
+// module wide codec
+var ModuleCdc *codec.Codec
 
 func init() {
-	RegisterLegacyAminoCodec(amino)
-	amino.Seal()
+	ModuleCdc = codec.NewCodec(types.NewInterfaceRegistry())
+	RegisterCodec(ModuleCdc)
+	crypto.RegisterAmino(ModuleCdc.AminoCodec().Amino)
 }
 
 // mustProtoMarshalJSON provides an auxiliary function to return Proto3 JSON encoded
@@ -57,7 +35,7 @@ func init() {
 // and modified in order to allow `EmitDefaults` to be set to false for ics20 packet marshalling.
 // This allows for the introduction of the memo field to be backwards compatible.
 func mustProtoMarshalJSON(msg proto.Message) []byte {
-	anyResolver := codectypes.NewInterfaceRegistry()
+	anyResolver := types.NewInterfaceRegistry()
 
 	// EmitDefaults is set to false to prevent marshalling of unpopulated fields (memo)
 	// OrigName and the anyResovler match the fields the original SDK function would expect
@@ -67,7 +45,7 @@ func mustProtoMarshalJSON(msg proto.Message) []byte {
 	// The any resolver is empty, but provided anyways.
 	jm := &jsonpb.Marshaler{OrigName: true, EmitDefaults: false, AnyResolver: anyResolver}
 
-	err := codectypes.UnpackInterfaces(msg, codectypes.ProtoJSONPacker{JSONPBMarshaler: jm})
+	err := types.UnpackInterfaces(msg, types.ProtoJSONPacker{JSONPBMarshaler: jm})
 	if err != nil {
 		panic(err)
 	}

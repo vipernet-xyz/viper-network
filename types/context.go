@@ -13,10 +13,10 @@ import (
 	"github.com/tendermint/tendermint/store"
 	"golang.org/x/crypto/sha3"
 
+	log1 "github.com/cometbft/cometbft/libs/log"
 	"github.com/gogo/protobuf/proto"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
-
 	"github.com/vipernet-xyz/viper-network/store/gaskv"
 	stypes "github.com/vipernet-xyz/viper-network/store/types"
 )
@@ -51,6 +51,7 @@ type Context struct {
 	appVersion    string
 	cachedStore   *Cache
 	isPrev        bool
+	logger1       log1.Logger
 }
 
 type Ctx interface {
@@ -102,6 +103,7 @@ type Ctx interface {
 	IsAfterUpgradeHeight() bool
 	IsOnUpgradeHeight() bool
 	BlockHash(cdc *codec.Codec, height int64) ([]byte, error)
+	//Logger1() log1.Logger
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -123,6 +125,7 @@ func (c Context) MinGasPrices() DecCoins      { return c.minGasPrice }
 func (c Context) EventManager() *EventManager { return c.eventManager }
 func (c Context) AppVersion() string          { return dropTag(c.appVersion) }
 func (c Context) ClearGlobalCache()           { c.cachedStore.Purge() }
+func (c Context) Logger1() log1.Logger        { return c.logger1 }
 func (c Context) IsAfterUpgradeHeight() bool {
 	return c.header.Height >= codec.GetCodecUpgradeHeight()
 }
@@ -159,6 +162,18 @@ func (c Context) BlockHash(cdc *codec.Codec, height int64) ([]byte, error) {
 	} else {
 		return c.BlockHeader().LastBlockId.Hash, nil
 	}
+}
+
+func (c Context) Deadline() (deadline time.Time, ok bool) {
+	return c.ctx.Deadline()
+}
+
+func (c Context) Done() <-chan struct{} {
+	return c.ctx.Done()
+}
+
+func (c Context) Err() error {
+	return c.ctx.Err()
 }
 
 func (c Context) ConsensusParams() *abci.ConsensusParams {
@@ -478,4 +493,28 @@ func dropTag(version string) string {
 	}
 	s := strings.Split(version, "-")
 	return s[1]
+}
+
+// ContextKey defines a type alias for a stdlib Context key.
+type ContextKey string
+
+// SdkContextKey is the key in the context.Context which holds the sdk.Context.
+const SdkContextKey ContextKey = "sdk-context"
+
+// WrapSDKContext returns a stdlib context.Context with the provided sdk.Context's internal
+// context as a value. It is useful for passing an sdk.Context  through methods that take a
+// stdlib context.Context parameter such as generated gRPC methods. To get the original
+// sdk.Context back, call UnwrapSDKContext.
+func WrapSDKContext(ctx Context) context.Context {
+	return ctx
+}
+
+// UnwrapSDKContext retrieves a Context from a context.Context instance
+// attached with WrapSDKContext. It panics if a Context was not properly
+// attached
+func UnwrapSDKContext(ctx context.Context) Context {
+	if sdkCtx, ok := ctx.(Context); ok {
+		return sdkCtx
+	}
+	return ctx.Value(SdkContextKey).(Context)
 }

@@ -8,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 // define constants used for testing
@@ -91,10 +91,10 @@ func TestMsgTransferValidation(t *testing.T) {
 
 // TestMsgTransferGetSigners tests GetSigners for MsgTransfer
 func TestMsgTransferGetSigners(t *testing.T) {
-	addr := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
+	addr := sdk.Addresses(secp256k1.GenPrivKey().PubKey().Address())
 
 	msg := types.NewMsgTransfer(validPort, validChannel, coin, addr.String(), addr2, timeoutHeight, 0, "")
 	res := msg.GetSigners()
 
-	require.Equal(t, []sdk.AccAddress{addr}, res)
+	require.Equal(t, []sdk.Addresses{addr}, res)
 }
