@@ -187,7 +187,6 @@ require (
 	pgregory.net/rapid v0.5.5 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
 replace github.com/tendermint/tendermint => github.com/vishruthsk/tendermint v0.33.7
 
 replace github.com/tendermint/tm-db => github.com/vipernet-xyz/tm-db v0.1.0
