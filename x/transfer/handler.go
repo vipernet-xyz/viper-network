@@ -21,6 +21,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		//switch msg := msg.(type)
 		{
 		}
+		return sdk.Result{}
 	}
 }
 

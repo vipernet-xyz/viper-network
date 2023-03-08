@@ -66,14 +66,14 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // IsBound checks if the transfer module is already bound to the desired port
-func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
+func (k Keeper) IsBound(ctx sdk.Ctx, portID string) bool {
 	_, ok := k.scopedKeeper.GetCapability(ctx, host.PortPath(portID))
 	return ok
 }
 
 // BindPort defines a wrapper function for the ort Keeper's function in
 // order to expose it to module's InitGenesis function
-func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
+func (k Keeper) BindPort(ctx sdk.Ctx, portID string) error {
 	cap := k.portKeeper.BindPort(ctx, portID)
 	return k.ClaimCapability(ctx, cap, host.PortPath(portID))
 }
@@ -86,7 +86,7 @@ func (k Keeper) GetPort(ctx sdk.Ctx) string {
 }
 
 // SetPort sets the portID for the transfer module. Used in InitGenesis
-func (k Keeper) SetPort(ctx sdk.Context, portID string) {
+func (k Keeper) SetPort(ctx sdk.Ctx, portID string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.PortKey, []byte(portID))
 }
@@ -111,7 +111,7 @@ func (k Keeper) HasDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) 
 }
 
 // SetDenomTrace sets a new {trace hash -> denom trace} pair to the store.
-func (k Keeper) SetDenomTrace(ctx sdk.Context, denomTrace types.DenomTrace) {
+func (k Keeper) SetDenomTrace(ctx sdk.Ctx, denomTrace types.DenomTrace) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DenomTraceKey)
 	bz := k.MustMarshalDenomTrace(denomTrace)
 	store.Set(denomTrace.Hash(), bz)
@@ -151,7 +151,7 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 
 // ClaimCapability allows the transfer module that can claim a capability that IBC module
 // passes to it
-func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
+func (k Keeper) ClaimCapability(ctx sdk.Ctx, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
 }
 

@@ -155,9 +155,9 @@ func getIterator(prefixStore types.KVStore, start []byte, reverse bool) db.Itera
 				end = itr.Key()
 			}
 		}
-		ri, _ := prefixStore.ReverseIterator(nil, end)
-		return ri
+		itr, _ := prefixStore.ReverseIterator(nil, end)
+		return itr.Close()
 	}
 	i, _ := prefixStore.Iterator(start, nil)
-	return i
+	return i.Close()
 }

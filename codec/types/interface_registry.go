@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
 )
 
@@ -24,7 +25,7 @@ type AnyUnpacker interface {
 // implementations that can be safely unpacked from Any
 type InterfaceRegistry interface {
 	AnyUnpacker
-
+	jsonpb.AnyResolver
 	// RegisterInterface associates protoName as the public name for the
 	// interface passed in as iface. This is to be used primarily to create
 	// a public facing registry of interface implementations for clients.
@@ -72,6 +73,7 @@ type interfaceRegistry struct {
 	interfaceNames map[string]reflect.Type
 	interfaceImpls map[reflect.Type]interfaceMap
 	implInterfaces map[reflect.Type]reflect.Type
+	typeURLMap     map[string]reflect.Type
 }
 
 type interfaceMap = map[string]reflect.Type
@@ -81,6 +83,7 @@ func NewInterfaceRegistry() InterfaceRegistry {
 	return &interfaceRegistry{
 		interfaceNames: map[string]reflect.Type{},
 		interfaceImpls: map[reflect.Type]interfaceMap{},
+		implInterfaces: map[reflect.Type]reflect.Type{},
 	}
 }
 
@@ -187,4 +190,21 @@ func (registry *interfaceRegistry) EnsureRegistered(impl interface{}) error {
 	}
 
 	return nil
+}
+
+// Resolve returns the proto message given its typeURL. It works with types
+// registered with RegisterInterface/RegisterImplementations, as well as those
+// registered with RegisterWithCustomTypeURL.
+func (registry *interfaceRegistry) Resolve(typeURL string) (proto.Message, error) {
+	typ, found := registry.typeURLMap[typeURL]
+	if !found {
+		return nil, fmt.Errorf("unable to resolve type URL %s", typeURL)
+	}
+
+	msg, ok := reflect.New(typ.Elem()).Interface().(proto.Message)
+	if !ok {
+		return nil, fmt.Errorf("can't resolve type URL %s", typeURL)
+	}
+
+	return msg, nil
 }

@@ -704,3 +704,49 @@ func ParseCoinNormalized(coinStr string) (coin Coin, err error) {
 	coin, _ = NormalizeDecCoin(decCoin).TruncateDecimal()
 	return coin, nil
 }
+
+// Validate checks that the Coins are sorted, have positive amount, with a valid and unique
+// denomination (i.e no duplicates). Otherwise, it returns an error.
+func (coins Coins) Validate() error {
+	switch len(coins) {
+	case 0:
+		return nil
+
+	case 1:
+		if err := ValidateDenom(coins[0].Denom); err != nil {
+			return err
+		}
+		if !coins[0].IsPositive() {
+			return fmt.Errorf("coin %s amount is not positive", coins[0])
+		}
+		return nil
+
+	default:
+		// check single coin case
+		if err := (Coins{coins[0]}).Validate(); err != nil {
+			return err
+		}
+
+		lowDenom := coins[0].Denom
+
+		for _, coin := range coins[1:] {
+			if err := ValidateDenom(coin.Denom); err != nil {
+				return err
+			}
+			if coin.Denom < lowDenom {
+				return fmt.Errorf("denomination %s is not sorted", coin.Denom)
+			}
+			if coin.Denom == lowDenom {
+				return fmt.Errorf("duplicate denomination %s", coin.Denom)
+			}
+			if !coin.IsPositive() {
+				return fmt.Errorf("coin %s amount is not positive", coin.Denom)
+			}
+
+			// we compare each coin against the last denom
+			lowDenom = coin.Denom
+		}
+
+		return nil
+	}
+}
