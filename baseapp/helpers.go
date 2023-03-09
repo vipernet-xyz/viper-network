@@ -4,7 +4,6 @@ import (
 	"regexp"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
