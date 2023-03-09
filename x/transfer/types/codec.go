@@ -22,6 +22,8 @@ func RegisterCodec(cdc *codec.Codec) {
 
 // module wide codec
 var ModuleCdc *codec.Codec
+var amino = codec.NewLegacyAmino()
+var AminoCdc = codec.NewAminoCodec(amino)
 
 func init() {
 	ModuleCdc = codec.NewCodec(types.NewInterfaceRegistry())

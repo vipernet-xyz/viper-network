@@ -18,6 +18,12 @@ type LegacyAmino struct {
 	Amino *amino.Codec
 }
 
+// AminoCodec defines a codec that utilizes Codec for both binary and JSON
+// encoding.
+type AminoCodec struct {
+	*LegacyAmino
+}
+
 var _ JSONMarshaler = &LegacyAmino{}
 
 func (cdc *LegacyAmino) Seal() {
@@ -186,4 +192,13 @@ func (cdc *LegacyAmino) MarshalJSONIndent(o interface{}, prefix, indent string) 
 
 func (cdc *LegacyAmino) PrintTypes(out io.Writer) error {
 	return cdc.Amino.PrintTypes(out)
+}
+
+// NewAminoCodec returns a reference to a new AminoCodec
+func NewAminoCodec(codec *LegacyAmino) *AminoCodec {
+	return &AminoCodec{LegacyAmino: codec}
+}
+
+func NewLegacyAmino() *LegacyAmino {
+	return &LegacyAmino{amino.NewCodec()}
 }

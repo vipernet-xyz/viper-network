@@ -7,6 +7,7 @@ import (
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/vipernet-xyz/viper-network/types"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -91,6 +92,11 @@ type Params struct {
 	// receive_enabled enables or disables all cross-chain token transfers to this
 	// chain.
 	ReceiveEnabled bool `protobuf:"varint,2,opt,name=receive_enabled,json=receiveEnabled,proto3" json:"receive_enabled,omitempty" yaml:"receive_enabled"`
+}
+
+// ParamSetPairs implements types.ParamSet
+func (*Params) ParamSetPairs() types.ParamSetPairs {
+	panic("unimplemented")
 }
 
 func (m *Params) Reset()         { *m = Params{} }
