@@ -7,12 +7,11 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	//"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channelutils "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/client/utils"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
@@ -21,7 +20,6 @@ func init() {
 	ibcCmd.AddCommand(GetCmdQueryDenomTrace)
 	ibcCmd.AddCommand(GetCmdParams)
 	ibcCmd.AddCommand(GetCmdQueryEscrowAddress)
-	ibcCmd.AddCommand(GetCmdQueryDenomHash)
 	ibcCmd.AddCommand(NewTransferTxCmd)
 }
 
@@ -98,33 +96,6 @@ var GetCmdQueryEscrowAddress = &cobra.Command{
 		channel := args[1]
 		addr := types.GetEscrowAddress(port, channel)
 		return clientCtx.PrintString(fmt.Sprintf("%s\n", addr.String()))
-	},
-}
-
-// GetCmdQueryDenomHash defines the command to query a denomination hash from a given trace.
-var GetCmdQueryDenomHash = &cobra.Command{
-	Use:     "denom-hash [trace]",
-	Short:   "Query the denom hash info from a given denom trace",
-	Long:    "Query the denom hash info from a given denom trace",
-	Example: fmt.Sprintf("%s query ibc-transfer denom-hash transfer/channel-0/uatom", version),
-	Args:    cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		clientCtx, err := client.GetClientQueryContext(cmd)
-		if err != nil {
-			return err
-		}
-		queryClient := types.NewQueryClient(clientCtx)
-
-		req := &types.QueryDenomHashRequest{
-			Trace: args[0],
-		}
-
-		res, err := queryClient.DenomHash(cmd.Context(), req)
-		if err != nil {
-			return err
-		}
-
-		return clientCtx.PrintProto(res)
 	},
 }
 
@@ -228,8 +199,7 @@ corresponding to the counterparty channel. Any timeout set to 0 is disabled.`),
 		msg := types.NewMsgTransfer(
 			srcPort, srcChannel, coin, sender, receiver, timeoutHeight, timeoutTimestamp, memo,
 		)
-		_, er := util.CompleteAndBroadcastTxCLI(clientCtx, cmd.Flags(), msg, false)
-		return er
+		return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 	},
 }
 

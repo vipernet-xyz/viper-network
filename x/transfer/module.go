@@ -98,11 +98,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 // InitGenesis module init-genesis
 func (am AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
-	if data == nil {
-		genesisState = types.DefaultGenesisState()
-	} else {
-		types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
-	}
 	am.keeper.InitGenesis(ctx, genesisState)
 	return []abci.ValidatorUpdate{}
 }

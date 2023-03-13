@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestQueryDenomTrace() {
 			"success: correct hex hash",
 			func() {
 				expTrace.Path = "transfer/channelToA/transfer/channelToB"
-				expTrace.BaseDenom = "uatom"
+				expTrace.BaseDenom = "uvipr"
 				suite.chainA.GetSimApp().TransferKeeper.SetDenomTrace(suite.chainA.GetContext(), expTrace)
 
 				req = &types.QueryDenomTraceRequest{
@@ -60,7 +60,7 @@ func (suite *KeeperTestSuite) TestQueryDenomTrace() {
 			"failure: not found denom trace",
 			func() {
 				expTrace.Path = "transfer/channelToA/transfer/channelToB"
-				expTrace.BaseDenom = "uatom"
+				expTrace.BaseDenom = "uvipr"
 				req = &types.QueryDenomTraceRequest{
 					Hash: expTrace.IBCDenom(),
 				}
@@ -110,9 +110,9 @@ func (suite *KeeperTestSuite) TestQueryDenomTraces() {
 		{
 			"success",
 			func() {
-				expTraces = append(expTraces, types.DenomTrace{Path: "", BaseDenom: "uatom"})
-				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToB", BaseDenom: "uatom"})
-				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToA/transfer/channelToB", BaseDenom: "uatom"})
+				expTraces = append(expTraces, types.DenomTrace{Path: "", BaseDenom: "uvipr"})
+				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToB", BaseDenom: "uvipr"})
+				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToA/transfer/channelToB", BaseDenom: "uvipr"})
 
 				for _, trace := range expTraces {
 					suite.chainA.GetSimApp().TransferKeeper.SetDenomTrace(suite.chainA.GetContext(), trace)
@@ -159,7 +159,7 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 func (suite *KeeperTestSuite) TestQueryDenomHash() {
 	reqTrace := types.DenomTrace{
 		Path:      "transfer/channelToA/transfer/channelToB",
-		BaseDenom: "uatom",
+		BaseDenom: "uvipr",
 	}
 
 	var (
@@ -185,7 +185,7 @@ func (suite *KeeperTestSuite) TestQueryDenomHash() {
 			"not found denom trace",
 			func() {
 				req = &types.QueryDenomHashRequest{
-					Trace: "transfer/channelToC/uatom",
+					Trace: "transfer/channelToC/uvipr",
 				}
 			},
 			false,

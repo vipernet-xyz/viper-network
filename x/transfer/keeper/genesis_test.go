@@ -21,7 +21,7 @@ func (suite *KeeperTestSuite) TestGenesis() {
 		}
 
 		denomTrace := types.DenomTrace{
-			BaseDenom: "uatom",
+			BaseDenom: "uvipr",
 			Path:      path,
 		}
 		traces = append(types.Traces{denomTrace}, traces...)

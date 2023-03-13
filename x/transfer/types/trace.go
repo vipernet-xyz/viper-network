@@ -21,11 +21,11 @@ import (
 //
 // Examples:
 //
-// - "portidone/channel-0/uatom" => DenomTrace{Path: "portidone/channel-0", BaseDenom: "uatom"}
-// - "portidone/channel-0/portidtwo/channel-1/uatom" => DenomTrace{Path: "portidone/channel-0/portidtwo/channel-1", BaseDenom: "uatom"}
+// - "portidone/channel-0/uvipr" => DenomTrace{Path: "portidone/channel-0", BaseDenom: "uvipr"}
+// - "portidone/channel-0/portidtwo/channel-1/uvipr" => DenomTrace{Path: "portidone/channel-0/portidtwo/channel-1", BaseDenom: "uvipr"}
 // - "portidone/channel-0/gamm/pool/1" => DenomTrace{Path: "portidone/channel-0", BaseDenom: "gamm/pool/1"}
 // - "gamm/pool/1" => DenomTrace{Path: "", BaseDenom: "gamm/pool/1"}
-// - "uatom" => DenomTrace{Path: "", BaseDenom: "uatom"}
+// - "uvipr" => DenomTrace{Path: "", BaseDenom: "uvipr"}
 func ParseDenomTrace(rawDenom string) DenomTrace {
 	denomSplit := strings.Split(rawDenom, "/")
 
@@ -205,7 +205,7 @@ func ValidatePrefixedDenom(denom string) error {
 
 // ValidateIBCDenom validates that the given denomination is either:
 //
-//   - A valid base denomination (eg: 'uatom' or 'gamm/pool/1' as in https://github.com/cosmos/ibc-go/issues/894)
+//   - A valid base denomination (eg: 'uvipr' or 'gamm/pool/1' as in https://github.com/cosmos/ibc-go/issues/894)
 //   - A valid fungible token representation (i.e 'ibc/{hash}') per ADR 001 https://github.com/cosmos/ibc-go/blob/main/docs/architecture/adr-001-coin-source-tracing.md
 func ValidateIBCDenom(denom string) error {
 	if err := sdk.ValidateDenom(denom); err != nil {

@@ -64,12 +64,12 @@ func (suite *KeeperTestSuite) TestMigratorMigrateTraces() {
 				suite.chainA.GetSimApp().TransferKeeper.SetDenomTrace(
 					suite.chainA.GetContext(),
 					transfertypes.DenomTrace{
-						BaseDenom: "transfer/channel-1/uatom", Path: "transfer/channel-0",
+						BaseDenom: "transfer/channel-1/uvipr", Path: "transfer/channel-0",
 					})
 			},
 			transfertypes.Traces{
 				{
-					BaseDenom: "uatom", Path: "transfer/channel-0/transfer/channel-1",
+					BaseDenom: "uvipr", Path: "transfer/channel-0/transfer/channel-1",
 				},
 			},
 		},
@@ -79,12 +79,12 @@ func (suite *KeeperTestSuite) TestMigratorMigrateTraces() {
 				suite.chainA.GetSimApp().TransferKeeper.SetDenomTrace(
 					suite.chainA.GetContext(),
 					transfertypes.DenomTrace{
-						BaseDenom: "customport/channel-7/uatom", Path: "transfer/channel-0/transfer/channel-1",
+						BaseDenom: "customport/channel-7/uvipr", Path: "transfer/channel-0/transfer/channel-1",
 					})
 			},
 			transfertypes.Traces{
 				{
-					BaseDenom: "uatom", Path: "transfer/channel-0/transfer/channel-1/customport/channel-7",
+					BaseDenom: "uvipr", Path: "transfer/channel-0/transfer/channel-1/customport/channel-7",
 				},
 			},
 		},
@@ -107,9 +107,9 @@ func (suite *KeeperTestSuite) TestMigratorMigrateTraces() {
 }
 
 func (suite *KeeperTestSuite) TestMigratorMigrateTracesCorruptionDetection() {
-	// IBCDenom() previously would return "customport/channel-0/uatom", but now should return ibc/{hash}
+	// IBCDenom() previously would return "customport/channel-0/uvipr", but now should return ibc/{hash}
 	corruptedDenomTrace := transfertypes.DenomTrace{
-		BaseDenom: "customport/channel-0/uatom",
+		BaseDenom: "customport/channel-0/uvipr",
 		Path:      "",
 	}
 	suite.chainA.GetSimApp().TransferKeeper.SetDenomTrace(suite.chainA.GetContext(), corruptedDenomTrace)

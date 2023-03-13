@@ -5,7 +5,7 @@ import (
 )
 
 // denomUnits contains a mapping of denomination mapped to their respective unit
-// multipliers (e.g. 1atom = 10^-6uatom).
+// multipliers (e.g. 1atom = 10^-6uvipr).
 var denomUnits = map[string]BigDec{}
 
 // baseDenom is the denom of smallest unit registered

@@ -67,7 +67,7 @@ type Params struct {
 	TokenRewardFactor        int64         `json:"relays_to_tokens_multiplier" yaml:"relays_to_tokens_multiplier"`
 	UnstakingTime            time.Duration `json:"unstaking_time" yaml:"unstaking_time"`                   // how much time must pass between the begin_unstaking_tx and the servicer going to -> unstaked status
 	MaxValidators            int64         `json:"max_validators" yaml:"max_validators"`                   // maximum number of validators in the network at any given block
-	StakeDenom               string        `json:"stake_denom" yaml:"stake_denom"`                         // the monetary denomination of the coins in the network `uvipr` or `uAtom` or `Wei`
+	StakeDenom               string        `json:"stake_denom" yaml:"stake_denom"`                         // the monetary denomination of the coins in the network `uvipr` or `uVipr` or `Wei`
 	StakeMinimum             int64         `json:"stake_minimum" yaml:"stake_minimum"`                     // minimum amount of `uvipr` needed to stake in the network as a servicer
 	SessionBlockFrequency    int64         `json:"session_block_frequency" yaml:"session_block_frequency"` // how many blocks are in a session (viper network unit)
 	DAOAllocation            int64         `json:"dao_allocation" yaml:"dao_allocation"`

@@ -9,7 +9,7 @@ import (
 var (
 	atom  = "atom"  // 1 (base denom unit)
 	matom = "matom" // 10^-3 (milli)
-	uatom = "uatom" // 10^-6 (micro)
+	uvipr = "uvipr" // 10^-6 (micro)
 	natom = "natom" // 10^-9 (nano)
 )
 
@@ -38,8 +38,8 @@ func TestConvertCoins(t *testing.T) {
 	matomUnit := NewDecWithPrec(1, 3) // 10^-3 (milli)
 	require.NoError(t, RegisterDenom(matom, matomUnit))
 
-	uatomUnit := NewDecWithPrec(1, 6) // 10^-6 (micro)
-	require.NoError(t, RegisterDenom(uatom, uatomUnit))
+	uviprUnit := NewDecWithPrec(1, 6) // 10^-6 (micro)
+	require.NoError(t, RegisterDenom(uvipr, uviprUnit))
 
 	natomUnit := NewDecWithPrec(1, 9) // 10^-9 (nano)
 	require.NoError(t, RegisterDenom(natom, natomUnit))
@@ -55,15 +55,15 @@ func TestConvertCoins(t *testing.T) {
 		{NewCoin(atom, ZeroInt()), "FOO", Coin{}, true},
 
 		{NewCoin(atom, NewInt(5)), matom, NewCoin(matom, NewInt(5000)), false},       // atom => matom
-		{NewCoin(atom, NewInt(5)), uatom, NewCoin(uatom, NewInt(5000000)), false},    // atom => uatom
+		{NewCoin(atom, NewInt(5)), uvipr, NewCoin(uvipr, NewInt(5000000)), false},    // atom => uvipr
 		{NewCoin(atom, NewInt(5)), natom, NewCoin(natom, NewInt(5000000000)), false}, // atom => natom
 
-		{NewCoin(uatom, NewInt(5000000)), matom, NewCoin(matom, NewInt(5000)), false},       // uatom => matom
-		{NewCoin(uatom, NewInt(5000000)), natom, NewCoin(natom, NewInt(5000000000)), false}, // uatom => natom
-		{NewCoin(uatom, NewInt(5000000)), atom, NewCoin(atom, NewInt(5)), false},            // uatom => atom
+		{NewCoin(uvipr, NewInt(5000000)), matom, NewCoin(matom, NewInt(5000)), false},       // uvipr => matom
+		{NewCoin(uvipr, NewInt(5000000)), natom, NewCoin(natom, NewInt(5000000000)), false}, // uvipr => natom
+		{NewCoin(uvipr, NewInt(5000000)), atom, NewCoin(atom, NewInt(5)), false},            // uvipr => atom
 
 		{NewCoin(matom, NewInt(5000)), natom, NewCoin(natom, NewInt(5000000000)), false}, // matom => natom
-		{NewCoin(matom, NewInt(5000)), uatom, NewCoin(uatom, NewInt(5000000)), false},    // matom => uatom
+		{NewCoin(matom, NewInt(5000)), uvipr, NewCoin(uvipr, NewInt(5000000)), false},    // matom => uvipr
 	}
 
 	for i, tc := range testCases {

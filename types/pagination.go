@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 
-	db "github.com/cometbft/cometbft-db"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -144,7 +143,7 @@ func Paginate(
 	return res, nil
 }
 
-func getIterator(prefixStore types.KVStore, start []byte, reverse bool) db.Iterator {
+func getIterator(prefixStore types.KVStore, start []byte, reverse bool) types.Iterator {
 	if reverse {
 		var end []byte
 		if start != nil {
@@ -156,8 +155,8 @@ func getIterator(prefixStore types.KVStore, start []byte, reverse bool) db.Itera
 			}
 		}
 		itr, _ := prefixStore.ReverseIterator(nil, end)
-		return itr.Close()
+		return itr
 	}
 	i, _ := prefixStore.Iterator(start, nil)
-	return i.Close()
+	return i
 }
