@@ -10,8 +10,8 @@ import (
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
+	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 	"github.com/vipernet-xyz/viper-network/x/transfer/exported"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
@@ -132,9 +132,9 @@ func (k Keeper) GetAllDenomTraces(ctx sdk.Ctx) types.Traces {
 // and performs a callback function.
 func (k Keeper) IterateDenomTraces(ctx sdk.Ctx, cb func(denomTrace types.DenomTrace) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator, _ := sdk.KVStorePrefixIterator(store, types.DenomTraceKey)
+	iterator, err := sdk.KVStorePrefixIterator(store, types.DenomTraceKey)
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
+	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
 	for ; iterator.Valid(); iterator.Next() {
 
 		denomTrace := k.MustUnmarshalDenomTrace(iterator.Value())

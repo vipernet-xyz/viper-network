@@ -9,8 +9,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channelutils "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/client/utils"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channelutils "github.com/vipernet-xyz/viper-network/modules/core/04-channel/client/utils"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )

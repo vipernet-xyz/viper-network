@@ -9,11 +9,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	coretypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/types"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	coretypes "github.com/vipernet-xyz/viper-network/modules/core/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
