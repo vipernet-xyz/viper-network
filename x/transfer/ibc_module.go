@@ -9,11 +9,11 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	"github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
