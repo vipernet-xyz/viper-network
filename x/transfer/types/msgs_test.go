@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
