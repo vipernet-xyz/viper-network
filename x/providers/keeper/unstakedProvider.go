@@ -9,7 +9,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 )
 
-// SetUnstakingProvider - Store an provider address to the providerropriate position in the unstaking queue
+// SetUnstakingProvider - Store an provider address to the appropriate position in the unstaking queue
 func (k Keeper) SetUnstakingProvider(ctx sdk.Ctx, val types.Provider) {
 	providers := k.getUnstakingProviders(ctx, val.UnstakingCompletionTime)
 	providers = append(providers, val.Address)

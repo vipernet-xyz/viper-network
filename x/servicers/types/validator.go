@@ -74,10 +74,10 @@ func (v Validator) ConsensusPower() int64 {
 // RemoveStakedTokens removes tokens from a validator
 func (v Validator) RemoveStakedTokens(tokens sdk.BigInt) (Validator, error) {
 	if tokens.IsNegative() {
-		return Validator{}, fmt.Errorf("should not hprovideren: trying to remove negative tokens: %s from valdiator %s", tokens.String(), v.Address)
+		return Validator{}, fmt.Errorf("should not happen: trying to remove negative tokens: %s from valdiator %s", tokens.String(), v.Address)
 	}
 	if v.StakedTokens.LT(tokens) {
-		return Validator{}, fmt.Errorf("should not hprovideren: only have %v tokens, trying to remove %v", v.StakedTokens, tokens)
+		return Validator{}, fmt.Errorf("should not happen: only have %v tokens, trying to remove %v", v.StakedTokens, tokens)
 	}
 	v.StakedTokens = v.StakedTokens.Sub(tokens)
 	return v, nil
@@ -86,7 +86,7 @@ func (v Validator) RemoveStakedTokens(tokens sdk.BigInt) (Validator, error) {
 // AddStakedTokens tokens to staked field for a validator
 func (v Validator) AddStakedTokens(tokens sdk.BigInt) (Validator, error) {
 	if tokens.IsNegative() {
-		return Validator{}, fmt.Errorf("should not hprovideren: trying to add negative tokens: %s from valdiator %s", tokens.String(), v.Address)
+		return Validator{}, fmt.Errorf("should not happen: trying to add negative tokens: %s from valdiator %s", tokens.String(), v.Address)
 	}
 	v.StakedTokens = v.StakedTokens.Add(tokens)
 	return v, nil

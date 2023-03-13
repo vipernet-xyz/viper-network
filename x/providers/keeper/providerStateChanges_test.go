@@ -31,7 +31,7 @@ func TestProviderStateChange_ValidateProviderBeginUnstaking(t *testing.T) {
 			name:     "validates provider",
 			provider: getStakedProvider(),
 			hasError: true,
-			want:     "should not hprovideren: provider trying to begin unstaking has less than the minimum stake",
+			want:     "should not happen: provider trying to begin unstaking has less than the minimum stake",
 		},
 	}
 
@@ -54,7 +54,7 @@ func TestProviderStateChange_ValidateProviderBeginUnstaking(t *testing.T) {
 func TestAppStateChange_ValidateApplicaitonStaking(t *testing.T) {
 	tests := []struct {
 		name            string
-		application     types.Provider
+		provider        types.Provider
 		panics          bool
 		amount          sdk.BigInt
 		stakedAppsCount int
@@ -62,29 +62,29 @@ func TestAppStateChange_ValidateApplicaitonStaking(t *testing.T) {
 		want            interface{}
 	}{
 		{
-			name:            "validates application",
+			name:            "validates provider",
 			stakedAppsCount: 0,
-			application:     getUnstakedProvider(),
+			provider:        getUnstakedProvider(),
 			amount:          sdk.NewInt(1000000),
 			want:            nil,
 		},
 		{
 			name:            "errors if below minimum stake",
-			application:     getUnstakedProvider(),
+			provider:        getUnstakedProvider(),
 			stakedAppsCount: 0,
 			amount:          sdk.NewInt(0),
 			want:            types.ErrMinimumStake("apps"),
 		},
 		{
 			name:            "errors bank does not have enough coins",
-			application:     getUnstakedProvider(),
+			provider:        getUnstakedProvider(),
 			stakedAppsCount: 0,
 			amount:          sdk.NewInt(1000000000000000000),
 			want:            types.ErrNotEnoughCoins("apps"),
 		},
 		{
 			name:            "errors if max applications hit",
-			application:     getUnstakedProvider(),
+			provider:        getUnstakedProvider(),
 			stakedAppsCount: 5,
 			amount:          sdk.NewInt(1000000),
 			want:            types.ErrMaxProviders("apps"),
@@ -113,8 +113,8 @@ func TestAppStateChange_ValidateApplicaitonStaking(t *testing.T) {
 				codec.UpgradeHeight = -1
 			}
 			addMintedCoinsToModule(t, context, &keeper, types.StakedPoolName)
-			sendFromModuleToAccount(t, context, &keeper, types.StakedPoolName, tt.application.Address, sdk.NewInt(100000000000))
-			if got := keeper.ValidateProviderStaking(context, tt.application, tt.amount); !reflect.DeepEqual(got, tt.want) {
+			sendFromModuleToAccount(t, context, &keeper, types.StakedPoolName, tt.provider.Address, sdk.NewInt(100000000000))
+			if got := keeper.ValidateProviderStaking(context, tt.provider, tt.amount); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("AppStateChange.ValidateApplicationStaking() = got %v, want %v", got, tt.want)
 			}
 		})

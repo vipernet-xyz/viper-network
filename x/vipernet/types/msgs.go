@@ -88,7 +88,7 @@ func (msg MsgClaim) GetRecipient() sdk.Address {
 	return nil
 }
 
-// "IsEmpty" - Returns true if the EvidenceType == 0, this should only hprovideren on initialization and MsgClaim{} calls
+// "IsEmpty" - Returns true if the EvidenceType == 0, this should only happen on initialization and MsgClaim{} calls
 func (msg MsgClaim) IsEmpty() bool {
 	return msg.EvidenceType == 0
 }

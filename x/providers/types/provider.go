@@ -51,10 +51,10 @@ func (a Provider) ConsensusPower() int64 {
 // RemoveStakedTokens removes tokens from a provider
 func (a Provider) RemoveStakedTokens(tokens sdk.BigInt) (Provider, error) {
 	if tokens.IsNegative() {
-		return Provider{}, fmt.Errorf("should not hprovideren: trying to remove negative tokens %v", tokens)
+		return Provider{}, fmt.Errorf("should not happen: trying to remove negative tokens %v", tokens)
 	}
 	if a.StakedTokens.LT(tokens) {
-		return Provider{}, fmt.Errorf("should not hprovideren: only have %v tokens, trying to remove %v", a.StakedTokens, tokens)
+		return Provider{}, fmt.Errorf("should not happen: only have %v tokens, trying to remove %v", a.StakedTokens, tokens)
 	}
 	a.StakedTokens = a.StakedTokens.Sub(tokens)
 	return a, nil
@@ -63,7 +63,7 @@ func (a Provider) RemoveStakedTokens(tokens sdk.BigInt) (Provider, error) {
 // AddStakedTokens tokens to staked field for a provider
 func (a Provider) AddStakedTokens(tokens sdk.BigInt) (Provider, error) {
 	if tokens.IsNegative() {
-		return Provider{}, fmt.Errorf("should not hprovideren: trying to remove negative tokens %v", tokens)
+		return Provider{}, fmt.Errorf("should not happen: trying to remove negative tokens %v", tokens)
 	}
 	a.StakedTokens = a.StakedTokens.Add(tokens)
 	return a, nil

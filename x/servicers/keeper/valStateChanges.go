@@ -388,7 +388,7 @@ func (k Keeper) BeginUnstakingValidator(ctx sdk.Ctx, validator types.Validator) 
 	k.deleteValidatorForChains(ctx, validator)
 	// set the status
 	validator = validator.UpdateStatus(sdk.Unstaking)
-	// set the unstaking completion time and completion height providerropriately
+	// set the unstaking completion time and completion height appropriately
 	if validator.UnstakingCompletionTime.IsZero() {
 		validator.UnstakingCompletionTime = ctx.BlockHeader().Time.Add(params.UnstakingTime)
 	}
@@ -465,7 +465,7 @@ func (k Keeper) LegacyForceValidatorUnstake(ctx sdk.Ctx, validator types.Validat
 		k.DeleteValidator(ctx, validator.Address)
 	default:
 		k.DeleteValidator(ctx, validator.Address)
-		return sdk.ErrInternal("should not hprovideren: trying to force unstake an already unstaked validator: " + validator.Address.String())
+		return sdk.ErrInternal("should not happen: trying to force unstake an already unstaked validator: " + validator.Address.String())
 	}
 	// amount unstaked = stakedTokens
 	err := k.burnStakedTokens(ctx, validator.StakedTokens)

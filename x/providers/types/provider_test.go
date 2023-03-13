@@ -120,7 +120,7 @@ func TestProvider_AddStakedTokens(t *testing.T) {
 			args{
 				tokens: sdk.NewInt(-1),
 			},
-			"should not hprovideren: trying to add negative tokens -1",
+			"should not happen: trying to add negative tokens -1",
 		},
 	}
 	for _, tt := range tests {
