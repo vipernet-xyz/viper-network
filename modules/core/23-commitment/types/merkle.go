@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	ics23 "github.com/cosmos/ics23/go"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // var representing the proofspecs for a SDK chain

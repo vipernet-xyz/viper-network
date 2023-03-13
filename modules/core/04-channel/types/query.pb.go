@@ -11,7 +11,7 @@ import (
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
-	types "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
+	types "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"

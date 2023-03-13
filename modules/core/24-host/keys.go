@@ -3,7 +3,7 @@ package host
 import (
 	"fmt"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // KVStore key prefixes for IBC

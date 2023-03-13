@@ -2,8 +2,8 @@ package exported
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	proto "github.com/cosmos/gogoproto/proto"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // Status represents the status of a client

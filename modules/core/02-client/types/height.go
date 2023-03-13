@@ -10,8 +10,8 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 var _ exported.Height = (*Height)(nil)

@@ -8,12 +8,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibcclient "github.com/vipernet-xyz/ibc-go/v7/modules/core/client"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibcclient "github.com/vipernet-xyz/viper-network/modules/core/client"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
 )
 
 // QueryClientState returns a client state. If prove is true, it performs an ABCI store query

@@ -7,9 +7,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // QueryTendermintProof performs an ABCI query with the given key and returns

@@ -8,13 +8,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	clientutils "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/client/utils"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibcclient "github.com/vipernet-xyz/ibc-go/v7/modules/core/client"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	clientutils "github.com/vipernet-xyz/viper-network/modules/core/02-client/client/utils"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibcclient "github.com/vipernet-xyz/viper-network/modules/core/client"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // QueryChannel returns a channel end.
