@@ -13,8 +13,8 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/vipernet-xyz/viper-network/client/flags"
+	"github.com/vipernet-xyz/viper-network/crypto/keyring"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 

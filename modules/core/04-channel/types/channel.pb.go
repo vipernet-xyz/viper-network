@@ -7,7 +7,7 @@ import (
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
-	types "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
+	types "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	io "io"
 	math "math"
 	math_bits "math/bits"

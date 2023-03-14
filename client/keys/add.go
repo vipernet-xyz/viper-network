@@ -12,14 +12,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/input"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/client/flags"
+	"github.com/vipernet-xyz/viper-network/client/input"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	"github.com/vipernet-xyz/viper-network/crypto/keyring"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/multisig"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 const (

@@ -4,12 +4,12 @@ import (
 	"fmt"
 
 	"github.com/cometbft/cometbft/libs/log"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // Keeper defines the IBC connection keeper
@@ -28,7 +28,7 @@ func NewKeeper(sck exported.ScopedKeeper) Keeper {
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
+	return ctx.Logger1().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
 }
 
 // IsBound checks a given port ID is already bounded.

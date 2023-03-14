@@ -3,10 +3,10 @@ package types
 import (
 	errorsmod "cosmossdk.io/errors"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 var _ exported.ConnectionI = (*ConnectionEnd)(nil)

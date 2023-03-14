@@ -4,15 +4,15 @@ import (
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/vipernet-xyz/viper-network/store/prefix"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 )
 
 var _ types.QueryServer = Keeper{}

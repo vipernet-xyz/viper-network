@@ -8,15 +8,15 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/vipernet-xyz/viper-network/store/prefix"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 var _ types.QueryServer = Keeper{}

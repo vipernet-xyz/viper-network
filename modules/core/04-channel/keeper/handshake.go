@@ -5,14 +5,14 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/telemetry"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // ChanOpenInit is called by a module to initiate a channel opening handshake with

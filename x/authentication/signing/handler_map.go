@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // SignModeHandlerMap is SignModeHandler that aggregates multiple SignModeHandler's into

@@ -6,13 +6,13 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	metrics "github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
-	coretypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
+	coretypes "github.com/vipernet-xyz/viper-network/modules/core/types"
 )
 
 var (

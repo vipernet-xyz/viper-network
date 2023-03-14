@@ -11,14 +11,14 @@ import (
 
 	"github.com/cosmos/go-bip39"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/client/flags"
+	"github.com/vipernet-xyz/viper-network/crypto/keyring"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/tx"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 
 // Factory defines a client transaction factory that facilitates generating and

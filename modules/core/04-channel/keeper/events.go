@@ -4,10 +4,10 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // emitChannelOpenInitEvent emits a channel open init event

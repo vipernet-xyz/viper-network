@@ -13,7 +13,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 
-	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
+	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
@@ -137,6 +137,6 @@ func (AppModule) QuerierRoute() string {
 }
 
 // NewQuerierHandler returns the staking module sdk.Querier.
-func (pm AppModule) NewQuerierHandler() sdk.Querier {
-	return keeper.NewQuerier(pm.keeper)
+func (am AppModule) NewQuerierHandler() sdk.Querier {
+	return keeper.NewQuerier(am.keeper)
 }

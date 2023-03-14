@@ -1,8 +1,8 @@
 package multisig
 
 import (
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 
 // PubKey defines a type which supports multi-signature verification via MultiSignatureData

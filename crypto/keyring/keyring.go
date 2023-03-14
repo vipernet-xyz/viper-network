@@ -19,14 +19,14 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/cosmos/cosmos-sdk/client/input"
-	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/vipernet-xyz/viper-network/client/input"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/crypto/hd"
 	"github.com/vipernet-xyz/viper-network/crypto/ledger"
+	"github.com/vipernet-xyz/viper-network/crypto/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 

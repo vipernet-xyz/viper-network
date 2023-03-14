@@ -3,9 +3,9 @@ package signing
 import (
 	"context"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 
 // SignModeHandler defines a interface to be implemented by types which will handle

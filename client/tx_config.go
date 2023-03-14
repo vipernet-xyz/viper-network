@@ -1,9 +1,9 @@
 package client
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/tx"
+	signingtypes "github.com/vipernet-xyz/viper-network/types/tx/signing"
 	"github.com/vipernet-xyz/viper-network/x/authentication/signing"
 )
 

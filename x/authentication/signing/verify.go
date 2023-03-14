@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/crypto/types/multisig"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 
 // VerifySignature verifies a transaction signature contained in SignatureData abstracting over different signing modes

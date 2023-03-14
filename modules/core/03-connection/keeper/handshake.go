@@ -3,13 +3,13 @@ package keeper
 import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/telemetry"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // ConnOpenInit initialises a connection attempt on chain A. The generated connection identifier

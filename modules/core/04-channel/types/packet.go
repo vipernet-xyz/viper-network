@@ -4,12 +4,12 @@ import (
 	"crypto/sha256"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // CommitPacket returns the packet commitment bytes. The commitment consists of:

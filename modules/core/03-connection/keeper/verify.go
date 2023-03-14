@@ -4,15 +4,15 @@ import (
 	"math"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // VerifyClientState verifies a proof of a client state of the running machine

@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
 )
 
 // emitConnectionOpenInitEvent emits a connection open init event

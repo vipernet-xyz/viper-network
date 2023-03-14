@@ -10,15 +10,15 @@ import (
 	"github.com/cometbft/cometbft/libs/cli"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	clienttestutil "github.com/cosmos/cosmos-sdk/client/testutil"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/client/flags"
+	clienttestutil "github.com/vipernet-xyz/viper-network/client/testutil"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	"github.com/vipernet-xyz/viper-network/crypto/keyring"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 func Test_runAddCmdBasic(t *testing.T) {
