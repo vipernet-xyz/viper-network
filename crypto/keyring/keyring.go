@@ -20,7 +20,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/vipernet-xyz/viper-network/client/input"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
@@ -28,6 +27,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto/ledger"
 	"github.com/vipernet-xyz/viper-network/crypto/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 
 // Backend options for Keyring
@@ -162,13 +162,13 @@ type Options struct {
 // NewInMemory creates a transient keyring useful for testing
 // purposes and on-the-fly key generation.
 // Keybase options can be applied when generating this new Keybase.
-func NewInMemory(cdc codec.Codec, opts ...Option) Keyring {
+func NewInMemory(cdc codec.Cdc, opts ...Option) Keyring {
 	return NewInMemoryWithKeyring(keyring.NewArrayKeyring(nil), cdc, opts...)
 }
 
 // NewInMemoryWithKeyring returns an in memory keyring using the specified keyring.Keyring
 // as the backing keyring.
-func NewInMemoryWithKeyring(kr keyring.Keyring, cdc codec.Codec, opts ...Option) Keyring {
+func NewInMemoryWithKeyring(kr keyring.Keyring, cdc codec.Cdc, opts ...Option) Keyring {
 	return newKeystore(kr, cdc, BackendMemory, opts...)
 }
 
@@ -176,7 +176,7 @@ func NewInMemoryWithKeyring(kr keyring.Keyring, cdc codec.Codec, opts ...Option)
 // Keyring options can be applied when generating the new instance.
 // Available backends are "os", "file", "kwallet", "memory", "pass", "test".
 func New(
-	appName, backend, rootDir string, userInput io.Reader, cdc codec.Codec, opts ...Option,
+	appName, backend, rootDir string, userInput io.Reader, cdc codec.Cdc, opts ...Option,
 ) (Keyring, error) {
 	var (
 		db  keyring.Keyring
@@ -209,12 +209,12 @@ func New(
 
 type keystore struct {
 	db      keyring.Keyring
-	cdc     codec.Codec
+	cdc     codec.Cdc
 	backend string
 	options Options
 }
 
-func newKeystore(kr keyring.Keyring, cdc codec.Codec, backend string, opts ...Option) keystore {
+func newKeystore(kr keyring.Keyring, cdc codec.Cdc, backend string, opts ...Option) keystore {
 	// Default options for keybase, these can be overwritten using the
 	// Option function
 	options := Options{
@@ -568,7 +568,7 @@ func (ks keystore) NewAccount(name, mnemonic, bip39Passphrase, hdPath string, al
 
 	// check if the key already exists with the same address and return an error
 	// if found
-	address := sdk.AccAddress(privKey.PubKey().Address())
+	address := sdk.Address(privKey.PubKey().Address())
 	if _, err := ks.KeyByAddress(address); err == nil {
 		return nil, ErrDuplicatedAddress
 	}

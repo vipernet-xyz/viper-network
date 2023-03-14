@@ -124,9 +124,9 @@ func (k Keeper) SetNextClientSequence(ctx sdk.Context, sequence uint64) {
 // the iterator will close and stop.
 func (k Keeper) IterateConsensusStates(ctx sdk.Context, cb func(clientID string, cs types.ConsensusStateWithHeight) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator, _ := sdk.KVStorePrefixIterator(store, host.KeyClientStorePrefix)
+	iterator, err := sdk.KVStorePrefixIterator(store, host.KeyClientStorePrefix)
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
+	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
 	for ; iterator.Valid(); iterator.Next() {
 		keySplit := strings.Split(string(iterator.Key()), "/")
 		// consensus key is in the format "clients/<clientID>/consensusStates/<height>"
@@ -228,7 +228,8 @@ func (k Keeper) GetAllConsensusStates(ctx sdk.Context) types.ClientsConsensusSta
 // client at the given height
 func (k Keeper) HasClientConsensusState(ctx sdk.Context, clientID string, height exported.Height) bool {
 	store := k.ClientStore(ctx, clientID)
-	return store.Has(host.ConsensusStateKey(height))
+	b, _ := store.Has(host.ConsensusStateKey(height))
+	return b
 }
 
 // GetLatestClientConsensusState gets the latest ConsensusState stored for a given client
@@ -356,9 +357,9 @@ func (k Keeper) SetUpgradedConsensusState(ctx sdk.Context, planHeight int64, bz 
 // the iterator will close and stop.
 func (k Keeper) IterateClientStates(ctx sdk.Context, prefix []byte, cb func(clientID string, cs exported.ClientState) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, host.PrefixedClientStoreKey(prefix))
+	iterator, err := sdk.KVStorePrefixIterator(store, host.PrefixedClientStoreKey(prefix))
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
+	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
 	for ; iterator.Valid(); iterator.Next() {
 		path := string(iterator.Key())
 		if !strings.Contains(path, host.KeyClientState) {
