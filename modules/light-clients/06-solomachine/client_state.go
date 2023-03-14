@@ -9,11 +9,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 )
 
 var _ exported.ClientState = (*ClientState)(nil)

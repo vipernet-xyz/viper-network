@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	proto "github.com/cosmos/gogoproto/proto"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"

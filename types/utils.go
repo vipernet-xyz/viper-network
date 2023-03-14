@@ -156,3 +156,13 @@ func LogDeferred(logger log.Logger, f func() error) {
 		logger.Error(err.Error())
 	}
 }
+
+// BigEndianToUint64 returns an uint64 from big endian encoded bytes. If encoding
+// is empty, zero is returned.
+func BigEndianToUint64(bz []byte) uint64 {
+	if len(bz) == 0 {
+		return 0
+	}
+
+	return binary.BigEndian.Uint64(bz)
+}

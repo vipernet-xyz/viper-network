@@ -2,12 +2,12 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 var (

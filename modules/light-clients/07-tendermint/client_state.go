@@ -7,14 +7,14 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/light"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	ics23 "github.com/cosmos/ics23/go"
+	"github.com/vipernet-xyz/viper-network/codec"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 var _ exported.ClientState = (*ClientState)(nil)

@@ -9,8 +9,8 @@ import (
 	tmstate "github.com/cometbft/cometbft/state"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 )
 
 const (

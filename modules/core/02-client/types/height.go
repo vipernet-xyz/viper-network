@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	"github.com/vipernet-xyz/viper-network/modules/core/exported"

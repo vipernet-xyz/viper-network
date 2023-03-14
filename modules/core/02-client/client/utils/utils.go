@@ -5,8 +5,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/codec"
 
 	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
@@ -49,7 +49,7 @@ func QueryClientStateABCI(
 		return nil, errorsmod.Wrap(types.ErrClientNotFound, clientID)
 	}
 
-	cdc := codec.NewProtoCodec(clientCtx.InterfaceRegistry)
+	cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
 
 	clientState, err := types.UnmarshalClientState(cdc, value)
 	if err != nil {
@@ -102,7 +102,7 @@ func QueryConsensusStateABCI(
 		return nil, errorsmod.Wrap(types.ErrConsensusStateNotFound, clientID)
 	}
 
-	cdc := codec.NewProtoCodec(clientCtx.InterfaceRegistry)
+	cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
 
 	cs, err := types.UnmarshalConsensusState(cdc, value)
 	if err != nil {

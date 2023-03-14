@@ -1,7 +1,7 @@
 package types
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	"github.com/vipernet-xyz/viper-network/modules/core/exported"

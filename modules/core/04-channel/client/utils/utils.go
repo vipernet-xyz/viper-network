@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/codec"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	clientutils "github.com/vipernet-xyz/viper-network/modules/core/02-client/client/utils"
@@ -49,7 +49,7 @@ func queryChannelABCI(clientCtx client.Context, portID, channelID string) (*type
 		return nil, errorsmod.Wrapf(types.ErrChannelNotFound, "portID (%s), channelID (%s)", portID, channelID)
 	}
 
-	cdc := codec.NewProtoCodec(clientCtx.InterfaceRegistry)
+	cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
 
 	var channel types.Channel
 	if err := cdc.Unmarshal(value, &channel); err != nil {

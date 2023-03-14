@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/codec"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
@@ -55,7 +55,7 @@ func QueryTendermintProof(clientCtx client.Context, key []byte) ([]byte, []byte,
 		return nil, nil, clienttypes.Height{}, err
 	}
 
-	cdc := codec.NewProtoCodec(clientCtx.InterfaceRegistry)
+	cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
 
 	proofBz, err := cdc.Marshal(&merkleProof)
 	if err != nil {

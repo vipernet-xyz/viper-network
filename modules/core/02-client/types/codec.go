@@ -2,14 +2,14 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	proto "github.com/cosmos/gogoproto/proto"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	msgservice "github.com/vipernet-xyz/viper-network/types/msgservice"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // RegisterInterfaces registers the client interfaces to protobuf Any.

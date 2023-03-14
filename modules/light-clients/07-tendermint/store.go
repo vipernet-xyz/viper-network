@@ -5,13 +5,13 @@ import (
 	"encoding/binary"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/store/prefix"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 /*
@@ -59,7 +59,7 @@ func setConsensusState(clientStore sdk.KVStore, cdc codec.BinaryCodec, consensus
 // GetConsensusState retrieves the consensus state from the client prefixed store.
 // If the ConsensusState does not exist in state for the provided height a nil value and false boolean flag is returned
 func GetConsensusState(store sdk.KVStore, cdc codec.BinaryCodec, height exported.Height) (*ConsensusState, bool) {
-	bz := store.Get(host.ConsensusStateKey(height))
+	bz, _ := store.Get(host.ConsensusStateKey(height))
 	if len(bz) == 0 {
 		return nil, false
 	}
@@ -77,7 +77,7 @@ func deleteConsensusState(clientStore sdk.KVStore, height exported.Height) {
 // IterateConsensusMetadata iterates through the prefix store and applies the callback.
 // If the cb returns true, then iterator will close and stop.
 func IterateConsensusMetadata(store sdk.KVStore, cb func(key, val []byte) bool) {
-	iterator := sdk.KVStorePrefixIterator(store, []byte(host.KeyConsensusStatePrefix))
+	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyConsensusStatePrefix))
 
 	// iterate over processed time and processed height
 	defer iterator.Close()
@@ -100,7 +100,7 @@ func IterateConsensusMetadata(store sdk.KVStore, cb func(key, val []byte) bool) 
 	}
 
 	// iterate over iteration keys
-	iter := sdk.KVStorePrefixIterator(store, []byte(KeyIterateConsensusStatePrefix))
+	iter, _ := sdk.KVStorePrefixIterator(store, []byte(KeyIterateConsensusStatePrefix))
 
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -128,7 +128,7 @@ func SetProcessedTime(clientStore sdk.KVStore, height exported.Height, timeNs ui
 // This is used to validate that a received packet has passed the time delay period.
 func GetProcessedTime(clientStore sdk.KVStore, height exported.Height) (uint64, bool) {
 	key := ProcessedTimeKey(height)
-	bz := clientStore.Get(key)
+	bz, _ := clientStore.Get(key)
 	if len(bz) == 0 {
 		return 0, false
 	}
@@ -159,7 +159,7 @@ func SetProcessedHeight(clientStore sdk.KVStore, consHeight, processedHeight exp
 // This is used to validate that a received packet has passed the block delay period.
 func GetProcessedHeight(clientStore sdk.KVStore, height exported.Height) (exported.Height, bool) {
 	key := ProcessedHeightKey(height)
-	bz := clientStore.Get(key)
+	bz, _ := clientStore.Get(key)
 	if len(bz) == 0 {
 		return nil, false
 	}
@@ -194,7 +194,8 @@ func SetIterationKey(clientStore sdk.KVStore, height exported.Height) {
 // NOTE: This function is currently only used for testing purposes
 func GetIterationKey(clientStore sdk.KVStore, height exported.Height) []byte {
 	key := IterationKey(height)
-	return clientStore.Get(key)
+	a, _ := clientStore.Get(key)
+	return a
 }
 
 // deleteIterationKey deletes the iteration key for a given height
@@ -216,7 +217,7 @@ func GetHeightFromIterationKey(iterKey []byte) exported.Height {
 // IterateConsensusStateAscending iterates through the consensus states in ascending order. It calls the provided
 // callback on each height, until stop=true is returned.
 func IterateConsensusStateAscending(clientStore sdk.KVStore, cb func(height exported.Height) (stop bool)) {
-	iterator := sdk.KVStorePrefixIterator(clientStore, []byte(KeyIterateConsensusStatePrefix))
+	iterator, _ := sdk.KVStorePrefixIterator(clientStore, []byte(KeyIterateConsensusStatePrefix))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -234,7 +235,7 @@ func IterateConsensusStateAscending(clientStore sdk.KVStore, cb func(height expo
 // Otherwise, the iterator is already at the next consensus state so we can call iterator.Value() immediately.
 func GetNextConsensusState(clientStore sdk.KVStore, cdc codec.BinaryCodec, height exported.Height) (*ConsensusState, bool) {
 	iterateStore := prefix.NewStore(clientStore, []byte(KeyIterateConsensusStatePrefix))
-	iterator := iterateStore.Iterator(bigEndianHeightBytes(height), nil)
+	iterator, _ := iterateStore.Iterator(bigEndianHeightBytes(height), nil)
 	defer iterator.Close()
 	if !iterator.Valid() {
 		return nil, false
@@ -259,7 +260,7 @@ func GetNextConsensusState(clientStore sdk.KVStore, cdc codec.BinaryCodec, heigh
 // Thus to get previous consensus state we call iterator.Value() immediately.
 func GetPreviousConsensusState(clientStore sdk.KVStore, cdc codec.BinaryCodec, height exported.Height) (*ConsensusState, bool) {
 	iterateStore := prefix.NewStore(clientStore, []byte(KeyIterateConsensusStatePrefix))
-	iterator := iterateStore.ReverseIterator(nil, bigEndianHeightBytes(height))
+	iterator, _ := iterateStore.ReverseIterator(nil, bigEndianHeightBytes(height))
 	defer iterator.Close()
 
 	if !iterator.Valid() {
@@ -305,7 +306,7 @@ func PruneAllExpiredConsensusStates(
 
 // Helper function for GetNextConsensusState and GetPreviousConsensusState
 func getTmConsensusState(clientStore sdk.KVStore, cdc codec.BinaryCodec, key []byte) (*ConsensusState, bool) {
-	bz := clientStore.Get(key)
+	bz, _ := clientStore.Get(key)
 	if len(bz) == 0 {
 		return nil, false
 	}

@@ -1,8 +1,8 @@
 package exported
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
 	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
