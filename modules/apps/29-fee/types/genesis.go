@@ -6,8 +6,8 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 )
 
 // NewGenesisState creates a 29-fee GenesisState instance.

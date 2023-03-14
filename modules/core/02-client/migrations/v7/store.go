@@ -5,17 +5,17 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
 )
 
 // Localhost is the client type for a localhost client. It is also used as the clientID
@@ -58,7 +58,7 @@ func handleSolomachineMigration(ctx sdk.Context, store sdk.KVStore, cdc codec.Bi
 	for _, clientID := range clients {
 		clientStore := clientKeeper.ClientStore(ctx, clientID)
 
-		bz := clientStore.Get(host.ClientStateKey())
+		bz, _ := clientStore.Get(host.ClientStateKey())
 		if len(bz) == 0 {
 			return errorsmod.Wrapf(clienttypes.ErrClientNotFound, "clientID %s", clientID)
 		}
@@ -143,9 +143,9 @@ func handleLocalhostMigration(ctx sdk.Context, store sdk.KVStore, cdc codec.Bina
 // v7 migrations.
 func collectClients(ctx sdk.Context, store sdk.KVStore, clientType string) (clients []string, err error) {
 	clientPrefix := []byte(fmt.Sprintf("%s/%s", host.KeyClientStorePrefix, clientType))
-	iterator := sdk.KVStorePrefixIterator(store, clientPrefix)
+	iterator, err := sdk.KVStorePrefixIterator(store, clientPrefix)
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
+	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
 	for ; iterator.Valid(); iterator.Next() {
 		path := string(iterator.Key())
 		if !strings.Contains(path, host.KeyClientState) {
@@ -168,7 +168,7 @@ func collectClients(ctx sdk.Context, store sdk.KVStore, clientType string) (clie
 // removeAllClientConsensusStates removes all client consensus states from the associated
 // client store.
 func removeAllClientConsensusStates(clientStore sdk.KVStore) {
-	iterator := sdk.KVStorePrefixIterator(clientStore, []byte(host.KeyConsensusStatePrefix))
+	iterator, _ := sdk.KVStorePrefixIterator(clientStore, []byte(host.KeyConsensusStatePrefix))
 	var heights []exported.Height
 
 	defer iterator.Close()

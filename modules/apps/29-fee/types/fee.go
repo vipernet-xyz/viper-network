@@ -6,8 +6,8 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ibcerrors "github.com/vipernet-xyz/ibc-go/v7/internal/errors"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 )
 
 // NewPacketFee creates and returns a new PacketFee struct including the incentivization fees, refund address and relayers

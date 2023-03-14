@@ -202,3 +202,19 @@ func NewAminoCodec(codec *LegacyAmino) *AminoCodec {
 func NewLegacyAmino() *LegacyAmino {
 	return &LegacyAmino{amino.NewCodec()}
 }
+
+func (cdc *LegacyAmino) Marshal(o interface{}) ([]byte, error) {
+	err := cdc.marshalAnys(o)
+	if err != nil {
+		return nil, err
+	}
+	return cdc.Amino.MarshalBinaryBare(o)
+}
+
+func (cdc *LegacyAmino) MustMarshal(o interface{}) []byte {
+	bz, err := cdc.Marshal(o)
+	if err != nil {
+		panic(err)
+	}
+	return bz
+}

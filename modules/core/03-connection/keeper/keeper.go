@@ -3,16 +3,16 @@ package keeper
 import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // Keeper defines the IBC connection keeper
@@ -43,7 +43,7 @@ func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramt
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
+	return ctx.Logger1().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
 }
 
 // GetCommitmentPrefix returns the IBC connection store prefix as a commitment
@@ -65,7 +65,7 @@ func (k Keeper) GenerateConnectionIdentifier(ctx sdk.Context) string {
 // GetConnection returns a connection with a particular identifier
 func (k Keeper) GetConnection(ctx sdk.Context, connectionID string) (types.ConnectionEnd, bool) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(host.ConnectionKey(connectionID))
+	bz, _ := store.Get(host.ConnectionKey(connectionID))
 	if len(bz) == 0 {
 		return types.ConnectionEnd{}, false
 	}
@@ -80,7 +80,8 @@ func (k Keeper) GetConnection(ctx sdk.Context, connectionID string) (types.Conne
 // exists in the store.
 func (k Keeper) HasConnection(ctx sdk.Context, connectionID string) bool {
 	store := ctx.KVStore(k.storeKey)
-	return store.Has(host.ConnectionKey(connectionID))
+	b, _ := store.Has(host.ConnectionKey(connectionID))
+	return b
 }
 
 // SetConnection sets a connection to the store
@@ -112,7 +113,7 @@ func (k Keeper) GetTimestampAtHeight(ctx sdk.Context, connection types.Connectio
 // particular client
 func (k Keeper) GetClientConnectionPaths(ctx sdk.Context, clientID string) ([]string, bool) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(host.ClientConnectionsKey(clientID))
+	bz, _ := store.Get(host.ClientConnectionsKey(clientID))
 	if len(bz) == 0 {
 		return nil, false
 	}
@@ -133,7 +134,7 @@ func (k Keeper) SetClientConnectionPaths(ctx sdk.Context, clientID string, paths
 // GetNextConnectionSequence gets the next connection sequence from the store.
 func (k Keeper) GetNextConnectionSequence(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get([]byte(types.KeyNextConnectionSequence))
+	bz, _ := store.Get([]byte(types.KeyNextConnectionSequence))
 	if len(bz) == 0 {
 		panic("next connection sequence is nil")
 	}
@@ -172,9 +173,9 @@ func (k Keeper) GetAllClientConnectionPaths(ctx sdk.Context) []types.ConnectionP
 // iterator will close and stop.
 func (k Keeper) IterateConnections(ctx sdk.Context, cb func(types.IdentifiedConnection) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(host.KeyConnectionPrefix))
+	iterator, err := sdk.KVStorePrefixIterator(store, []byte(host.KeyConnectionPrefix))
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
+	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
 	for ; iterator.Valid(); iterator.Next() {
 		var connection types.ConnectionEnd
 		k.cdc.MustUnmarshal(iterator.Value(), &connection)

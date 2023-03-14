@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	v7 "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/migrations/v7"
+	v7 "github.com/vipernet-xyz/viper-network/modules/core/02-client/migrations/v7"
 )
 
 // Migrator is a struct for handling in-place store migrations.
