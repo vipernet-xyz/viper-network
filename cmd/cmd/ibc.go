@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/client/tx"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	channelutils "github.com/vipernet-xyz/viper-network/modules/core/04-channel/client/utils"
 	sdk "github.com/vipernet-xyz/viper-network/types"
