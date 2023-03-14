@@ -1,8 +1,8 @@
 package client
 
 import (
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // Account defines a read-only version of the auth module's AccountI.

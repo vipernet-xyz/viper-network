@@ -21,13 +21,13 @@ var (
 )
 
 // GetMsgs implements the GetMsgs method on sdk.Tx.
-func (t *Tx) GetMsgs() []sdk.Msg {
+func (t *Tx) GetMsgs() []sdk.Msg1 {
 	if t == nil || t.Body == nil {
 		return nil
 	}
 
 	anys := t.Body.Messages
-	res, err := GetMsgs(anys, "transaction")
+	res, err := GetMsgs1(anys, "transaction")
 	if err != nil {
 		panic(err)
 	}

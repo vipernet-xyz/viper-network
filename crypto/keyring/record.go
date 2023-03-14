@@ -5,10 +5,10 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/types"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/types"
 )
 
 var (
@@ -78,7 +78,7 @@ func (k *Record) GetPubKey() (cryptotypes.PubKey, error) {
 }
 
 // GetAddress fetches an address of the record
-func (k Record) GetAddress() (types.AccAddress, error) {
+func (k Record) GetAddress() (types.Address, error) {
 	pk, err := k.GetPubKey()
 	if err != nil {
 		return nil, err

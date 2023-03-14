@@ -5,10 +5,10 @@ import (
 
 	cmtcrypto "github.com/cometbft/cometbft/crypto"
 
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	multisigtypes "github.com/vipernet-xyz/viper-network/crypto/types/multisig"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 
 var (

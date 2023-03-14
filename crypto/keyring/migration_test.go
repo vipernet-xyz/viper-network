@@ -12,8 +12,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/multisig"
 	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 )

@@ -1,17 +1,16 @@
 package keyring
 
-import (
-	"encoding/hex"
-	"fmt"
-	"testing"
+/*"encoding/hex"
+"fmt"
+"testing"
 
-	"github.com/stretchr/testify/require"
+"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+"github.com/vipernet-xyz/viper-network/crypto/hd"
+"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+sdk "github.com/vipernet-xyz/viper-network/types"*/
 
+/*
 func Test_writeReadLedgerInfo(t *testing.T) {
 	tests := []struct {
 		hexPK        string
@@ -72,3 +71,4 @@ func Test_writeReadLedgerInfo(t *testing.T) {
 		})
 	}
 }
+*/

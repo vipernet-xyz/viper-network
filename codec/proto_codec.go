@@ -18,7 +18,10 @@ type ProtoCodec struct {
 	anyUnpacker types.AnyUnpacker
 }
 
-var _ Marshaler = &ProtoCodec{}
+var (
+	_ Marshaler = &ProtoCodec{}
+	_ Cdc       = &ProtoCodec1{}
+)
 
 func NewProtoCodec(anyUnpacker types.AnyUnpacker) *ProtoCodec {
 	return &ProtoCodec{anyUnpacker: anyUnpacker}
@@ -303,4 +306,86 @@ func (pc *ProtoCodec1) UnmarshalInterface(bz []byte, ptr interface{}) error {
 	}
 
 	return pc.UnpackAny(any, ptr)
+}
+
+// MarshalInterfaceJSON is a convenience function for proto marshalling interfaces. It
+// packs the provided value in an Any and then marshals it to bytes.
+// NOTE: to marshal a concrete type, you should use MarshalJSON instead
+func (pc *ProtoCodec1) MarshalInterfaceJSON(x proto.Message) ([]byte, error) {
+	any, err := types.NewAnyWithValue(x)
+	if err != nil {
+		return nil, err
+	}
+	return pc.MarshalJSON(any)
+}
+
+// MarshalJSON implements JSONCodec.MarshalJSON method,
+// it marshals to JSON using proto codec.
+// NOTE: this function must be used with a concrete type which
+// implements proto.Message. For interface please use the codec.MarshalInterfaceJSON
+//
+//nolint:stdmethods
+func (pc *ProtoCodec1) MarshalJSON(o proto.Message) ([]byte, error) {
+	if o == nil {
+		return nil, fmt.Errorf("cannot protobuf JSON encode nil")
+	}
+	return ProtoMarshalJSON(o)
+}
+
+// MustMarshalJSON implements JSONCodec.MustMarshalJSON method,
+// it executes MarshalJSON except it panics upon failure.
+// NOTE: this function must be used with a concrete type which
+// implements proto.Message. For interface please use the codec.MarshalInterfaceJSON
+func (pc *ProtoCodec1) MustMarshalJSON(o proto.Message) []byte {
+	bz, err := pc.MarshalJSON(o)
+	if err != nil {
+		panic(err)
+	}
+
+	return bz
+}
+
+// MustUnmarshalJSON implements JSONCodec.MustUnmarshalJSON method,
+// it executes UnmarshalJSON except it panics upon failure.
+// NOTE: this function must be used with a concrete type which
+// implements proto.Message. For interface please use the codec.UnmarshalInterfaceJSON
+func (pc *ProtoCodec1) MustUnmarshalJSON(bz []byte, ptr proto.Message) {
+	if err := pc.UnmarshalJSON(bz, ptr); err != nil {
+		panic(err)
+	}
+}
+
+// UnmarshalJSON implements JSONCodec.UnmarshalJSON method,
+// it unmarshals from JSON using proto codec.
+// NOTE: this function must be used with a concrete type which
+// implements proto.Message. For interface please use the codec.UnmarshalInterfaceJSON
+func (pc *ProtoCodec1) UnmarshalJSON(bz []byte, ptr proto.Message) error {
+	if ptr == nil {
+		return fmt.Errorf("cannot protobuf JSON decode unsupported type: %T", ptr)
+	}
+	unmarshaler := jsonpb.Unmarshaler{AnyResolver: pc.interfaceRegistry}
+	err := unmarshaler.Unmarshal(strings.NewReader(string(bz)), ptr)
+	if err != nil {
+		return err
+	}
+
+	return types.UnpackInterfaces(ptr, pc.interfaceRegistry)
+}
+
+// UnmarshalInterfaceJSON is a convenience function for proto unmarshaling interfaces.
+// It unmarshals an Any from bz bytes and then unpacks it to the `iface`, which must
+// be a pointer to a non empty interface, implementing proto.Message with registered implementations.
+// NOTE: to unmarshal a concrete type, you should use UnmarshalJSON instead
+//
+// Example:
+//
+//	var x MyInterface  // must implement proto.Message
+//	err := cdc.UnmarshalInterfaceJSON(&x, bz)
+func (pc *ProtoCodec1) UnmarshalInterfaceJSON(bz []byte, iface interface{}) error {
+	any := &types.Any{}
+	err := pc.UnmarshalJSON(bz, any)
+	if err != nil {
+		return err
+	}
+	return pc.UnpackAny(any, iface)
 }

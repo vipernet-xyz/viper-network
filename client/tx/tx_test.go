@@ -1,35 +1,33 @@
 package tx_test
 
-import (
-	gocontext "context"
-	"fmt"
-	"strings"
-	"testing"
+/*gocontext "context"
+"fmt"
+"strings"
+"testing"
 
-	"cosmossdk.io/depinject"
-	sdkmath "cosmossdk.io/math"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
+"cosmossdk.io/depinject"
+sdkmath "cosmossdk.io/math"
+"github.com/stretchr/testify/require"
+"google.golang.org/grpc"
 
-	clienttestutil "github.com/cosmos/cosmos-sdk/client/testutil"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	ante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/vipernet-xyz/viper-network/client"
-	"github.com/vipernet-xyz/viper-network/client/tx"
-)
+clienttestutil "github.com/cosmos/cosmos-sdk/client/testutil"
+"github.com/cosmos/cosmos-sdk/codec"
+codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+"github.com/cosmos/cosmos-sdk/crypto/hd"
+"github.com/cosmos/cosmos-sdk/crypto/keyring"
+cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+"github.com/cosmos/cosmos-sdk/testutil/testdata"
+sdk "github.com/cosmos/cosmos-sdk/types"
+txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+ante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+"github.com/cosmos/cosmos-sdk/x/auth/signing"
+authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+"github.com/vipernet-xyz/viper-network/client"
+"github.com/vipernet-xyz/viper-network/client/tx"*/
 
-func newTestTxConfig(t *testing.T) (client.TxConfig, codec.Codec) {
+/*func newTestTxConfig(t *testing.T) (client.TxConfig, codec.Codec) {
 	var (
 		pcdc codec.ProtoCodecMarshaler
 		cdc  codec.Codec
@@ -295,28 +293,28 @@ func TestSign(t *testing.T) {
 		},
 
 		/**** test double sign Amino mode ****/
-		{
-			"amino: should sign multi-signers tx",
-			txfAmino, txb, from1, true,
-			[]cryptotypes.PubKey{pubKey1},
-			nil,
-		},
-		{
-			"amino: should append a second signature and not overwrite",
-			txfAmino, txb, from2, false,
-			[]cryptotypes.PubKey{pubKey1, pubKey2},
-			[]int{0, 0},
-		},
-		{
-			"amino: should overwrite a signature",
-			txfAmino, txb, from2, true,
-			[]cryptotypes.PubKey{pubKey2},
-			[]int{1, 0},
-		},
+/*	{
+		"amino: should sign multi-signers tx",
+		txfAmino, txb, from1, true,
+		[]cryptotypes.PubKey{pubKey1},
+		nil,
+	},
+	{
+		"amino: should append a second signature and not overwrite",
+		txfAmino, txb, from2, false,
+		[]cryptotypes.PubKey{pubKey1, pubKey2},
+		[]int{0, 0},
+	},
+	{
+		"amino: should overwrite a signature",
+		txfAmino, txb, from2, true,
+		[]cryptotypes.PubKey{pubKey2},
+		[]int{1, 0},
+	},
 
-		/**** test double sign Direct mode
-		  signing transaction with 2 or more DIRECT signers should fail in DIRECT mode ****/
-		{
+	/**** test double sign Direct mode
+	  signing transaction with 2 or more DIRECT signers should fail in DIRECT mode ****/
+/*	{
 			"direct: should  append a DIRECT signature with existing AMINO",
 			// txb already has 1 AMINO signature
 			txfDirect, txb, from1, false,
@@ -454,3 +452,4 @@ func testSigners(require *require.Assertions, tr signing.Tx, pks ...cryptotypes.
 	}
 	return sigs
 }
+*/

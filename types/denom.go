@@ -112,3 +112,18 @@ func NormalizeDecCoin(coin DecCoin) DecCoin {
 	}
 	return newCoin
 }
+
+// NormalizeCoins normalize and truncate a list of decimal coins
+func NormalizeCoins(coins []DecCoin) Coins {
+	if coins == nil {
+		return nil
+	}
+	result := make([]Coin, 0, len(coins))
+
+	for _, coin := range coins {
+		newCoin, _ := NormalizeDecCoin(coin).TruncateDecimal()
+		result = append(result, newCoin)
+	}
+
+	return result
+}

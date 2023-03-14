@@ -4,10 +4,10 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	metrics "github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // ClientUpdateProposal will retrieve the subject and substitute client.

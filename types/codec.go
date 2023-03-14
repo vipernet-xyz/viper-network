@@ -17,3 +17,9 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterInterface("types/msg", (*Msg)(nil))
 	cdc.RegisterInterface("types/tx", (*Tx)(nil))
 }
+
+// RegisterLegacyAminoCodec registers the sdk message type.
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterInterface((*Msg)(nil), nil)
+	cdc.RegisterInterface((*Tx)(nil), nil)
+}

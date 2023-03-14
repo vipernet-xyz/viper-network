@@ -4,14 +4,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/stretchr/testify/suite"
+	"github.com/vipernet-xyz/viper-network/codec"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/ed25519"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 )
 
 type RecordTestSuite struct {

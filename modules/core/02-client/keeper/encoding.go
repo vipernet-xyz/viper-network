@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // UnmarshalClientState attempts to decode and return an ClientState object from

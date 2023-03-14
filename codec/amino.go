@@ -218,3 +218,11 @@ func (cdc *LegacyAmino) MustMarshal(o interface{}) []byte {
 	}
 	return bz
 }
+
+func (cdc *LegacyAmino) Unmarshal(bz []byte, ptr interface{}) error {
+	err := cdc.Amino.UnmarshalBinaryBare(bz, ptr)
+	if err != nil {
+		return err
+	}
+	return cdc.unmarshalAnys(ptr)
+}

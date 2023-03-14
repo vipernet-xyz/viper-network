@@ -357,3 +357,13 @@ func cacheBech32Addr(prefix string, addr []byte, cache *simplelru.LRU, cacheKey 
 	cache.Add(cacheKey, bech32Addr)
 	return bech32Addr
 }
+
+// MustAccAddressFromBech32 calls AccAddressFromBech32 and panics on error.
+func MustAccAddressFromBech32(address string) AccAddress {
+	addr, err := AccAddressFromBech32(address)
+	if err != nil {
+		panic(err)
+	}
+
+	return addr
+}

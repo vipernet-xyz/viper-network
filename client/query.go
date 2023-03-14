@@ -13,8 +13,8 @@ import (
 
 	"cosmossdk.io/store/rootmulti"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // GetNode returns an RPC client. If the context's client is not defined, an

@@ -750,3 +750,37 @@ func (coins Coins) Validate() error {
 		return nil
 	}
 }
+
+// IsAnyNil returns true if there is at least one coin whose amount
+// is nil; returns false otherwise. It returns false if the coin set
+// is empty too.
+func (coins Coins) IsAnyNil() bool {
+	for _, coin := range coins {
+		if coin.IsNil() {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsNil returns true if the coin amount is nil and false otherwise.
+func (coin Coin) IsNil() bool {
+	return coin.Amount.BigInt() == nil
+}
+
+// ParseCoinsNormalized will parse out a list of coins separated by commas, and normalize them by converting to the smallest
+// unit. If the parsing is successful, the provided coins will be sanitized by removing zero coins and sorting the coin
+// set. Lastly a validation of the coin set is executed. If the check passes, ParseCoinsNormalized will return the
+// sanitized coins.
+// Otherwise, it will return an error.
+// If an empty string is provided to ParseCoinsNormalized, it returns nil Coins.
+// ParseCoinsNormalized supports decimal coins as inputs, and truncate them to int after converted to the smallest unit.
+// Expected format: "{amount0}{denomination},...,{amountN}{denominationN}"
+func ParseCoinsNormalized(coinStr string) (Coins, error) {
+	coins, err := ParseDecCoins(coinStr)
+	if err != nil {
+		return Coins{}, err
+	}
+	return NormalizeCoins(coins), nil
+}

@@ -54,3 +54,29 @@ func UnpackInterfaces(unpacker types.AnyUnpacker, anys []*types.Any) error {
 
 	return nil
 }
+
+// SetMsgs takes a slice of sdk.Msg's and turn them into Any's.
+func SetMsgs1(msgs []sdk.Msg1) ([]*types.Any, error) {
+	anys := make([]*types.Any, len(msgs))
+	for i, msg := range msgs {
+		var err error
+		anys[i], err = types.NewAnyWithValue(msg)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return anys, nil
+}
+
+// GetMsgs takes a slice of Any's and turn them into sdk.Msg's.
+func GetMsgs1(anys []*types.Any, name string) ([]sdk.Msg1, error) {
+	msgs := make([]sdk.Msg1, len(anys))
+	for i, any := range anys {
+		cached := any.GetCachedValue()
+		if cached == nil {
+			return nil, fmt.Errorf("any cached value is nil, %s messages must be correctly packed any values", name)
+		}
+		msgs[i] = cached.(sdk.Msg1)
+	}
+	return msgs, nil
+}
