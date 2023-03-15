@@ -247,6 +247,9 @@ func (coins Coins) IsValid() bool {
 func (coins Coins) Add(coinsB Coins) Coins {
 	return coins.safeAdd(coinsB)
 }
+func (coins Coins) Add1(coinsB ...Coin) Coins {
+	return coins.safeAdd(coinsB)
+}
 
 // safeAdd will perform addition of two coins sets. If both coin sets are
 // empty, then an empty set is returned. If only a single set is empty, the

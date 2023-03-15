@@ -18,7 +18,7 @@ type AuxTxBuilder struct {
 	// TxBuilder. It's also added inside body.Messages, because:
 	// - b.msgs is used for constructing the AMINO sign bz,
 	// - b.body is used for constructing the DIRECT_AUX sign bz.
-	msgs          []sdk.Msg
+	msgs          []sdk.Msg1
 	body          *tx.TxBody
 	auxSignerData *tx.AuxSignerData
 }
@@ -53,7 +53,7 @@ func (b *AuxTxBuilder) SetTimeoutHeight(height uint64) {
 }
 
 // SetMsgs sets an array of Msgs in the tx.
-func (b *AuxTxBuilder) SetMsgs(msgs ...sdk.Msg) error {
+func (b *AuxTxBuilder) SetMsgs(msgs ...sdk.Msg1) error {
 	anys := make([]*codectypes.Any, len(msgs))
 	for i, msg := range msgs {
 		var err error

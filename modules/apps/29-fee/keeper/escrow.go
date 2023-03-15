@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 // escrowPacketFee sends the packet fee to the 29-fee module account to hold in escrow

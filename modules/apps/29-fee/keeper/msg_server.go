@@ -4,11 +4,11 @@ import (
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 var _ types.MsgServer = Keeper{}

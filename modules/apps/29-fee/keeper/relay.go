@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // SendPacket wraps the ICS4Wrapper SendPacket function

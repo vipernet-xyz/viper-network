@@ -13,7 +13,7 @@ import (
 // - Update solo machine client state protobuf definition (v2 to v3)
 // - Remove all solo machine consensus states
 // - Remove localhost client
-func MigrateGenesis(clientGenState *clienttypes.GenesisState, cdc codec.ProtoCodecMarshaler) (*clienttypes.GenesisState, error) {
+func MigrateGenesis(clientGenState *clienttypes.GenesisState, cdc codec.ProtoMarshaler) (*clienttypes.GenesisState, error) {
 	// To prune the client and consensus states, we will create new slices to fill up
 	// with information we want to keep.
 	var (
@@ -30,7 +30,7 @@ func MigrateGenesis(clientGenState *clienttypes.GenesisState, cdc codec.ProtoCod
 		switch clientType {
 		case exported.Solomachine:
 			var clientState ClientState
-			if err := cdc.Unmarshal(client.ClientState.Value, &clientState); err != nil {
+			if err := cdc.Unmarshal(client.ClientState.Value); err != nil {
 				return nil, errorsmod.Wrap(err, "failed to unmarshal client state bytes into solo machine client state")
 			}
 

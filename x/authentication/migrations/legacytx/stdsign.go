@@ -45,7 +45,7 @@ type StdSignDoc struct {
 }
 
 // StdSignBytes returns the bytes to sign for a transaction.
-func StdSignBytes(chainID string, accnum, sequence, timeout uint64, fee StdFee, msgs []sdk.Msg, memo string, tip *tx.Tip) []byte {
+func StdSignBytes(chainID string, accnum, sequence, timeout uint64, fee StdFee, msgs []sdk.Msg1, memo string, tip *tx.Tip) []byte {
 	msgsBytes := make([]json.RawMessage, 0, len(msgs))
 	for _, msg := range msgs {
 		legacyMsg, ok := msg.(LegacyMsg)

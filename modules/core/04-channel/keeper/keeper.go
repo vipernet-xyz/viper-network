@@ -244,7 +244,7 @@ func (k Keeper) HasPacketAcknowledgement(ctx sdk.Context, portID, channelID stri
 // For each sequence, cb will be called. If the cb returns true, the iterator
 // will close and stop.
 func (k Keeper) IteratePacketSequence(ctx sdk.Context, iterator db.Iterator, cb func(portID, channelID string, sequence uint64) bool) {
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		portID, channelID, err := host.ParseChannelPath(string(iterator.Key()))
 		if err != nil {
@@ -482,7 +482,7 @@ func (k Keeper) LookupModuleByChannel(ctx sdk.Context, portID, channelID string)
 
 // common functionality for IteratePacketCommitment and IteratePacketAcknowledgement
 func (k Keeper) iterateHashes(ctx sdk.Context, iterator db.Iterator, cb func(portID, channelID string, sequence uint64, hash []byte) bool) {
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return iterator.Close() })
+	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		keySplit := strings.Split(string(iterator.Key()), "/")

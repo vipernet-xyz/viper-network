@@ -4,11 +4,11 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 )
 
 // NewMsgRegisterPayee creates a new instance of MsgRegisterPayee

@@ -3,10 +3,10 @@ package keeper
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 // emitIncentivizedPacketEvent emits an event containing information on the total amount of fees incentivizing
@@ -21,9 +21,9 @@ func emitIncentivizedPacketEvent(ctx sdk.Context, packetID channeltypes.PacketId
 	for _, fee := range packetFees.PacketFees {
 		// only emit total fees for packet fees which allow any relayer to relay
 		if fee.Relayers == nil {
-			totalRecvFees = totalRecvFees.Add(fee.Fee.RecvFee...)
-			totalAckFees = totalAckFees.Add(fee.Fee.AckFee...)
-			totalTimeoutFees = totalTimeoutFees.Add(fee.Fee.TimeoutFee...)
+			totalRecvFees = totalRecvFees.Add1(fee.Fee.RecvFee...)
+			totalAckFees = totalAckFees.Add1(fee.Fee.AckFee...)
+			totalTimeoutFees = totalTimeoutFees.Add1(fee.Fee.TimeoutFee...)
 		}
 	}
 

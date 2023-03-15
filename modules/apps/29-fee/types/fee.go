@@ -64,7 +64,7 @@ func NewFee(recvFee, ackFee, timeoutFee sdk.Coins) Fee {
 
 // Total returns the total amount for a given Fee
 func (f Fee) Total() sdk.Coins {
-	a := f.RecvFee.Add(f.AckFee).Add(f.TimeoutFee)
+	a := f.RecvFee.Add1(f.AckFee...).Add1(f.TimeoutFee...)
 	return a
 }
 

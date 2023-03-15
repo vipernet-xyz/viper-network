@@ -1,6 +1,6 @@
 package keeper
 
-import (
+/*
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
@@ -10,9 +10,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-)
+	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"*/
 
+/*
 var _ types.QueryServer = Keeper{}
 
 // IncentivizedPackets implements the Query/IncentivizedPackets gRPC method
@@ -259,3 +259,4 @@ func (k Keeper) FeeEnabledChannel(goCtx context.Context, req *types.QueryFeeEnab
 		FeeEnabled: isFeeEnabled,
 	}, nil
 }
+*/
