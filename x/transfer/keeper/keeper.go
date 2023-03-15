@@ -132,9 +132,9 @@ func (k Keeper) GetAllDenomTraces(ctx sdk.Ctx) types.Traces {
 // and performs a callback function.
 func (k Keeper) IterateDenomTraces(ctx sdk.Ctx, cb func(denomTrace types.DenomTrace) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, types.DenomTraceKey)
+	iterator, _ := sdk.KVStorePrefixIterator(store, types.DenomTraceKey)
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 
 		denomTrace := k.MustUnmarshalDenomTrace(iterator.Value())

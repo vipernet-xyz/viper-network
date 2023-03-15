@@ -143,9 +143,9 @@ func handleLocalhostMigration(ctx sdk.Context, store sdk.KVStore, cdc codec.Bina
 // v7 migrations.
 func collectClients(ctx sdk.Context, store sdk.KVStore, clientType string) (clients []string, err error) {
 	clientPrefix := []byte(fmt.Sprintf("%s/%s", host.KeyClientStorePrefix, clientType))
-	iterator, err := sdk.KVStorePrefixIterator(store, clientPrefix)
+	iterator, _ := sdk.KVStorePrefixIterator(store, clientPrefix)
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		path := string(iterator.Key())
 		if !strings.Contains(path, host.KeyClientState) {

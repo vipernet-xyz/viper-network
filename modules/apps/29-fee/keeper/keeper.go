@@ -131,8 +131,8 @@ func (k Keeper) IsFeeEnabled(ctx sdk.Context, portID, channelID string) bool {
 // GetAllFeeEnabledChannels returns a list of all ics29 enabled channels containing portID & channelID that are stored in state
 func (k Keeper) GetAllFeeEnabledChannels(ctx sdk.Context) []types.FeeEnabledChannel {
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, []byte(types.FeeEnabledKeyPrefix))
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.FeeEnabledKeyPrefix))
+	defer iterator.Close()
 
 	var enabledChArr []types.FeeEnabledChannel
 	for ; iterator.Valid(); iterator.Next() {
@@ -172,8 +172,8 @@ func (k Keeper) SetPayeeAddress(ctx sdk.Context, relayerAddr, payeeAddr, channel
 // GetAllPayees returns all registered payees addresses
 func (k Keeper) GetAllPayees(ctx sdk.Context) []types.RegisteredPayee {
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, []byte(types.PayeeKeyPrefix))
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.PayeeKeyPrefix))
+	defer iterator.Close()
 
 	var registeredPayees []types.RegisteredPayee
 	for ; iterator.Valid(); iterator.Next() {
@@ -217,8 +217,8 @@ func (k Keeper) GetCounterpartyPayeeAddress(ctx sdk.Context, address, channelID 
 // GetAllCounterpartyPayees returns all registered counterparty payee addresses
 func (k Keeper) GetAllCounterpartyPayees(ctx sdk.Context) []types.RegisteredCounterpartyPayee {
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, []byte(types.CounterpartyPayeeKeyPrefix))
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.CounterpartyPayeeKeyPrefix))
+	defer iterator.Close()
 
 	var registeredCounterpartyPayees []types.RegisteredCounterpartyPayee
 	for ; iterator.Valid(); iterator.Next() {
@@ -261,8 +261,8 @@ func (k Keeper) GetRelayerAddressForAsyncAck(ctx sdk.Context, packetID channelty
 // GetAllForwardRelayerAddresses returns all forward relayer addresses stored for async acknowledgements
 func (k Keeper) GetAllForwardRelayerAddresses(ctx sdk.Context) []types.ForwardRelayerAddress {
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, []byte(types.ForwardRelayerPrefix))
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.ForwardRelayerPrefix))
+	defer iterator.Close()
 
 	var forwardRelayerAddr []types.ForwardRelayerAddress
 	for ; iterator.Valid(); iterator.Next() {
@@ -328,9 +328,9 @@ func (k Keeper) GetIdentifiedPacketFeesForChannel(ctx sdk.Context, portID, chann
 	var identifiedPacketFees []types.IdentifiedPacketFees
 
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, types.KeyFeesInEscrowChannelPrefix(portID, channelID))
+	iterator, _ := sdk.KVStorePrefixIterator(store, types.KeyFeesInEscrowChannelPrefix(portID, channelID))
 
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		packetID, err := types.ParseKeyFeesInEscrow(string(iterator.Key()))
 		if err != nil {
@@ -349,8 +349,8 @@ func (k Keeper) GetIdentifiedPacketFeesForChannel(ctx sdk.Context, portID, chann
 // GetAllIdentifiedPacketFees returns a list of all IdentifiedPacketFees that are stored in state
 func (k Keeper) GetAllIdentifiedPacketFees(ctx sdk.Context) []types.IdentifiedPacketFees {
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, []byte(types.FeesInEscrowPrefix))
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.FeesInEscrowPrefix))
+	defer iterator.Close()
 
 	var identifiedFees []types.IdentifiedPacketFees
 	for ; iterator.Valid(); iterator.Next() {

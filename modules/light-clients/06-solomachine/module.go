@@ -8,6 +8,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/codec"
 	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 )
 
@@ -33,12 +34,12 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 }
 
 // DefaultGenesis performs a no-op. Genesis is not supported for solo machine.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
+func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 	return nil
 }
 
 // ValidateGenesis performs a no-op. Genesis is not supported for solo machine.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return nil
 }
 
@@ -53,4 +54,9 @@ func (AppModuleBasic) GetTxCmd() *cobra.Command {
 // GetQueryCmd performs a no-op. Please see the 02-client cli commands.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return nil
+}
+
+// RegisterCodec register module codec
+func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
+	types.RegisterCodec(cdc)
 }

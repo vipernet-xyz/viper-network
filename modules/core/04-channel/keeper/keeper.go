@@ -378,9 +378,8 @@ func (k Keeper) GetAllPacketAcks(ctx sdk.Context) (acks []types.PacketState) {
 // and stop.
 func (k Keeper) IterateChannels(ctx sdk.Context, cb func(types.IdentifiedChannel) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, []byte(host.KeyChannelEndPrefix))
-
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyChannelEndPrefix))
+	iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var channel types.Channel
 		k.cdc.MustUnmarshal(iterator.Value(), &channel)
@@ -400,8 +399,8 @@ func (k Keeper) GetAllChannelsWithPortPrefix(ctx sdk.Context, portPrefix string)
 		return k.GetAllChannels(ctx)
 	}
 	store := ctx.KVStore(k.storeKey)
-	iterator, err := sdk.KVStorePrefixIterator(store, types.FilteredPortPrefix(portPrefix))
-	defer sdk.LogDeferred(ctx.Logger(), func() error { return err })
+	iterator, _ := sdk.KVStorePrefixIterator(store, types.FilteredPortPrefix(portPrefix))
+	defer iterator.Close()
 
 	var filteredChannels []types.IdentifiedChannel
 	for ; iterator.Valid(); iterator.Next() {
