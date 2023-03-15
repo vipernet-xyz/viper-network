@@ -282,7 +282,7 @@ func (f Factory) PreprocessTx(keyname string, builder client.TxBuilder) error {
 
 // BuildUnsignedTx builds a transaction to be signed given a set of messages.
 // Once created, the fee, memo, and messages are set.
-func (f Factory) BuildUnsignedTx(msgs ...sdk.Msg) (client.TxBuilder, error) {
+func (f Factory) BuildUnsignedTx(msgs ...sdk.Msg1) (client.TxBuilder, error) {
 	if f.offline && f.generateOnly {
 		if f.chainID != "" {
 			return nil, fmt.Errorf("chain ID cannot be used when offline and generate-only flags are set")
@@ -335,7 +335,7 @@ func (f Factory) BuildUnsignedTx(msgs ...sdk.Msg) (client.TxBuilder, error) {
 // specified by ctx.Output. If simulation was requested, the gas will be
 // simulated and also printed to the same writer before the transaction is
 // printed.
-func (f Factory) PrintUnsignedTx(clientCtx client.Context, msgs ...sdk.Msg) error {
+func (f Factory) PrintUnsignedTx(clientCtx client.Context, msgs ...sdk.Msg1) error {
 	if f.SimulateAndExecute() {
 		if clientCtx.Offline {
 			return errors.New("cannot estimate gas in offline mode")
@@ -362,7 +362,7 @@ func (f Factory) PrintUnsignedTx(clientCtx client.Context, msgs ...sdk.Msg) erro
 		return err
 	}
 
-	json, err := clientCtx.TxConfig.TxJSONEncoder()(unsignedTx.GetTx())
+	json, err := clientCtx.TxConfig.TxJSONEncoder()(unsignedTx.GetTx(), 0)
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func (f Factory) PrintUnsignedTx(clientCtx client.Context, msgs ...sdk.Msg) erro
 // BuildSimTx creates an unsigned tx with an empty single signature and returns
 // the encoded transaction or an error if the unsigned transaction cannot be
 // built.
-func (f Factory) BuildSimTx(msgs ...sdk.Msg) ([]byte, error) {
+func (f Factory) BuildSimTx(msgs ...sdk.Msg1) ([]byte, error) {
 	txb, err := f.BuildUnsignedTx(msgs...)
 	if err != nil {
 		return nil, err
@@ -397,7 +397,7 @@ func (f Factory) BuildSimTx(msgs ...sdk.Msg) ([]byte, error) {
 		return nil, err
 	}
 
-	return f.txConfig.TxEncoder()(txb.GetTx())
+	return f.txConfig.TxEncoder()(txb.GetTx(), 0)
 }
 
 // getSimPK gets the public key to use for building a simulation tx.

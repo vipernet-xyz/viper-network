@@ -12,8 +12,8 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 )
 
 // ParseDenomTrace parses a string with the ibc prefix (denom trace) and the base denomination

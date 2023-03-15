@@ -31,7 +31,7 @@ func (s *StdTxBuilder) GetTx() authsigning.Tx {
 }
 
 // SetMsgs implements TxBuilder.SetMsgs
-func (s *StdTxBuilder) SetMsgs(msgs ...sdk.Msg) error {
+func (s *StdTxBuilder) SetMsgs(msgs ...sdk.Msg1) error {
 	s.Msgs = msgs
 	return nil
 }
@@ -100,7 +100,7 @@ func (s StdTxConfig) NewTxBuilder() client.TxBuilder {
 }
 
 // WrapTxBuilder returns a StdTxBuilder from provided transaction
-func (s StdTxConfig) WrapTxBuilder(newTx sdk.Tx) (client.TxBuilder, error) {
+func (s StdTxConfig) WrapTxBuilder(newTx sdk.Tx1) (client.TxBuilder, error) {
 	stdTx, ok := newTx.(StdTx)
 	if !ok {
 		return nil, fmt.Errorf("wrong type, expected %T, got %T", stdTx, newTx)

@@ -99,6 +99,9 @@ type TxDecoder func(txBytes []byte, blockHeight int64) (Tx, Error)
 // TxEncoder marshals transaction to bytes
 type TxEncoder func(tx Tx, blockHeight int64) ([]byte, error)
 
+// TxEncoder marshals transaction to bytes
+type TxEncoder1 func(tx Tx1, blockHeight int64) ([]byte, error)
+
 // MsgTypeURL returns the TypeURL of a `sdk.Msg`.
 func MsgTypeURL(msg Msg1) string {
 	return "/" + gp.MessageName(msg)
@@ -125,4 +128,35 @@ type TxWithTimeoutHeight interface {
 	Tx
 
 	GetTimeoutHeight() uint64
+}
+
+type TxWithTimeoutHeight1 interface {
+	Tx1
+
+	GetTimeoutHeight() uint64
+}
+
+// Tx defines the interface a transaction must fulfill.
+type Tx1 interface {
+	// GetMsgs gets the all the transaction's messages.
+	GetMsgs() []Msg1
+
+	// ValidateBasic does a simple and lightweight validation check that doesn't
+	// require access to any other information.
+	ValidateBasic() error
+}
+
+// TxWithMemo must have GetMemo() method to use ValidateMemoDecorator
+type TxWithMemo1 interface {
+	Tx1
+	GetMemo() string
+}
+
+// FeeTx defines the interface to be implemented by Tx to use the FeeDecorators
+type FeeTx1 interface {
+	Tx1
+	GetGas() uint64
+	GetFee() Coins
+	FeePayer() AccAddress
+	FeeGranter() AccAddress
 }

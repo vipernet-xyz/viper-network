@@ -17,7 +17,7 @@ const (
 type MsgResponse interface{}
 
 // SetMsgs takes a slice of sdk.Msg's and turn them into Any's.
-func SetMsgs(msgs []sdk.Msg) ([]*types.Any, error) {
+func SetMsgs(msgs []sdk.Msg1) ([]*types.Any, error) {
 	anys := make([]*types.Any, len(msgs))
 	for i, msg := range msgs {
 		var err error

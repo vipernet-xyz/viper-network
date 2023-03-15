@@ -12,7 +12,7 @@ import (
 	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 )
 
-var _ sdk.Msg = &MsgChannelOpenInit{}
+var _ sdk.Msg1 = &MsgChannelOpenInit{}
 
 // NewMsgChannelOpenInit creates a new MsgChannelOpenInit. It sets the counterparty channel
 // identifier to be empty.
@@ -61,7 +61,7 @@ func (msg MsgChannelOpenInit) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgChannelOpenTry{}
+var _ sdk.Msg1 = &MsgChannelOpenTry{}
 
 // NewMsgChannelOpenTry creates a new MsgChannelOpenTry instance
 // The version string is deprecated and will be ignored by core IBC.
@@ -123,7 +123,7 @@ func (msg MsgChannelOpenTry) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgChannelOpenAck{}
+var _ sdk.Msg1 = &MsgChannelOpenAck{}
 
 // NewMsgChannelOpenAck creates a new MsgChannelOpenAck instance
 //
@@ -173,7 +173,7 @@ func (msg MsgChannelOpenAck) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgChannelOpenConfirm{}
+var _ sdk.Msg1 = &MsgChannelOpenConfirm{}
 
 // NewMsgChannelOpenConfirm creates a new MsgChannelOpenConfirm instance
 //
@@ -218,7 +218,7 @@ func (msg MsgChannelOpenConfirm) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgChannelCloseInit{}
+var _ sdk.Msg1 = &MsgChannelCloseInit{}
 
 // NewMsgChannelCloseInit creates a new MsgChannelCloseInit instance
 //
@@ -257,7 +257,7 @@ func (msg MsgChannelCloseInit) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgChannelCloseConfirm{}
+var _ sdk.Msg1 = &MsgChannelCloseConfirm{}
 
 // NewMsgChannelCloseConfirm creates a new MsgChannelCloseConfirm instance
 //
@@ -302,7 +302,7 @@ func (msg MsgChannelCloseConfirm) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgRecvPacket{}
+var _ sdk.Msg1 = &MsgRecvPacket{}
 
 // NewMsgRecvPacket constructs new MsgRecvPacket
 //
@@ -347,7 +347,7 @@ func (msg MsgRecvPacket) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgTimeout{}
+var _ sdk.Msg1 = &MsgTimeout{}
 
 // NewMsgTimeout constructs new MsgTimeout
 //
@@ -434,7 +434,7 @@ func (msg MsgTimeoutOnClose) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{signer}
 }
 
-var _ sdk.Msg = &MsgAcknowledgement{}
+var _ sdk.Msg1 = &MsgAcknowledgement{}
 
 // NewMsgAcknowledgement constructs a new MsgAcknowledgement
 //

@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	_ sdk.Msg = &MsgCreateClient{}
-	_ sdk.Msg = &MsgUpdateClient{}
-	_ sdk.Msg = &MsgSubmitMisbehaviour{}
-	_ sdk.Msg = &MsgUpgradeClient{}
+	_ sdk.Msg1 = &MsgCreateClient{}
+	_ sdk.Msg1 = &MsgUpdateClient{}
+	_ sdk.Msg1 = &MsgSubmitMisbehaviour{}
+	_ sdk.Msg1 = &MsgUpgradeClient{}
 
 	_ codectypes.UnpackInterfacesMessage = MsgCreateClient{}
 	_ codectypes.UnpackInterfacesMessage = MsgUpdateClient{}

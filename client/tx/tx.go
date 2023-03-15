@@ -23,7 +23,7 @@ import (
 
 // GenerateOrBroadcastTxCLI will either generate and print and unsigned transaction
 // or sign it and broadcast it returning an error upon failure.
-func GenerateOrBroadcastTxCLI(clientCtx client.Context, flagSet *pflag.FlagSet, msgs ...sdk.Msg) error {
+func GenerateOrBroadcastTxCLI(clientCtx client.Context, flagSet *pflag.FlagSet, msgs ...sdk.Msg1) error {
 	txf, err := NewFactoryCLI(clientCtx, flagSet)
 	if err != nil {
 		return err
@@ -34,7 +34,7 @@ func GenerateOrBroadcastTxCLI(clientCtx client.Context, flagSet *pflag.FlagSet, 
 
 // GenerateOrBroadcastTxWithFactory will either generate and print and unsigned transaction
 // or sign it and broadcast it returning an error upon failure.
-func GenerateOrBroadcastTxWithFactory(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
+func GenerateOrBroadcastTxWithFactory(clientCtx client.Context, txf Factory, msgs ...sdk.Msg1) error {
 	// Validate all msgs before generating or broadcasting the tx.
 	// We were calling ValidateBasic separately in each CLI handler before.
 	// Right now, we're factorizing that call inside this function.
@@ -65,7 +65,7 @@ func GenerateOrBroadcastTxWithFactory(clientCtx client.Context, txf Factory, msg
 // BroadcastTx attempts to generate, sign and broadcast a transaction with the
 // given set of messages. It will also simulate gas requirements if necessary.
 // It will return an error upon failure.
-func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
+func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg1) error {
 	txf, err := txf.Prepare(clientCtx)
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
 	}
 
 	if !clientCtx.SkipConfirm {
-		txBytes, err := clientCtx.TxConfig.TxJSONEncoder()(tx.GetTx())
+		txBytes, err := clientCtx.TxConfig.TxJSONEncoder()(tx.GetTx(), 0)
 		if err != nil {
 			return err
 		}
@@ -122,7 +122,7 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
 		return err
 	}
 
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(tx.GetTx())
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(tx.GetTx(), 0)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
 // CalculateGas simulates the execution of a transaction and returns the
 // simulation response obtained by the query and the adjusted gas amount.
 func CalculateGas(
-	clientCtx gogogrpc.ClientConn, txf Factory, msgs ...sdk.Msg,
+	clientCtx gogogrpc.ClientConn, txf Factory, msgs ...sdk.Msg1,
 ) (*tx.SimulateResponse, uint64, error) {
 	txBytes, err := txf.BuildSimTx(msgs...)
 	if err != nil {
@@ -217,7 +217,7 @@ func countDirectSigners(data signing.SignatureData) int {
 
 // checkMultipleSigners checks that there can be maximum one DIRECT signer in
 // a tx.
-func checkMultipleSigners(tx authsigning.Tx) error {
+func checkMultipleSigners(tx authsigning.Tx1) error {
 	directSigners := 0
 	sigsV2, err := tx.GetSignaturesV2()
 	if err != nil {
@@ -358,7 +358,7 @@ func (gr GasEstimateResponse) String() string {
 }
 
 // makeAuxSignerData generates an AuxSignerData from the client inputs.
-func makeAuxSignerData(clientCtx client.Context, f Factory, msgs ...sdk.Msg) (tx.AuxSignerData, error) {
+func makeAuxSignerData(clientCtx client.Context, f Factory, msgs ...sdk.Msg1) (tx.AuxSignerData, error) {
 	b := NewAuxTxBuilder()
 	fromAddress, name, _, err := client.GetFromFields(clientCtx, clientCtx.Keyring, clientCtx.From)
 	if err != nil {

@@ -787,3 +787,11 @@ func ParseCoinsNormalized(coinStr string) (Coins, error) {
 	}
 	return NormalizeCoins(coins), nil
 }
+
+// SafeSub performs the same arithmetic as Sub but returns a boolean if any
+// negative coin amount was returned.
+// The function panics if `coins` or  `coinsB` are not sorted (ascending).
+func (coins Coins) SafeSub1(coinsB ...Coin) (Coins, bool) {
+	diff := coins.safeAdd(NewCoins(coinsB...).negative())
+	return diff, diff.IsAnyNegative()
+}

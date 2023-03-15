@@ -2,13 +2,13 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	sdk1 "github.com/vipernet-xyz/viper-network/types"
 
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 )
 
 const gasCostPerIteration = uint64(10)
@@ -28,7 +28,7 @@ func (a TransferAuthorization) MsgTypeURL() string {
 }
 
 // Accept implements Authorization.Accept.
-func (a TransferAuthorization) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a TransferAuthorization) Accept(ctx sdk.Context, msg sdk.Msg1) (authz.AcceptResponse, error) {
 	msgTransfer, ok := msg.(*MsgTransfer)
 	if !ok {
 		return authz.AcceptResponse{}, errorsmod.Wrap(ibcerrors.ErrInvalidType, "type mismatch")
@@ -36,7 +36,7 @@ func (a TransferAuthorization) Accept(ctx sdk.Context, msg sdk.Msg) (authz.Accep
 
 	for index, allocation := range a.Allocations {
 		if allocation.SourceChannel == msgTransfer.SourceChannel && allocation.SourcePort == msgTransfer.SourcePort {
-			limitLeft, isNegative := allocation.SpendLimit.SafeSub(msgTransfer.Token)
+			limitLeft, isNegative := allocation.SpendLimit.SafeSub1(msgTransfer.Token)
 			if isNegative {
 				return authz.AcceptResponse{}, errorsmod.Wrapf(ibcerrors.ErrInsufficientFunds, "requested amount is more than spend limit")
 			}

@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"

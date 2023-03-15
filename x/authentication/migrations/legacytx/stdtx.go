@@ -2,7 +2,6 @@ package legacytx
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/vipernet-xyz/viper-network/codec/legacy"
@@ -15,10 +14,10 @@ import (
 
 // Interface implementation checks
 var (
-	_ sdk.Tx                             = (*StdTx)(nil)
-	_ sdk.TxWithMemo                     = (*StdTx)(nil)
-	_ sdk.FeeTx                          = (*StdTx)(nil)
-	_ tx.TipTx                           = (*StdTx)(nil)
+	_ sdk.Tx1                            = (*StdTx)(nil)
+	_ sdk.TxWithMemo1                    = (*StdTx)(nil)
+	_ sdk.FeeTx1                         = (*StdTx)(nil)
+	_ tx.TipTx1                          = (*StdTx)(nil)
 	_ codectypes.UnpackInterfacesMessage = (*StdTx)(nil)
 
 	_ codectypes.UnpackInterfacesMessage = (*StdSignature)(nil)
@@ -73,7 +72,7 @@ func (fee StdFee) Bytes() []byte {
 // originally part of the submitted transaction because the fee is computed
 // as fee = ceil(gasWanted * gasPrices).
 func (fee StdFee) GasPrices() sdk.DecCoins {
-	return sdk.NewDecCoinsFromCoins(fee.Amount...).QuoDec(math.LegacyNewDec(int64(fee.Gas)))
+	return sdk.NewDecCoinsFromCoins(fee.Amount...).QuoDec(sdk.NewDec(int64(fee.Gas)))
 }
 
 // StdTip is the tips used in a tipped transaction.
@@ -87,7 +86,7 @@ type StdTip struct {
 // NOTE: the first signature is the fee payer (Signatures must not be nil).
 // Deprecated
 type StdTx struct {
-	Msgs          []sdk.Msg      `json:"msg" yaml:"msg"`
+	Msgs          []sdk.Msg1     `json:"msg" yaml:"msg"`
 	Fee           StdFee         `json:"fee" yaml:"fee"`
 	Signatures    []StdSignature `json:"signatures" yaml:"signatures"`
 	Memo          string         `json:"memo" yaml:"memo"`
@@ -95,7 +94,7 @@ type StdTx struct {
 }
 
 // Deprecated
-func NewStdTx(msgs []sdk.Msg, fee StdFee, sigs []StdSignature, memo string) StdTx {
+func NewStdTx(msgs []sdk.Msg1, fee StdFee, sigs []StdSignature, memo string) StdTx {
 	return StdTx{
 		Msgs:       msgs,
 		Fee:        fee,
@@ -105,7 +104,7 @@ func NewStdTx(msgs []sdk.Msg, fee StdFee, sigs []StdSignature, memo string) StdT
 }
 
 // GetMsgs returns the all the transaction's messages.
-func (tx StdTx) GetMsgs() []sdk.Msg { return tx.Msgs }
+func (tx StdTx) GetMsgs() []sdk.Msg1 { return tx.Msgs }
 
 // ValidateBasic does a simple and lightweight validation check that doesn't
 // require access to any other information.

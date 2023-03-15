@@ -52,7 +52,7 @@ func (h SignModeHandlerMap) Modes() []signing.SignMode {
 }
 
 // GetSignBytes implements SignModeHandler.GetSignBytes
-func (h SignModeHandlerMap) GetSignBytes(mode signing.SignMode, data SignerData, tx sdk.Tx) ([]byte, error) {
+func (h SignModeHandlerMap) GetSignBytes(mode signing.SignMode, data SignerData, tx sdk.Tx1) ([]byte, error) {
 	handler, found := h.signModeHandlers[mode]
 	if !found {
 		return nil, fmt.Errorf("can't verify sign mode %s", mode.String())
@@ -61,7 +61,7 @@ func (h SignModeHandlerMap) GetSignBytes(mode signing.SignMode, data SignerData,
 }
 
 // GetSignBytesWithContext implements SignModeHandler.GetSignBytesWithContext
-func (h SignModeHandlerMap) GetSignBytesWithContext(ctx context.Context, mode signing.SignMode, data SignerData, tx sdk.Tx) ([]byte, error) {
+func (h SignModeHandlerMap) GetSignBytesWithContext(ctx context.Context, mode signing.SignMode, data SignerData, tx sdk.Tx1) ([]byte, error) {
 	handler, found := h.signModeHandlers[mode]
 	if !found {
 		return nil, fmt.Errorf("can't verify sign mode %s", mode.String())

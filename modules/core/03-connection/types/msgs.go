@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	_ sdk.Msg = &MsgConnectionOpenInit{}
-	_ sdk.Msg = &MsgConnectionOpenConfirm{}
-	_ sdk.Msg = &MsgConnectionOpenAck{}
-	_ sdk.Msg = &MsgConnectionOpenTry{}
+	_ sdk.Msg1 = &MsgConnectionOpenInit{}
+	_ sdk.Msg1 = &MsgConnectionOpenConfirm{}
+	_ sdk.Msg1 = &MsgConnectionOpenAck{}
+	_ sdk.Msg1 = &MsgConnectionOpenTry{}
 
 	_ codectypes.UnpackInterfacesMessage = MsgConnectionOpenTry{}
 	_ codectypes.UnpackInterfacesMessage = MsgConnectionOpenAck{}
