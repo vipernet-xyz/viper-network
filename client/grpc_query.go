@@ -1,6 +1,6 @@
 package client
 
-import (
+/*
 	gocontext "context"
 	"errors"
 	"fmt"
@@ -18,12 +18,12 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/vipernet-xyz/viper-network/codec/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/tx"
-)
+	"github.com/vipernet-xyz/viper-network/types/tx"*/
 
+/*
 var _ gogogrpc.ClientConn = Context{}
 
 // fallBackCodec is used by Context in case Codec is not set.
@@ -181,3 +181,4 @@ func (f failingInterfaceRegistry) ListImplementations(ifaceTypeURL string) []str
 func (f failingInterfaceRegistry) EnsureRegistered(iface interface{}) error {
 	panic("cannot be called")
 }
+*/

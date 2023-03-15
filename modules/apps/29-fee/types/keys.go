@@ -7,8 +7,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 const (

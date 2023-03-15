@@ -1,8 +1,8 @@
 package exported
 
 import (
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 )
 
 // ScopedKeeper defines the expected x/capability scoped keeper interface

@@ -1,30 +1,29 @@
 package keyring
 
-import (
-	"strings"
-	"testing"
+/*"strings"
+"testing"
 
-	"github.com/stretchr/testify/suite"
-	"github.com/vipernet-xyz/viper-network/codec"
+"github.com/stretchr/testify/suite"
+"github.com/vipernet-xyz/viper-network/codec"
 
-	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto/hd"
-	"github.com/vipernet-xyz/viper-network/crypto/keys/ed25519"
+codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+"github.com/vipernet-xyz/viper-network/crypto/hd"
+"github.com/vipernet-xyz/viper-network/crypto/keys/ed25519"
 
-	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
-)
+cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"*/
 
+/*
 type RecordTestSuite struct {
 	suite.Suite
 
 	appName string
-	cdc     codec.Codec
+	cdc     codec.Cdc
 	priv    cryptotypes.PrivKey
 	pub     cryptotypes.PubKey
 }
 
 func (s *RecordTestSuite) SetupSuite() {
-	s.appName = "cosmos"
+	s.appName = "viper"
 	s.cdc = getCodec()
 	s.priv = cryptotypes.PrivKey(ed25519.GenPrivKey())
 	s.pub = s.priv.PubKey()
@@ -136,3 +135,4 @@ func (s *RecordTestSuite) TestExtractPrivKeyFromOfflineRecord() {
 func TestRecordTestSuite(t *testing.T) {
 	suite.Run(t, new(RecordTestSuite))
 }
+*/

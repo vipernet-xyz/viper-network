@@ -2,10 +2,10 @@ package legacy
 
 import (
 	"github.com/vipernet-xyz/viper-network/codec"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	//"github.com/vipernet-xyz/viper-network/crypto"
 	cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
-	sdk "github.com/vipernet-xyz/viper-network/types"
+	//sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // Cdc defines a global generic sealed Amino codec to be used throughout sdk. It
@@ -16,11 +16,11 @@ var Cdc *codec.LegacyAmino
 
 func init() {
 	Cdc = codec.NewLegacyAminoCodec()
-	crypto.RegisterAmino(Cdc.Amino)
+	//crypto.RegisterAmino(Cdc.Amino)
 	codec.RegisterEvidences(Cdc, nil)
 	Cdc.Seal()
 	cryptocodec.RegisterCrypto(Cdc)
-	sdk.RegisterLegacyAminoCodec(Cdc)
+	//sdk.RegisterLegacyAminoCodec(Cdc)
 }
 
 // PrivKeyFromBytes unmarshals private key bytes and returns a PrivKey

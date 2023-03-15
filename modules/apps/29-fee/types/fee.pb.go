@@ -5,11 +5,11 @@ package types
 
 import (
 	fmt "fmt"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	types "github.com/cosmos/cosmos-sdk/types"
+	github_com_cosmos_cosmos_sdk_types "github.com/vipernet-xyz/viper-network/types"
+	types "github.com/vipernet-xyz/viper-network/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
-	types1 "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	types1 "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 	io "io"
 	math "math"
 	math_bits "math/bits"

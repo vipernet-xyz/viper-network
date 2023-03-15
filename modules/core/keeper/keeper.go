@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"reflect"
 
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	capabilitykeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
 
 	clientkeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"

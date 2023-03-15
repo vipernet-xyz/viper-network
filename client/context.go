@@ -28,7 +28,7 @@ type Context struct {
 	Client            CometRPC
 	GRPCClient        *grpc.ClientConn
 	ChainID           string
-	Codec             codec.Codec
+	Codec             codec.Cdc
 	InterfaceRegistry codectypes.InterfaceRegistry
 	Input             io.Reader
 	Keyring           keyring.Keyring
@@ -85,7 +85,7 @@ func (ctx Context) WithInput(r io.Reader) Context {
 }
 
 // WithCodec returns a copy of the Context with an updated Codec.
-func (ctx Context) WithCodec(m codec.Codec) Context {
+func (ctx Context) WithCodec(m codec.Cdc) Context {
 	ctx.Codec = m
 	return ctx
 }

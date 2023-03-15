@@ -1,8 +1,8 @@
 package solomachine
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 )
 
 // Interface implementation checks.

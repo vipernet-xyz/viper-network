@@ -1,8 +1,8 @@
 package signing
 
 import (
-	"github.com/cosmos/cosmos-sdk/types"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/tx"
 	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )

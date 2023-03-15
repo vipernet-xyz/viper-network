@@ -4,8 +4,8 @@ import (
 	"github.com/cosmos/gogoproto/grpc"
 	"github.com/spf13/cobra"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/client/cli"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/client/cli"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 )
 
 // Name returns the IBC client name

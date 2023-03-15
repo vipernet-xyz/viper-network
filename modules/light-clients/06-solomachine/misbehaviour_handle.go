@@ -1,13 +1,13 @@
 package solomachine
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/codec"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // CheckForMisbehaviour returns true for type Misbehaviour (passed VerifyClientMessage check), otherwise returns false

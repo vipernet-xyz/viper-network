@@ -226,3 +226,27 @@ func (cdc *LegacyAmino) Unmarshal(bz []byte, ptr interface{}) error {
 	}
 	return cdc.unmarshalAnys(ptr)
 }
+
+func (cdc *LegacyAmino) UnmarshalLengthPrefixed(bz []byte, ptr interface{}) error {
+	err := cdc.Amino.UnmarshalBinaryLengthPrefixed(bz, ptr)
+	if err != nil {
+		return err
+	}
+	return cdc.unmarshalAnys(ptr)
+}
+
+func (cdc *LegacyAmino) MustMarshalLengthPrefixed(o interface{}) []byte {
+	bz, err := cdc.MarshalLengthPrefixed(o)
+	if err != nil {
+		panic(err)
+	}
+	return bz
+}
+
+func (cdc *LegacyAmino) MarshalLengthPrefixed(o interface{}) ([]byte, error) {
+	err := cdc.marshalAnys(o)
+	if err != nil {
+		return nil, err
+	}
+	return cdc.Amino.MarshalBinaryLengthPrefixed(o)
+}

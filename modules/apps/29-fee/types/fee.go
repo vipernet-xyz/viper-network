@@ -4,10 +4,10 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 // NewPacketFee creates and returns a new PacketFee struct including the incentivization fees, refund address and relayers
@@ -64,7 +64,8 @@ func NewFee(recvFee, ackFee, timeoutFee sdk.Coins) Fee {
 
 // Total returns the total amount for a given Fee
 func (f Fee) Total() sdk.Coins {
-	return f.RecvFee.Add(f.AckFee...).Add(f.TimeoutFee...)
+	a := f.RecvFee.Add(f.AckFee).Add(f.TimeoutFee)
+	return a
 }
 
 // Validate asserts that each Fee is valid and all three Fees are not empty or zero

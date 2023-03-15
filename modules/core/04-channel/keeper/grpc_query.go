@@ -1,23 +1,22 @@
 package keeper
 
-import (
-	"context"
-	"strconv"
-	"strings"
+/*"context"
+"strconv"
+"strings"
 
-	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/vipernet-xyz/viper-network/store/prefix"
-	sdk "github.com/vipernet-xyz/viper-network/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+errorsmod "cosmossdk.io/errors"
+"github.com/cosmos/cosmos-sdk/types/query"
+"github.com/vipernet-xyz/viper-network/store/prefix"
+sdk "github.com/vipernet-xyz/viper-network/types"
+"google.golang.org/grpc/codes"
+"google.golang.org/grpc/status"
 
-	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
-	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
-	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
-)
+clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+host "github.com/vipernet-xyz/viper-network/modules/core/24-host"*/
 
+/*
 var _ types.QueryServer = (*Keeper)(nil)
 
 // Channel implements the Query/Channel gRPC method
@@ -503,3 +502,4 @@ func validategRPCRequest(portID, channelID string) error {
 
 	return nil
 }
+*/

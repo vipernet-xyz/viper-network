@@ -6,11 +6,11 @@ import (
 
 	"github.com/cometbft/cometbft/libs/log"
 	errorsmod "github.com/cosmos/cosmos-sdk/types/errors"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	db "github.com/tendermint/tm-db"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"

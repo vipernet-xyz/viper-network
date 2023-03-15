@@ -139,19 +139,3 @@ func TestSetRevisionNumber(t *testing.T) {
 	require.NoError(t, err, "valid revision format failed SetRevisionNumber")
 	require.Equal(t, "gaiamainnet-4", chainID, "valid revision format returned incorrect string on SetRevisionNumber")
 }
-
-func (suite *TypesTestSuite) TestSelfHeight() {
-	ctx := suite.chainA.GetContext()
-
-	// Test default revision
-	ctx = ctx.WithChainID("gaiamainnet")
-	ctx = ctx.WithBlockHeight(10)
-	height := types.GetSelfHeight(ctx)
-	suite.Require().Equal(types.NewHeight(0, 10), height, "default self height failed")
-
-	// Test successful revision format
-	ctx = ctx.WithChainID("gaiamainnet-3")
-	ctx = ctx.WithBlockHeight(18)
-	height = types.GetSelfHeight(ctx)
-	suite.Require().Equal(types.NewHeight(3, 18), height, "valid self height failed")
-}

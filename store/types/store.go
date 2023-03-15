@@ -217,6 +217,7 @@ const (
 	StoreTypeDB
 	StoreTypeIAVL
 	StoreTypeTransient
+	StoreTypeMemory
 )
 
 //----------------------------------------
@@ -299,4 +300,9 @@ type SingleStoreCache interface {
 type MultiStoreCache interface {
 	InitializeSingleStoreCache(height int64, storeKey StoreKey) error
 	GetSingleStoreCache(storekey StoreKey) SingleStoreCache
+}
+
+// MemoryStoreKey defines a typed key to be used with an in-memory KVStore.
+type MemoryStoreKey struct {
+	name string
 }

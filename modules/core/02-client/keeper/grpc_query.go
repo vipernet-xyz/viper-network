@@ -1,24 +1,23 @@
 package keeper
 
-import (
-	"bytes"
-	"context"
-	"fmt"
-	"sort"
-	"strings"
+/*"bytes"
+"context"
+"fmt"
+"sort"
+"strings"
 
-	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/vipernet-xyz/viper-network/store/prefix"
-	sdk "github.com/vipernet-xyz/viper-network/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+errorsmod "cosmossdk.io/errors"
+"github.com/cosmos/cosmos-sdk/types/query"
+"github.com/vipernet-xyz/viper-network/store/prefix"
+sdk "github.com/vipernet-xyz/viper-network/types"
+"google.golang.org/grpc/codes"
+"google.golang.org/grpc/status"
 
-	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
-	"github.com/vipernet-xyz/viper-network/modules/core/exported"
-)
+"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+"github.com/vipernet-xyz/viper-network/modules/core/exported"*/
 
+/*
 var _ types.QueryServer = Keeper{}
 
 // ClientState implements the Query/ClientState gRPC method
@@ -329,3 +328,4 @@ func (q Keeper) UpgradedConsensusState(c context.Context, req *types.QueryUpgrad
 		UpgradedConsensusState: protoAny,
 	}, nil
 }
+*/

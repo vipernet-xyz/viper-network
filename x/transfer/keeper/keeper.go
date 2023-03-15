@@ -3,12 +3,12 @@ package keeper
 import (
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	"github.com/cometbft/cometbft/libs/log"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
 	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"

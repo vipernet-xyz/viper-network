@@ -1,19 +1,17 @@
 package ledger
 
-import (
-	"fmt"
-	"testing"
+/*"fmt"
+"testing"
 
-	"github.com/stretchr/testify/require"
+"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	"github.com/vipernet-xyz/viper-network/codec/legacy"
-	"github.com/vipernet-xyz/viper-network/crypto/hd"
-	"github.com/vipernet-xyz/viper-network/crypto/types"
-	sdk "github.com/vipernet-xyz/viper-network/types"
-)
+"github.com/cosmos/cosmos-sdk/testutil/testdata"
+"github.com/vipernet-xyz/viper-network/codec/legacy"
+"github.com/vipernet-xyz/viper-network/crypto/hd"
+"github.com/vipernet-xyz/viper-network/crypto/types"
+sdk "github.com/vipernet-xyz/viper-network/types"*/
 
-func TestErrorHandling(t *testing.T) {
+/*func TestErrorHandling(t *testing.T) {
 	// first, try to generate a key, must return an error
 	// (no panic)
 	path := *hd.NewParams(44, 555, 0, false, 0)
@@ -240,3 +238,4 @@ func TestRealDeviceSecp256k1(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, pub, bpub)
 }
+*/

@@ -1,13 +1,13 @@
 package keeper
 
-import (
+/*
 	"context"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
-	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
-)
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"*/
 
+/*
 // ClientState implements the IBC QueryServer interface
 func (q Keeper) ClientState(c context.Context, req *clienttypes.QueryClientStateRequest) (*clienttypes.QueryClientStateResponse, error) {
 	return q.ClientKeeper.ClientState(c, req)
@@ -146,4 +146,4 @@ func (q Keeper) UnreceivedAcks(c context.Context, req *channeltypes.QueryUnrecei
 // NextSequenceReceive implements the IBC QueryServer interface
 func (q Keeper) NextSequenceReceive(c context.Context, req *channeltypes.QueryNextSequenceReceiveRequest) (*channeltypes.QueryNextSequenceReceiveResponse, error) {
 	return q.ChannelKeeper.NextSequenceReceive(c, req)
-}
+}*/

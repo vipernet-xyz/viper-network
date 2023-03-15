@@ -1,13 +1,13 @@
 package v7
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	ics23 "github.com/cosmos/ics23/go"
+	"github.com/vipernet-xyz/viper-network/codec"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // NOTE: this is a mock implmentation for exported.ClientState. This implementation

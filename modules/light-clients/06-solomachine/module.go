@@ -3,12 +3,12 @@ package solomachine
 import (
 	"encoding/json"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/codec"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/types/module"
 )
 
 var _ module.AppModuleBasic = AppModuleBasic{}

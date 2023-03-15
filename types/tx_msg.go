@@ -103,3 +103,26 @@ type TxEncoder func(tx Tx, blockHeight int64) ([]byte, error)
 func MsgTypeURL(msg Msg1) string {
 	return "/" + gp.MessageName(msg)
 }
+
+// TxWithMemo must have GetMemo() method to use ValidateMemoDecorator
+type TxWithMemo interface {
+	Tx
+	GetMemo() string
+}
+
+// FeeTx defines the interface to be implemented by Tx to use the FeeDecorators
+type FeeTx interface {
+	Tx
+	GetGas() uint64
+	GetFee() Coins
+	FeePayer() AccAddress
+	FeeGranter() AccAddress
+}
+
+// TxWithTimeoutHeight extends the Tx interface by allowing a transaction to
+// set a height timeout.
+type TxWithTimeoutHeight interface {
+	Tx
+
+	GetTimeoutHeight() uint64
+}

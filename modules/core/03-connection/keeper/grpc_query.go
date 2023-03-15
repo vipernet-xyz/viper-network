@@ -1,21 +1,19 @@
 package keeper
 
-import (
-	"context"
+/*"context"
 
-	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/vipernet-xyz/viper-network/store/prefix"
-	sdk "github.com/vipernet-xyz/viper-network/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+errorsmod "cosmossdk.io/errors"
+"github.com/cosmos/cosmos-sdk/types/query"
+"github.com/vipernet-xyz/viper-network/store/prefix"
+sdk "github.com/vipernet-xyz/viper-network/types"
+"google.golang.org/grpc/codes"
+"google.golang.org/grpc/status"
 
-	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
-	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
-	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
-)
+clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+host "github.com/vipernet-xyz/viper-network/modules/core/24-host"*/
 
-var _ types.QueryServer = Keeper{}
+/*var _ types.QueryServer = Keeper{}
 
 // Connection implements the Query/Connection gRPC method
 func (q Keeper) Connection(c context.Context, req *types.QueryConnectionRequest) (*types.QueryConnectionResponse, error) {
@@ -185,3 +183,4 @@ func (q Keeper) ConnectionParams(c context.Context, req *types.QueryConnectionPa
 		Params: &params,
 	}, nil
 }
+*/

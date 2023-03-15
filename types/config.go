@@ -249,3 +249,9 @@ func (config *SDKConfig) GetAddressVerifier() func([]byte) error {
 func (config *SDKConfig) GetBech32AccountAddrPrefix() string {
 	return config.bech32AddressPrefix["account_addr"]
 }
+
+const DefaultKeyringServiceName = "viper"
+
+func KeyringServiceName() string {
+	return DefaultKeyringServiceName
+}

@@ -340,3 +340,9 @@ func (m *Manager) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) abci.ResponseE
 type MigrationHandler func(sdk.Context) error
 
 // DONTCOVER
+
+// BeginBlockAppModule is an extension interface that contains information about the AppModule and BeginBlock.
+type BeginBlockAppModule interface {
+	AppModule
+	BeginBlock1(sdk.Context, abci.RequestBeginBlock)
+}

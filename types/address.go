@@ -43,6 +43,7 @@ var (
 	_ AddressI             = Address{}
 	_ yaml.Marshaler       = Address{}
 	_ codec.ProtoMarshaler = &Address{}
+	_ AddressI             = AccAddress{}
 )
 
 func VerifyAddressFormat(bz []byte) error {
@@ -212,6 +213,7 @@ var _ codec.ProtoMarshaler = &Addresses{}
 // When marshaled to a string or JSON.
 type Addresses []Address
 type AccAddress []byte
+type AccAddresses []AccAddress
 
 func (a *Addresses) Reset() {
 	*a = Addresses{}
@@ -366,4 +368,42 @@ func MustAccAddressFromBech32(address string) AccAddress {
 	}
 
 	return addr
+}
+
+// RawBytes returns the raw address bytes.
+func (aa AccAddress) Bytes() []byte {
+	return aa
+}
+
+// Returns boolean for whether two Addresses are Equal
+func (aa AccAddress) Equals(aa2 Address) bool {
+	if aa.Empty() && aa2.Empty() {
+		return true
+	}
+
+	return bytes.Equal(aa.Bytes(), aa2.Bytes())
+}
+
+// Format implements the fmt.Formatter interface.
+// nolint: errcheck
+func (aa AccAddress) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 's':
+		_, _ = s.Write([]byte(aa.String()))
+	case 'p':
+		_, _ = s.Write([]byte(fmt.Sprintf("%p", aa)))
+	default:
+		_, _ = s.Write([]byte(fmt.Sprintf("%X", []byte(aa))))
+	}
+}
+
+// Marshal returns the raw address bytes. It is needed for protobuf
+// compatibility.
+func (aa AccAddress) Marshal() ([]byte, error) {
+	return aa, nil
+}
+
+// MarshalJSON marshals to JSON using Bech32.
+func (aa AccAddress) MarshalJSON() ([]byte, error) {
+	return json.Marshal(aa.String())
 }

@@ -4,12 +4,12 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/tx"
 	"github.com/vipernet-xyz/viper-network/types/tx/signing"
+	"github.com/vipernet-xyz/viper-network/x/authentication/migrations/legacytx"
 )
 
 // AuxTxBuilder is a client-side builder for creating an AuxSignerData.

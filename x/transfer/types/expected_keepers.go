@@ -1,13 +1,13 @@
 package types
 
 import (
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // AccountKeeper defines the contract required for account APIs.

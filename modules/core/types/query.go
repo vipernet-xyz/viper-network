@@ -3,12 +3,12 @@ package types
 import (
 	"github.com/cosmos/gogoproto/grpc"
 
-	client "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	connection "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection"
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	channel "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	client "github.com/vipernet-xyz/viper-network/modules/core/02-client"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	connection "github.com/vipernet-xyz/viper-network/modules/core/03-connection"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	channel "github.com/vipernet-xyz/viper-network/modules/core/04-channel"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 // QueryServer defines the IBC interfaces that the gRPC query server must implement

@@ -5,8 +5,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/telemetry"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
 	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"

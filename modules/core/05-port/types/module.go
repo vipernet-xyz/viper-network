@@ -1,8 +1,8 @@
 package types
 
 import (
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"

@@ -2,9 +2,9 @@ package solomachine
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/crypto/types/multisig"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 
 // VerifySignature verifies if the the provided public key generated the signature

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"

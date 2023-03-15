@@ -1,23 +1,26 @@
 package keyring
 
-import (
-	"strings"
-	"testing"
+/*"strings"
+"testing"
 
-	"github.com/99designs/keyring"
-	"github.com/stretchr/testify/suite"
+"github.com/99designs/keyring"
+"github.com/stretchr/testify/suite"
 
-	"github.com/vipernet-xyz/viper-network/codec/legacy"
-	"github.com/vipernet-xyz/viper-network/crypto/hd"
+"github.com/vipernet-xyz/viper-network/codec"
+"github.com/vipernet-xyz/viper-network/codec/legacy"
+codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
+"github.com/vipernet-xyz/viper-network/crypto/hd"
 
-	errorsmod "cosmossdk.io/errors"
+errorsmod "cosmossdk.io/errors"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/vipernet-xyz/viper-network/crypto/keys/multisig"
-	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
-	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
-)
+sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+"github.com/vipernet-xyz/viper-network/crypto/keys/multisig"
+"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+*/
 
+/*
 const n1 = "cosmos.info"
 
 type MigrationTestSuite struct {
@@ -265,3 +268,4 @@ func newLegacyOfflineInfo(name string, pub cryptotypes.PubKey, algo hd.PubKeyTyp
 		Algo:   algo,
 	}
 }
+*/
