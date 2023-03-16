@@ -45,7 +45,7 @@ type TestAccountRetriever struct {
 }
 
 // GetAccount implements AccountRetriever.GetAccount
-func (t TestAccountRetriever) GetAccount(_ Context, addr sdk.AccAddress) (Account, error) {
+func (t TestAccountRetriever) GetAccount(_ Context, addr sdk.Address) (Account, error) {
 	acc, ok := t.Accounts[addr.String()]
 	if !ok {
 		return nil, fmt.Errorf("account %s not found", addr)
@@ -55,7 +55,7 @@ func (t TestAccountRetriever) GetAccount(_ Context, addr sdk.AccAddress) (Accoun
 }
 
 // GetAccountWithHeight implements AccountRetriever.GetAccountWithHeight
-func (t TestAccountRetriever) GetAccountWithHeight(clientCtx Context, addr sdk.AccAddress) (Account, int64, error) {
+func (t TestAccountRetriever) GetAccountWithHeight(clientCtx Context, addr sdk.Address) (Account, int64, error) {
 	acc, err := t.GetAccount(clientCtx, addr)
 	if err != nil {
 		return nil, 0, err
@@ -65,7 +65,7 @@ func (t TestAccountRetriever) GetAccountWithHeight(clientCtx Context, addr sdk.A
 }
 
 // EnsureExists implements AccountRetriever.EnsureExists
-func (t TestAccountRetriever) EnsureExists(_ Context, addr sdk.AccAddress) error {
+func (t TestAccountRetriever) EnsureExists(_ Context, addr sdk.Address) error {
 	_, ok := t.Accounts[addr.String()]
 	if !ok {
 		return fmt.Errorf("account %s not found", addr)
@@ -74,7 +74,7 @@ func (t TestAccountRetriever) EnsureExists(_ Context, addr sdk.AccAddress) error
 }
 
 // GetAccountNumberSequence implements AccountRetriever.GetAccountNumberSequence
-func (t TestAccountRetriever) GetAccountNumberSequence(_ Context, addr sdk.AccAddress) (accNum uint64, accSeq uint64, err error) {
+func (t TestAccountRetriever) GetAccountNumberSequence(_ Context, addr sdk.Address) (accNum uint64, accSeq uint64, err error) {
 	acc, ok := t.Accounts[addr.String()]
 	if !ok {
 		return 0, 0, fmt.Errorf("account %s not found", addr)

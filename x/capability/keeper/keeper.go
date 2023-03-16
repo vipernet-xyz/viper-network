@@ -7,9 +7,11 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/capability/types"
 )
@@ -34,6 +36,7 @@ type (
 		capMap        map[uint64]*types.Capability
 		scopedModules map[string]struct{}
 		sealed        bool
+		paramSpace    paramtypes.Subspace
 	}
 
 	// ScopedKeeper defines a scoped sub-keeper which is tied to a single specific
@@ -154,7 +157,7 @@ func (k *Keeper) IsInitialized(ctx sdk.Context) bool {
 // InitializeIndex sets the index to one (or greater) in InitChain according
 // to the GenesisState. It must only be called once.
 // It will panic if the provided index is 0, or if the index is already set.
-func (k Keeper) InitializeIndex(ctx sdk.Context, index uint64) error {
+func (k Keeper) InitializeIndex(ctx sdk.Ctx, index uint64) error {
 	if index == 0 {
 		panic("SetIndex requires index > 0")
 	}
@@ -170,14 +173,14 @@ func (k Keeper) InitializeIndex(ctx sdk.Context, index uint64) error {
 }
 
 // GetLatestIndex returns the latest index of the CapabilityKeeper
-func (k Keeper) GetLatestIndex(ctx sdk.Context) uint64 {
+func (k Keeper) GetLatestIndex(ctx sdk.Ctx) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	a, _ := store.Get(types.KeyIndex)
 	return types.IndexFromKey(a)
 }
 
 // SetOwners set the capability owners to the store
-func (k Keeper) SetOwners(ctx sdk.Context, index uint64, owners types.CapabilityOwners) {
+func (k Keeper) SetOwners(ctx sdk.Ctx, index uint64, owners types.CapabilityOwners) {
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIndexCapability)
 	indexKey := types.IndexToKey(index)
 
@@ -186,7 +189,7 @@ func (k Keeper) SetOwners(ctx sdk.Context, index uint64, owners types.Capability
 }
 
 // GetOwners returns the capability owners with a given index.
-func (k Keeper) GetOwners(ctx sdk.Context, index uint64) (types.CapabilityOwners, bool) {
+func (k Keeper) GetOwners(ctx sdk.Ctx, index uint64) (types.CapabilityOwners, bool) {
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIndexCapability)
 	indexKey := types.IndexToKey(index)
 
@@ -494,4 +497,21 @@ func (sk ScopedKeeper) getOwners(ctx sdk.Ctx, cap *types.Capability) *types.Capa
 
 func logger(ctx sdk.Ctx) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// creates a querier for staking REST endpoints
+func NewQuerier(k Keeper) sdk.Querier {
+	return func(ctx sdk.Ctx, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+
+		return nil, sdk.ErrUnknownRequest("unknown governance query endpoint")
+	}
+}
+
+func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
+	if ctx.IsOnUpgradeHeight() {
+		k.ConvertState(ctx)
+	}
+}
+
+func (k Keeper) ConvertState(ctx sdk.Ctx) {
 }

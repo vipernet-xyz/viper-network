@@ -344,5 +344,5 @@ type MigrationHandler func(sdk.Context) error
 // BeginBlockAppModule is an extension interface that contains information about the AppModule and BeginBlock.
 type BeginBlockAppModule interface {
 	AppModule
-	BeginBlock1(sdk.Context, abci.RequestBeginBlock)
+	BeginBlock(sdk.Ctx, abci.RequestBeginBlock)
 }

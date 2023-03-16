@@ -95,7 +95,7 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg1) error 
 	}
 
 	if !clientCtx.SkipConfirm {
-		txBytes, err := clientCtx.TxConfig.TxJSONEncoder()(tx.GetTx(), 0)
+		txBytes, err := clientCtx.TxConfig.TxJSONEncoder()(tx.GetTx())
 		if err != nil {
 			return err
 		}
@@ -122,7 +122,7 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg1) error 
 		return err
 	}
 
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(tx.GetTx(), 0)
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(tx.GetTx())
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func countDirectSigners(data signing.SignatureData) int {
 
 // checkMultipleSigners checks that there can be maximum one DIRECT signer in
 // a tx.
-func checkMultipleSigners(tx authsigning.Tx) error {
+func checkMultipleSigners(tx authsigning.Tx1) error {
 	directSigners := 0
 	sigsV2, err := tx.GetSignaturesV2()
 	if err != nil {

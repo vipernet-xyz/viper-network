@@ -11,10 +11,10 @@ type (
 	// TxEncodingConfig defines an interface that contains transaction
 	// encoders and decoders
 	TxEncodingConfig interface {
-		TxEncoder() sdk.TxEncoder
-		TxDecoder() sdk.TxDecoder
-		TxJSONEncoder() sdk.TxEncoder
-		TxJSONDecoder() sdk.TxDecoder
+		TxEncoder() sdk.TxEncoder1
+		TxDecoder() sdk.TxDecoder1
+		TxJSONEncoder() sdk.TxEncoder1
+		TxJSONDecoder() sdk.TxDecoder1
 		MarshalSignatureJSON([]signingtypes.SignatureV2) ([]byte, error)
 		UnmarshalSignatureJSON([]byte) ([]signingtypes.SignatureV2, error)
 	}
@@ -22,10 +22,10 @@ type (
 	// TxEncodingConfig defines an interface that contains transaction
 	// encoders and decoders
 	TxEncodingConfig1 interface {
-		TxEncoder() sdk.TxEncoder2
-		TxDecoder() sdk.TxDecoder2
-		TxJSONEncoder() sdk.TxEncoder2
-		TxJSONDecoder() sdk.TxDecoder2
+		TxEncoder() sdk.TxEncoder1
+		TxDecoder() sdk.TxDecoder1
+		TxJSONEncoder() sdk.TxEncoder1
+		TxJSONDecoder() sdk.TxDecoder1
 		MarshalSignatureJSON([]signingtypes.SignatureV2) ([]byte, error)
 		UnmarshalSignatureJSON([]byte) ([]signingtypes.SignatureV2, error)
 	}
@@ -34,10 +34,10 @@ type (
 	// application-defined concrete transaction type. The type returned must
 	// implement TxBuilder.
 	TxConfig interface {
-		TxEncodingConfig
+		TxEncodingConfig1
 
 		NewTxBuilder() TxBuilder
-		WrapTxBuilder(sdk.Tx) (TxBuilder, error)
+		WrapTxBuilder(sdk.Tx1) (TxBuilder, error)
 		SignModeHandler() signing.SignModeHandler
 	}
 
@@ -46,7 +46,7 @@ type (
 	// signatures, and provide canonical bytes to sign over. The transaction must
 	// also know how to encode itself.
 	TxBuilder interface {
-		GetTx() signing.Tx
+		GetTx() signing.Tx1
 
 		SetMsgs(msgs ...sdk.Msg1) error
 		SetSignatures(signatures ...signingtypes.SignatureV2) error

@@ -15,6 +15,12 @@ const (
 
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "memory:capability"
+
+	// QuerierRoute is the querier route for IBC transfer
+	QuerierRoute = ModuleName
+
+	// RouterKey is the message route for IBC transfer
+	RouterKey = ModuleName
 )
 
 var (

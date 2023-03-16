@@ -12,7 +12,7 @@ import (
 
 // VerifySignature verifies a transaction signature contained in SignatureData abstracting over different signing modes
 // and single vs multi-signatures.
-func VerifySignature(ctx context.Context, pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx) error {
+func VerifySignature(ctx context.Context, pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx1) error {
 	switch data := sigData.(type) {
 	case *signing.SingleSignatureData:
 		signBytes, err := GetSignBytesWithContext(handler, ctx, data.SignMode, signerData, tx)
@@ -49,7 +49,7 @@ func VerifySignature(ctx context.Context, pubKey cryptotypes.PubKey, signerData 
 // checks if the sign mode handler supports SignModeHandlerWithContext, in
 // which case it passes the context.Context argument. Otherwise, it fallbacks
 // to GetSignBytes.
-func GetSignBytesWithContext(h SignModeHandler, ctx context.Context, mode signing.SignMode, data SignerData, tx sdk.Tx) ([]byte, error) { //nolint:revive
+func GetSignBytesWithContext(h SignModeHandler, ctx context.Context, mode signing.SignMode, data SignerData, tx sdk.Tx1) ([]byte, error) { //nolint:revive
 	hWithCtx, ok := h.(SignModeHandlerWithContext)
 	if ok {
 		return hWithCtx.GetSignBytesWithContext(ctx, mode, data, tx)

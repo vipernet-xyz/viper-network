@@ -20,6 +20,12 @@ type Codec struct {
 	upgradeOverride int
 }
 
+type BinaryCodec1 struct {
+	protoCdc        *ProtoCodec
+	legacyCdc       *LegacyAmino
+	upgradeOverride int
+}
+
 func NewCodec(anyUnpacker types.AnyUnpacker) *Codec {
 	return &Codec{
 		protoCdc:        NewProtoCodec(anyUnpacker),

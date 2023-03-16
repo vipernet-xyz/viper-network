@@ -109,21 +109,21 @@ func (s StdTxConfig) WrapTxBuilder(newTx sdk.Tx1) (client.TxBuilder, error) {
 }
 
 // MarshalTx implements TxConfig.MarshalTx
-func (s StdTxConfig) TxEncoder() sdk.TxEncoder2 {
+func (s StdTxConfig) TxEncoder() sdk.TxEncoder1 {
 	return DefaultTxEncoder(s.Cdc)
 }
 
-func (s StdTxConfig) TxDecoder() sdk.TxDecoder2 {
+func (s StdTxConfig) TxDecoder() sdk.TxDecoder1 {
 	return mkDecoder(s.Cdc.Unmarshal)
 }
 
-func (s StdTxConfig) TxJSONEncoder() sdk.TxEncoder2 {
-	return func(tx sdk.Tx) ([]byte, error) {
+func (s StdTxConfig) TxJSONEncoder() sdk.TxEncoder1 {
+	return func(tx sdk.Tx1) ([]byte, error) {
 		return s.Cdc.MarshalJSON(tx)
 	}
 }
 
-func (s StdTxConfig) TxJSONDecoder() sdk.TxDecoder2 {
+func (s StdTxConfig) TxJSONDecoder() sdk.TxDecoder1 {
 	return mkDecoder(s.Cdc.UnmarshalJSON)
 }
 
@@ -187,7 +187,7 @@ func SignatureV2ToStdSignature(cdc *codec.LegacyAmino, sig signing.SignatureV2) 
 // Unmarshaler is a generic type for Unmarshal functions
 type Unmarshaler func(bytes []byte, ptr interface{}) error
 
-func mkDecoder(unmarshaler Unmarshaler) sdk.TxDecoder2 {
+func mkDecoder(unmarshaler Unmarshaler) sdk.TxDecoder1 {
 	return func(txBytes []byte) (sdk.Tx1, error) {
 		if len(txBytes) == 0 {
 			return nil, errorsmod.Wrap(sdkerrors.ErrTxDecode, "tx bytes are empty")
@@ -204,8 +204,8 @@ func mkDecoder(unmarshaler Unmarshaler) sdk.TxDecoder2 {
 }
 
 // DefaultTxEncoder logic for standard transaction encoding
-func DefaultTxEncoder(cdc *codec.LegacyAmino) sdk.TxEncoder2 {
-	return func(tx sdk.Tx) ([]byte, error) {
+func DefaultTxEncoder(cdc *codec.LegacyAmino) sdk.TxEncoder1 {
+	return func(tx sdk.Tx1) ([]byte, error) {
 		return cdc.Marshal(tx)
 	}
 }

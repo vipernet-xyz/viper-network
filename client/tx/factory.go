@@ -362,7 +362,7 @@ func (f Factory) PrintUnsignedTx(clientCtx client.Context, msgs ...sdk.Msg1) err
 		return err
 	}
 
-	json, err := clientCtx.TxConfig.TxJSONEncoder()(unsignedTx.GetTx(), 0)
+	json, err := clientCtx.TxConfig.TxJSONEncoder()(unsignedTx.GetTx())
 	if err != nil {
 		return err
 	}
@@ -397,7 +397,7 @@ func (f Factory) BuildSimTx(msgs ...sdk.Msg1) ([]byte, error) {
 		return nil, err
 	}
 
-	return f.txConfig.TxEncoder()(txb.GetTx(), 0)
+	return f.txConfig.TxEncoder()(txb.GetTx())
 }
 
 // getSimPK gets the public key to use for building a simulation tx.
