@@ -34,10 +34,10 @@ type (
 	// application-defined concrete transaction type. The type returned must
 	// implement TxBuilder.
 	TxConfig interface {
-		TxEncodingConfig1
+		TxEncodingConfig
 
 		NewTxBuilder() TxBuilder
-		WrapTxBuilder(sdk.Tx1) (TxBuilder, error)
+		WrapTxBuilder(sdk.Tx) (TxBuilder, error)
 		SignModeHandler() signing.SignModeHandler
 	}
 
@@ -46,7 +46,7 @@ type (
 	// signatures, and provide canonical bytes to sign over. The transaction must
 	// also know how to encode itself.
 	TxBuilder interface {
-		GetTx() signing.Tx1
+		GetTx() signing.Tx
 
 		SetMsgs(msgs ...sdk.Msg1) error
 		SetSignatures(signatures ...signingtypes.SignatureV2) error
