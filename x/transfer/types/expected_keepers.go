@@ -2,7 +2,7 @@ package types
 
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/authentication/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
@@ -12,8 +12,8 @@ import (
 
 // AccountKeeper defines the contract required for account APIs.
 type AccountKeeper interface {
-	GetModuleAddress(name string) sdk.Addresses
-	GetModuleAccount(ctx sdk.Ctx, name string) types.ModuleAccountI
+	GetModuleAddress(moduleName string) sdk.Address
+	GetModuleAccount(ctx sdk.Ctx, moduleName string) exported.ModuleAccountI
 }
 
 // BankKeeper defines the expected bank keeper
