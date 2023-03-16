@@ -22,10 +22,10 @@ type (
 	// TxEncodingConfig defines an interface that contains transaction
 	// encoders and decoders
 	TxEncodingConfig1 interface {
-		TxEncoder() sdk.TxEncoder1
-		TxDecoder() sdk.TxDecoder
-		TxJSONEncoder() sdk.TxEncoder1
-		TxJSONDecoder() sdk.TxDecoder
+		TxEncoder() sdk.TxEncoder2
+		TxDecoder() sdk.TxDecoder2
+		TxJSONEncoder() sdk.TxEncoder2
+		TxJSONDecoder() sdk.TxDecoder2
 		MarshalSignatureJSON([]signingtypes.SignatureV2) ([]byte, error)
 		UnmarshalSignatureJSON([]byte) ([]signingtypes.SignatureV2, error)
 	}

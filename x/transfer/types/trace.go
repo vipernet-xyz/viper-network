@@ -10,7 +10,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	tmtypes "github.com/cometbft/cometbft/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"

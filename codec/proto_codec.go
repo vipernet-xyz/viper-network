@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"strings"
 
+	gogoproto "github.com/cosmos/gogoproto/proto"
 	"github.com/vipernet-xyz/viper-network/codec/types"
+	"google.golang.org/grpc/encoding"
 
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
@@ -192,6 +194,34 @@ func (pc *ProtoCodec1) Marshal(o ProtoMarshaler) ([]byte, error) {
 		return []byte{}, nil
 	}
 	return o.Marshal()
+}
+
+// Marshal implements BinaryMarshaler.Marshal method.
+// NOTE: this function must be used with a concrete type which
+// implements proto.Message. For interface please use the codec.MarshalInterface
+func (pc *ProtoCodec1) Marshal1(o gogoproto.Message) ([]byte, error) {
+	// Size() check can catch the typed nil value.
+	if o == nil || gogoproto.Size(o) == 0 {
+		// return empty bytes instead of nil, because nil has special meaning in places like store.Set
+		return []byte{}, nil
+	}
+
+	return gogoproto.Marshal(o)
+}
+
+// Unmarshal implements BinaryMarshaler.Unmarshal method.
+// NOTE: this function must be used with a concrete type which
+// implements proto.Message. For interface please use the codec.UnmarshalInterface
+func (pc *ProtoCodec1) Unmarshal1(bz []byte, ptr gogoproto.Message) error {
+	err := gogoproto.Unmarshal(bz, ptr)
+	if err != nil {
+		return err
+	}
+	err = types.UnpackInterfaces(ptr, pc.interfaceRegistry)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // MarshalInterface is a convenience function for proto marshalling interfaces. It packs
@@ -388,4 +418,42 @@ func (pc *ProtoCodec1) UnmarshalInterfaceJSON(bz []byte, iface interface{}) erro
 		return err
 	}
 	return pc.UnpackAny(any, iface)
+}
+
+// GRPCCodec returns the gRPC Codec for this specific ProtoCodec
+func (pc *ProtoCodec1) GRPCCodec() encoding.Codec {
+	return &grpcProtoCodec{cdc: pc}
+}
+
+// grpcProtoCodec is the implementation of the gRPC proto codec.
+type grpcProtoCodec struct {
+	cdc *ProtoCodec1
+}
+
+var errUnknownProtoType = errors.New("codec: unknown proto type") // sentinel error
+
+func (g grpcProtoCodec) Marshal(v interface{}) ([]byte, error) {
+	switch m := v.(type) {
+	case proto.Message:
+		return proto.Marshal(m)
+	case gogoproto.Message:
+		return g.cdc.Marshal1(m)
+	default:
+		return nil, fmt.Errorf("%w: cannot marshal type %T", errUnknownProtoType, v)
+	}
+}
+
+func (g grpcProtoCodec) Unmarshal(data []byte, v interface{}) error {
+	switch m := v.(type) {
+	case proto.Message:
+		return proto.Unmarshal(data, m)
+	case gogoproto.Message:
+		return g.cdc.Unmarshal1(data, m)
+	default:
+		return fmt.Errorf("%w: cannot unmarshal type %T", errUnknownProtoType, v)
+	}
+}
+
+func (g grpcProtoCodec) Name() string {
+	return "cosmos-sdk-grpc-codec"
 }

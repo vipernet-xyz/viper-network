@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strconv"
 
-	proto "github.com/cosmos/gogoproto/proto"
+	proto "github.com/gogo/protobuf/proto"
 	"google.golang.org/grpc/encoding"
 
 	"github.com/vipernet-xyz/viper-network/codec"
@@ -29,7 +29,7 @@ var _ gogogrpc.ClientConn = Context{}
 // fallBackCodec is used by Context in case Codec is not set.
 // it can process every gRPC type, except the ones which contain
 // interfaces in their types.
-var fallBackCodec = codec.NewProtoCodec(failingInterfaceRegistry{})
+var fallBackCodec = codec.NewProtoCodec1(failingInterfaceRegistry{})
 
 // Invoke implements the grpc ClientConn.Invoke method
 func (ctx Context) Invoke(grpcCtx gocontext.Context, method string, req, reply interface{}, opts ...grpc.CallOption) (err error) {

@@ -96,7 +96,7 @@ func (ctx Context) BroadcastTxSync(txBytes []byte) (*sdk.TxResponse, error) {
 		return errRes, nil
 	}
 
-	return sdk.NewResponseFormatBroadcastTx(res), err
+	return sdk.NewResponseFormatBroadcastTx1(res), err
 }
 
 // BroadcastTxAsync broadcasts transaction bytes to a CometBFT node
@@ -112,7 +112,7 @@ func (ctx Context) BroadcastTxAsync(txBytes []byte) (*sdk.TxResponse, error) {
 		return errRes, nil
 	}
 
-	return sdk.NewResponseFormatBroadcastTx(res), err
+	return sdk.NewResponseFormatBroadcastTx1(res), err
 }
 
 // TxServiceBroadcast is a helper function to broadcast a Tx with the correct gRPC types

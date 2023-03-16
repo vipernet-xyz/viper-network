@@ -209,6 +209,23 @@ func NewResponseFormatBroadcastTx(res *ctypes.ResultBroadcastTx) TxResponse {
 	}
 }
 
+// NewResponseFormatBroadcastTx returns a TxResponse given a ResultBroadcastTx from tendermint
+func NewResponseFormatBroadcastTx1(res *ctypes.ResultBroadcastTx) *TxResponse {
+	if res == nil {
+		return nil
+	}
+
+	parsedLogs, _ := ParseABCILogs(res.Log)
+
+	return &TxResponse{
+		Code:   res.Code,
+		Data:   res.Data.String(),
+		RawLog: res.Log,
+		Logs:   parsedLogs,
+		TxHash: res.Hash.String(),
+	}
+}
+
 func (r TxResponse) String() string {
 	var sb strings.Builder
 	sb.WriteString("Response:\n")

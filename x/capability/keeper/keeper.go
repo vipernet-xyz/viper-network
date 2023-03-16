@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"github.com/tendermint/tendermint/libs/log"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/vipernet-xyz/viper-network/codec"
@@ -295,7 +295,7 @@ func (sk ScopedKeeper) AuthenticateCapability(ctx sdk.Context, cap *types.Capabi
 // to add the owner to the persistent set of capability owners for the capability
 // index. If the owner already exists, it will return an error. Otherwise, it will
 // also set a forward and reverse index for the capability and capability name.
-func (sk ScopedKeeper) ClaimCapability(ctx sdk.Context, cap *types.Capability, name string) error {
+func (sk ScopedKeeper) ClaimCapability(ctx sdk.Ctx, cap *types.Capability, name string) error {
 	if cap == nil {
 		return sdkerrors.Wrap(types.ErrNilCapability, "cannot claim nil capability")
 	}
@@ -461,7 +461,7 @@ func (sk ScopedKeeper) LookupModules(ctx sdk.Context, name string) ([]string, *t
 	return mods, cap, nil
 }
 
-func (sk ScopedKeeper) addOwner(ctx sdk.Context, cap *types.Capability, name string) error {
+func (sk ScopedKeeper) addOwner(ctx sdk.Ctx, cap *types.Capability, name string) error {
 	prefixStore := prefix.NewStore(ctx.KVStore(sk.storeKey), types.KeyPrefixIndexCapability)
 	indexKey := types.IndexToKey(cap.GetIndex())
 
@@ -477,7 +477,7 @@ func (sk ScopedKeeper) addOwner(ctx sdk.Context, cap *types.Capability, name str
 	return nil
 }
 
-func (sk ScopedKeeper) getOwners(ctx sdk.Context, cap *types.Capability) *types.CapabilityOwners {
+func (sk ScopedKeeper) getOwners(ctx sdk.Ctx, cap *types.Capability) *types.CapabilityOwners {
 	prefixStore := prefix.NewStore(ctx.KVStore(sk.storeKey), types.KeyPrefixIndexCapability)
 	indexKey := types.IndexToKey(cap.GetIndex())
 
@@ -492,6 +492,6 @@ func (sk ScopedKeeper) getOwners(ctx sdk.Context, cap *types.Capability) *types.
 	return &capOwners
 }
 
-func logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger1().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func logger(ctx sdk.Ctx) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

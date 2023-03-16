@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"github.com/tendermint/tendermint/libs/log"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
@@ -27,12 +27,12 @@ func NewKeeper(sck exported.ScopedKeeper) Keeper {
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger1().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
+func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
+	return ctx.Logger().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
 }
 
 // IsBound checks a given port ID is already bounded.
-func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
+func (k Keeper) IsBound(ctx sdk.Ctx, portID string) bool {
 	_, ok := k.scopedKeeper.GetCapability(ctx, host.PortPath(portID))
 	return ok
 }
@@ -41,7 +41,7 @@ func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
 // Ports must be bound statically when the chain starts in `app.go`.
 // The capability must then be passed to a module which will need to pass
 // it as an extra parameter when calling functions on the IBC module.
-func (k *Keeper) BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability {
+func (k *Keeper) BindPort(ctx sdk.Ctx, portID string) *capabilitytypes.Capability {
 	if err := host.PortIdentifierValidator(portID); err != nil {
 		panic(err.Error())
 	}
