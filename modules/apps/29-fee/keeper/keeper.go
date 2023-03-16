@@ -61,22 +61,22 @@ func (k Keeper) BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capabi
 }
 
 // GetChannel wraps IBC ChannelKeeper's GetChannel function
-func (k Keeper) GetChannel(ctx sdk.Context, portID, channelID string) (channeltypes.Channel, bool) {
+func (k Keeper) GetChannel(ctx sdk.Ctx, portID, channelID string) (channeltypes.Channel, bool) {
 	return k.channelKeeper.GetChannel(ctx, portID, channelID)
 }
 
 // GetPacketCommitment wraps IBC ChannelKeeper's GetPacketCommitment function
-func (k Keeper) GetPacketCommitment(ctx sdk.Context, portID, channelID string, sequence uint64) []byte {
+func (k Keeper) GetPacketCommitment(ctx sdk.Ctx, portID, channelID string, sequence uint64) []byte {
 	return k.channelKeeper.GetPacketCommitment(ctx, portID, channelID, sequence)
 }
 
 // GetNextSequenceSend wraps IBC ChannelKeeper's GetNextSequenceSend function
-func (k Keeper) GetNextSequenceSend(ctx sdk.Context, portID, channelID string) (uint64, bool) {
+func (k Keeper) GetNextSequenceSend(ctx sdk.Ctx, portID, channelID string) (uint64, bool) {
 	return k.channelKeeper.GetNextSequenceSend(ctx, portID, channelID)
 }
 
 // GetFeeModuleAddress returns the ICS29 Fee ModuleAccount address
-func (k Keeper) GetFeeModuleAddress() sdk.AccAddress {
+func (k Keeper) GetFeeModuleAddress() sdk.Address {
 	return k.authKeeper.GetModuleAddress(types.ModuleName)
 }
 
@@ -94,14 +94,14 @@ func (k Keeper) EscrowAccountHasBalance(ctx sdk.Context, coins sdk.Coins) bool {
 // lockFeeModule sets a flag to determine if fee handling logic should run for the given channel
 // identified by channel and port identifiers.
 // Please see ADR 004 for more information.
-func (k Keeper) lockFeeModule(ctx sdk.Context) {
+func (k Keeper) lockFeeModule(ctx sdk.Ctx) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyLocked(), []byte{1})
 }
 
 // IsLocked indicates if the fee module is locked
 // Please see ADR 004 for more information.
-func (k Keeper) IsLocked(ctx sdk.Context) bool {
+func (k Keeper) IsLocked(ctx sdk.Ctx) bool {
 	store := ctx.KVStore(k.storeKey)
 	a, _ := store.Has(types.KeyLocked())
 	return a
@@ -109,27 +109,27 @@ func (k Keeper) IsLocked(ctx sdk.Context) bool {
 
 // SetFeeEnabled sets a flag to determine if fee handling logic should run for the given channel
 // identified by channel and port identifiers.
-func (k Keeper) SetFeeEnabled(ctx sdk.Context, portID, channelID string) {
+func (k Keeper) SetFeeEnabled(ctx sdk.Ctx, portID, channelID string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyFeeEnabled(portID, channelID), []byte{1})
 }
 
 // DeleteFeeEnabled deletes the fee enabled flag for a given portID and channelID
-func (k Keeper) DeleteFeeEnabled(ctx sdk.Context, portID, channelID string) {
+func (k Keeper) DeleteFeeEnabled(ctx sdk.Ctx, portID, channelID string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.KeyFeeEnabled(portID, channelID))
 }
 
 // IsFeeEnabled returns whether fee handling logic should be run for the given port. It will check the
 // fee enabled flag for the given port and channel identifiers
-func (k Keeper) IsFeeEnabled(ctx sdk.Context, portID, channelID string) bool {
+func (k Keeper) IsFeeEnabled(ctx sdk.Ctx, portID, channelID string) bool {
 	store := ctx.KVStore(k.storeKey)
 	a, _ := store.Has(types.KeyFeeEnabled(portID, channelID))
 	return a
 }
 
 // GetAllFeeEnabledChannels returns a list of all ics29 enabled channels containing portID & channelID that are stored in state
-func (k Keeper) GetAllFeeEnabledChannels(ctx sdk.Context) []types.FeeEnabledChannel {
+func (k Keeper) GetAllFeeEnabledChannels(ctx sdk.Ctx) []types.FeeEnabledChannel {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.FeeEnabledKeyPrefix))
 	defer iterator.Close()
@@ -152,7 +152,7 @@ func (k Keeper) GetAllFeeEnabledChannels(ctx sdk.Context) []types.FeeEnabledChan
 }
 
 // GetPayeeAddress retrieves the fee payee address stored in state given the provided channel identifier and relayer address
-func (k Keeper) GetPayeeAddress(ctx sdk.Context, relayerAddr, channelID string) (string, bool) {
+func (k Keeper) GetPayeeAddress(ctx sdk.Ctx, relayerAddr, channelID string) (string, bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.KeyPayee(relayerAddr, channelID)
 	a, _ := store.Has(key)
@@ -202,7 +202,7 @@ func (k Keeper) SetCounterpartyPayeeAddress(ctx sdk.Context, address, counterpar
 }
 
 // GetCounterpartyPayeeAddress gets the counterparty payee address given a destination relayer address
-func (k Keeper) GetCounterpartyPayeeAddress(ctx sdk.Context, address, channelID string) (string, bool) {
+func (k Keeper) GetCounterpartyPayeeAddress(ctx sdk.Ctx, address, channelID string) (string, bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.KeyCounterpartyPayee(address, channelID)
 	a, _ := store.Has(key)
@@ -240,13 +240,13 @@ func (k Keeper) GetAllCounterpartyPayees(ctx sdk.Context) []types.RegisteredCoun
 }
 
 // SetRelayerAddressForAsyncAck sets the forward relayer address during OnRecvPacket in case of async acknowledgement
-func (k Keeper) SetRelayerAddressForAsyncAck(ctx sdk.Context, packetID channeltypes.PacketId, address string) {
+func (k Keeper) SetRelayerAddressForAsyncAck(ctx sdk.Ctx, packetID channeltypes.PacketId, address string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyRelayerAddressForAsyncAck(packetID), []byte(address))
 }
 
 // GetRelayerAddressForAsyncAck gets forward relayer address for a particular packet
-func (k Keeper) GetRelayerAddressForAsyncAck(ctx sdk.Context, packetID channeltypes.PacketId) (string, bool) {
+func (k Keeper) GetRelayerAddressForAsyncAck(ctx sdk.Ctx, packetID channeltypes.PacketId) (string, bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.KeyRelayerAddressForAsyncAck(packetID)
 	a, _ := store.Has(key)
@@ -283,14 +283,14 @@ func (k Keeper) GetAllForwardRelayerAddresses(ctx sdk.Context) []types.ForwardRe
 }
 
 // Deletes the forwardRelayerAddr associated with the packetID
-func (k Keeper) DeleteForwardRelayerAddress(ctx sdk.Context, packetID channeltypes.PacketId) {
+func (k Keeper) DeleteForwardRelayerAddress(ctx sdk.Ctx, packetID channeltypes.PacketId) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.KeyRelayerAddressForAsyncAck(packetID)
 	store.Delete(key)
 }
 
 // GetFeesInEscrow returns all escrowed packet fees for a given packetID
-func (k Keeper) GetFeesInEscrow(ctx sdk.Context, packetID channeltypes.PacketId) (types.PacketFees, bool) {
+func (k Keeper) GetFeesInEscrow(ctx sdk.Ctx, packetID channeltypes.PacketId) (types.PacketFees, bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.KeyFeesInEscrow(packetID)
 	bz, _ := store.Get(key)
@@ -302,7 +302,7 @@ func (k Keeper) GetFeesInEscrow(ctx sdk.Context, packetID channeltypes.PacketId)
 }
 
 // HasFeesInEscrow returns true if packet fees exist for the provided packetID
-func (k Keeper) HasFeesInEscrow(ctx sdk.Context, packetID channeltypes.PacketId) bool {
+func (k Keeper) HasFeesInEscrow(ctx sdk.Ctx, packetID channeltypes.PacketId) bool {
 	store := ctx.KVStore(k.storeKey)
 	key := types.KeyFeesInEscrow(packetID)
 	a, _ := store.Has(key)
@@ -310,21 +310,21 @@ func (k Keeper) HasFeesInEscrow(ctx sdk.Context, packetID channeltypes.PacketId)
 }
 
 // SetFeesInEscrow sets the given packet fees in escrow keyed by the packetID
-func (k Keeper) SetFeesInEscrow(ctx sdk.Context, packetID channeltypes.PacketId, fees types.PacketFees) {
+func (k Keeper) SetFeesInEscrow(ctx sdk.Ctx, packetID channeltypes.PacketId, fees types.PacketFees) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.MustMarshalFees(fees)
 	store.Set(types.KeyFeesInEscrow(packetID), bz)
 }
 
 // DeleteFeesInEscrow deletes the fee associated with the given packetID
-func (k Keeper) DeleteFeesInEscrow(ctx sdk.Context, packetID channeltypes.PacketId) {
+func (k Keeper) DeleteFeesInEscrow(ctx sdk.Ctx, packetID channeltypes.PacketId) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.KeyFeesInEscrow(packetID)
 	store.Delete(key)
 }
 
 // GetIdentifiedPacketFeesForChannel returns all the currently escrowed fees on a given channel.
-func (k Keeper) GetIdentifiedPacketFeesForChannel(ctx sdk.Context, portID, channelID string) []types.IdentifiedPacketFees {
+func (k Keeper) GetIdentifiedPacketFeesForChannel(ctx sdk.Ctx, portID, channelID string) []types.IdentifiedPacketFees {
 	var identifiedPacketFees []types.IdentifiedPacketFees
 
 	store := ctx.KVStore(k.storeKey)
@@ -347,7 +347,7 @@ func (k Keeper) GetIdentifiedPacketFeesForChannel(ctx sdk.Context, portID, chann
 }
 
 // GetAllIdentifiedPacketFees returns a list of all IdentifiedPacketFees that are stored in state
-func (k Keeper) GetAllIdentifiedPacketFees(ctx sdk.Context) []types.IdentifiedPacketFees {
+func (k Keeper) GetAllIdentifiedPacketFees(ctx sdk.Ctx) []types.IdentifiedPacketFees {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.FeesInEscrowPrefix))
 	defer iterator.Close()

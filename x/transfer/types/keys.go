@@ -44,7 +44,7 @@ var (
 // GetEscrowAddress returns the escrow address for the specified channel.
 // The escrow address follows the format as outlined in ADR 028:
 // https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-028-public-key-addresses.md
-func GetEscrowAddress(portID, channelID string) sdk.AccAddress {
+func GetEscrowAddress(portID, channelID string) sdk.Address {
 	// a slash is used to create domain separation between port and channel identifiers to
 	// prevent address collisions between escrow addresses created for different channels
 	contents := fmt.Sprintf("%s/%s", portID, channelID)

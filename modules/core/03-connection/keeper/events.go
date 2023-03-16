@@ -41,7 +41,7 @@ func emitConnectionOpenTryEvent(ctx sdk.Context, connectionID string, clientID s
 }
 
 // emitConnectionOpenAckEvent emits a connection open acknowledge event
-func emitConnectionOpenAckEvent(ctx sdk.Context, connectionID string, connectionEnd types.ConnectionEnd) {
+func emitConnectionOpenAckEvent(ctx sdk.Ctx, connectionID string, connectionEnd types.ConnectionEnd) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeConnectionOpenAck,

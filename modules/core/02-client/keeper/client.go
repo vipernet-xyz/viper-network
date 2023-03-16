@@ -14,7 +14,7 @@ import (
 // The client state is responsible for setting any client-specific data in the store via the Initialize method.
 // This includes the client state, initial consensus state and any associated metadata.
 func (k Keeper) CreateClient(
-	ctx sdk.Context, clientState exported.ClientState, consensusState exported.ConsensusState,
+	ctx sdk.Ctx, clientState exported.ClientState, consensusState exported.ConsensusState,
 ) (string, error) {
 	params := k.GetParams(ctx)
 	if !params.IsAllowedClient(clientState.ClientType()) {
@@ -45,7 +45,7 @@ func (k Keeper) CreateClient(
 }
 
 // UpdateClient updates the consensus state and the state root from a provided header.
-func (k Keeper) UpdateClient(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) error {
+func (k Keeper) UpdateClient(ctx sdk.Ctx, clientID string, clientMsg exported.ClientMessage) error {
 	clientState, found := k.GetClientState(ctx, clientID)
 	if !found {
 		return errorsmod.Wrapf(types.ErrClientNotFound, "cannot update client with ID %s", clientID)
@@ -104,7 +104,7 @@ func (k Keeper) UpdateClient(ctx sdk.Context, clientID string, clientMsg exporte
 
 // UpgradeClient upgrades the client to a new client state if this new client was committed to
 // by the old client at the specified upgrade height
-func (k Keeper) UpgradeClient(ctx sdk.Context, clientID string, upgradedClient exported.ClientState, upgradedConsState exported.ConsensusState,
+func (k Keeper) UpgradeClient(ctx sdk.Ctx, clientID string, upgradedClient exported.ClientState, upgradedConsState exported.ConsensusState,
 	proofUpgradeClient, proofUpgradeConsState []byte,
 ) error {
 	clientState, found := k.GetClientState(ctx, clientID)

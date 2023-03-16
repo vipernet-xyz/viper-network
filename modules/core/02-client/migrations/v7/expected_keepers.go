@@ -8,7 +8,7 @@ import (
 
 // ClientKeeper expected IBC client keeper
 type ClientKeeper interface {
-	GetClientState(ctx sdk.Context, clientID string) (exported.ClientState, bool)
-	SetClientState(ctx sdk.Context, clientID string, clientState exported.ClientState)
-	ClientStore(ctx sdk.Context, clientID string) sdk.KVStore
+	GetClientState(ctx sdk.Ctx, clientID string) (exported.ClientState, bool)
+	SetClientState(ctx sdk.Ctx, clientID string, clientState exported.ClientState)
+	ClientStore(ctx sdk.Ctx, clientID string) sdk.KVStore
 }

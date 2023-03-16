@@ -17,10 +17,10 @@ type Account interface {
 // ensure an account exists and to be able to query for account fields necessary
 // for signing.
 type AccountRetriever interface {
-	GetAccount(clientCtx Context, addr sdk.AccAddress) (Account, error)
-	GetAccountWithHeight(clientCtx Context, addr sdk.AccAddress) (Account, int64, error)
-	EnsureExists(clientCtx Context, addr sdk.AccAddress) error
-	GetAccountNumberSequence(clientCtx Context, addr sdk.AccAddress) (accNum uint64, accSeq uint64, err error)
+	GetAccount(clientCtx Context, addr sdk.Address) (Account, error)
+	GetAccountWithHeight(clientCtx Context, addr sdk.Address) (Account, int64, error)
+	EnsureExists(clientCtx Context, addr sdk.Address) error
+	GetAccountNumberSequence(clientCtx Context, addr sdk.Address) (accNum uint64, accSeq uint64, err error)
 }
 
 var _ AccountRetriever = (*MockAccountRetriever)(nil)
@@ -30,18 +30,18 @@ var _ AccountRetriever = (*MockAccountRetriever)(nil)
 // state should implement their own mock AccountRetriever.
 type MockAccountRetriever struct{}
 
-func (mar MockAccountRetriever) GetAccount(_ Context, _ sdk.AccAddress) (Account, error) {
+func (mar MockAccountRetriever) GetAccount(_ Context, _ sdk.Address) (Account, error) {
 	return nil, nil
 }
 
-func (mar MockAccountRetriever) GetAccountWithHeight(_ Context, _ sdk.AccAddress) (Account, int64, error) {
+func (mar MockAccountRetriever) GetAccountWithHeight(_ Context, _ sdk.Address) (Account, int64, error) {
 	return nil, 0, nil
 }
 
-func (mar MockAccountRetriever) EnsureExists(_ Context, _ sdk.AccAddress) error {
+func (mar MockAccountRetriever) EnsureExists(_ Context, _ sdk.Address) error {
 	return nil
 }
 
-func (mar MockAccountRetriever) GetAccountNumberSequence(_ Context, _ sdk.AccAddress) (uint64, uint64, error) {
+func (mar MockAccountRetriever) GetAccountNumberSequence(_ Context, _ sdk.Address) (uint64, uint64, error) {
 	return 0, 0, nil
 }

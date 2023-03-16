@@ -56,7 +56,7 @@ func (cs ClientState) GetLatestHeight() exported.Height {
 
 // GetTimestampAtHeight returns the timestamp in nanoseconds of the consensus state at the given height.
 func (cs ClientState) GetTimestampAtHeight(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
 	cdc codec.BinaryCodec,
 	height exported.Height,
@@ -78,7 +78,7 @@ func (cs ClientState) GetTimestampAtHeight(
 // A frozen client will become expired, so the Frozen status
 // has higher precedence.
 func (cs ClientState) Status(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
 	cdc codec.BinaryCodec,
 ) exported.Status {
@@ -191,7 +191,7 @@ func (cs ClientState) ZeroCustomFields() exported.ClientState {
 
 // Initialize checks that the initial consensus state is an 07-tendermint consensus state and
 // sets the client state, consensus state and associated metadata in the provided client store.
-func (cs ClientState) Initialize(ctx sdk.Context, cdc codec.BinaryCodec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
+func (cs ClientState) Initialize(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
 	consensusState, ok := consState.(*ConsensusState)
 	if !ok {
 		return errorsmod.Wrapf(clienttypes.ErrInvalidConsensus, "invalid initial consensus state. expected type: %T, got: %T",
@@ -209,7 +209,7 @@ func (cs ClientState) Initialize(ctx sdk.Context, cdc codec.BinaryCodec, clientS
 // The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24).
 // If a zero proof height is passed in, it will fail to retrieve the associated consensus state.
 func (cs ClientState) VerifyMembership(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
 	cdc codec.BinaryCodec,
 	height exported.Height,
@@ -256,7 +256,7 @@ func (cs ClientState) VerifyMembership(
 // The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24).
 // If a zero proof height is passed in, it will fail to retrieve the associated consensus state.
 func (cs ClientState) VerifyNonMembership(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
 	cdc codec.BinaryCodec,
 	height exported.Height,
@@ -300,7 +300,7 @@ func (cs ClientState) VerifyNonMembership(
 
 // verifyDelayPeriodPassed will ensure that at least delayTimePeriod amount of time and delayBlockPeriod number of blocks have passed
 // since consensus state was submitted before allowing verification to continue.
-func verifyDelayPeriodPassed(ctx sdk.Context, store sdk.KVStore, proofHeight exported.Height, delayTimePeriod, delayBlockPeriod uint64) error {
+func verifyDelayPeriodPassed(ctx sdk.Ctx, store sdk.KVStore, proofHeight exported.Height, delayTimePeriod, delayBlockPeriod uint64) error {
 	if delayTimePeriod != 0 {
 		// check that executing chain's timestamp has passed consensusState's processed time + delay time period
 		processedTime, ok := GetProcessedTime(store, proofHeight)

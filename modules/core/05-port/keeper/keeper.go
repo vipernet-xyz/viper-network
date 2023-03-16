@@ -63,7 +63,7 @@ func (k *Keeper) BindPort(ctx sdk.Ctx, portID string) *capabilitytypes.Capabilit
 // by checking if the memory address of the capability was previously
 // generated and bound to the port (provided as a parameter) which the capability
 // is being authenticated against.
-func (k Keeper) Authenticate(ctx sdk.Context, key *capabilitytypes.Capability, portID string) bool {
+func (k Keeper) Authenticate(ctx sdk.Ctx, key *capabilitytypes.Capability, portID string) bool {
 	if err := host.PortIdentifierValidator(portID); err != nil {
 		panic(err.Error())
 	}
@@ -72,7 +72,7 @@ func (k Keeper) Authenticate(ctx sdk.Context, key *capabilitytypes.Capability, p
 }
 
 // LookupModuleByPort will return the IBCModule along with the capability associated with a given portID
-func (k Keeper) LookupModuleByPort(ctx sdk.Context, portID string) (string, *capabilitytypes.Capability, error) {
+func (k Keeper) LookupModuleByPort(ctx sdk.Ctx, portID string) (string, *capabilitytypes.Capability, error) {
 	modules, cap, err := k.scopedKeeper.LookupModules(ctx, host.PortPath(portID))
 	if err != nil {
 		return "", nil, err

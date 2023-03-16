@@ -24,7 +24,7 @@ type PreprocessTxFn func(chainID string, key keyring.KeyType, tx TxBuilder) erro
 // Context implements a typical context created in SDK modules for transaction
 // handling and queries.
 type Context struct {
-	FromAddress       sdk.AccAddress
+	FromAddress       sdk.Address
 	Client            TendermintRPC
 	GRPCClient        *grpc.ClientConn
 	ChainID           string
@@ -50,8 +50,8 @@ type Context struct {
 	TxConfig          TxConfig
 	AccountRetriever  AccountRetriever
 	NodeURI           string
-	FeePayer          sdk.AccAddress
-	FeeGranter        sdk.AccAddress
+	FeePayer          sdk.Address
+	FeeGranter        sdk.Address
 	Viper             *viper.Viper
 	LedgerHasProtobuf bool
 	PreprocessTxHook  PreprocessTxFn
@@ -193,21 +193,21 @@ func (ctx Context) WithFromName(name string) Context {
 
 // WithFromAddress returns a copy of the context with an updated from account
 // address.
-func (ctx Context) WithFromAddress(addr sdk.AccAddress) Context {
+func (ctx Context) WithFromAddress(addr sdk.Address) Context {
 	ctx.FromAddress = addr
 	return ctx
 }
 
 // WithFeePayerAddress returns a copy of the context with an updated fee payer account
 // address.
-func (ctx Context) WithFeePayerAddress(addr sdk.AccAddress) Context {
+func (ctx Context) WithFeePayerAddress(addr sdk.Address) Context {
 	ctx.FeePayer = addr
 	return ctx
 }
 
 // WithFeeGranterAddress returns a copy of the context with an updated fee granter account
 // address.
-func (ctx Context) WithFeeGranterAddress(addr sdk.AccAddress) Context {
+func (ctx Context) WithFeeGranterAddress(addr sdk.Address) Context {
 	ctx.FeeGranter = addr
 	return ctx
 }
@@ -360,7 +360,7 @@ func (ctx Context) printOutput(out []byte) error {
 // GetFromFields returns a from account address, account name and keyring type, given either an address or key name.
 // If clientCtx.Simulate is true the keystore is not accessed and a valid address must be provided
 // If clientCtx.GenerateOnly is true the keystore is only accessed if a key name is provided
-func GetFromFields(clientCtx Context, kr keyring.Keyring, from string) (sdk.AccAddress, string, keyring.KeyType, error) {
+func GetFromFields(clientCtx Context, kr keyring.Keyring, from string) (sdk.Address, string, keyring.KeyType, error) {
 	if from == "" {
 		return nil, "", 0, nil
 	}

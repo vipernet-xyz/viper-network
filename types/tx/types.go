@@ -102,8 +102,8 @@ func (t *Tx) ValidateBasic() error {
 // GetSigners retrieves all the signers of a tx.
 // This includes all unique signers of the messages (in order),
 // as well as the FeePayer (if specified and not already included).
-func (t *Tx) GetSigners() []sdk.AccAddress {
-	var signers []sdk.AccAddress
+func (t *Tx) GetSigners() []sdk.Address {
+	var signers []sdk.Address
 	seen := map[string]bool{}
 
 	for _, msg := range t.GetMsgs() {
@@ -134,7 +134,7 @@ func (t *Tx) GetFee() sdk.Coins {
 	return t.AuthInfo.Fee.Amount
 }
 
-func (t *Tx) FeePayer() sdk.AccAddress {
+func (t *Tx) FeePayer() sdk.Address {
 	feePayer := t.AuthInfo.Fee.Payer
 	if feePayer != "" {
 		return sdk.MustAccAddressFromBech32(feePayer)
@@ -143,7 +143,7 @@ func (t *Tx) FeePayer() sdk.AccAddress {
 	return t.GetSigners()[0]
 }
 
-func (t *Tx) FeeGranter() sdk.AccAddress {
+func (t *Tx) FeeGranter() sdk.Address {
 	feePayer := t.AuthInfo.Fee.Granter
 	if feePayer != "" {
 		return sdk.MustAccAddressFromBech32(feePayer)

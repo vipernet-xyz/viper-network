@@ -49,7 +49,7 @@ func emitChannelOpenTryEvent(ctx sdk.Context, portID string, channelID string, c
 }
 
 // emitChannelOpenAckEvent emits a channel open acknowledge event
-func emitChannelOpenAckEvent(ctx sdk.Context, portID string, channelID string, channel types.Channel) {
+func emitChannelOpenAckEvent(ctx sdk.Ctx, portID string, channelID string, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeChannelOpenAck,
@@ -67,7 +67,7 @@ func emitChannelOpenAckEvent(ctx sdk.Context, portID string, channelID string, c
 }
 
 // emitChannelOpenConfirmEvent emits a channel open confirm event
-func emitChannelOpenConfirmEvent(ctx sdk.Context, portID string, channelID string, channel types.Channel) {
+func emitChannelOpenConfirmEvent(ctx sdk.Ctx, portID string, channelID string, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeChannelOpenConfirm,
@@ -85,7 +85,7 @@ func emitChannelOpenConfirmEvent(ctx sdk.Context, portID string, channelID strin
 }
 
 // emitChannelCloseInitEvent emits a channel close init event
-func emitChannelCloseInitEvent(ctx sdk.Context, portID string, channelID string, channel types.Channel) {
+func emitChannelCloseInitEvent(ctx sdk.Ctx, portID string, channelID string, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeChannelCloseInit,
@@ -103,7 +103,7 @@ func emitChannelCloseInitEvent(ctx sdk.Context, portID string, channelID string,
 }
 
 // emitChannelCloseConfirmEvent emits a channel close confirm event
-func emitChannelCloseConfirmEvent(ctx sdk.Context, portID string, channelID string, channel types.Channel) {
+func emitChannelCloseConfirmEvent(ctx sdk.Ctx, portID string, channelID string, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeChannelCloseConfirm,
@@ -122,7 +122,7 @@ func emitChannelCloseConfirmEvent(ctx sdk.Context, portID string, channelID stri
 
 // emitSendPacketEvent emits an event with packet data along with other packet information for relayer
 // to pick up and relay to other chain
-func emitSendPacketEvent(ctx sdk.Context, packet exported.PacketI, channel types.Channel, timeoutHeight exported.Height) {
+func emitSendPacketEvent(ctx sdk.Ctx, packet exported.PacketI, channel types.Channel, timeoutHeight exported.Height) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeSendPacket,
@@ -149,7 +149,7 @@ func emitSendPacketEvent(ctx sdk.Context, packet exported.PacketI, channel types
 
 // emitRecvPacketEvent emits a receive packet event. It will be emitted both the first time a packet
 // is received for a certain sequence and for all duplicate receives.
-func emitRecvPacketEvent(ctx sdk.Context, packet exported.PacketI, channel types.Channel) {
+func emitRecvPacketEvent(ctx sdk.Ctx, packet exported.PacketI, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeRecvPacket,
@@ -175,7 +175,7 @@ func emitRecvPacketEvent(ctx sdk.Context, packet exported.PacketI, channel types
 }
 
 // emitWriteAcknowledgementEvent emits an event that the relayer can query for
-func emitWriteAcknowledgementEvent(ctx sdk.Context, packet exported.PacketI, channel types.Channel, acknowledgement []byte) {
+func emitWriteAcknowledgementEvent(ctx sdk.Ctx, packet exported.PacketI, channel types.Channel, acknowledgement []byte) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeWriteAck,
@@ -203,7 +203,7 @@ func emitWriteAcknowledgementEvent(ctx sdk.Context, packet exported.PacketI, cha
 
 // emitAcknowledgePacketEvent emits an acknowledge packet event. It will be emitted both the first time
 // a packet is acknowledged for a certain sequence and for all duplicate acknowledgements.
-func emitAcknowledgePacketEvent(ctx sdk.Context, packet exported.PacketI, channel types.Channel) {
+func emitAcknowledgePacketEvent(ctx sdk.Ctx, packet exported.PacketI, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeAcknowledgePacket,
@@ -228,7 +228,7 @@ func emitAcknowledgePacketEvent(ctx sdk.Context, packet exported.PacketI, channe
 
 // emitTimeoutPacketEvent emits a timeout packet event. It will be emitted both the first time a packet
 // is timed out for a certain sequence and for all duplicate timeouts.
-func emitTimeoutPacketEvent(ctx sdk.Context, packet exported.PacketI, channel types.Channel) {
+func emitTimeoutPacketEvent(ctx sdk.Ctx, packet exported.PacketI, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeTimeoutPacket,
@@ -249,7 +249,7 @@ func emitTimeoutPacketEvent(ctx sdk.Context, packet exported.PacketI, channel ty
 }
 
 // emitChannelClosedEvent emits a channel closed event.
-func emitChannelClosedEvent(ctx sdk.Context, packet exported.PacketI, channel types.Channel) {
+func emitChannelClosedEvent(ctx sdk.Ctx, packet exported.PacketI, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeChannelClosed,

@@ -20,7 +20,7 @@ import (
 // The packet sequence generated for the packet to be sent is returned. An error
 // is returned if one occurs.
 func (k Keeper) SendPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	channelCap *capabilitytypes.Capability,
 	sourcePort string,
 	sourceChannel string,
@@ -119,7 +119,7 @@ func (k Keeper) SendPacket(
 // RecvPacket is called by a module in order to receive & process an IBC packet
 // sent on the corresponding channel end on the counterparty chain.
 func (k Keeper) RecvPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	chanCap *capabilitytypes.Capability,
 	packet exported.PacketI,
 	proof []byte,
@@ -286,7 +286,7 @@ func (k Keeper) RecvPacket(
 // 2) Assumes that packet receipt has been written (unordered), or nextSeqRecv was incremented (ordered)
 // previously by RecvPacket.
 func (k Keeper) WriteAcknowledgement(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	chanCap *capabilitytypes.Capability,
 	packet exported.PacketI,
 	acknowledgement exported.Acknowledgement,
@@ -356,7 +356,7 @@ func (k Keeper) WriteAcknowledgement(
 // which is no longer necessary since the packet has been received and acted upon.
 // It will also increment NextSequenceAck in case of ORDERED channels.
 func (k Keeper) AcknowledgePacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	chanCap *capabilitytypes.Capability,
 	packet exported.PacketI,
 	acknowledgement []byte,

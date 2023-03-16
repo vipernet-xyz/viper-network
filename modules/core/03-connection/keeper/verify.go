@@ -18,7 +18,7 @@ import (
 // VerifyClientState verifies a proof of a client state of the running machine
 // stored on the target machine
 func (k Keeper) VerifyClientState(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	proof []byte,
@@ -61,7 +61,7 @@ func (k Keeper) VerifyClientState(
 // VerifyClientConsensusState verifies a proof of the consensus state of the
 // specified client stored on the target machine.
 func (k Keeper) VerifyClientConsensusState(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	consensusHeight exported.Height,
@@ -105,7 +105,7 @@ func (k Keeper) VerifyClientConsensusState(
 // VerifyConnectionState verifies a proof of the connection state of the
 // specified connection end stored on the target machine.
 func (k Keeper) VerifyConnectionState(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	proof []byte,
@@ -154,7 +154,7 @@ func (k Keeper) VerifyConnectionState(
 // VerifyChannelState verifies a proof of the channel state of the specified
 // channel end, under the specified port, stored on the target machine.
 func (k Keeper) VerifyChannelState(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	proof []byte,
@@ -204,7 +204,7 @@ func (k Keeper) VerifyChannelState(
 // VerifyPacketCommitment verifies a proof of an outgoing packet commitment at
 // the specified port, specified channel, and specified sequence.
 func (k Keeper) VerifyPacketCommitment(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	proof []byte,
@@ -249,7 +249,7 @@ func (k Keeper) VerifyPacketCommitment(
 // VerifyPacketAcknowledgement verifies a proof of an incoming packet
 // acknowledgement at the specified port, specified channel, and specified sequence.
 func (k Keeper) VerifyPacketAcknowledgement(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	proof []byte,
@@ -295,7 +295,7 @@ func (k Keeper) VerifyPacketAcknowledgement(
 // incoming packet receipt at the specified port, specified channel, and
 // specified sequence.
 func (k Keeper) VerifyPacketReceiptAbsence(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	proof []byte,
@@ -339,7 +339,7 @@ func (k Keeper) VerifyPacketReceiptAbsence(
 // VerifyNextSequenceRecv verifies a proof of the next sequence number to be
 // received of the specified channel at the specified port.
 func (k Keeper) VerifyNextSequenceRecv(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connection exported.ConnectionI,
 	height exported.Height,
 	proof []byte,
@@ -382,7 +382,7 @@ func (k Keeper) VerifyNextSequenceRecv(
 
 // getBlockDelay calculates the block delay period from the time delay of the connection
 // and the maximum expected time per block.
-func (k Keeper) getBlockDelay(ctx sdk.Context, connection exported.ConnectionI) uint64 {
+func (k Keeper) getBlockDelay(ctx sdk.Ctx, connection exported.ConnectionI) uint64 {
 	// expectedTimePerBlock should never be zero, however if it is then return a 0 blcok delay for safety
 	// as the expectedTimePerBlock parameter was not set.
 	expectedTimePerBlock := k.GetMaxExpectedTimePerBlock(ctx)

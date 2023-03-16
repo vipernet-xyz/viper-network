@@ -23,7 +23,7 @@ type IBCModule interface {
 	// If there is no default version string for the application,
 	// it should return an error if provided version is empty string.
 	OnChanOpenInit(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		order channeltypes.Order,
 		connectionHops []string,
 		portID string,
@@ -87,29 +87,29 @@ type IBCModule interface {
 	// otherwise the application state changes are discarded. In either case the packet is received
 	// and the acknowledgement is written (in synchronous cases).
 	OnRecvPacket(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		packet channeltypes.Packet,
-		relayer sdk.AccAddress,
+		relayer sdk.Address,
 	) exported.Acknowledgement
 
 	OnAcknowledgementPacket(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		packet channeltypes.Packet,
 		acknowledgement []byte,
-		relayer sdk.AccAddress,
+		relayer sdk.Address,
 	) error
 
 	OnTimeoutPacket(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		packet channeltypes.Packet,
-		relayer sdk.AccAddress,
+		relayer sdk.Address,
 	) error
 }
 
 // ICS4Wrapper implements the ICS4 interfaces that IBC applications use to send packets and acknowledgements.
 type ICS4Wrapper interface {
 	SendPacket(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		chanCap *capabilitytypes.Capability,
 		sourcePort string,
 		sourceChannel string,
@@ -119,14 +119,14 @@ type ICS4Wrapper interface {
 	) (sequence uint64, err error)
 
 	WriteAcknowledgement(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		chanCap *capabilitytypes.Capability,
 		packet exported.PacketI,
 		ack exported.Acknowledgement,
 	) error
 
 	GetAppVersion(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		portID,
 		channelID string,
 	) (string, bool)

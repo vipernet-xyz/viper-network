@@ -15,7 +15,7 @@ import (
 
 // SendPacket wraps the ICS4Wrapper SendPacket function
 func (k Keeper) SendPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	chanCap *capabilitytypes.Capability,
 	sourcePort string,
 	sourceChannel string,
@@ -28,7 +28,7 @@ func (k Keeper) SendPacket(
 
 // WriteAcknowledgement wraps IBC ChannelKeeper's WriteAcknowledgement function
 // ICS29 WriteAcknowledgement is used for asynchronous acknowledgements
-func (k Keeper) WriteAcknowledgement(ctx sdk.Context, chanCap *capabilitytypes.Capability, packet ibcexported.PacketI, acknowledgement ibcexported.Acknowledgement) error {
+func (k Keeper) WriteAcknowledgement(ctx sdk.Ctx, chanCap *capabilitytypes.Capability, packet ibcexported.PacketI, acknowledgement ibcexported.Acknowledgement) error {
 	if !k.IsFeeEnabled(ctx, packet.GetDestPort(), packet.GetDestChannel()) {
 		// ics4Wrapper may be core IBC or higher-level middleware
 		return k.ics4Wrapper.WriteAcknowledgement(ctx, chanCap, packet, acknowledgement)
@@ -55,7 +55,7 @@ func (k Keeper) WriteAcknowledgement(ctx sdk.Context, chanCap *capabilitytypes.C
 }
 
 // GetAppVersion returns the underlying application version.
-func (k Keeper) GetAppVersion(ctx sdk.Context, portID, channelID string) (string, bool) {
+func (k Keeper) GetAppVersion(ctx sdk.Ctx, portID, channelID string) (string, bool) {
 	version, found := k.ics4Wrapper.GetAppVersion(ctx, portID, channelID)
 	if !found {
 		return "", false

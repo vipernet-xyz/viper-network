@@ -53,12 +53,12 @@ func (msg MsgChannelOpenInit) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgChannelOpenInit) GetSigners() []sdk.AccAddress {
+func (msg MsgChannelOpenInit) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgChannelOpenTry{}
@@ -115,12 +115,12 @@ func (msg MsgChannelOpenTry) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgChannelOpenTry) GetSigners() []sdk.AccAddress {
+func (msg MsgChannelOpenTry) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgChannelOpenAck{}
@@ -165,12 +165,12 @@ func (msg MsgChannelOpenAck) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgChannelOpenAck) GetSigners() []sdk.AccAddress {
+func (msg MsgChannelOpenAck) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgChannelOpenConfirm{}
@@ -210,12 +210,12 @@ func (msg MsgChannelOpenConfirm) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgChannelOpenConfirm) GetSigners() []sdk.AccAddress {
+func (msg MsgChannelOpenConfirm) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgChannelCloseInit{}
@@ -249,12 +249,12 @@ func (msg MsgChannelCloseInit) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgChannelCloseInit) GetSigners() []sdk.AccAddress {
+func (msg MsgChannelCloseInit) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgChannelCloseConfirm{}
@@ -294,12 +294,12 @@ func (msg MsgChannelCloseConfirm) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgChannelCloseConfirm) GetSigners() []sdk.AccAddress {
+func (msg MsgChannelCloseConfirm) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgRecvPacket{}
@@ -339,12 +339,12 @@ func (msg MsgRecvPacket) GetDataSignBytes() []byte {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgRecvPacket) GetSigners() []sdk.AccAddress {
+func (msg MsgRecvPacket) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgTimeout{}
@@ -381,12 +381,12 @@ func (msg MsgTimeout) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgTimeout) GetSigners() []sdk.AccAddress {
+func (msg MsgTimeout) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 // NewMsgTimeoutOnClose constructs new MsgTimeoutOnClose
@@ -426,12 +426,12 @@ func (msg MsgTimeoutOnClose) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgTimeoutOnClose) GetSigners() []sdk.AccAddress {
+func (msg MsgTimeoutOnClose) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 var _ sdk.Msg1 = &MsgAcknowledgement{}
@@ -470,10 +470,10 @@ func (msg MsgAcknowledgement) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgAcknowledgement) GetSigners() []sdk.AccAddress {
+func (msg MsgAcknowledgement) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }

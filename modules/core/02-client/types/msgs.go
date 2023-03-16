@@ -72,12 +72,12 @@ func (msg MsgCreateClient) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgCreateClient) GetSigners() []sdk.AccAddress {
+func (msg MsgCreateClient) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
@@ -125,12 +125,12 @@ func (msg MsgUpdateClient) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgUpdateClient) GetSigners() []sdk.AccAddress {
+func (msg MsgUpdateClient) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
@@ -197,12 +197,12 @@ func (msg MsgUpgradeClient) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgUpgradeClient) GetSigners() []sdk.AccAddress {
+func (msg MsgUpgradeClient) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
@@ -251,12 +251,12 @@ func (msg MsgSubmitMisbehaviour) ValidateBasic() error {
 }
 
 // GetSigners returns the single expected signer for a MsgSubmitMisbehaviour.
-func (msg MsgSubmitMisbehaviour) GetSigners() []sdk.AccAddress {
+func (msg MsgSubmitMisbehaviour) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces

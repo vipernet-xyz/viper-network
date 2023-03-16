@@ -44,7 +44,7 @@ type Msg1 interface {
 	// GetSigners returns the addrs of signers that must sign.
 	// CONTRACT: All signatures must be present to be valid.
 	// CONTRACT: Returns addrs in some deterministic order.
-	GetSigners() []AccAddress
+	GetSigners() []Address
 }
 
 var _ Msg = ProtoMsg(nil)
@@ -127,8 +127,8 @@ type FeeTx interface {
 	Tx
 	GetGas() uint64
 	GetFee() Coins
-	FeePayer() AccAddress
-	FeeGranter() AccAddress
+	FeePayer() Address
+	FeeGranter() Address
 }
 
 // TxWithTimeoutHeight extends the Tx interface by allowing a transaction to
@@ -166,6 +166,6 @@ type FeeTx1 interface {
 	Tx1
 	GetGas() uint64
 	GetFee() Coins
-	FeePayer() AccAddress
-	FeeGranter() AccAddress
+	FeePayer() Address
+	FeeGranter() Address
 }

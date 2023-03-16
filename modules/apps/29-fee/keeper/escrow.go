@@ -45,7 +45,7 @@ func (k Keeper) escrowPacketFee(ctx sdk.Context, packetID channeltypes.PacketId,
 }
 
 // DistributePacketFeesOnAcknowledgement pays all the acknowledgement & receive fees for a given packetID while refunding the timeout fees to the refund account.
-func (k Keeper) DistributePacketFeesOnAcknowledgement(ctx sdk.Context, forwardRelayer string, reverseRelayer sdk.AccAddress, packetFees []types.PacketFee, packetID channeltypes.PacketId) {
+func (k Keeper) DistributePacketFeesOnAcknowledgement(ctx sdk.Ctx, forwardRelayer string, reverseRelayer sdk.Address, packetFees []types.PacketFee, packetID channeltypes.PacketId) {
 	// cache context before trying to distribute fees
 	// if the escrow account has insufficient balance then we want to avoid partially distributing fees
 	cacheCtx, writeFn := ctx.CacheContext()
@@ -83,7 +83,7 @@ func (k Keeper) DistributePacketFeesOnAcknowledgement(ctx sdk.Context, forwardRe
 
 // distributePacketFeeOnAcknowledgement pays the receive fee for a given packetID while refunding the timeout fee to the refund account associated with the Fee.
 // If there was no forward relayer or the associated forward relayer address is blocked, the receive fee is refunded.
-func (k Keeper) distributePacketFeeOnAcknowledgement(ctx sdk.Context, refundAddr, forwardRelayer, reverseRelayer sdk.AccAddress, packetFee types.PacketFee) {
+func (k Keeper) distributePacketFeeOnAcknowledgement(ctx sdk.Context, refundAddr, forwardRelayer, reverseRelayer sdk.Address, packetFee types.PacketFee) {
 	// distribute fee to valid forward relayer address otherwise refund the fee
 	if !forwardRelayer.Empty() && !k.bankKeeper.BlockedAddr(forwardRelayer) {
 		// distribute fee for forward relaying
@@ -101,7 +101,7 @@ func (k Keeper) distributePacketFeeOnAcknowledgement(ctx sdk.Context, refundAddr
 }
 
 // DistributePacketsFeesOnTimeout pays all the timeout fees for a given packetID while refunding the acknowledgement & receive fees to the refund account.
-func (k Keeper) DistributePacketFeesOnTimeout(ctx sdk.Context, timeoutRelayer sdk.AccAddress, packetFees []types.PacketFee, packetID channeltypes.PacketId) {
+func (k Keeper) DistributePacketFeesOnTimeout(ctx sdk.Ctx, timeoutRelayer sdk.Address, packetFees []types.PacketFee, packetID channeltypes.PacketId) {
 	// cache context before trying to distribute fees
 	// if the escrow account has insufficient balance then we want to avoid partially distributing fees
 	cacheCtx, writeFn := ctx.CacheContext()
@@ -135,7 +135,7 @@ func (k Keeper) DistributePacketFeesOnTimeout(ctx sdk.Context, timeoutRelayer sd
 }
 
 // distributePacketFeeOnTimeout pays the timeout fee to the timeout relayer and refunds the acknowledgement & receive fee.
-func (k Keeper) distributePacketFeeOnTimeout(ctx sdk.Context, refundAddr, timeoutRelayer sdk.AccAddress, packetFee types.PacketFee) {
+func (k Keeper) distributePacketFeeOnTimeout(ctx sdk.Context, refundAddr, timeoutRelayer sdk.Address, packetFee types.PacketFee) {
 	// refund receive fee for unused forward relaying
 	k.distributeFee(ctx, refundAddr, refundAddr, packetFee.Fee.RecvFee)
 
@@ -149,26 +149,26 @@ func (k Keeper) distributePacketFeeOnTimeout(ctx sdk.Context, refundAddr, timeou
 // distributeFee will attempt to distribute the escrowed fee to the receiver address.
 // If the distribution fails for any reason (such as the receiving address being blocked),
 // the state changes will be discarded.
-func (k Keeper) distributeFee(ctx sdk.Context, receiver, refundAccAddress sdk.AccAddress, fee sdk.Coins) {
+func (k Keeper) distributeFee(ctx sdk.Context, receiver, refundAddress sdk.Address, fee sdk.Coins) {
 	// cache context before trying to distribute fees
 	cacheCtx, writeFn := ctx.CacheContext()
 
 	err := k.bankKeeper.SendCoinsFromModuleToAccount(cacheCtx, types.ModuleName, receiver, fee)
 	if err != nil {
-		if bytes.Equal(receiver, refundAccAddress) {
+		if bytes.Equal(receiver, refundAddress) {
 			k.Logger(ctx).Error("error distributing fee", "receiver address", receiver, "fee", fee)
 			return // if sending to the refund address already failed, then return (no-op)
 		}
 
 		// if an error is returned from x/bank and the receiver is not the refundAccAddress
 		// then attempt to refund the fee to the original sender
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(cacheCtx, types.ModuleName, refundAccAddress, fee)
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(cacheCtx, types.ModuleName, refundAddress, fee)
 		if err != nil {
-			k.Logger(ctx).Error("error refunding fee to the original sender", "refund address", refundAccAddress, "fee", fee)
+			k.Logger(ctx).Error("error refunding fee to the original sender", "refund address", refundAddress, "fee", fee)
 			return // if sending to the refund address fails, no-op
 		}
 
-		emitDistributeFeeEvent(ctx, refundAccAddress.String(), fee)
+		emitDistributeFeeEvent(ctx, refundAddress.String(), fee)
 	} else {
 		emitDistributeFeeEvent(ctx, receiver.String(), fee)
 	}

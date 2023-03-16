@@ -2,8 +2,8 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cometbft/cometbft/libs/log"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -42,8 +42,8 @@ func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramt
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger1().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
+func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
+	return ctx.Logger().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
 }
 
 // GetCommitmentPrefix returns the IBC connection store prefix as a commitment
@@ -63,7 +63,7 @@ func (k Keeper) GenerateConnectionIdentifier(ctx sdk.Context) string {
 }
 
 // GetConnection returns a connection with a particular identifier
-func (k Keeper) GetConnection(ctx sdk.Context, connectionID string) (types.ConnectionEnd, bool) {
+func (k Keeper) GetConnection(ctx sdk.Ctx, connectionID string) (types.ConnectionEnd, bool) {
 	store := ctx.KVStore(k.storeKey)
 	bz, _ := store.Get(host.ConnectionKey(connectionID))
 	if len(bz) == 0 {
@@ -85,7 +85,7 @@ func (k Keeper) HasConnection(ctx sdk.Context, connectionID string) bool {
 }
 
 // SetConnection sets a connection to the store
-func (k Keeper) SetConnection(ctx sdk.Context, connectionID string, connection types.ConnectionEnd) {
+func (k Keeper) SetConnection(ctx sdk.Ctx, connectionID string, connection types.ConnectionEnd) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&connection)
 	store.Set(host.ConnectionKey(connectionID), bz)
@@ -93,7 +93,7 @@ func (k Keeper) SetConnection(ctx sdk.Context, connectionID string, connection t
 
 // GetTimestampAtHeight returns the timestamp in nanoseconds of the consensus state at the
 // given height.
-func (k Keeper) GetTimestampAtHeight(ctx sdk.Context, connection types.ConnectionEnd, height exported.Height) (uint64, error) {
+func (k Keeper) GetTimestampAtHeight(ctx sdk.Ctx, connection types.ConnectionEnd, height exported.Height) (uint64, error) {
 	clientState, found := k.clientKeeper.GetClientState(ctx, connection.GetClientID())
 	if !found {
 		return 0, errorsmod.Wrapf(
@@ -111,7 +111,7 @@ func (k Keeper) GetTimestampAtHeight(ctx sdk.Context, connection types.Connectio
 
 // GetClientConnectionPaths returns all the connection paths stored under a
 // particular client
-func (k Keeper) GetClientConnectionPaths(ctx sdk.Context, clientID string) ([]string, bool) {
+func (k Keeper) GetClientConnectionPaths(ctx sdk.Ctx, clientID string) ([]string, bool) {
 	store := ctx.KVStore(k.storeKey)
 	bz, _ := store.Get(host.ClientConnectionsKey(clientID))
 	if len(bz) == 0 {
@@ -152,7 +152,7 @@ func (k Keeper) SetNextConnectionSequence(ctx sdk.Context, sequence uint64) {
 // GetAllClientConnectionPaths returns all stored clients connection id paths. It
 // will ignore the clients that haven't initialized a connection handshake since
 // no paths are stored.
-func (k Keeper) GetAllClientConnectionPaths(ctx sdk.Context) []types.ConnectionPaths {
+func (k Keeper) GetAllClientConnectionPaths(ctx sdk.Ctx) []types.ConnectionPaths {
 	var allConnectionPaths []types.ConnectionPaths
 	k.clientKeeper.IterateClientStates(ctx, nil, func(clientID string, cs exported.ClientState) bool {
 		paths, found := k.GetClientConnectionPaths(ctx, clientID)

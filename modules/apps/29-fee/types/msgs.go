@@ -49,13 +49,13 @@ func (msg MsgRegisterPayee) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgRegisterPayee) GetSigners() []sdk.AccAddress {
+func (msg MsgRegisterPayee) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Relayer)
 	if err != nil {
 		panic(err)
 	}
 
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 // NewMsgRegisterCounterpartyPayee creates a new instance of MsgRegisterCounterpartyPayee
@@ -91,13 +91,13 @@ func (msg MsgRegisterCounterpartyPayee) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgRegisterCounterpartyPayee) GetSigners() []sdk.AccAddress {
+func (msg MsgRegisterCounterpartyPayee) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Relayer)
 	if err != nil {
 		panic(err)
 	}
 
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 // NewMsgPayPacketFee creates a new instance of MsgPayPacketFee
@@ -141,12 +141,12 @@ func (msg MsgPayPacketFee) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgPayPacketFee) GetSigners() []sdk.AccAddress {
+func (msg MsgPayPacketFee) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 // Route implements sdk.Msg
@@ -182,12 +182,12 @@ func (msg MsgPayPacketFeeAsync) ValidateBasic() error {
 
 // GetSigners implements sdk.Msg
 // The signer of the fee message must be the refund address
-func (msg MsgPayPacketFeeAsync) GetSigners() []sdk.AccAddress {
+func (msg MsgPayPacketFeeAsync) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.PacketFee.RefundAddress)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }
 
 // Route implements sdk.Msg

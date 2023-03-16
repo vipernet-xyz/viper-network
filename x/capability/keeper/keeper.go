@@ -203,7 +203,7 @@ func (k Keeper) GetOwners(ctx sdk.Context, index uint64) (types.CapabilityOwners
 // InitializeCapability takes in an index and an owners array. It creates the capability in memory
 // and sets the fwd and reverse keys for each owner in the memstore.
 // It is used during initialization from genesis.
-func (k Keeper) InitializeCapability(ctx sdk.Context, index uint64, owners types.CapabilityOwners) {
+func (k Keeper) InitializeCapability(ctx sdk.Ctx, index uint64, owners types.CapabilityOwners) {
 	memStore := ctx.KVStore(k.memKey)
 
 	cap := types.NewCapability(index)
@@ -232,7 +232,7 @@ func (k Keeper) InitializeCapability(ctx sdk.Context, index uint64, owners types
 //
 // Note, namespacing is completely local, which is safe since records are prefixed
 // with the module name and no two ScopedKeeper can have the same module name.
-func (sk ScopedKeeper) NewCapability(ctx sdk.Context, name string) (*types.Capability, error) {
+func (sk ScopedKeeper) NewCapability(ctx sdk.Ctx, name string) (*types.Capability, error) {
 	if strings.TrimSpace(name) == "" {
 		return nil, sdkerrors.Wrap(types.ErrInvalidCapabilityName, "capability name cannot be empty")
 	}
@@ -283,7 +283,7 @@ func (sk ScopedKeeper) NewCapability(ctx sdk.Context, name string) (*types.Capab
 //
 // Note, the capability's forward mapping is indexed by a string which should
 // contain its unique memory reference.
-func (sk ScopedKeeper) AuthenticateCapability(ctx sdk.Context, cap *types.Capability, name string) bool {
+func (sk ScopedKeeper) AuthenticateCapability(ctx sdk.Ctx, cap *types.Capability, name string) bool {
 	if strings.TrimSpace(name) == "" || cap == nil {
 		return false
 	}
@@ -369,7 +369,7 @@ func (sk ScopedKeeper) ReleaseCapability(ctx sdk.Context, cap *types.Capability)
 // GetCapability allows a module to fetch a capability which it previously claimed
 // by name. The module is not allowed to retrieve capabilities which it does not
 // own.
-func (sk ScopedKeeper) GetCapability(ctx sdk.Context, name string) (*types.Capability, bool) {
+func (sk ScopedKeeper) GetCapability(ctx sdk.Ctx, name string) (*types.Capability, bool) {
 	if strings.TrimSpace(name) == "" {
 		return nil, false
 	}
@@ -400,7 +400,7 @@ func (sk ScopedKeeper) GetCapability(ctx sdk.Context, name string) (*types.Capab
 
 // GetCapabilityName allows a module to retrieve the name under which it stored a given
 // capability given the capability
-func (sk ScopedKeeper) GetCapabilityName(ctx sdk.Context, cap *types.Capability) string {
+func (sk ScopedKeeper) GetCapabilityName(ctx sdk.Ctx, cap *types.Capability) string {
 	if cap == nil {
 		return ""
 	}
@@ -411,7 +411,7 @@ func (sk ScopedKeeper) GetCapabilityName(ctx sdk.Context, cap *types.Capability)
 
 // GetOwners all the Owners that own the capability associated with the name this ScopedKeeper uses
 // to refer to the capability
-func (sk ScopedKeeper) GetOwners(ctx sdk.Context, name string) (*types.CapabilityOwners, bool) {
+func (sk ScopedKeeper) GetOwners(ctx sdk.Ctx, name string) (*types.CapabilityOwners, bool) {
 	if strings.TrimSpace(name) == "" {
 		return nil, false
 	}
@@ -439,7 +439,7 @@ func (sk ScopedKeeper) GetOwners(ctx sdk.Context, name string) (*types.Capabilit
 // as a string array and the capability itself.
 // The method returns an error if either the capability or the owners cannot be
 // retreived from the memstore.
-func (sk ScopedKeeper) LookupModules(ctx sdk.Context, name string) ([]string, *types.Capability, error) {
+func (sk ScopedKeeper) LookupModules(ctx sdk.Ctx, name string) ([]string, *types.Capability, error) {
 	if strings.TrimSpace(name) == "" {
 		return nil, nil, sdkerrors.Wrap(types.ErrInvalidCapabilityName, "cannot lookup modules with empty capability name")
 	}

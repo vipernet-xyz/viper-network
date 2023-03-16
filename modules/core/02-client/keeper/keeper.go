@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cometbft/cometbft/light"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
@@ -50,12 +50,12 @@ func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramt
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger1().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
+func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
+	return ctx.Logger().With("module", "x/"+exported.ModuleName+"/"+types.SubModuleName)
 }
 
 // GenerateClientIdentifier returns the next client identifier.
-func (k Keeper) GenerateClientIdentifier(ctx sdk.Context, clientType string) string {
+func (k Keeper) GenerateClientIdentifier(ctx sdk.Ctx, clientType string) string {
 	nextClientSeq := k.GetNextClientSequence(ctx)
 	clientID := types.FormatClientIdentifier(clientType, nextClientSeq)
 
@@ -65,7 +65,7 @@ func (k Keeper) GenerateClientIdentifier(ctx sdk.Context, clientType string) str
 }
 
 // GetClientState gets a particular client from the store
-func (k Keeper) GetClientState(ctx sdk.Context, clientID string) (exported.ClientState, bool) {
+func (k Keeper) GetClientState(ctx sdk.Ctx, clientID string) (exported.ClientState, bool) {
 	store := k.ClientStore(ctx, clientID)
 	bz, _ := store.Get(host.ClientStateKey())
 	if len(bz) == 0 {
@@ -77,13 +77,13 @@ func (k Keeper) GetClientState(ctx sdk.Context, clientID string) (exported.Clien
 }
 
 // SetClientState sets a particular Client to the store
-func (k Keeper) SetClientState(ctx sdk.Context, clientID string, clientState exported.ClientState) {
+func (k Keeper) SetClientState(ctx sdk.Ctx, clientID string, clientState exported.ClientState) {
 	store := k.ClientStore(ctx, clientID)
 	store.Set(host.ClientStateKey(), k.MustMarshalClientState(clientState))
 }
 
 // GetClientConsensusState gets the stored consensus state from a client at a given height.
-func (k Keeper) GetClientConsensusState(ctx sdk.Context, clientID string, height exported.Height) (exported.ConsensusState, bool) {
+func (k Keeper) GetClientConsensusState(ctx sdk.Ctx, clientID string, height exported.Height) (exported.ConsensusState, bool) {
 	store := k.ClientStore(ctx, clientID)
 	bz, _ := store.Get(host.ConsensusStateKey(height))
 	if len(bz) == 0 {
@@ -96,13 +96,13 @@ func (k Keeper) GetClientConsensusState(ctx sdk.Context, clientID string, height
 
 // SetClientConsensusState sets a ConsensusState to a particular client at the given
 // height
-func (k Keeper) SetClientConsensusState(ctx sdk.Context, clientID string, height exported.Height, consensusState exported.ConsensusState) {
+func (k Keeper) SetClientConsensusState(ctx sdk.Ctx, clientID string, height exported.Height, consensusState exported.ConsensusState) {
 	store := k.ClientStore(ctx, clientID)
 	store.Set(host.ConsensusStateKey(height), k.MustMarshalConsensusState(consensusState))
 }
 
 // GetNextClientSequence gets the next client sequence from the store.
-func (k Keeper) GetNextClientSequence(ctx sdk.Context) uint64 {
+func (k Keeper) GetNextClientSequence(ctx sdk.Ctx) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	bz, _ := store.Get([]byte(types.KeyNextClientSequence))
 	if len(bz) == 0 {
@@ -113,7 +113,7 @@ func (k Keeper) GetNextClientSequence(ctx sdk.Context) uint64 {
 }
 
 // SetNextClientSequence sets the next client sequence to the store.
-func (k Keeper) SetNextClientSequence(ctx sdk.Context, sequence uint64) {
+func (k Keeper) SetNextClientSequence(ctx sdk.Ctx, sequence uint64) {
 	store := ctx.KVStore(k.storeKey)
 	bz := sdk.Uint64ToBigEndian(sequence)
 	store.Set([]byte(types.KeyNextClientSequence), bz)
@@ -122,7 +122,7 @@ func (k Keeper) SetNextClientSequence(ctx sdk.Context, sequence uint64) {
 // IterateConsensusStates provides an iterator over all stored consensus states.
 // objects. For each State object, cb will be called. If the cb returns true,
 // the iterator will close and stop.
-func (k Keeper) IterateConsensusStates(ctx sdk.Context, cb func(clientID string, cs types.ConsensusStateWithHeight) bool) {
+func (k Keeper) IterateConsensusStates(ctx sdk.Ctx, cb func(clientID string, cs types.ConsensusStateWithHeight) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, host.KeyClientStorePrefix)
 
@@ -159,7 +159,7 @@ func (k Keeper) GetAllGenesisClients(ctx sdk.Context) types.IdentifiedClientStat
 // GetAllClientMetadata will take a list of IdentifiedClientState and return a list
 // of IdentifiedGenesisMetadata necessary for exporting and importing client metadata
 // into the client store.
-func (k Keeper) GetAllClientMetadata(ctx sdk.Context, genClients []types.IdentifiedClientState) ([]types.IdentifiedGenesisMetadata, error) {
+func (k Keeper) GetAllClientMetadata(ctx sdk.Ctx, genClients []types.IdentifiedClientState) ([]types.IdentifiedGenesisMetadata, error) {
 	genMetadata := make([]types.IdentifiedGenesisMetadata, 0)
 	for _, ic := range genClients {
 		cs, err := types.UnpackClientState(ic.ClientState)
@@ -188,7 +188,7 @@ func (k Keeper) GetAllClientMetadata(ctx sdk.Context, genClients []types.Identif
 }
 
 // SetAllClientMetadata takes a list of IdentifiedGenesisMetadata and stores all of the metadata in the client store at the appropriate paths.
-func (k Keeper) SetAllClientMetadata(ctx sdk.Context, genMetadata []types.IdentifiedGenesisMetadata) {
+func (k Keeper) SetAllClientMetadata(ctx sdk.Ctx, genMetadata []types.IdentifiedGenesisMetadata) {
 	for _, igm := range genMetadata {
 		// create client store
 		store := k.ClientStore(ctx, igm.ClientId)
@@ -226,7 +226,7 @@ func (k Keeper) GetAllConsensusStates(ctx sdk.Context) types.ClientsConsensusSta
 
 // HasClientConsensusState returns if keeper has a ConsensusState for a particular
 // client at the given height
-func (k Keeper) HasClientConsensusState(ctx sdk.Context, clientID string, height exported.Height) bool {
+func (k Keeper) HasClientConsensusState(ctx sdk.Ctx, clientID string, height exported.Height) bool {
 	store := k.ClientStore(ctx, clientID)
 	b, _ := store.Has(host.ConsensusStateKey(height))
 	return b
@@ -244,7 +244,7 @@ func (k Keeper) GetLatestClientConsensusState(ctx sdk.Context, clientID string) 
 // GetSelfConsensusState introspects the (self) past historical info at a given height
 // and returns the expected consensus state at that height.
 // For now, can only retrieve self consensus states for the current revision
-func (k Keeper) GetSelfConsensusState(ctx sdk.Context, height exported.Height) (exported.ConsensusState, error) {
+func (k Keeper) GetSelfConsensusState(ctx sdk.Ctx, height exported.Height) (exported.ConsensusState, error) {
 	selfHeight, ok := height.(types.Height)
 	if !ok {
 		return nil, errorsmod.Wrapf(ibcerrors.ErrInvalidType, "expected %T, got %T", types.Height{}, height)
@@ -270,7 +270,7 @@ func (k Keeper) GetSelfConsensusState(ctx sdk.Context, height exported.Height) (
 // ValidateSelfClient validates the client parameters for a client of the running chain
 // This function is only used to validate the client state the counterparty stores for this chain
 // Client must be in same revision as the executing chain
-func (k Keeper) ValidateSelfClient(ctx sdk.Context, clientState exported.ClientState) error {
+func (k Keeper) ValidateSelfClient(ctx sdk.Ctx, clientState exported.ClientState) error {
 	tmClient, ok := clientState.(*ibctm.ClientState)
 	if !ok {
 		return errorsmod.Wrapf(types.ErrInvalidClient, "client must be a Tendermint client, expected: %T, got: %T",
@@ -355,7 +355,7 @@ func (k Keeper) SetUpgradedConsensusState(ctx sdk.Context, planHeight int64, bz 
 // IterateClientStates provides an iterator over all stored light client State
 // objects. For each State object, cb will be called. If the cb returns true,
 // the iterator will close and stop.
-func (k Keeper) IterateClientStates(ctx sdk.Context, prefix []byte, cb func(clientID string, cs exported.ClientState) bool) {
+func (k Keeper) IterateClientStates(ctx sdk.Ctx, prefix []byte, cb func(clientID string, cs exported.ClientState) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, host.PrefixedClientStoreKey(prefix))
 
@@ -389,7 +389,7 @@ func (k Keeper) GetAllClients(ctx sdk.Context) []exported.ClientState {
 
 // ClientStore returns isolated prefix store for each client so they can read/write in separate
 // namespace without being able to read/write other client's data
-func (k Keeper) ClientStore(ctx sdk.Context, clientID string) sdk.KVStore {
+func (k Keeper) ClientStore(ctx sdk.Ctx, clientID string) sdk.KVStore {
 	clientPrefix := []byte(fmt.Sprintf("%s/%s/", host.KeyClientStorePrefix, clientID))
 	return prefix.NewStore(ctx.KVStore(k.storeKey), clientPrefix)
 }

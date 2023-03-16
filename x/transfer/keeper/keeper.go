@@ -2,7 +2,7 @@ package keeper
 
 import (
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
-	"github.com/cometbft/cometbft/libs/log"
+	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
@@ -62,8 +62,8 @@ func NewKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger1().With("module", "x/"+exported.ModuleName+"-"+types.ModuleName)
+func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
+	return ctx.Logger().With("module", "x/"+exported.ModuleName+"-"+types.ModuleName)
 }
 
 // IsBound checks if the transfer module is already bound to the desired port
@@ -93,7 +93,7 @@ func (k Keeper) SetPort(ctx sdk.Ctx, portID string) {
 }
 
 // GetDenomTrace retreives the full identifiers trace and base denomination from the store.
-func (k Keeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (types.DenomTrace, bool) {
+func (k Keeper) GetDenomTrace(ctx sdk.Ctx, denomTraceHash tmbytes.HexBytes) (types.DenomTrace, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DenomTraceKey)
 	bz, _ := store.Get(denomTraceHash)
 	if len(bz) == 0 {
@@ -105,7 +105,7 @@ func (k Keeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) 
 }
 
 // HasDenomTrace checks if a the key with the given denomination trace hash exists on the store.
-func (k Keeper) HasDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) bool {
+func (k Keeper) HasDenomTrace(ctx sdk.Ctx, denomTraceHash tmbytes.HexBytes) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DenomTraceKey)
 	h, _ := store.Has(denomTraceHash)
 	return h
@@ -146,7 +146,7 @@ func (k Keeper) IterateDenomTraces(ctx sdk.Ctx, cb func(denomTrace types.DenomTr
 }
 
 // AuthenticateCapability wraps the scopedKeeper's AuthenticateCapability function
-func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) bool {
+func (k Keeper) AuthenticateCapability(ctx sdk.Ctx, cap *capabilitytypes.Capability, name string) bool {
 	return k.scopedKeeper.AuthenticateCapability(ctx, cap, name)
 }
 

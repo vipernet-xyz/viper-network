@@ -52,11 +52,11 @@ type (
 		SetSignatures(signatures ...signingtypes.SignatureV2) error
 		SetMemo(memo string)
 		SetFeeAmount(amount sdk.Coins)
-		SetFeePayer(feePayer sdk.AccAddress)
+		SetFeePayer(feePayer sdk.Address)
 		SetGasLimit(limit uint64)
 		SetTip(tip *tx.Tip)
 		SetTimeoutHeight(height uint64)
-		SetFeeGranter(feeGranter sdk.AccAddress)
+		SetFeeGranter(feeGranter sdk.Address)
 		AddAuxSignerData(tx.AuxSignerData) error
 	}
 )

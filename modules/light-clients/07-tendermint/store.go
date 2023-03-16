@@ -334,7 +334,7 @@ func bigEndianHeightBytes(height exported.Height) []byte {
 // as this is internal tendermint light client logic.
 // client state and consensus state will be set by client keeper
 // set iteration key to provide ability for efficient ordered iteration of consensus states.
-func setConsensusMetadata(ctx sdk.Context, clientStore sdk.KVStore, height exported.Height) {
+func setConsensusMetadata(ctx sdk.Ctx, clientStore sdk.KVStore, height exported.Height) {
 	setConsensusMetadataWithValues(clientStore, height, clienttypes.GetSelfHeight(ctx), uint64(ctx.BlockTime().UnixNano()))
 }
 

@@ -150,8 +150,8 @@ func (tx *StdTx) AsAny() *codectypes.Any {
 // They are accumulated from the GetSigners method for each Msg
 // in the order they appear in tx.GetMsgs().
 // Duplicate addresses will be omitted.
-func (tx StdTx) GetSigners() []sdk.AccAddress {
-	var signers []sdk.AccAddress
+func (tx StdTx) GetSigners() []sdk.Address {
+	var signers []sdk.Address
 	seen := map[string]bool{}
 
 	for _, msg := range tx.GetMsgs() {
@@ -225,15 +225,15 @@ func (tx StdTx) GetFee() sdk.Coins { return tx.Fee.Amount }
 // FeePayer returns the address that is responsible for paying fee
 // StdTx returns the first signer as the fee payer
 // If no signers for tx, return empty address
-func (tx StdTx) FeePayer() sdk.AccAddress {
+func (tx StdTx) FeePayer() sdk.Address {
 	if tx.GetSigners() != nil {
 		return tx.GetSigners()[0]
 	}
-	return sdk.AccAddress{}
+	return sdk.Address{}
 }
 
 // FeeGranter always returns nil for StdTx
-func (tx StdTx) FeeGranter() sdk.AccAddress {
+func (tx StdTx) FeeGranter() sdk.Address {
 	return nil
 }
 

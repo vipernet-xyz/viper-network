@@ -153,7 +153,7 @@ func (k Keeper) ConnOpenTry(
 //
 // NOTE: Identifiers are checked on msg validation.
 func (k Keeper) ConnOpenAck(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	connectionID string,
 	clientState exported.ClientState, // client state for chainA on chainB
 	version *types.Version, // version that ChainB chose in ConnOpenTry

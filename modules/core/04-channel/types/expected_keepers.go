@@ -10,21 +10,21 @@ import (
 
 // ClientKeeper expected account IBC client keeper
 type ClientKeeper interface {
-	GetClientState(ctx sdk.Context, clientID string) (exported.ClientState, bool)
-	GetClientConsensusState(ctx sdk.Context, clientID string, height exported.Height) (exported.ConsensusState, bool)
-	ClientStore(ctx sdk.Context, clientID string) sdk.KVStore
+	GetClientState(ctx sdk.Ctx, clientID string) (exported.ClientState, bool)
+	GetClientConsensusState(ctx sdk.Ctx, clientID string, height exported.Height) (exported.ConsensusState, bool)
+	ClientStore(ctx sdk.Ctx, clientID string) sdk.KVStore
 }
 
 // ConnectionKeeper expected account IBC connection keeper
 type ConnectionKeeper interface {
-	GetConnection(ctx sdk.Context, connectionID string) (connectiontypes.ConnectionEnd, bool)
+	GetConnection(ctx sdk.Ctx, connectionID string) (connectiontypes.ConnectionEnd, bool)
 	GetTimestampAtHeight(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		connection connectiontypes.ConnectionEnd,
 		height exported.Height,
 	) (uint64, error)
 	VerifyChannelState(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		connection exported.ConnectionI,
 		height exported.Height,
 		proof []byte,
@@ -33,7 +33,7 @@ type ConnectionKeeper interface {
 		channel exported.ChannelI,
 	) error
 	VerifyPacketCommitment(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		connection exported.ConnectionI,
 		height exported.Height,
 		proof []byte,
@@ -43,7 +43,7 @@ type ConnectionKeeper interface {
 		commitmentBytes []byte,
 	) error
 	VerifyPacketAcknowledgement(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		connection exported.ConnectionI,
 		height exported.Height,
 		proof []byte,
@@ -53,7 +53,7 @@ type ConnectionKeeper interface {
 		acknowledgement []byte,
 	) error
 	VerifyPacketReceiptAbsence(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		connection exported.ConnectionI,
 		height exported.Height,
 		proof []byte,
@@ -62,7 +62,7 @@ type ConnectionKeeper interface {
 		sequence uint64,
 	) error
 	VerifyNextSequenceRecv(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		connection exported.ConnectionI,
 		height exported.Height,
 		proof []byte,
@@ -74,5 +74,5 @@ type ConnectionKeeper interface {
 
 // PortKeeper expected account IBC port keeper
 type PortKeeper interface {
-	Authenticate(ctx sdk.Context, key *capabilitytypes.Capability, portID string) bool
+	Authenticate(ctx sdk.Ctx, key *capabilitytypes.Capability, portID string) bool
 }

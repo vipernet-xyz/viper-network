@@ -41,7 +41,7 @@ func (cs ClientState) GetLatestHeight() exported.Height {
 
 // GetTimestampAtHeight returns the timestamp in nanoseconds of the consensus state at the given height.
 func (cs ClientState) GetTimestampAtHeight(
-	_ sdk.Context,
+	_ sdk.Ctx,
 	clientStore sdk.KVStore,
 	cdc codec.BinaryCodec,
 	height exported.Height,
@@ -53,7 +53,7 @@ func (cs ClientState) GetTimestampAtHeight(
 // The client may be:
 // - Active: if frozen sequence is 0
 // - Frozen: otherwise solo machine is frozen
-func (cs ClientState) Status(_ sdk.Context, _ sdk.KVStore, _ codec.BinaryCodec) exported.Status {
+func (cs ClientState) Status(_ sdk.Ctx, _ sdk.KVStore, _ codec.BinaryCodec) exported.Status {
 	if cs.IsFrozen {
 		return exported.Frozen
 	}
@@ -79,7 +79,7 @@ func (cs ClientState) ZeroCustomFields() exported.ClientState {
 
 // Initialize checks that the initial consensus state is equal to the latest consensus state of the initial client and
 // sets the client state in the provided client store.
-func (cs ClientState) Initialize(_ sdk.Context, cdc codec.BinaryCodec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
+func (cs ClientState) Initialize(_ sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
 	if !reflect.DeepEqual(cs.ConsensusState, consState) {
 		return errorsmod.Wrapf(clienttypes.ErrInvalidConsensus, "consensus state in initial client does not equal initial consensus state. expected: %s, got: %s",
 			cs.ConsensusState, consState)
@@ -97,7 +97,7 @@ func (cs ClientState) ExportMetadata(_ sdk.KVStore) []exported.GenesisMetadata {
 
 // VerifyUpgradeAndUpdateState returns an error since solomachine client does not support upgrades
 func (cs ClientState) VerifyUpgradeAndUpdateState(
-	_ sdk.Context, _ codec.BinaryCodec, _ sdk.KVStore,
+	_ sdk.Ctx, _ codec.BinaryCodec, _ sdk.KVStore,
 	_ exported.ClientState, _ exported.ConsensusState, _, _ []byte,
 ) error {
 	return errorsmod.Wrap(clienttypes.ErrInvalidUpgradeClient, "cannot upgrade solomachine client")
@@ -106,7 +106,7 @@ func (cs ClientState) VerifyUpgradeAndUpdateState(
 // VerifyMembership is a generic proof verification method which verifies a proof of the existence of a value at a given CommitmentPath at the latest sequence.
 // The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24).
 func (cs *ClientState) VerifyMembership(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
 	cdc codec.BinaryCodec,
 	_ exported.Height,
@@ -157,7 +157,7 @@ func (cs *ClientState) VerifyMembership(
 // VerifyNonMembership is a generic proof verification method which verifies the absence of a given CommitmentPath at the latest sequence.
 // The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24).
 func (cs *ClientState) VerifyNonMembership(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
 	cdc codec.BinaryCodec,
 	_ exported.Height,

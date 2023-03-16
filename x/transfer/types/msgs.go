@@ -71,10 +71,10 @@ func (msg MsgTransfer) GetSignBytes() []byte {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgTransfer) GetSigners() []sdk.AccAddress {
+func (msg MsgTransfer) GetSigners() []sdk.Address {
 	signer, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{signer}
+	return []sdk.Address{signer}
 }

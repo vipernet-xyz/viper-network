@@ -65,12 +65,12 @@ func (msg MsgConnectionOpenInit) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgConnectionOpenInit) GetSigners() []sdk.AccAddress {
+func (msg MsgConnectionOpenInit) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }
 
 // NewMsgConnectionOpenTry creates a new MsgConnectionOpenTry instance
@@ -156,12 +156,12 @@ func (msg MsgConnectionOpenTry) UnpackInterfaces(unpacker codectypes.AnyUnpacker
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgConnectionOpenTry) GetSigners() []sdk.AccAddress {
+func (msg MsgConnectionOpenTry) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }
 
 // NewMsgConnectionOpenAck creates a new MsgConnectionOpenAck instance
@@ -235,12 +235,12 @@ func (msg MsgConnectionOpenAck) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgConnectionOpenAck) GetSigners() []sdk.AccAddress {
+func (msg MsgConnectionOpenAck) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }
 
 // NewMsgConnectionOpenConfirm creates a new MsgConnectionOpenConfirm instance
@@ -274,10 +274,10 @@ func (msg MsgConnectionOpenConfirm) ValidateBasic() error {
 }
 
 // GetSigners implements sdk.Msg
-func (msg MsgConnectionOpenConfirm) GetSigners() []sdk.AccAddress {
+func (msg MsgConnectionOpenConfirm) GetSigners() []sdk.Address {
 	accAddr, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
-	return []sdk.AccAddress{accAddr}
+	return []sdk.Address{accAddr}
 }

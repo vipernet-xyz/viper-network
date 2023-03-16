@@ -56,17 +56,17 @@ func (ctx Context) QueryABCI(req abci.RequestQuery) (abci.ResponseQuery, error) 
 }
 
 // GetFromAddress returns the from address from the context's name.
-func (ctx Context) GetFromAddress() sdk.AccAddress {
+func (ctx Context) GetFromAddress() sdk.Address {
 	return ctx.FromAddress
 }
 
 // GetFeePayerAddress returns the fee granter address from the context
-func (ctx Context) GetFeePayerAddress() sdk.AccAddress {
+func (ctx Context) GetFeePayerAddress() sdk.Address {
 	return ctx.FeePayer
 }
 
 // GetFeeGranterAddress returns the fee granter address from the context
-func (ctx Context) GetFeeGranterAddress() sdk.AccAddress {
+func (ctx Context) GetFeeGranterAddress() sdk.Address {
 	return ctx.FeeGranter
 }
 

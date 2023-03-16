@@ -34,7 +34,7 @@ func NewIBCModule(k keeper.Keeper) IBCModule {
 // channel must be UNORDERED, use the correct port (by default 'transfer'), and use the current
 // supported version. Only 2^32 channels are allowed to be created.
 func ValidateTransferChannelParams(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	keeper keeper.Keeper,
 	order channeltypes.Order,
 	portID string,
@@ -64,7 +64,7 @@ func ValidateTransferChannelParams(
 
 // OnChanOpenInit implements the IBCModule interface
 func (im IBCModule) OnChanOpenInit(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID string,
@@ -166,9 +166,9 @@ func (im IBCModule) OnChanCloseConfirm(
 // is returned if the packet data is successfully decoded and the receive application
 // logic returns without error.
 func (im IBCModule) OnRecvPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	packet channeltypes.Packet,
-	relayer sdk.AccAddress,
+	relayer sdk.Address,
 ) ibcexported.Acknowledgement {
 	logger := im.keeper.Logger(ctx)
 	ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
@@ -221,10 +221,10 @@ func (im IBCModule) OnRecvPacket(
 
 // OnAcknowledgementPacket implements the IBCModule interface
 func (im IBCModule) OnAcknowledgementPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
-	relayer sdk.AccAddress,
+	relayer sdk.Address,
 ) error {
 	var ack channeltypes.Acknowledgement
 	if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
@@ -274,9 +274,9 @@ func (im IBCModule) OnAcknowledgementPacket(
 
 // OnTimeoutPacket implements the IBCModule interface
 func (im IBCModule) OnTimeoutPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	packet channeltypes.Packet,
-	relayer sdk.AccAddress,
+	relayer sdk.Address,
 ) error {
 	var data types.FungibleTokenPacketData
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {

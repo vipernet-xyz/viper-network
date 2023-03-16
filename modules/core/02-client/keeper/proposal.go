@@ -17,7 +17,7 @@ import (
 // subtitute (enusring they match the subject's parameters) as well as copying
 // the necessary consensus states from the subtitute to the subject client
 // store. The substitute must be Active and the subject must not be Active.
-func (k Keeper) ClientUpdateProposal(ctx sdk.Context, p *types.ClientUpdateProposal) error {
+func (k Keeper) ClientUpdateProposal(ctx sdk.Ctx, p *types.ClientUpdateProposal) error {
 	subjectClientState, found := k.GetClientState(ctx, p.SubjectClientId)
 	if !found {
 		return errorsmod.Wrapf(types.ErrClientNotFound, "subject client with ID %s", p.SubjectClientId)

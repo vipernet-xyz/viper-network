@@ -10,8 +10,8 @@ import (
 
 // StakingKeeper expected staking keeper
 type StakingKeeper interface {
-	GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool)
-	UnbondingTime(ctx sdk.Context) time.Duration
+	GetHistoricalInfo(ctx sdk.Ctx, height int64) (stakingtypes.HistoricalInfo, bool)
+	UnbondingTime(ctx sdk.Ctx) time.Duration
 }
 
 // UpgradeKeeper expected upgrade keeper

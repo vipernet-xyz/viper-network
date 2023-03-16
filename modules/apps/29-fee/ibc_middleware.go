@@ -4,15 +4,15 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	porttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/keeper"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 var _ porttypes.Middleware = &IBCMiddleware{}
@@ -34,7 +34,7 @@ func NewIBCMiddleware(app porttypes.IBCModule, k keeper.Keeper) IBCMiddleware {
 
 // OnChanOpenInit implements the IBCMiddleware interface
 func (im IBCMiddleware) OnChanOpenInit(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID string,
@@ -215,9 +215,9 @@ func (im IBCMiddleware) OnChanCloseConfirm(
 // OnRecvPacket implements the IBCMiddleware interface.
 // If fees are not enabled, this callback will default to the ibc-core packet callback
 func (im IBCMiddleware) OnRecvPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	packet channeltypes.Packet,
-	relayer sdk.AccAddress,
+	relayer sdk.Address,
 ) exported.Acknowledgement {
 	if !im.keeper.IsFeeEnabled(ctx, packet.DestinationPort, packet.DestinationChannel) {
 		return im.app.OnRecvPacket(ctx, packet, relayer)
@@ -240,10 +240,10 @@ func (im IBCMiddleware) OnRecvPacket(
 // OnAcknowledgementPacket implements the IBCMiddleware interface
 // If fees are not enabled, this callback will default to the ibc-core packet callback
 func (im IBCMiddleware) OnAcknowledgementPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
-	relayer sdk.AccAddress,
+	relayer sdk.Address,
 ) error {
 	if !im.keeper.IsFeeEnabled(ctx, packet.SourcePort, packet.SourceChannel) {
 		return im.app.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
@@ -292,9 +292,9 @@ func (im IBCMiddleware) OnAcknowledgementPacket(
 // OnTimeoutPacket implements the IBCMiddleware interface
 // If fees are not enabled, this callback will default to the ibc-core packet callback
 func (im IBCMiddleware) OnTimeoutPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	packet channeltypes.Packet,
-	relayer sdk.AccAddress,
+	relayer sdk.Address,
 ) error {
 	// if the fee keeper is locked then fee logic should be skipped
 	// this may occur in the presence of a severe bug which leads to invalid state
@@ -330,7 +330,7 @@ func (im IBCMiddleware) OnTimeoutPacket(
 
 // SendPacket implements the ICS4 Wrapper interface
 func (im IBCMiddleware) SendPacket(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	chanCap *capabilitytypes.Capability,
 	sourcePort string,
 	sourceChannel string,
@@ -343,7 +343,7 @@ func (im IBCMiddleware) SendPacket(
 
 // WriteAcknowledgement implements the ICS4 Wrapper interface
 func (im IBCMiddleware) WriteAcknowledgement(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	chanCap *capabilitytypes.Capability,
 	packet exported.PacketI,
 	ack exported.Acknowledgement,
@@ -352,6 +352,6 @@ func (im IBCMiddleware) WriteAcknowledgement(
 }
 
 // GetAppVersion returns the application version of the underlying application
-func (im IBCMiddleware) GetAppVersion(ctx sdk.Context, portID, channelID string) (string, bool) {
+func (im IBCMiddleware) GetAppVersion(ctx sdk.Ctx, portID, channelID string) (string, bool) {
 	return im.keeper.GetAppVersion(ctx, portID, channelID)
 }
