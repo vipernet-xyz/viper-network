@@ -37,8 +37,8 @@ type Factory struct {
 	memo               string
 	fees               sdk.Coins
 	tip                *tx.Tip
-	feeGranter         sdk.AccAddress
-	feePayer           sdk.AccAddress
+	feeGranter         sdk.Address
+	feePayer           sdk.Address
 	gasPrices          sdk.DecCoins
 	signMode           signing.SignMode
 	simulateAndExecute bool
@@ -246,13 +246,13 @@ func (f Factory) WithTimeoutHeight(height uint64) Factory {
 }
 
 // WithFeeGranter returns a copy of the Factory with an updated fee granter.
-func (f Factory) WithFeeGranter(fg sdk.AccAddress) Factory {
+func (f Factory) WithFeeGranter(fg sdk.Address) Factory {
 	f.feeGranter = fg
 	return f
 }
 
 // WithFeePayer returns a copy of the Factory with an updated fee granter.
-func (f Factory) WithFeePayer(fp sdk.AccAddress) Factory {
+func (f Factory) WithFeePayer(fp sdk.Address) Factory {
 	f.feePayer = fp
 	return f
 }
@@ -362,7 +362,7 @@ func (f Factory) PrintUnsignedTx(clientCtx client.Context, msgs ...sdk.Msg1) err
 		return err
 	}
 
-	json, err := clientCtx.TxConfig.TxJSONEncoder()(unsignedTx.GetTx(), 0)
+	json, err := clientCtx.TxConfig.TxJSONEncoder()(unsignedTx.GetTx())
 	if err != nil {
 		return err
 	}
@@ -397,7 +397,7 @@ func (f Factory) BuildSimTx(msgs ...sdk.Msg1) ([]byte, error) {
 		return nil, err
 	}
 
-	return f.txConfig.TxEncoder()(txb.GetTx(), 0)
+	return f.txConfig.TxEncoder()(txb.GetTx())
 }
 
 // getSimPK gets the public key to use for building a simulation tx.

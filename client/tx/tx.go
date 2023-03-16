@@ -95,7 +95,7 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg1) error 
 	}
 
 	if !clientCtx.SkipConfirm {
-		txBytes, err := clientCtx.TxConfig.TxJSONEncoder()(tx.GetTx(), 0)
+		txBytes, err := clientCtx.TxConfig.TxJSONEncoder()(tx.GetTx())
 		if err != nil {
 			return err
 		}
@@ -122,7 +122,7 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg1) error 
 		return err
 	}
 
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(tx.GetTx(), 0)
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(tx.GetTx())
 	if err != nil {
 		return err
 	}
