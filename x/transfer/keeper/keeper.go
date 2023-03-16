@@ -10,6 +10,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
+	abci "github.com/tendermint/tendermint/abci/types"
 	porttypes "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
 	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 	"github.com/vipernet-xyz/viper-network/x/transfer/exported"
@@ -166,4 +167,12 @@ func (k Keeper) ConvertState(ctx sdk.Ctx) {
 	params := k.GetParams(ctx)
 	k.SetParams(ctx, params)
 	k.cdc.DisableUpgradeOverride()
+}
+
+// creates a querier for staking REST endpoints
+func NewQuerier(k Keeper) sdk.Querier {
+	return func(ctx sdk.Ctx, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+
+		return nil, sdk.ErrUnknownRequest("unknown governance query endpoint")
+	}
 }

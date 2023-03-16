@@ -5,10 +5,10 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 	"github.com/vipernet-xyz/viper-network/types/tx"
 	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 	authsigning "github.com/vipernet-xyz/viper-network/x/authentication/signing"
@@ -26,7 +26,7 @@ type StdTxBuilder struct {
 var _ client.TxBuilder = &StdTxBuilder{}
 
 // GetTx implements TxBuilder.GetTx
-func (s *StdTxBuilder) GetTx() authsigning.Tx {
+func (s *StdTxBuilder) GetTx() authsigning.Tx1 {
 	return s.StdTx
 }
 

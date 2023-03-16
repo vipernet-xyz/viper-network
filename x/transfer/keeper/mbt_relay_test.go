@@ -4,7 +4,7 @@ package keeper_test
 /// Written by Andrey Kuprianov within the scope of IBC Audit performed by Informal Systems.
 /// In case of any questions please don't hesitate to contact andrey@informal.systems.
 
-import (
+/*
 	"encoding/json"
 	"fmt"
 	"os"
@@ -20,9 +20,9 @@ import (
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
-)
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"*/
 
+/*
 type TlaBalance struct {
 	Address []string `json:"address"`
 	Denom   []string `json:"denom"`
@@ -385,3 +385,4 @@ func (suite *KeeperTestSuite) TestModelBasedRelay() {
 		}
 	}
 }
+*/

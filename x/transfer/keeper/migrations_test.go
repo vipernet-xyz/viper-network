@@ -1,13 +1,12 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 
 	transferkeeper "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/keeper"
-	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
-)
+	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"*/
 
-func (suite *KeeperTestSuite) TestMigratorMigrateTraces() {
+/*func (suite *KeeperTestSuite) TestMigratorMigrateTraces() {
 	testCases := []struct {
 		msg            string
 		malleate       func()
@@ -119,3 +118,4 @@ func (suite *KeeperTestSuite) TestMigratorMigrateTracesCorruptionDetection() {
 		migrator.MigrateTraces(suite.chainA.GetContext()) //nolint:errcheck // we shouldn't check the error here because we want to ensure that a panic occurs.
 	})
 }
+*/

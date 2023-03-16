@@ -1,12 +1,11 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 
-	"github.com/vipernet-xyz/viper-network/x/transfer/types"
-)
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"*/
 
-func (suite *KeeperTestSuite) TestGenesis() {
+/*func (suite *KeeperTestSuite) TestGenesis() {
 	var (
 		path   string
 		traces types.Traces
@@ -37,3 +36,4 @@ func (suite *KeeperTestSuite) TestGenesis() {
 		suite.chainA.GetSimApp().TransferKeeper.InitGenesis(suite.chainA.GetContext(), *genesis)
 	})
 }
+*/

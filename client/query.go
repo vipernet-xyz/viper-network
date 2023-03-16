@@ -1,13 +1,12 @@
 package client
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
 	"github.com/cockroachdb/errors"
-	abci "github.com/cometbft/cometbft/abci/types"
-	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	abci "github.com/tendermint/tendermint/abci/types"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -19,7 +18,7 @@ import (
 
 // GetNode returns an RPC client. If the context's client is not defined, an
 // error is returned.
-func (ctx Context) GetNode() (CometRPC, error) {
+func (ctx Context) GetNode() (TendermintRPC, error) {
 	if ctx.Client == nil {
 		return nil, errors.New("no RPC client is defined in offline mode")
 	}
@@ -95,7 +94,7 @@ func (ctx Context) queryABCI(req abci.RequestQuery) (abci.ResponseQuery, error) 
 		Prove:  req.Prove,
 	}
 
-	result, err := node.ABCIQueryWithOptions(context.Background(), req.Path, req.Data, opts)
+	result, err := node.ABCIQueryWithOptions(req.Path, req.Data, opts)
 	if err != nil {
 		return abci.ResponseQuery{}, err
 	}

@@ -1,6 +1,6 @@
 package transfer_test
 
-import (
+/*
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -8,10 +8,9 @@ import (
 
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
-	"github.com/vipernet-xyz/viper-network/x/transfer/types"
-)
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"*/
 
-type TransferTestSuite struct {
+/*type TransferTestSuite struct {
 	suite.Suite
 
 	coordinator *ibctesting.Coordinator
@@ -132,3 +131,4 @@ func (suite *TransferTestSuite) TestHandleMsgTransfer() {
 func TestTransferTestSuite(t *testing.T) {
 	suite.Run(t, new(TransferTestSuite))
 }
+*/

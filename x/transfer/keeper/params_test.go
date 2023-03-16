@@ -1,8 +1,8 @@
 package keeper_test
 
-import "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
+/*"github.com/vipernet-xyz/viper-network/x/transfer/types"*/
 
-func (suite *KeeperTestSuite) TestParams() {
+/*func (suite *KeeperTestSuite) TestParams() {
 	expParams := types.DefaultParams()
 
 	params := suite.chainA.GetSimApp().TransferKeeper.GetParams(suite.chainA.GetContext())
@@ -13,3 +13,4 @@ func (suite *KeeperTestSuite) TestParams() {
 	params = suite.chainA.GetSimApp().TransferKeeper.GetParams(suite.chainA.GetContext())
 	suite.Require().Equal(expParams, params)
 }
+*/

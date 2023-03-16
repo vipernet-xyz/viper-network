@@ -168,7 +168,7 @@ func (im IBCModule) OnChanCloseConfirm(
 func (im IBCModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
-	relayer sdk.Addresses,
+	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
 	logger := im.keeper.Logger(ctx)
 	ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
@@ -224,7 +224,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
-	relayer sdk.Addresses,
+	relayer sdk.AccAddress,
 ) error {
 	var ack channeltypes.Acknowledgement
 	if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
@@ -276,7 +276,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 func (im IBCModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
-	relayer sdk.Addresses,
+	relayer sdk.AccAddress,
 ) error {
 	var data types.FungibleTokenPacketData
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {

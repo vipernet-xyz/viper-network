@@ -1,16 +1,15 @@
 package client
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	"github.com/cometbft/cometbft/mempool"
-	"github.com/cometbft/cometbft/rpc/client/mock"
-	coretypes "github.com/cometbft/cometbft/rpc/core/types"
-	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/tendermint/tendermint/mempool"
+	"github.com/tendermint/tendermint/rpc/client/mock"
+	coretypes "github.com/tendermint/tendermint/rpc/core/types"
+	cmttypes "github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -21,11 +20,11 @@ type MockClient struct {
 	err error
 }
 
-func (c MockClient) BroadcastTxAsync(ctx context.Context, tx cmttypes.Tx) (*coretypes.ResultBroadcastTx, error) {
+func (c MockClient) BroadcastTxAsync(tx cmttypes.Tx) (*coretypes.ResultBroadcastTx, error) {
 	return nil, c.err
 }
 
-func (c MockClient) BroadcastTxSync(ctx context.Context, tx cmttypes.Tx) (*coretypes.ResultBroadcastTx, error) {
+func (c MockClient) BroadcastTxSync(tx cmttypes.Tx) (*coretypes.ResultBroadcastTx, error) {
 	return nil, c.err
 }
 

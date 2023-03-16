@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cometbft/cometbft/mempool"
-	cmttypes "github.com/cometbft/cometbft/types"
+	"github.com/tendermint/tendermint/mempool"
+	cmttypes "github.com/tendermint/tendermint/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/tx"
+	"github.com/vipernet-xyz/viper-network/client/flags"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/tx"
 )
 
 // BroadcastTx broadcasts a transactions either synchronously or asynchronously
@@ -91,7 +91,7 @@ func (ctx Context) BroadcastTxSync(txBytes []byte) (*sdk.TxResponse, error) {
 		return nil, err
 	}
 
-	res, err := node.BroadcastTxSync(context.Background(), txBytes)
+	res, err := node.BroadcastTxSync(txBytes)
 	if errRes := CheckCometError(err, txBytes); errRes != nil {
 		return errRes, nil
 	}
@@ -107,7 +107,7 @@ func (ctx Context) BroadcastTxAsync(txBytes []byte) (*sdk.TxResponse, error) {
 		return nil, err
 	}
 
-	res, err := node.BroadcastTxAsync(context.Background(), txBytes)
+	res, err := node.BroadcastTxAsync(txBytes)
 	if errRes := CheckCometError(err, txBytes); errRes != nil {
 		return errRes, nil
 	}

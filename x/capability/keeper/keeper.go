@@ -110,7 +110,7 @@ func (k *Keeper) IsSealed() bool {
 // InitMemStore must be called every time the app starts before the keeper is used (so
 // `BeginBlock` or `InitChain` - whichever is first). We need access to the store so we
 // can't initialize it in a constructor.
-func (k *Keeper) InitMemStore(ctx sdk.Context) {
+func (k *Keeper) InitMemStore(ctx sdk.Ctx) {
 	memStore := ctx.KVStore(k.memKey)
 	memStoreType := memStore.GetStoreType()
 

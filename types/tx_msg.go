@@ -96,6 +96,9 @@ type Tx interface {
 // TxDecoder unmarshals transaction bytes
 type TxDecoder func(txBytes []byte, blockHeight int64) (Tx, Error)
 
+// TxDecoder unmarshals transaction bytes
+type TxDecoder1 func(txBytes []byte, blockHeight int64) (Tx1, Error)
+
 // TxEncoder marshals transaction to bytes
 type TxEncoder func(tx Tx, blockHeight int64) ([]byte, error)
 

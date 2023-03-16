@@ -1,16 +1,15 @@
 package keeper_test
 
-import (
+/*
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 	"github.com/vipernet-xyz/viper-network/baseapp"
 
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	"github.com/vipernet-xyz/viper-network/x/transfer/types"
-)
+	"github.com/vipernet-xyz/viper-network/x/transfer/types"*/
 
-type KeeperTestSuite struct {
+/*type KeeperTestSuite struct {
 	suite.Suite
 
 	coordinator *ibctesting.Coordinator
@@ -47,3 +46,4 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
+*/

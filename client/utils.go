@@ -3,8 +3,8 @@ package client
 import (
 	"encoding/base64"
 
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/spf13/pflag"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	errorsmod "cosmossdk.io/errors"
 
