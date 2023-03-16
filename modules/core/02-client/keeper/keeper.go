@@ -7,12 +7,12 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/light"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"

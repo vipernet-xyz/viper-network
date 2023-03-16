@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"reflect"
 
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	capabilitykeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
 
 	clientkeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
