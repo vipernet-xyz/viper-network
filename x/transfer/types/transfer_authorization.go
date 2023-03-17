@@ -2,9 +2,9 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	sdk1 "github.com/vipernet-xyz/viper-network/types"
+	auth "github.com/vipernet-xyz/viper-network/x/authentication"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
@@ -13,7 +13,7 @@ import (
 
 const gasCostPerIteration = uint64(10)
 
-var _ authz.Authorization = &TransferAuthorization{}
+var _ auth.Authorization = &TransferAuthorization{}
 
 // NewTransferAuthorization creates a new TransferAuthorization object.
 func NewTransferAuthorization(allocations ...Allocation) *TransferAuthorization {
@@ -28,29 +28,29 @@ func (a TransferAuthorization) MsgTypeURL() string {
 }
 
 // Accept implements Authorization.Accept.
-func (a TransferAuthorization) Accept(ctx sdk.Context, msg sdk.Msg1) (authz.AcceptResponse, error) {
+func (a TransferAuthorization) Accept(ctx sdk.Ctx, msg sdk.Msg1) (auth.AcceptResponse, error) {
 	msgTransfer, ok := msg.(*MsgTransfer)
 	if !ok {
-		return authz.AcceptResponse{}, errorsmod.Wrap(ibcerrors.ErrInvalidType, "type mismatch")
+		return auth.AcceptResponse{}, errorsmod.Wrap(ibcerrors.ErrInvalidType, "type mismatch")
 	}
 
 	for index, allocation := range a.Allocations {
 		if allocation.SourceChannel == msgTransfer.SourceChannel && allocation.SourcePort == msgTransfer.SourcePort {
 			limitLeft, isNegative := allocation.SpendLimit.SafeSub1(msgTransfer.Token)
 			if isNegative {
-				return authz.AcceptResponse{}, errorsmod.Wrapf(ibcerrors.ErrInsufficientFunds, "requested amount is more than spend limit")
+				return auth.AcceptResponse{}, errorsmod.Wrapf(ibcerrors.ErrInsufficientFunds, "requested amount is more than spend limit")
 			}
 
 			if !isAllowedAddress(ctx, msgTransfer.Receiver, allocation.AllowList) {
-				return authz.AcceptResponse{}, errorsmod.Wrap(ibcerrors.ErrInvalidAddress, "not allowed address for transfer")
+				return auth.AcceptResponse{}, errorsmod.Wrap(ibcerrors.ErrInvalidAddress, "not allowed address for transfer")
 			}
 
 			if limitLeft.IsZero() {
 				a.Allocations = append(a.Allocations[:index], a.Allocations[index+1:]...)
 				if len(a.Allocations) == 0 {
-					return authz.AcceptResponse{Accept: true, Delete: true}, nil
+					return auth.AcceptResponse{Accept: true, Delete: true}, nil
 				}
-				return authz.AcceptResponse{Accept: true, Delete: false, Updated: &TransferAuthorization{
+				return auth.AcceptResponse{Accept: true, Delete: false, Updated: &TransferAuthorization{
 					Allocations: a.Allocations,
 				}}, nil
 			}
@@ -61,12 +61,12 @@ func (a TransferAuthorization) Accept(ctx sdk.Context, msg sdk.Msg1) (authz.Acce
 				AllowList:     allocation.AllowList,
 			}
 
-			return authz.AcceptResponse{Accept: true, Delete: false, Updated: &TransferAuthorization{
+			return auth.AcceptResponse{Accept: true, Delete: false, Updated: &TransferAuthorization{
 				Allocations: a.Allocations,
 			}}, nil
 		}
 	}
-	return authz.AcceptResponse{}, errorsmod.Wrapf(ibcerrors.ErrNotFound, "requested port and channel allocation does not exist")
+	return auth.AcceptResponse{}, errorsmod.Wrapf(ibcerrors.ErrNotFound, "requested port and channel allocation does not exist")
 }
 
 // ValidateBasic implements Authorization.ValidateBasic.
@@ -114,7 +114,7 @@ func (a TransferAuthorization) ValidateBasic() error {
 
 // isAllowedAddress returns a boolean indicating if the receiver address is valid for transfer.
 // gasCostPerIteration gas is consumed for each iteration.
-func isAllowedAddress(ctx sdk.Context, receiver string, allowedAddrs []string) bool {
+func isAllowedAddress(ctx sdk.Ctx, receiver string, allowedAddrs []string) bool {
 	if len(allowedAddrs) == 0 {
 		return true
 	}
