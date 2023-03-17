@@ -66,6 +66,7 @@ type (
 	StoreKey          = types.StoreKey
 	KVStoreKey        = types.KVStoreKey
 	TransientStoreKey = types.TransientStoreKey
+	MemoryStoreKey    = types.MemoryStoreKey
 )
 
 // NewKVStoreKey returns a new pointer to a KVStoreKey.

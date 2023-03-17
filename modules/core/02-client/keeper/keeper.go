@@ -146,7 +146,7 @@ func (k Keeper) IterateConsensusStates(ctx sdk.Ctx, cb func(clientID string, cs 
 }
 
 // GetAllGenesisClients returns all the clients in state with their client ids returned as IdentifiedClientState
-func (k Keeper) GetAllGenesisClients(ctx sdk.Context) types.IdentifiedClientStates {
+func (k Keeper) GetAllGenesisClients(ctx sdk.Ctx) types.IdentifiedClientStates {
 	var genClients types.IdentifiedClientStates
 	k.IterateClientStates(ctx, nil, func(clientID string, cs exported.ClientState) bool {
 		genClients = append(genClients, types.NewIdentifiedClientState(clientID, cs))
@@ -200,7 +200,7 @@ func (k Keeper) SetAllClientMetadata(ctx sdk.Ctx, genMetadata []types.Identified
 }
 
 // GetAllConsensusStates returns all stored client consensus states.
-func (k Keeper) GetAllConsensusStates(ctx sdk.Context) types.ClientsConsensusStates {
+func (k Keeper) GetAllConsensusStates(ctx sdk.Ctx) types.ClientsConsensusStates {
 	clientConsStates := make(types.ClientsConsensusStates, 0)
 	mapClientIDToConsStateIdx := make(map[string]int)
 
@@ -333,12 +333,12 @@ func (k Keeper) ValidateSelfClient(ctx sdk.Ctx, clientState exported.ClientState
 }
 
 // GetUpgradePlan executes the upgrade keeper GetUpgradePlan function.
-func (k Keeper) GetUpgradePlan(ctx sdk.Context) (plan upgradetypes.Plan, havePlan bool) {
+func (k Keeper) GetUpgradePlan(ctx sdk.Ctx) (plan upgradetypes.Plan, havePlan bool) {
 	return k.upgradeKeeper.GetUpgradePlan(ctx)
 }
 
 // GetUpgradedClient executes the upgrade keeper GetUpgradeClient function.
-func (k Keeper) GetUpgradedClient(ctx sdk.Context, planHeight int64) ([]byte, bool) {
+func (k Keeper) GetUpgradedClient(ctx sdk.Ctx, planHeight int64) ([]byte, bool) {
 	return k.upgradeKeeper.GetUpgradedClient(ctx, planHeight)
 }
 
@@ -348,7 +348,7 @@ func (k Keeper) GetUpgradedConsensusState(ctx sdk.Context, planHeight int64) ([]
 }
 
 // SetUpgradedConsensusState executes the upgrade keeper SetUpgradedConsensusState function.
-func (k Keeper) SetUpgradedConsensusState(ctx sdk.Context, planHeight int64, bz []byte) error {
+func (k Keeper) SetUpgradedConsensusState(ctx sdk.Ctx, planHeight int64, bz []byte) error {
 	return k.upgradeKeeper.SetUpgradedConsensusState(ctx, planHeight, bz)
 }
 

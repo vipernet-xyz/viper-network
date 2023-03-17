@@ -1,15 +1,15 @@
 package connection
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/keeper"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
 )
 
 // InitGenesis initializes the ibc connection submodule's state from a provided genesis
 // state.
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, gs types.GenesisState) {
+func InitGenesis(ctx sdk.Ctx, k keeper.Keeper, gs types.GenesisState) {
 	for _, connection := range gs.Connections {
 		conn := types.NewConnectionEnd(connection.State, connection.ClientId, connection.Counterparty, connection.Versions, connection.DelayPeriod)
 		k.SetConnection(ctx, connection.Id, conn)
@@ -22,7 +22,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, gs types.GenesisState) {
 }
 
 // ExportGenesis returns the ibc connection submodule's exported genesis.
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper) types.GenesisState {
+func ExportGenesis(ctx sdk.Ctx, k keeper.Keeper) types.GenesisState {
 	return types.GenesisState{
 		Connections:            k.GetAllConnections(ctx),
 		ClientConnectionPaths:  k.GetAllClientConnectionPaths(ctx),

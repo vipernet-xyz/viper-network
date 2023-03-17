@@ -14,7 +14,7 @@ func (k Keeper) GetMaxExpectedTimePerBlock(ctx sdk.Ctx) uint64 {
 }
 
 // GetParams returns the total set of ibc-connection parameters.
-func (k Keeper) GetParams(ctx sdk.Context) types.Params {
+func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.NewParams(k.GetMaxExpectedTimePerBlock(ctx))
 }
 

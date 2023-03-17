@@ -1,9 +1,9 @@
 package tendermint
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // RegisterInterfaces registers the tendermint concrete client-related

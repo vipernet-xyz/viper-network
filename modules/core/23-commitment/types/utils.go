@@ -2,12 +2,12 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	crypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
 	ics23 "github.com/cosmos/ics23/go"
+	merkle "github.com/tendermint/tendermint/crypto/merkle"
 )
 
 // ConvertProofs converts crypto.ProofOps into MerkleProof
-func ConvertProofs(tmProof *crypto.ProofOps) (MerkleProof, error) {
+func ConvertProofs(tmProof *merkle.Proof) (MerkleProof, error) {
 	if tmProof == nil {
 		return MerkleProof{}, errorsmod.Wrapf(ErrInvalidMerkleProof, "tendermint proof is nil")
 	}

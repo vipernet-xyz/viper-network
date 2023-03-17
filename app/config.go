@@ -34,10 +34,13 @@ import (
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	kb "github.com/vipernet-xyz/viper-network/crypto/keys"
+	ibc "github.com/vipernet-xyz/viper-network/modules/core"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
 	"github.com/vipernet-xyz/viper-network/store"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/capability"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
@@ -724,12 +727,15 @@ func MakeCodec() {
 	cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	// register all of the app module types
 	module.NewBasicManager(
+		capability.AppModuleBasic{},
 		providers.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
+		ibc.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		viper.AppModuleBasic{},
+		ibctm.AppModuleBasic{},
 	).RegisterCodec(cdc)
 	// register the sdk types
 	sdk.RegisterCodec(cdc)

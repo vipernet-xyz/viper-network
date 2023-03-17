@@ -4,7 +4,7 @@ import (
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
-	tmtypes "github.com/cometbft/cometbft/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/codec"
 
@@ -119,13 +119,13 @@ func QueryConsensusStateABCI(
 
 // QueryTendermintHeader takes a client context and returns the appropriate
 // tendermint header
-func QueryTendermintHeader(clientCtx client.Context) (ibctm.Header, int64, error) {
+/*func QueryTendermintHeader(clientCtx client.Context) (ibctm.Header, int64, error) {
 	node, err := clientCtx.GetNode()
 	if err != nil {
 		return ibctm.Header{}, 0, err
 	}
 
-	info, err := node.ABCIInfo(context.Background())
+	info, err := node.ABCIInfo()
 	if err != nil {
 		return ibctm.Header{}, 0, err
 	}
@@ -137,7 +137,7 @@ func QueryTendermintHeader(clientCtx client.Context) (ibctm.Header, int64, error
 		height = info.Response.LastBlockHeight
 	}
 
-	commit, err := node.Commit(context.Background(), &height)
+	commit, err := node.Commit(&height)
 	if err != nil {
 		return ibctm.Header{}, 0, err
 	}
@@ -145,7 +145,7 @@ func QueryTendermintHeader(clientCtx client.Context) (ibctm.Header, int64, error
 	page := 1
 	count := 10_000
 
-	validators, err := node.Validators(context.Background(), &height, &page, &count)
+	validators, err := node.Validators(&height, page, count)
 	if err != nil {
 		return ibctm.Header{}, 0, err
 	}
@@ -162,7 +162,7 @@ func QueryTendermintHeader(clientCtx client.Context) (ibctm.Header, int64, error
 	}
 
 	return header, height, nil
-}
+}*/
 
 // QuerySelfConsensusState takes a client context and returns the appropriate
 // tendermint consensus state
@@ -172,7 +172,7 @@ func QuerySelfConsensusState(clientCtx client.Context) (*ibctm.ConsensusState, i
 		return &ibctm.ConsensusState{}, 0, err
 	}
 
-	info, err := node.ABCIInfo(context.Background())
+	info, err := node.ABCIInfo()
 	if err != nil {
 		return &ibctm.ConsensusState{}, 0, err
 	}
@@ -184,7 +184,7 @@ func QuerySelfConsensusState(clientCtx client.Context) (*ibctm.ConsensusState, i
 		height = info.Response.LastBlockHeight
 	}
 
-	commit, err := node.Commit(context.Background(), &height)
+	commit, err := node.Commit(&height)
 	if err != nil {
 		return &ibctm.ConsensusState{}, 0, err
 	}
@@ -193,7 +193,7 @@ func QuerySelfConsensusState(clientCtx client.Context) (*ibctm.ConsensusState, i
 	count := 10_000
 
 	nextHeight := height + 1
-	nextVals, err := node.Validators(context.Background(), &nextHeight, &page, &count)
+	nextVals, err := node.Validators(&nextHeight, page, count)
 	if err != nil {
 		return &ibctm.ConsensusState{}, 0, err
 	}

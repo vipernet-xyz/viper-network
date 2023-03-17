@@ -1,18 +1,18 @@
 package keeper
 
-/*
+import (
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/vipernet-xyz/viper-network/store/prefix"
+	query "github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"*/
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+)
 
-/*
 var _ types.QueryServer = Keeper{}
 
 // IncentivizedPackets implements the Query/IncentivizedPackets gRPC method
@@ -113,7 +113,7 @@ func (k Keeper) TotalRecvFees(goCtx context.Context, req *types.QueryTotalRecvFe
 
 	var recvFees sdk.Coins
 	for _, packetFee := range feesInEscrow.PacketFees {
-		recvFees = recvFees.Add(packetFee.Fee.RecvFee...)
+		recvFees = recvFees.Add1(packetFee.Fee.RecvFee...)
 	}
 
 	return &types.QueryTotalRecvFeesResponse{
@@ -139,7 +139,7 @@ func (k Keeper) TotalAckFees(goCtx context.Context, req *types.QueryTotalAckFees
 
 	var ackFees sdk.Coins
 	for _, packetFee := range feesInEscrow.PacketFees {
-		ackFees = ackFees.Add(packetFee.Fee.AckFee...)
+		ackFees = ackFees.Add1(packetFee.Fee.AckFee...)
 	}
 
 	return &types.QueryTotalAckFeesResponse{
@@ -165,7 +165,7 @@ func (k Keeper) TotalTimeoutFees(goCtx context.Context, req *types.QueryTotalTim
 
 	var timeoutFees sdk.Coins
 	for _, packetFee := range feesInEscrow.PacketFees {
-		timeoutFees = timeoutFees.Add(packetFee.Fee.TimeoutFee...)
+		timeoutFees = timeoutFees.Add1(packetFee.Fee.TimeoutFee...)
 	}
 
 	return &types.QueryTotalTimeoutFeesResponse{
@@ -259,4 +259,3 @@ func (k Keeper) FeeEnabledChannel(goCtx context.Context, req *types.QueryFeeEnab
 		FeeEnabled: isFeeEnabled,
 	}, nil
 }
-*/

@@ -92,11 +92,10 @@ type AppModule struct {
 	sealKeeper bool
 }
 
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sealKeeper bool) AppModule {
+func NewAppModule(keeper keeper.Keeper) AppModule {
 	return AppModule{
-		AppModuleBasic: NewAppModuleBasic(cdc),
+		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,
-		sealKeeper:     sealKeeper,
 	}
 }
 
@@ -184,7 +183,7 @@ type CapabilityOutputs struct {
 
 func ProvideModule(in CapabilityInputs) CapabilityOutputs {
 	k := keeper.NewKeeper(in.Bcdc, in.KvStoreKey, in.MemStoreKey)
-	m := NewAppModule(in.Cdc, *k, in.Config.SealKeeper)
+	m := NewAppModule(*k)
 
 	return CapabilityOutputs{
 		CapabilityKeeper: k,

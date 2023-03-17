@@ -10,7 +10,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/client/tx"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
-	channelutils "github.com/vipernet-xyz/viper-network/modules/core/04-channel/client/utils"
+	channelutils "github.com/vipernet-xyz/viper-network/modules/core/04-channel/client/cli/utils"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )

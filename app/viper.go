@@ -15,7 +15,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	authkeeper "github.com/vipernet-xyz/viper-network/x/authentication/keeper"
-	capabilitykeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
+	capabilityKeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
@@ -41,10 +41,12 @@ type ViperCoreApp struct {
 	// extends baseapp
 	*bam.BaseApp
 	// the codec (uses amino)
-	cdc *codec.Codec
+	cdc  *codec.Codec
+	Bcdc codec.BinaryCodec
 	// Keys to access the substores
-	Keys  map[string]*sdk.KVStoreKey
-	Tkeys map[string]*sdk.TransientStoreKey
+	Keys    map[string]*sdk.KVStoreKey
+	Tkeys   map[string]*sdk.TransientStoreKey
+	memKeys map[string]*sdk.MemoryStoreKey
 	// Keepers for each module
 	accountKeeper        authentication.Keeper
 	providersKeeper      providersKeeper.Keeper
@@ -52,10 +54,12 @@ type ViperCoreApp struct {
 	governanceKeeper     governanceKeeper.Keeper
 	transferKeeper       transferKeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
+	CapabilityKeeper     *capabilityKeeper.Keeper
 	AccountKeeper        authkeeper.Keeper
 	BankKeeper           bankkeeper.Keeper
 	EvidenceKeeper       evidencekeeper.Keeper
-	scopedTransferKeeper capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
+	scopedTransferKeeper capabilityKeeper.ScopedKeeper
 
 	viperKeeper viperKeeper.Keeper
 	// Module Manager

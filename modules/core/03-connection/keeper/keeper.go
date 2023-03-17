@@ -124,7 +124,7 @@ func (k Keeper) GetClientConnectionPaths(ctx sdk.Ctx, clientID string) ([]string
 }
 
 // SetClientConnectionPaths sets the connections paths for client
-func (k Keeper) SetClientConnectionPaths(ctx sdk.Context, clientID string, paths []string) {
+func (k Keeper) SetClientConnectionPaths(ctx sdk.Ctx, clientID string, paths []string) {
 	store := ctx.KVStore(k.storeKey)
 	clientPaths := types.ClientPaths{Paths: paths}
 	bz := k.cdc.MustMarshal(&clientPaths)
@@ -132,7 +132,7 @@ func (k Keeper) SetClientConnectionPaths(ctx sdk.Context, clientID string, paths
 }
 
 // GetNextConnectionSequence gets the next connection sequence from the store.
-func (k Keeper) GetNextConnectionSequence(ctx sdk.Context) uint64 {
+func (k Keeper) GetNextConnectionSequence(ctx sdk.Ctx) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	bz, _ := store.Get([]byte(types.KeyNextConnectionSequence))
 	if len(bz) == 0 {
@@ -143,7 +143,7 @@ func (k Keeper) GetNextConnectionSequence(ctx sdk.Context) uint64 {
 }
 
 // SetNextConnectionSequence sets the next connection sequence to the store.
-func (k Keeper) SetNextConnectionSequence(ctx sdk.Context, sequence uint64) {
+func (k Keeper) SetNextConnectionSequence(ctx sdk.Ctx, sequence uint64) {
 	store := ctx.KVStore(k.storeKey)
 	bz := sdk.Uint64ToBigEndian(sequence)
 	store.Set([]byte(types.KeyNextConnectionSequence), bz)
@@ -171,7 +171,7 @@ func (k Keeper) GetAllClientConnectionPaths(ctx sdk.Ctx) []types.ConnectionPaths
 // IterateConnections provides an iterator over all ConnectionEnd objects.
 // For each ConnectionEnd, cb will be called. If the cb returns true, the
 // iterator will close and stop.
-func (k Keeper) IterateConnections(ctx sdk.Context, cb func(types.IdentifiedConnection) bool) {
+func (k Keeper) IterateConnections(ctx sdk.Ctx, cb func(types.IdentifiedConnection) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyConnectionPrefix))
 
@@ -189,7 +189,7 @@ func (k Keeper) IterateConnections(ctx sdk.Context, cb func(types.IdentifiedConn
 }
 
 // GetAllConnections returns all stored ConnectionEnd objects.
-func (k Keeper) GetAllConnections(ctx sdk.Context) (connections []types.IdentifiedConnection) {
+func (k Keeper) GetAllConnections(ctx sdk.Ctx) (connections []types.IdentifiedConnection) {
 	k.IterateConnections(ctx, func(connection types.IdentifiedConnection) bool {
 		connections = append(connections, connection)
 		return false

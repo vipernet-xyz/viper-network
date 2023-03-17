@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"reflect"
 
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	capabilitykeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
 
 	clientkeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
@@ -106,4 +108,21 @@ func isEmpty(keeper interface{}) bool {
 		}
 	}
 	return false
+}
+
+// creates a querier for staking REST endpoints
+func NewQuerier(k *Keeper) sdk.Querier {
+	return func(ctx sdk.Ctx, path []string, req abciTypes.RequestQuery) (res []byte, err sdk.Error) {
+
+		return nil, sdk.ErrUnknownRequest("unknown governance query endpoint")
+	}
+}
+
+func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
+	if ctx.IsOnUpgradeHeight() {
+		k.ConvertState(ctx)
+	}
+}
+
+func (k Keeper) ConvertState(ctx sdk.Ctx) {
 }

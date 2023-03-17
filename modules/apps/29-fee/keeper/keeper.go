@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"github.com/cometbft/cometbft/libs/log"
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -164,13 +165,13 @@ func (k Keeper) GetPayeeAddress(ctx sdk.Ctx, relayerAddr, channelID string) (str
 }
 
 // SetPayeeAddress stores the fee payee address in state keyed by the provided channel identifier and relayer address
-func (k Keeper) SetPayeeAddress(ctx sdk.Context, relayerAddr, payeeAddr, channelID string) {
+func (k Keeper) SetPayeeAddress(ctx sdk.Ctx, relayerAddr, payeeAddr, channelID string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyPayee(relayerAddr, channelID), []byte(payeeAddr))
 }
 
 // GetAllPayees returns all registered payees addresses
-func (k Keeper) GetAllPayees(ctx sdk.Context) []types.RegisteredPayee {
+func (k Keeper) GetAllPayees(ctx sdk.Ctx) []types.RegisteredPayee {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.PayeeKeyPrefix))
 	defer iterator.Close()
@@ -196,7 +197,7 @@ func (k Keeper) GetAllPayees(ctx sdk.Context) []types.RegisteredPayee {
 
 // SetCounterpartyPayeeAddress maps the destination chain counterparty payee address to the source relayer address
 // The receiving chain must store the mapping from: address -> counterpartyPayeeAddress for the given channel
-func (k Keeper) SetCounterpartyPayeeAddress(ctx sdk.Context, address, counterpartyAddress, channelID string) {
+func (k Keeper) SetCounterpartyPayeeAddress(ctx sdk.Ctx, address, counterpartyAddress, channelID string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyCounterpartyPayee(address, channelID), []byte(counterpartyAddress))
 }
@@ -215,7 +216,7 @@ func (k Keeper) GetCounterpartyPayeeAddress(ctx sdk.Ctx, address, channelID stri
 }
 
 // GetAllCounterpartyPayees returns all registered counterparty payee addresses
-func (k Keeper) GetAllCounterpartyPayees(ctx sdk.Context) []types.RegisteredCounterpartyPayee {
+func (k Keeper) GetAllCounterpartyPayees(ctx sdk.Ctx) []types.RegisteredCounterpartyPayee {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.CounterpartyPayeeKeyPrefix))
 	defer iterator.Close()
@@ -259,7 +260,7 @@ func (k Keeper) GetRelayerAddressForAsyncAck(ctx sdk.Ctx, packetID channeltypes.
 }
 
 // GetAllForwardRelayerAddresses returns all forward relayer addresses stored for async acknowledgements
-func (k Keeper) GetAllForwardRelayerAddresses(ctx sdk.Context) []types.ForwardRelayerAddress {
+func (k Keeper) GetAllForwardRelayerAddresses(ctx sdk.Ctx) []types.ForwardRelayerAddress {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(types.ForwardRelayerPrefix))
 	defer iterator.Close()
@@ -384,4 +385,21 @@ func (k Keeper) MustUnmarshalFees(bz []byte) types.PacketFees {
 	var fees types.PacketFees
 	k.cdc.MustUnmarshal(bz, &fees)
 	return fees
+}
+
+// creates a querier for staking REST endpoints
+func NewQuerier(k Keeper) sdk.Querier {
+	return func(ctx sdk.Ctx, path []string, req abciTypes.RequestQuery) (res []byte, err sdk.Error) {
+
+		return nil, sdk.ErrUnknownRequest("unknown governance query endpoint")
+	}
+}
+
+func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
+	if ctx.IsOnUpgradeHeight() {
+		k.ConvertState(ctx)
+	}
+}
+
+func (k Keeper) ConvertState(ctx sdk.Ctx) {
 }

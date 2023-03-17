@@ -243,7 +243,7 @@ func (k Keeper) HasPacketAcknowledgement(ctx sdk.Ctx, portID, channelID string, 
 // IteratePacketSequence provides an iterator over all send, receive or ack sequences.
 // For each sequence, cb will be called. If the cb returns true, the iterator
 // will close and stop.
-func (k Keeper) IteratePacketSequence(ctx sdk.Context, iterator db.Iterator, cb func(portID, channelID string, sequence uint64) bool) {
+func (k Keeper) IteratePacketSequence(ctx sdk.Ctx, iterator db.Iterator, cb func(portID, channelID string, sequence uint64) bool) {
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		portID, channelID, err := host.ParseChannelPath(string(iterator.Key()))
@@ -261,7 +261,7 @@ func (k Keeper) IteratePacketSequence(ctx sdk.Context, iterator db.Iterator, cb 
 }
 
 // GetAllPacketSendSeqs returns all stored next send sequences.
-func (k Keeper) GetAllPacketSendSeqs(ctx sdk.Context) (seqs []types.PacketSequence) {
+func (k Keeper) GetAllPacketSendSeqs(ctx sdk.Ctx) (seqs []types.PacketSequence) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyNextSeqSendPrefix))
 	k.IteratePacketSequence(ctx, iterator, func(portID, channelID string, nextSendSeq uint64) bool {
@@ -273,7 +273,7 @@ func (k Keeper) GetAllPacketSendSeqs(ctx sdk.Context) (seqs []types.PacketSequen
 }
 
 // GetAllPacketRecvSeqs returns all stored next recv sequences.
-func (k Keeper) GetAllPacketRecvSeqs(ctx sdk.Context) (seqs []types.PacketSequence) {
+func (k Keeper) GetAllPacketRecvSeqs(ctx sdk.Ctx) (seqs []types.PacketSequence) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyNextSeqRecvPrefix))
 	k.IteratePacketSequence(ctx, iterator, func(portID, channelID string, nextRecvSeq uint64) bool {
@@ -285,7 +285,7 @@ func (k Keeper) GetAllPacketRecvSeqs(ctx sdk.Context) (seqs []types.PacketSequen
 }
 
 // GetAllPacketAckSeqs returns all stored next acknowledgements sequences.
-func (k Keeper) GetAllPacketAckSeqs(ctx sdk.Context) (seqs []types.PacketSequence) {
+func (k Keeper) GetAllPacketAckSeqs(ctx sdk.Ctx) (seqs []types.PacketSequence) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyNextSeqAckPrefix))
 	k.IteratePacketSequence(ctx, iterator, func(portID, channelID string, nextAckSeq uint64) bool {
@@ -299,14 +299,14 @@ func (k Keeper) GetAllPacketAckSeqs(ctx sdk.Context) (seqs []types.PacketSequenc
 // IteratePacketCommitment provides an iterator over all PacketCommitment objects. For each
 // packet commitment, cb will be called. If the cb returns true, the iterator will close
 // and stop.
-func (k Keeper) IteratePacketCommitment(ctx sdk.Context, cb func(portID, channelID string, sequence uint64, hash []byte) bool) {
+func (k Keeper) IteratePacketCommitment(ctx sdk.Ctx, cb func(portID, channelID string, sequence uint64, hash []byte) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyPacketCommitmentPrefix))
 	k.iterateHashes(ctx, iterator, cb)
 }
 
 // GetAllPacketCommitments returns all stored PacketCommitments objects.
-func (k Keeper) GetAllPacketCommitments(ctx sdk.Context) (commitments []types.PacketState) {
+func (k Keeper) GetAllPacketCommitments(ctx sdk.Ctx) (commitments []types.PacketState) {
 	k.IteratePacketCommitment(ctx, func(portID, channelID string, sequence uint64, hash []byte) bool {
 		pc := types.NewPacketState(portID, channelID, sequence, hash)
 		commitments = append(commitments, pc)
@@ -338,14 +338,14 @@ func (k Keeper) GetAllPacketCommitmentsAtChannel(ctx sdk.Context, portID, channe
 // IteratePacketReceipt provides an iterator over all PacketReceipt objects. For each
 // receipt, cb will be called. If the cb returns true, the iterator will close
 // and stop.
-func (k Keeper) IteratePacketReceipt(ctx sdk.Context, cb func(portID, channelID string, sequence uint64, receipt []byte) bool) {
+func (k Keeper) IteratePacketReceipt(ctx sdk.Ctx, cb func(portID, channelID string, sequence uint64, receipt []byte) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyPacketReceiptPrefix))
 	k.iterateHashes(ctx, iterator, cb)
 }
 
 // GetAllPacketReceipts returns all stored PacketReceipt objects.
-func (k Keeper) GetAllPacketReceipts(ctx sdk.Context) (receipts []types.PacketState) {
+func (k Keeper) GetAllPacketReceipts(ctx sdk.Ctx) (receipts []types.PacketState) {
 	k.IteratePacketReceipt(ctx, func(portID, channelID string, sequence uint64, receipt []byte) bool {
 		packetReceipt := types.NewPacketState(portID, channelID, sequence, receipt)
 		receipts = append(receipts, packetReceipt)
@@ -357,14 +357,14 @@ func (k Keeper) GetAllPacketReceipts(ctx sdk.Context) (receipts []types.PacketSt
 // IteratePacketAcknowledgement provides an iterator over all PacketAcknowledgement objects. For each
 // aknowledgement, cb will be called. If the cb returns true, the iterator will close
 // and stop.
-func (k Keeper) IteratePacketAcknowledgement(ctx sdk.Context, cb func(portID, channelID string, sequence uint64, hash []byte) bool) {
+func (k Keeper) IteratePacketAcknowledgement(ctx sdk.Ctx, cb func(portID, channelID string, sequence uint64, hash []byte) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyPacketAckPrefix))
 	k.iterateHashes(ctx, iterator, cb)
 }
 
 // GetAllPacketAcks returns all stored PacketAcknowledgements objects.
-func (k Keeper) GetAllPacketAcks(ctx sdk.Context) (acks []types.PacketState) {
+func (k Keeper) GetAllPacketAcks(ctx sdk.Ctx) (acks []types.PacketState) {
 	k.IteratePacketAcknowledgement(ctx, func(portID, channelID string, sequence uint64, ack []byte) bool {
 		packetAck := types.NewPacketState(portID, channelID, sequence, ack)
 		acks = append(acks, packetAck)
@@ -376,7 +376,7 @@ func (k Keeper) GetAllPacketAcks(ctx sdk.Context) (acks []types.PacketState) {
 // IterateChannels provides an iterator over all Channel objects. For each
 // Channel, cb will be called. If the cb returns true, the iterator will close
 // and stop.
-func (k Keeper) IterateChannels(ctx sdk.Context, cb func(types.IdentifiedChannel) bool) {
+func (k Keeper) IterateChannels(ctx sdk.Ctx, cb func(types.IdentifiedChannel) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.KeyChannelEndPrefix))
 	iterator.Close()
@@ -415,7 +415,7 @@ func (k Keeper) GetAllChannelsWithPortPrefix(ctx sdk.Context, portPrefix string)
 }
 
 // GetAllChannels returns all stored Channel objects.
-func (k Keeper) GetAllChannels(ctx sdk.Context) (channels []types.IdentifiedChannel) {
+func (k Keeper) GetAllChannels(ctx sdk.Ctx) (channels []types.IdentifiedChannel) {
 	k.IterateChannels(ctx, func(channel types.IdentifiedChannel) bool {
 		channels = append(channels, channel)
 		return false
@@ -481,7 +481,7 @@ func (k Keeper) LookupModuleByChannel(ctx sdk.Ctx, portID, channelID string) (st
 }
 
 // common functionality for IteratePacketCommitment and IteratePacketAcknowledgement
-func (k Keeper) iterateHashes(ctx sdk.Context, iterator db.Iterator, cb func(portID, channelID string, sequence uint64, hash []byte) bool) {
+func (k Keeper) iterateHashes(ctx sdk.Ctx, iterator db.Iterator, cb func(portID, channelID string, sequence uint64, hash []byte) bool) {
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
