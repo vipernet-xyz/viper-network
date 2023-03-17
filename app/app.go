@@ -5,6 +5,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	ibc "github.com/vipernet-xyz/viper-network/modules/core"
+	port "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
 	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -139,6 +140,12 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		scopedTransferKeeper,
 	)
 
+	transferModule := transfer.NewAppModule(app.transferKeeper)
+	transferIBCModule := transfer.NewIBCModule(app.transferKeeper)
+	ibcRouter := port.NewRouter()
+	ibcRouter.AddRoute(transferTypes.ModuleName, transferIBCModule)
+	// Setting Router will finalize all routes by sealing router
+	app.IBCKeeper.SetRouter(ibcRouter)
 	// add the keybase to the viper core keeper
 	app.viperKeeper.TmNode = tmClient
 	// give viper keeper to servicers module for easy cache clearing
@@ -152,8 +159,8 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		viper.NewAppModule(app.viperKeeper),
 		capability.NewAppModule(*app.CapabilityKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
-		transfer.NewAppModule(app.transferKeeper),
 		governance.NewAppModule(app.governanceKeeper),
+		transferModule,
 	)
 	// setup the order of begin and end blockers
 	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, ibcexported.ModuleName, governanceTypes.ModuleName)

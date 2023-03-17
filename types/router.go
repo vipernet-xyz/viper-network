@@ -1,5 +1,9 @@
 package types
 
+import (
+	"regexp"
+)
+
 // Router provides handlers for each transaction type.
 type Router interface {
 	AddRoute(r string, h Handler) Router
@@ -11,3 +15,7 @@ type QueryRouter interface {
 	AddRoute(r string, h Querier) QueryRouter
 	Route(path string) Querier
 }
+
+// IsAlphaNumeric defines a regular expression for matching against alpha-numeric
+// values.
+var IsAlphaNumeric = regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString
