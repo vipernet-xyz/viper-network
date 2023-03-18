@@ -18,12 +18,12 @@ type AccountKeeper interface {
 
 // BankKeeper defines the expected bank keeper
 type BankKeeper interface {
-	SendCoins(ctx sdk.Ctx, fromAddr sdk.Address, toAddr sdk.Address, amt sdk.Coins) error
-	MintCoins(ctx sdk.Ctx, moduleName string, amt sdk.Coins) error
-	BurnCoins(ctx sdk.Ctx, moduleName string, amt sdk.Coins) error
-	SendCoinsFromModuleToAccount(ctx sdk.Ctx, senderModule string, recipientAddr sdk.Address, amt sdk.Coins) error
-	SendCoinsFromAccountToModule(ctx sdk.Ctx, senderAddr sdk.Address, recipientModule string, amt sdk.Coins) error
-	BlockedAddr(addr sdk.Address) bool
+	SendCoins(ctx sdk.Ctx, fromAddr sdk.Address, toAddr sdk.Address, amt sdk.Coins) sdk.Error
+	MintCoins(ctx sdk.Ctx, moduleName string, amt sdk.Coins) sdk.Error
+	BurnCoins(ctx sdk.Ctx, moduleName string, amt sdk.Coins) sdk.Error
+	SendCoinsFromModuleToAccount(ctx sdk.Ctx, senderModule string, recipientAddr sdk.Address, amt sdk.Coins) sdk.Error
+	SendCoinsFromAccountToModule(ctx sdk.Ctx, senderAddr sdk.Address, recipientModule string, amt sdk.Coins) sdk.Error
+	//BlockedAddr(addr sdk.Address) bool
 	IsSendEnabledCoin(ctx sdk.Ctx, coin sdk.Coin) bool
 }
 

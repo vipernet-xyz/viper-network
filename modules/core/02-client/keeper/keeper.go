@@ -1,26 +1,28 @@
 package keeper
 
 import (
+	"encoding/binary"
 	"fmt"
 	"reflect"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/light"
+	"github.com/cosmos/cosmos-sdk/types/kv"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
-	"github.com/vipernet-xyz/viper-network/store/prefix"
-	storetypes "github.com/vipernet-xyz/viper-network/store/types"
-	paramtypes "github.com/vipernet-xyz/viper-network/types"
-	sdk "github.com/vipernet-xyz/viper-network/types"
-
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
 	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	"github.com/vipernet-xyz/viper-network/store/prefix"
+	storetypes "github.com/vipernet-xyz/viper-network/store/types"
+	paramtypes "github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 // Keeper represents a type that grants read and write permissions to any client
@@ -334,7 +336,14 @@ func (k Keeper) ValidateSelfClient(ctx sdk.Ctx, clientState exported.ClientState
 
 // GetUpgradePlan executes the upgrade keeper GetUpgradePlan function.
 func (k Keeper) GetUpgradePlan(ctx sdk.Ctx) (plan upgradetypes.Plan, havePlan bool) {
-	return k.upgradeKeeper.GetUpgradePlan(ctx)
+	store := ctx.KVStore(k.storeKey)
+	bz, _ := store.Get(types.PlanKey())
+	if bz == nil {
+		return plan, false
+	}
+
+	k.cdc.MustUnmarshal(bz, &plan)
+	return plan, true
 }
 
 // GetUpgradedClient executes the upgrade keeper GetUpgradeClient function.
@@ -343,8 +352,14 @@ func (k Keeper) GetUpgradedClient(ctx sdk.Ctx, planHeight int64) ([]byte, bool) 
 }
 
 // GetUpgradedConsensusState returns the upgraded consensus state
-func (k Keeper) GetUpgradedConsensusState(ctx sdk.Context, planHeight int64) ([]byte, bool) {
-	return k.upgradeKeeper.GetUpgradedConsensusState(ctx, planHeight)
+func (k Keeper) GetUpgradedConsensusState(ctx sdk.Ctx, planHeight int64) ([]byte, bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz, _ := store.Get(types.UpgradedConsStateKey(planHeight))
+	if len(bz) == 0 {
+		return nil, false
+	}
+
+	return bz, true
 }
 
 // SetUpgradedConsensusState executes the upgrade keeper SetUpgradedConsensusState function.
@@ -392,4 +407,74 @@ func (k Keeper) GetAllClients(ctx sdk.Context) []exported.ClientState {
 func (k Keeper) ClientStore(ctx sdk.Ctx, clientID string) sdk.KVStore {
 	clientPrefix := []byte(fmt.Sprintf("%s/%s/", host.KeyClientStorePrefix, clientID))
 	return prefix.NewStore(ctx.KVStore(k.storeKey), clientPrefix)
+}
+
+// ScheduleUpgrade schedules an upgrade based on the specified plan.
+// If there is another Plan already scheduled, it will cancel and overwrite it.
+// ScheduleUpgrade will also write the upgraded IBC ClientState to the upgraded client
+// path if it is specified in the plan.
+func (k Keeper) ScheduleUpgrade(ctx sdk.Ctx, plan upgradetypes.Plan) error {
+	if err := plan.ValidateBasic(); err != nil {
+		return err
+	}
+
+	// NOTE: allow for the possibility of chains to schedule upgrades in begin block of the same block
+	// as a strategy for emergency hard fork recoveries
+	if plan.Height < ctx.BlockHeight() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "upgrade cannot be scheduled in the past")
+	}
+
+	if k.GetDoneHeight(ctx, plan.Name) != 0 {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "upgrade with name %s has already been completed", plan.Name)
+	}
+
+	store := ctx.KVStore(k.storeKey)
+
+	// clear any old IBC state stored by previous plan
+	oldPlan, found := k.GetUpgradePlan(ctx)
+	if found {
+		k.ClearIBCState(ctx, oldPlan.Height)
+	}
+
+	bz := k.cdc.MustMarshal(&plan)
+	store.Set(types.PlanKey(), bz)
+
+	return nil
+}
+
+// GetDoneHeight returns the height at which the given upgrade was executed
+func (k Keeper) GetDoneHeight(ctx sdk.Ctx, name string) int64 {
+	iter, _ := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte{types.DoneByte})
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		upgradeName, height := parseDoneKey(iter.Key())
+		if upgradeName == name {
+			return height
+		}
+	}
+	return 0
+}
+
+// parseDoneKey - split upgrade name and height from the done key
+func parseDoneKey(key []byte) (string, int64) {
+	// 1 byte for the DoneByte + 8 bytes height + at least 1 byte for the name
+	kv.AssertKeyAtLeastLength(key, 10)
+	height := binary.BigEndian.Uint64(key[1:9])
+	return string(key[9:]), int64(height)
+}
+
+// ClearIBCState clears any planned IBC state
+func (k Keeper) ClearIBCState(ctx sdk.Ctx, lastHeight int64) {
+	// delete IBC client and consensus state from store if this is IBC plan
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.UpgradedClientKey(lastHeight))
+	store.Delete(types.UpgradedConsStateKey(lastHeight))
+}
+
+// SetUpgradedClient sets the expected upgraded client for the next version of this chain at the last height the current chain will commit.
+func (k Keeper) SetUpgradedClient(ctx sdk.Ctx, planHeight int64, bz []byte) error {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.UpgradedClientKey(planHeight), bz)
+	return nil
 }

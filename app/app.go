@@ -8,6 +8,7 @@ import (
 	port "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
 	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
+	ibctypes "github.com/vipernet-xyz/viper-network/modules/core/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
@@ -64,6 +65,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	providersSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
 	transferSubspace := sdk.NewSubspace(transferTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
+	ibcSubspace := sdk.NewSubspace(ibctypes.DefaultParamspace)
 
 	app.CapabilityKeeper = capabilityKeeper.NewKeeper(
 		app.Bcdc,
@@ -120,9 +122,9 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	)
 
 	app.IBCKeeper = ibckeeper.NewKeeper(
-		app.cdc,
+		app.Bcdc,
 		app.Keys[ibcexported.StoreKey],
-		ibcexported.ModuleName,
+		ibcSubspace,
 		app.StakingKeeper,
 		app.UpgradeKeeper,
 		scopedIBCKeeper,

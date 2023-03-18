@@ -6,10 +6,12 @@ import (
 
 	"github.com/tendermint/tendermint/libs/os"
 
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	//bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	bam "github.com/vipernet-xyz/viper-network/baseapp"
 	"github.com/vipernet-xyz/viper-network/codec"
+	upgradeKeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
 	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
@@ -56,7 +58,9 @@ type ViperCoreApp struct {
 	IBCKeeper            *ibckeeper.Keeper
 	CapabilityKeeper     *capabilityKeeper.Keeper
 	AccountKeeper        authkeeper.Keeper
-	BankKeeper           bankkeeper.Keeper
+	BankKeeper           authkeeper.Keeper
+	UpgradeKeeper        upgradeKeeper.Keeper
+	StakingKeeper        stakingKeeper.Keeper
 	EvidenceKeeper       evidencekeeper.Keeper
 	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
 	scopedTransferKeeper capabilityKeeper.ScopedKeeper

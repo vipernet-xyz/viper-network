@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
@@ -215,10 +214,6 @@ func (k Keeper) OnRecvPacket(ctx sdk.Ctx, packet channeltypes.Packet, data types
 			denom = denomTrace.IBCDenom()
 		}
 		token := sdk.NewCoin(denom, transferAmount)
-
-		if k.bankKeeper.BlockedAddr(receiver) {
-			return errorsmod.Wrapf(ibcerrors.ErrUnauthorized, "%s is not allowed to receive funds", receiver)
-		}
 
 		// unescrow tokens
 		escrowAddress := types.GetEscrowAddress(packet.GetDestPort(), packet.GetDestChannel())

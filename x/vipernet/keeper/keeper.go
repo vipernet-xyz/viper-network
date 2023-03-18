@@ -20,6 +20,7 @@ type Keeper struct {
 	Paramstore        sdk.Subspace
 	storeKey          sdk.StoreKey // Unexposed key to access store from sdk.Context
 	Cdc               *codec.Codec // The wire codec for binary encoding/decoding.
+	Bcdc              codec.BinaryCodec
 }
 
 // NewKeeper creates new instances of the vipernet module Keeper

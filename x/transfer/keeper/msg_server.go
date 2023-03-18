@@ -6,7 +6,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
@@ -27,10 +26,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 
 	if !k.bankKeeper.IsSendEnabledCoin(ctx, msg.Token) {
 		return nil, errorsmod.Wrapf(types.ErrSendDisabled, "%s transfers are currently disabled", msg.Token.Denom)
-	}
-
-	if k.bankKeeper.BlockedAddr(sender) {
-		return nil, errorsmod.Wrapf(ibcerrors.ErrUnauthorized, "%s is not allowed to send funds", sender)
 	}
 
 	sequence, err := k.sendTransfer(
