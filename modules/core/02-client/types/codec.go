@@ -2,11 +2,11 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	proto "github.com/cosmos/gogoproto/proto"
 	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	msgservice "github.com/vipernet-xyz/viper-network/types/msgservice"
+	govtypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	"github.com/vipernet-xyz/viper-network/modules/core/exported"

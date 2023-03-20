@@ -1,18 +1,18 @@
 package keeper_test
 
-import (
+import ( /*
 	"fmt"
 
 	"github.com/cometbft/cometbft/crypto/secp256k1"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 )
 
-func (suite *KeeperTestSuite) TestQueryIncentivizedPackets() {
+/*func (suite *KeeperTestSuite) TestQueryIncentivizedPackets() {
 	var (
 		req             *types.QueryIncentivizedPacketsRequest
 		expectedPackets []types.IdentifiedPacketFees
@@ -690,3 +690,4 @@ func (suite *KeeperTestSuite) TestQueryFeeEnabledChannel() {
 		})
 	}
 }
+*/

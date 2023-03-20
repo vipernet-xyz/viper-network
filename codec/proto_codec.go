@@ -457,3 +457,10 @@ func (g grpcProtoCodec) Unmarshal(data []byte, v interface{}) error {
 func (g grpcProtoCodec) Name() string {
 	return "cosmos-sdk-grpc-codec"
 }
+
+// ProtoCodecMarshaler defines an interface for codecs that utilize Protobuf for both
+// binary and JSON encoding.
+type ProtoCodecMarshaler interface {
+	Codec
+	InterfaceRegistry() types.InterfaceRegistry
+}

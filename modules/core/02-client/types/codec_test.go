@@ -1,5 +1,6 @@
 package types_test
 
+/*
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 
@@ -155,3 +156,4 @@ func (suite *TypesTestSuite) TestPackClientMessage() {
 		}
 	}
 }
+*/

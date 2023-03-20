@@ -5,15 +5,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/client/flags"
+	"github.com/vipernet-xyz/viper-network/client/tx"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 const (
@@ -28,7 +27,7 @@ func NewRegisterPayeeCmd() *cobra.Command {
 		Use:     "register-payee [port-id] [channel-id] [relayer] [payee] ",
 		Short:   "Register a payee on a given channel.",
 		Long:    strings.TrimSpace(`Register a payee address on a given channel.`),
-		Example: fmt.Sprintf("%s tx ibc-fee register-payee transfer channel-0 cosmos1rsp837a4kvtgp2m4uqzdge0zzu6efqgucm0qdh cosmos153lf4zntqt33a4v0sm5cytrxyqn78q7kz8j8x5", version.AppName),
+		Example: fmt.Sprintf("%s tx ibc-fee register-payee transfer channel-0 cosmos1rsp837a4kvtgp2m4uqzdge0zzu6efqgucm0qdh cosmos153lf4zntqt33a4v0sm5cytrxyqn78q7kz8j8x5", 0.1),
 		Args:    cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -53,7 +52,7 @@ func NewRegisterCounterpartyPayeeCmd() *cobra.Command {
 		Use:     "register-counterparty-payee [port-id] [channel-id] [relayer] [counterparty-payee] ",
 		Short:   "Register a counterparty payee address on a given channel.",
 		Long:    strings.TrimSpace(`Register a counterparty payee address on a given channel.`),
-		Example: fmt.Sprintf("%s tx ibc-fee register-counterparty-payee transfer channel-0 cosmos1rsp837a4kvtgp2m4uqzdge0zzu6efqgucm0qdh osmo1v5y0tz01llxzf4c2afml8s3awue0ymju22wxx2", version.AppName),
+		Example: fmt.Sprintf("%s tx ibc-fee register-counterparty-payee transfer channel-0 cosmos1rsp837a4kvtgp2m4uqzdge0zzu6efqgucm0qdh osmo1v5y0tz01llxzf4c2afml8s3awue0ymju22wxx2", 0.1),
 		Args:    cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -78,7 +77,7 @@ func NewPayPacketFeeAsyncTxCmd() *cobra.Command {
 		Use:     "pay-packet-fee [src-port] [src-channel] [sequence]",
 		Short:   "Pay a fee to incentivize an existing IBC packet",
 		Long:    strings.TrimSpace(`Pay a fee to incentivize an existing IBC packet.`),
-		Example: fmt.Sprintf("%s tx ibc-fee pay-packet-fee transfer channel-0 1 --recv-fee 10stake --ack-fee 10stake --timeout-fee 10stake", version.AppName),
+		Example: fmt.Sprintf("%s tx ibc-fee pay-packet-fee transfer channel-0 1 --recv-fee 10stake --ack-fee 10stake --timeout-fee 10stake", 0.1),
 		Args:    cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

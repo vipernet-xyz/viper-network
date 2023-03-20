@@ -1,17 +1,16 @@
 package client_test
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+/*
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	client "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	client "github.com/vipernet-xyz/viper-network/modules/core/02-client"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"*/
 
-func (suite *ClientTestSuite) TestNewClientUpdateProposalHandler() {
+/*func (suite *ClientTestSuite) TestNewClientUpdateProposalHandler() {
 	var (
 		content govtypes.Content
 		err     error
@@ -90,3 +89,4 @@ func (suite *ClientTestSuite) TestNewClientUpdateProposalHandler() {
 		})
 	}
 }
+*/

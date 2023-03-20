@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	types "github.com/vipernet-xyz/viper-network/codec/types"
-	query "github.com/cosmos/cosmos-sdk/types/query"
+	query "github.com/vipernet-xyz/viper-network/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"

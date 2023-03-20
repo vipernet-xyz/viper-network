@@ -11,8 +11,8 @@ import (
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 	cmttypes "github.com/tendermint/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/vipernet-xyz/viper-network/client/flags"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 type MockClient struct {

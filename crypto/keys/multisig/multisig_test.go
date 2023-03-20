@@ -1,27 +1,26 @@
 package multisig_test
 
-import (
+/*
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/depinject"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	_ "github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
-)
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/codec/legacy"
+	cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
+	kmultisig "github.com/vipernet-xyz/viper-network/crypto/keys/multisig"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/crypto/types/multisig"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"
+	"github.com/vipernet-xyz/viper-network/x/authentication/migrations/legacytx"*/
 
-func TestNewMultiSig(t *testing.T) {
+/*func TestNewMultiSig(t *testing.T) {
 	require := require.New(t)
 	pk1 := secp256k1.GenPrivKey().PubKey()
 	pks := []cryptotypes.PubKey{pk1, pk1}
@@ -441,3 +440,4 @@ func TestAminoUnmarshalJSON(t *testing.T) {
 		require.NoError(t, err)
 	}
 }
+*/

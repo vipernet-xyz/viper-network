@@ -3,8 +3,8 @@ package keeper_test
 /*
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/query"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/

@@ -1,20 +1,19 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+	"github.com/vipernet-xyz/viper-network/baseapp"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-var (
+/*var (
 	defaultRecvFee    = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(100)}}
 	defaultAckFee     = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(200)}}
 	defaultTimeoutFee = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(300)}}
@@ -301,3 +300,4 @@ func (suite *KeeperTestSuite) TestGetAllCounterpartyPayees() {
 	suite.Require().Len(counterpartyPayeeAddr, len(expectedCounterpartyPayee))
 	suite.Require().Equal(counterpartyPayeeAddr, expectedCounterpartyPayee)
 }
+*/

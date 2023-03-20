@@ -6,13 +6,13 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 	"github.com/vipernet-xyz/viper-network/x/capability/types"
 )
 

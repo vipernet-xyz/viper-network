@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // IBC channel events

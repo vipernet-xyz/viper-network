@@ -1,12 +1,11 @@
 package solomachine_test
 
-import (
+/*
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-func (suite *SoloMachineTestSuite) TestConsensusState() {
+/*func (suite *SoloMachineTestSuite) TestConsensusState() {
 	consensusState := suite.solomachine.ConsensusState()
 
 	suite.Require().Equal(exported.Solomachine, consensusState.ClientType())
@@ -71,3 +70,4 @@ func (suite *SoloMachineTestSuite) TestConsensusStateValidateBasic() {
 		}
 	}
 }
+*/

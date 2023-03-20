@@ -1,5 +1,6 @@
 package client
 
+/*
 import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 
@@ -7,6 +8,6 @@ import (
 )
 
 var (
-	UpdateClientProposalHandler = govclient.NewProposalHandler(cli.NewCmdSubmitUpdateClientProposal)
-	UpgradeProposalHandler      = govclient.NewProposalHandler(cli.NewCmdSubmitUpgradeProposal)
+
 )
+*/

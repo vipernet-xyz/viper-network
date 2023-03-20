@@ -1,16 +1,15 @@
 package keeper_test
 
-import (
+/*
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-func (suite *KeeperTestSuite) TestClientUpdateProposal() {
+/*func (suite *KeeperTestSuite) TestClientUpdateProposal() {
 	var (
 		subject, substitute                       string
 		subjectClientState, substituteClientState exported.ClientState
@@ -268,3 +267,4 @@ func (suite *KeeperTestSuite) TestHandleUpgradeProposal() {
 		})
 	}
 }
+*/

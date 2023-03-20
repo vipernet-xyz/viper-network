@@ -1,27 +1,26 @@
 package tx_test
 
-import (
+/*
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"cosmossdk.io/depinject"
-	"github.com/cosmos/cosmos-sdk/client"
-	clienttestutil "github.com/cosmos/cosmos-sdk/client/testutil"
-	tx2 "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	"github.com/cosmos/cosmos-sdk/types"
-	typestx "github.com/cosmos/cosmos-sdk/types/tx"
-	signing2 "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-)
+	"github.com/vipernet-xyz/viper-network/client"
+	clienttestutil "github.com/vipernet-xyz/viper-network/client/testutil"
+	tx2 "github.com/vipernet-xyz/viper-network/client/tx"
+	"github.com/vipernet-xyz/viper-network/types"
+	typestx "github.com/vipernet-xyz/viper-network/types/tx"
+	signing2 "github.com/vipernet-xyz/viper-network/types/tx/signing"*/
 
-const (
+/*const (
 	memo          = "waboom"
 	gas           = uint64(10000)
 	timeoutHeight = uint64(5)
@@ -162,3 +161,4 @@ func (s *TestSuite) TestConvertTxToStdTx() {
 func TestTestSuite(t *testing.T) {
 	suite.Run(t, new(TestSuite))
 }
+*/

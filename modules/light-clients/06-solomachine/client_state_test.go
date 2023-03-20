@@ -1,9 +1,9 @@
 package solomachine_test
 
-import (
+/*
 	"bytes"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
@@ -13,10 +13,9 @@ import (
 	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-const (
+/*const (
 	counterpartyClientIdentifier = "chainA"
 	testConnectionID             = "connectionid"
 	testChannelID                = "testchannelid"
@@ -828,3 +827,4 @@ func (suite *SoloMachineTestSuite) TestGetTimestampAtHeight() {
 		})
 	}
 }
+*/

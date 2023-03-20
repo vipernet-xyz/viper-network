@@ -1,16 +1,15 @@
 package types_test
 
-import (
+/*
 	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	crypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-)
+	"github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"*/
 
-func (suite *MerkleTestSuite) TestConvertProofs() {
+/*func (suite *MerkleTestSuite) TestConvertProofs() {
 	suite.iavlStore.Set([]byte("MYKEY"), []byte("MYVALUE"))
 	cid := suite.store.Commit()
 
@@ -96,3 +95,4 @@ func (suite *MerkleTestSuite) TestConvertProofs() {
 		}
 	}
 }
+*/

@@ -2,12 +2,12 @@ package client
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	govtypes "github.com/vipernet-xyz/viper-network/x/governance"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 )
 
 // NewClientProposalHandler defines the 02-client proposal handler

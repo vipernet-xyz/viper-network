@@ -255,3 +255,28 @@ const DefaultKeyringServiceName = "viper"
 func KeyringServiceName() string {
 	return DefaultKeyringServiceName
 }
+
+// GetBech32AccountPubPrefix returns the Bech32 prefix for account public key
+func (config *SDKConfig) GetBech32AccountPubPrefix() string {
+	return config.bech32AddressPrefix["account_pub"]
+}
+
+// GetBech32ValidatorPubPrefix returns the Bech32 prefix for validator public key
+func (config *SDKConfig) GetBech32ValidatorPubPrefix() string {
+	return config.bech32AddressPrefix["validator_pub"]
+}
+
+// GetBech32ConsensusPubPrefix returns the Bech32 prefix for consensus node public key
+func (config *SDKConfig) GetBech32ConsensusPubPrefix() string {
+	return config.bech32AddressPrefix["consensus_pub"]
+}
+
+// GetBech32ValidatorAddrPrefix returns the Bech32 prefix for validator address
+func (config *SDKConfig) GetBech32ValidatorAddrPrefix() string {
+	return config.bech32AddressPrefix["validator_addr"]
+}
+
+// GetBech32ConsensusAddrPrefix returns the Bech32 prefix for consensus node address
+func (config *SDKConfig) GetBech32ConsensusAddrPrefix() string {
+	return config.bech32AddressPrefix["consensus_addr"]
+}

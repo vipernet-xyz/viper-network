@@ -3,9 +3,9 @@ package multisig
 import (
 	errorsmod "cosmossdk.io/errors"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	types "github.com/vipernet-xyz/viper-network/codec/types"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 // tmMultisig implements a K of N threshold multisig. It is used for

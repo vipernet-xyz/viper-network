@@ -3,7 +3,7 @@ package keeper
 /*"context"
 
 errorsmod "cosmossdk.io/errors"
-"github.com/cosmos/cosmos-sdk/types/query"
+"github.com/vipernet-xyz/viper-network/types/query"
 "github.com/vipernet-xyz/viper-network/store/prefix"
 sdk "github.com/vipernet-xyz/viper-network/types"
 "google.golang.org/grpc/codes"

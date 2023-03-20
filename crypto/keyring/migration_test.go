@@ -14,7 +14,7 @@ cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 errorsmod "cosmossdk.io/errors"
 
-sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 "github.com/vipernet-xyz/viper-network/crypto/keys/multisig"
 "github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
 cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"

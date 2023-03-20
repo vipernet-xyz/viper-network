@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
 )
 
 func TestValidateParams(t *testing.T) {

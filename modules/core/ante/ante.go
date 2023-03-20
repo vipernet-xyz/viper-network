@@ -1,11 +1,11 @@
 package ante
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/keeper"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/keeper"
 )
 
 type RedundantRelayDecorator struct {
@@ -21,7 +21,7 @@ func NewRedundantRelayDecorator(k *keeper.Keeper) RedundantRelayDecorator {
 // contains some other message type, then the antedecorator returns no error and continues processing to ensure these transactions
 // are included. This will ensure that relayers do not waste fees on multiMsg transactions when another relayer has already submitted
 // all packets, by rejecting the tx at the mempool layer.
-func (rrd RedundantRelayDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+func (rrd RedundantRelayDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx1, simulate bool, next sdk.AnteHandler1) (sdk.Context, error) {
 	// do not run redundancy check on DeliverTx or simulate
 	if (ctx.IsCheckTx() || ctx.IsReCheckTx()) && !simulate {
 		// keep track of total packet messages and number of redundancies across `RecvPacket`, `AcknowledgePacket`, and `TimeoutPacket/OnClose`

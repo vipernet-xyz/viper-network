@@ -3,14 +3,14 @@ package tx
 import (
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/x/authentication/migrations/legacytx"
+	"github.com/vipernet-xyz/viper-network/x/authentication/signing"
 )
 
 // ConvertTxToStdTx converts a transaction to the legacy StdTx format
-func ConvertTxToStdTx(codec *codec.LegacyAmino, tx signing.Tx) (legacytx.StdTx, error) {
+func ConvertTxToStdTx(codec *codec.LegacyAmino, tx signing.Tx1) (legacytx.StdTx, error) {
 	if stdTx, ok := tx.(legacytx.StdTx); ok {
 		return stdTx, nil
 	}
@@ -34,7 +34,7 @@ func ConvertTxToStdTx(codec *codec.LegacyAmino, tx signing.Tx) (legacytx.StdTx, 
 // CopyTx copies a Tx to a new TxBuilder, allowing conversion between
 // different transaction formats. If ignoreSignatureError is true, copying will continue
 // tx even if the signature cannot be set in the target builder resulting in an unsigned tx.
-func CopyTx(tx signing.Tx, builder client.TxBuilder, ignoreSignatureError bool) error {
+func CopyTx(tx signing.Tx1, builder client.TxBuilder, ignoreSignatureError bool) error {
 	err := builder.SetMsgs(tx.GetMsgs()...)
 	if err != nil {
 		return err

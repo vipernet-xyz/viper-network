@@ -3,8 +3,8 @@ package port
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/client/cli"
+	"github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/client/cli"
 )
 
 // Name returns the IBC port ICS name.

@@ -428,7 +428,7 @@ func (m *QueryTotalRecvFeesRequest) GetPacketId() types.PacketId {
 // QueryTotalRecvFeesResponse defines the response type for the TotalRecvFees rpc
 type QueryTotalRecvFeesResponse struct {
 	// the total packet receive fees
-	RecvFees github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=recv_fees,json=recvFees,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"recv_fees" yaml:"recv_fees"`
+	RecvFees github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=recv_fees,json=recvFees,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"recv_fees" yaml:"recv_fees"`
 }
 
 func (m *QueryTotalRecvFeesResponse) Reset()         { *m = QueryTotalRecvFeesResponse{} }
@@ -520,7 +520,7 @@ func (m *QueryTotalAckFeesRequest) GetPacketId() types.PacketId {
 // QueryTotalAckFeesResponse defines the response type for the TotalAckFees rpc
 type QueryTotalAckFeesResponse struct {
 	// the total packet acknowledgement fees
-	AckFees github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=ack_fees,json=ackFees,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"ack_fees" yaml:"ack_fees"`
+	AckFees github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=ack_fees,json=ackFees,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"ack_fees" yaml:"ack_fees"`
 }
 
 func (m *QueryTotalAckFeesResponse) Reset()         { *m = QueryTotalAckFeesResponse{} }
@@ -612,7 +612,7 @@ func (m *QueryTotalTimeoutFeesRequest) GetPacketId() types.PacketId {
 // QueryTotalTimeoutFeesResponse defines the response type for the TotalTimeoutFees rpc
 type QueryTotalTimeoutFeesResponse struct {
 	// the total packet timeout fees
-	TimeoutFees github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=timeout_fees,json=timeoutFees,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"timeout_fees" yaml:"timeout_fees"`
+	TimeoutFees github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=timeout_fees,json=timeoutFees,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"timeout_fees" yaml:"timeout_fees"`
 }
 
 func (m *QueryTotalTimeoutFeesResponse) Reset()         { *m = QueryTotalTimeoutFeesResponse{} }

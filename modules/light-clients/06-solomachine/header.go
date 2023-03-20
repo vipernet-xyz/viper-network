@@ -4,10 +4,10 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // SentinelHeaderPath defines a placeholder path value used for headers in solomachine client updates

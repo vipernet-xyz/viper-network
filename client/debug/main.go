@@ -11,15 +11,14 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/ed25519"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/errors"
 
-	legacybech32 "github.com/cosmos/cosmos-sdk/types/bech32/legacybech32" //nolint:staticcheck // we do old keys, they're keys after all.
+	legacybech32 "github.com/vipernet-xyz/viper-network/types/bech32/legacybech32" //nolint:staticcheck // we do old keys, they're keys after all.
 )
 
 var (
@@ -59,7 +58,7 @@ func PubkeyCmd() *cobra.Command {
 
 Example:
 $ %s debug pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AurroA7jvfPd1AadmmOvWM2rJSwipXfRf8yD6pLbA2DJ"}'
-			`, version.AppName),
+			`, 0.1),
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -134,7 +133,7 @@ func PubkeyRawCmd() *cobra.Command {
 Example:
 $ %s debug pubkey-raw TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
 $ %s debug pubkey-raw cosmos1e0jnq2sun3dzjh8p2xq95kk0expwmd7shwjpfg
-			`, version.AppName, version.AppName),
+			`, 0.1, 0.1),
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -200,7 +199,7 @@ func AddrCmd() *cobra.Command {
 
 Example:
 $ %s debug addr cosmos1e0jnq2sun3dzjh8p2xq95kk0expwmd7shwjpfg
-			`, version.AppName),
+			`, 0.1),
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			addrString := args[0]
@@ -239,7 +238,7 @@ func RawBytesCmd() *cobra.Command {
 
 Example:
 $ %s debug raw-bytes [72 101 108 108 111 44 32 112 108 97 121 103 114 111 117 110 100]
-			`, version.AppName),
+			`, 0.1),
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			stringBytes := args[0]
@@ -266,7 +265,7 @@ func PrefixesCmd() *cobra.Command {
 		Use:     "prefixes",
 		Short:   "List prefixes used for Human-Readable Part (HRP) in Bech32",
 		Long:    "List prefixes used in Bech32 addresses.",
-		Example: fmt.Sprintf("$ %s debug prefixes", version.AppName),
+		Example: fmt.Sprintf("$ %s debug prefixes", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Printf("Bech32 Acc: %s\n", sdk.GetConfig().GetBech32AccountAddrPrefix())
 			cmd.Printf("Bech32 Val: %s\n", sdk.GetConfig().GetBech32ValidatorAddrPrefix())

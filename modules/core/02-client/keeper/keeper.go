@@ -8,12 +8,11 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/light"
-	"github.com/cosmos/cosmos-sdk/types/kv"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
 	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	upgradetypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
 	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 	"github.com/vipernet-xyz/viper-network/modules/core/exported"
@@ -23,6 +22,7 @@ import (
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
+	"github.com/vipernet-xyz/viper-network/types/kv"
 )
 
 // Keeper represents a type that grants read and write permissions to any client
@@ -325,7 +325,7 @@ func (k Keeper) ValidateSelfClient(ctx sdk.Ctx, clientState exported.ClientState
 
 	if len(tmClient.UpgradePath) != 0 {
 		// For now, SDK IBC implementation assumes that upgrade path (if defined) is defined by SDK upgrade module
-		expectedUpgradePath := []string{upgradetypes.StoreKey, upgradetypes.KeyUpgradedIBCState}
+		expectedUpgradePath := []string{"upgrade", upgradetypes.KeyUpgradedIBCState}
 		if !reflect.DeepEqual(expectedUpgradePath, tmClient.UpgradePath) {
 			return errorsmod.Wrapf(types.ErrInvalidClient, "upgrade path must be the upgrade path defined by upgrade module. expected %v, got %v",
 				expectedUpgradePath, tmClient.UpgradePath)

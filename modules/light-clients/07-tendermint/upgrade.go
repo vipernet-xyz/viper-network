@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/vipernet-xyz/viper-network/codec"
+	upgradetypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"

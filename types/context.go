@@ -52,6 +52,7 @@ type Context struct {
 	cachedStore   *Cache
 	isPrev        bool
 	logger1       log1.Logger
+	recheckTx     bool // if recheckTx == true, then checkTx must also be true
 }
 
 type Ctx interface {
@@ -126,6 +127,7 @@ func (c Context) EventManager() *EventManager { return c.eventManager }
 func (c Context) AppVersion() string          { return dropTag(c.appVersion) }
 func (c Context) ClearGlobalCache()           { c.cachedStore.Purge() }
 func (c Context) Logger1() log1.Logger        { return c.logger1 }
+func (c Context) IsReCheckTx() bool           { return c.recheckTx }
 func (c Context) IsAfterUpgradeHeight() bool {
 	return c.header.Height >= codec.GetCodecUpgradeHeight()
 }

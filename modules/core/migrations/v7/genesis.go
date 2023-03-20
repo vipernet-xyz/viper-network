@@ -1,12 +1,12 @@
 package v7
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	//genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/vipernet-xyz/viper-network/codec"
 
-	clientv7 "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/migrations/v7"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/types"
+	clientv7 "github.com/vipernet-xyz/viper-network/modules/core/02-client/migrations/v7"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/types"
 )
 
 // MigrateGenesis accepts an exported IBC client genesis file and migrates it to:

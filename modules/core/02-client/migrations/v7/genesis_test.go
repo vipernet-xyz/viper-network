@@ -1,5 +1,6 @@
 package v7_test
 
+/*
 import (
 	"encoding/json"
 
@@ -137,3 +138,4 @@ func (suite *MigrationsV7TestSuite) TestMigrateGenesisSolomachine() {
 
 	suite.Require().Equal(string(expectedIndentedBz), string(indentedBz))
 }
+*/

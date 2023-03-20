@@ -8,7 +8,7 @@ import (
 	fmt "fmt"
 	types1 "github.com/cometbft/cometbft/proto/tendermint/types"
 	types "github.com/vipernet-xyz/viper-network/types"
-	query "github.com/cosmos/cosmos-sdk/types/query"
+	query "github.com/vipernet-xyz/viper-network/types"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"

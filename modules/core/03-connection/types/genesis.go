@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
 )
 
 // NewConnectionPaths creates a ConnectionPaths instance.

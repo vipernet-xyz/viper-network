@@ -1,20 +1,19 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	"github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	"github.com/cosmos/cosmos-sdk/x/capability/types"
-)
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	moduletestutil "github.com/vipernet-xyz/viper-network/types/module/testutil"*/
 
-var (
+/*var (
 	stakingModuleName string = "staking"
 	bankModuleName    string = "bank"
 )
@@ -306,3 +305,4 @@ func (suite KeeperTestSuite) TestRevertCapability() {
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
+*/

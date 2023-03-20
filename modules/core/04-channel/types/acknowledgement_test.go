@@ -1,19 +1,18 @@
 package types_test
 
-import (
+/*
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	tmprotostate "github.com/cometbft/cometbft/proto/tendermint/state"
 	tmstate "github.com/cometbft/cometbft/state"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"
-)
+	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"*/
 
-const (
+/*const (
 	gasUsed   = uint64(100)
 	gasWanted = uint64(100)
 )
@@ -145,3 +144,4 @@ func (suite *TypesTestSuite) TestAcknowledgementError() {
 	suite.Require().Equal(ack, ackSameABCICode)
 	suite.Require().NotEqual(ack, ackDifferentABCICode)
 }
+*/

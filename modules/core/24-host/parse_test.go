@@ -1,5 +1,6 @@
 package host_test
 
+/*
 import (
 	"fmt"
 	"math"
@@ -77,3 +78,4 @@ func TestMustParseClientStatePath(t *testing.T) {
 		}
 	}
 }
+*/

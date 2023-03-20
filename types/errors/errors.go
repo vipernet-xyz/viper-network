@@ -1,7 +1,11 @@
 package errors
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
+	"github.com/pkg/errors"
+	grpccodes "google.golang.org/grpc/codes"
 )
 
 // RootCodespace is the codespace for all errors defined in this package
@@ -142,3 +146,125 @@ var (
 	// ErrPanic should only be set when we recovering from a panic
 	ErrPanic = errorsmod.ErrPanic
 )
+
+// Wrap extends given error with an additional information.
+//
+// If the wrapped error does not provide ABCICode method (ie. stdlib errors),
+// it will be labeled as internal error.
+//
+// If err is nil, this returns nil, avoiding the need for an if statement when
+// wrapping a error returned at the end of a function
+func Wrap(err error, description string) error {
+	if err == nil {
+		return nil
+	}
+
+	// If this error does not carry the stacktrace information yet, attach
+	// one. This should be done only once per error at the lowest frame
+	// possible (most inner wrap).
+	if stackTrace(err) == nil {
+		err = errors.WithStack(err)
+	}
+
+	return &wrappedError{
+		parent: err,
+		msg:    description,
+	}
+}
+
+// stackTrace returns the first found stack trace frame carried by given error
+// or any wrapped error. It returns nil if no stack trace is found.
+func stackTrace(err error) errors.StackTrace {
+	type stackTracer interface {
+		StackTrace() errors.StackTrace
+	}
+
+	for {
+		if st, ok := err.(stackTracer); ok {
+			return st.StackTrace()
+		}
+
+		if c, ok := err.(causer); ok {
+			err = c.Cause()
+		} else {
+			return nil
+		}
+	}
+}
+
+// causer is an interface implemented by an error that supports wrapping. Use
+// it to test if an error wraps another error instance.
+type causer interface {
+	Cause() error
+}
+
+type wrappedError struct {
+	// This error layer description.
+	msg string
+	// The underlying error that triggered this one.
+	parent error
+}
+
+func (e *wrappedError) Error() string {
+	return fmt.Sprintf("%s: %s", e.msg, e.parent.Error())
+}
+
+// Wrapf extends given error with an additional information.
+//
+// This function works like Wrap function with additional functionality of
+// formatting the input as specified.
+func Wrapf(err error, format string, args ...interface{}) error {
+	desc := fmt.Sprintf(format, args...)
+	return Wrap(err, desc)
+}
+
+// Register returns an error instance that should be used as the base for
+// creating error instances during runtime.
+//
+// Popular root errors are declared in this package, but extensions may want to
+// declare custom codes. This function ensures that no error code is used
+// twice. Attempt to reuse an error code results in panic.
+//
+// Use this function only during a program startup phase.
+func Register(codespace string, code uint32, description string) *Error {
+	return RegisterWithGRPCCode(codespace, code, grpccodes.Unknown, description)
+}
+
+// RegisterWithGRPCCode is a version of Register that associates a gRPC error
+// code with a registered error.
+func RegisterWithGRPCCode(codespace string, code uint32, grpcCode grpccodes.Code, description string) *Error {
+	// TODO - uniqueness is (codespace, code) combo
+	if e := getUsed(codespace, code); e != nil {
+		panic(fmt.Sprintf("error with code %d is already registered: %q", code, e.desc))
+	}
+
+	err := &Error{codespace: codespace, code: code, desc: description, grpcCode: grpcCode}
+	setUsed(err)
+
+	return err
+}
+
+type Error struct {
+	codespace string
+	code      uint32
+	desc      string
+	grpcCode  grpccodes.Code
+}
+
+// usedCodes is keeping track of used codes to ensure their uniqueness. No two
+// error instances should share the same (codespace, code) tuple.
+var usedCodes = map[string]*Error{}
+
+func errorID(codespace string, code uint32) string {
+	return fmt.Sprintf("%s:%d", codespace, code)
+}
+func getUsed(codespace string, code uint32) *Error {
+	return usedCodes[errorID(codespace, code)]
+}
+func setUsed(err *Error) {
+	usedCodes[errorID(err.codespace, err.code)] = err
+}
+
+func (e Error) Error() string {
+	return e.desc
+}

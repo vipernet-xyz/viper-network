@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/stretchr/testify/require"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"

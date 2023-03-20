@@ -12,9 +12,9 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/vipernet-xyz/viper-network/codec"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 //-------------------------------------

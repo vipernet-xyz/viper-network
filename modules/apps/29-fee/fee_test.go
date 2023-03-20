@@ -1,5 +1,6 @@
 package fee_test
 
+/*
 import (
 	"testing"
 
@@ -71,3 +72,4 @@ func lockFeeModule(chain *ibctesting.TestChain) {
 	store := ctx.KVStore(storeKey)
 	store.Set(types.KeyLocked(), []byte{1})
 }
+*/

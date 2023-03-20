@@ -787,7 +787,7 @@ func (m *ModeInfo_Multi) GetModeInfos() []*ModeInfo {
 // which must be above some miminum to be accepted into the mempool.
 type Fee struct {
 	// amount is the amount of coins to be paid as a fee
-	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"amount"`
 	// gas_limit is the maximum gas that can be used in transaction processing
 	// before an out of gas error occurs
 	GasLimit uint64 `protobuf:"varint,2,opt,name=gas_limit,json=gasLimit,proto3" json:"gas_limit,omitempty"`
@@ -867,7 +867,7 @@ func (m *Fee) GetGranter() string {
 // Since: cosmos-sdk 0.46
 type Tip struct {
 	// amount is the amount of the tip
-	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"amount"`
 	// tipper is the address of the account paying for the tip
 	Tipper string `protobuf:"bytes,2,opt,name=tipper,proto3" json:"tipper,omitempty"`
 }

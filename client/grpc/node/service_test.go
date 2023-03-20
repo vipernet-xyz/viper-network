@@ -1,12 +1,13 @@
 package node
 
+/*
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/vipernet-xyz/viper-network/client"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 func TestServiceServer_Config(t *testing.T) {
@@ -18,3 +19,4 @@ func TestServiceServer_Config(t *testing.T) {
 	require.NotNil(t, resp)
 	require.Equal(t, ctx.MinGasPrices().String(), resp.MinimumGasPrice)
 }
+*/

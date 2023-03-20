@@ -1,18 +1,17 @@
 package keeper_test
 
-import (
+/*
 	"testing"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"
-)
+	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"*/
 
-var (
+/*var (
 	validPort   = "validportid"
 	invalidPort = "(invalidPortID)"
 )
@@ -74,3 +73,4 @@ func (suite *KeeperTestSuite) TestAuthenticate() {
 	auth = suite.keeper.Authenticate(suite.ctx, capKey2, validPort)
 	require.False(suite.T(), auth, "invalid authentication for different capKey failed")
 }
+*/

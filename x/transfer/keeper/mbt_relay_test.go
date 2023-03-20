@@ -14,7 +14,7 @@ package keeper_test
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"

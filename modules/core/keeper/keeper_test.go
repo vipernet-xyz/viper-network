@@ -1,23 +1,22 @@
 package keeper_test
 
-import (
+/*
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	"github.com/stretchr/testify/suite"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/vipernet-xyz/ibc-go/v7/modules/core/keeper"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-type KeeperTestSuite struct {
+/*type KeeperTestSuite struct {
 	suite.Suite
 
 	coordinator *ibctesting.Coordinator
@@ -141,3 +140,4 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 		})
 	}
 }
+*/

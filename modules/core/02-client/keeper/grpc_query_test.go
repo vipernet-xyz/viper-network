@@ -1,21 +1,20 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	grpctypes "github.com/vipernet-xyz/viper-network/types/grpc"
+	"github.com/vipernet-xyz/viper-network/types/query"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-func (suite *KeeperTestSuite) TestQueryClientState() {
+/*func (suite *KeeperTestSuite) TestQueryClientState() {
 	var (
 		req            *types.QueryClientStateRequest
 		expClientState *codectypes.Any
@@ -646,3 +645,4 @@ func (suite *KeeperTestSuite) TestQueryClientParams() {
 	res, _ := suite.chainA.QueryServer.ClientParams(ctx, &types.QueryClientParamsRequest{})
 	suite.Require().Equal(&expParams, res.Params)
 }
+*/

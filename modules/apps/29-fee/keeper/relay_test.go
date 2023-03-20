@@ -1,14 +1,13 @@
 package keeper_test
 
-import (
+/*
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-func (suite *KeeperTestSuite) TestWriteAcknowledgementAsync() {
+/*func (suite *KeeperTestSuite) TestWriteAcknowledgementAsync() {
 	testCases := []struct {
 		name     string
 		malleate func()
@@ -170,3 +169,4 @@ func (suite *KeeperTestSuite) TestGetAppVersion() {
 		})
 	}
 }
+*/

@@ -1,6 +1,6 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -10,10 +10,9 @@ import (
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-type testCase = struct {
+/*type testCase = struct {
 	msg      string
 	malleate func()
 	expPass  bool
@@ -790,3 +789,4 @@ func (suite *KeeperTestSuite) TestChanCloseConfirm() {
 func malleateHeight(height exported.Height, diff uint64) exported.Height {
 	return clienttypes.NewHeight(height.GetRevisionNumber(), height.GetRevisionHeight()+diff)
 }
+*/

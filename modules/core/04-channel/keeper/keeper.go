@@ -4,12 +4,12 @@ import (
 	"strconv"
 	"strings"
 
-	errorsmod "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	errorsmod "github.com/vipernet-xyz/viper-network/types/errors"
 	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"

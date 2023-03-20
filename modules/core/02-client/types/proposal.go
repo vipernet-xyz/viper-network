@@ -3,11 +3,12 @@ package types
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
+	govtypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
 	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
@@ -25,8 +26,8 @@ var (
 )
 
 func init() {
-	govtypes.RegisterProposalType(ProposalTypeClientUpdate)
-	govtypes.RegisterProposalType(ProposalTypeUpgrade)
+	RegisterProposalType(ProposalTypeClientUpdate)
+	RegisterProposalType(ProposalTypeUpgrade)
 }
 
 // NewClientUpdateProposal creates a new client update proposal.
@@ -53,7 +54,7 @@ func (cup *ClientUpdateProposal) ProposalType() string { return ProposalTypeClie
 
 // ValidateBasic runs basic stateless validity checks
 func (cup *ClientUpdateProposal) ValidateBasic() error {
-	err := govtypes.ValidateAbstract(cup)
+	err := ValidateAbstract(cup)
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func (cup *ClientUpdateProposal) ValidateBasic() error {
 }
 
 // NewUpgradeProposal creates a new IBC breaking upgrade proposal.
-func NewUpgradeProposal(title, description string, plan upgradetypes.Plan, upgradedClientState exported.ClientState) (govtypes.Content, error) {
+func NewUpgradeProposal(title, description string, plan Plan, upgradedClientState exported.ClientState) (govtypes.Content, error) {
 	protoAny, err := PackClientState(upgradedClientState)
 	if err != nil {
 		return nil, err
@@ -100,7 +101,7 @@ func (up *UpgradeProposal) ProposalType() string { return ProposalTypeUpgrade }
 
 // ValidateBasic runs basic stateless validity checks
 func (up *UpgradeProposal) ValidateBasic() error {
-	if err := govtypes.ValidateAbstract(up); err != nil {
+	if err := ValidateAbstract(up); err != nil {
 		return err
 	}
 
@@ -144,4 +145,67 @@ func (up UpgradeProposal) String() string {
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (up UpgradeProposal) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	return unpacker.UnpackAny(up.UpgradedClientState, new(exported.ClientState))
+}
+
+// Proposal types
+const (
+	ProposalTypeText string = "Text"
+
+	// Constants pertaining to a Content object
+	MaxDescriptionLength int = 10000
+	MaxTitleLength       int = 140
+)
+
+var validProposalTypes = map[string]struct{}{
+	ProposalTypeText: {},
+}
+
+// RegisterProposalType registers a proposal type. It will panic if the type is
+// already registered.
+func RegisterProposalType(ty string) {
+	if _, ok := validProposalTypes[ty]; ok {
+		panic(fmt.Sprintf("already registered proposal type: %s", ty))
+	}
+
+	validProposalTypes[ty] = struct{}{}
+}
+
+// ValidateAbstract validates a proposal's abstract contents returning an error
+// if invalid.
+func ValidateAbstract(c govtypes.Content) error {
+	title := c.GetTitle()
+	if len(strings.TrimSpace(title)) == 0 {
+		return sdkerrors.Wrap(govtypes.ErrInvalidProposalContent, "proposal title cannot be blank")
+	}
+	if len(title) > MaxTitleLength {
+		return sdkerrors.Wrapf(govtypes.ErrInvalidProposalContent, "proposal title is longer than max length of %d", MaxTitleLength)
+	}
+
+	description := c.GetDescription()
+	if len(description) == 0 {
+		return sdkerrors.Wrap(govtypes.ErrInvalidProposalContent, "proposal description cannot be blank")
+	}
+	if len(description) > MaxDescriptionLength {
+		return sdkerrors.Wrapf(govtypes.ErrInvalidProposalContent, "proposal description is longer than max length of %d", MaxDescriptionLength)
+	}
+
+	return nil
+}
+
+// ValidateBasic does basic validation of a Plan
+func (p Plan) ValidateBasic() error {
+	if !p.Time.IsZero() {
+		return sdkerrors.ErrInvalidRequest.Wrap("time-based upgrades have been deprecated in the SDK")
+	}
+	if p.UpgradedClientState != nil {
+		return sdkerrors.ErrInvalidRequest.Wrap("upgrade logic for IBC has been moved to the IBC module")
+	}
+	if len(p.Name) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "name cannot be empty")
+	}
+	if p.Height <= 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "height must be greater than 0")
+	}
+
+	return nil
 }

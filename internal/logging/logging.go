@@ -3,7 +3,7 @@ package logging
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // SdkEventsToLogArguments converts a given sdk.Events and returns a slice of strings that provide human

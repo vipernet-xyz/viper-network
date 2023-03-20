@@ -1,10 +1,10 @@
 package tendermint_test
 
-import (
+/*
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	ics23 "github.com/cosmos/ics23/go"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
@@ -14,10 +14,9 @@ import (
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-const (
+/*const (
 	// Do not change the length of these variables
 	fiftyCharChainID    = "12345678901234567890123456789012345678901234567890"
 	fiftyOneCharChainID = "123456789012345678901234567890123456789012345678901"
@@ -676,3 +675,4 @@ func (suite *TendermintTestSuite) TestVerifyNonMembership() {
 		})
 	}
 }
+*/

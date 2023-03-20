@@ -10,10 +10,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"cosmossdk.io/store/rootmulti"
-
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/vipernet-xyz/viper-network/store/rootmulti"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 // GetNode returns an RPC client. If the context's client is not defined, an

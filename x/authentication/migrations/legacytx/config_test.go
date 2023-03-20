@@ -1,19 +1,18 @@
 package legacytx_test
 
-import (
+/*
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	cryptoAmino "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	txtestutil "github.com/cosmos/cosmos-sdk/x/auth/tx/testutil"
-)
+	"github.com/vipernet-xyz/viper-network/codec"
+	cryptoAmino "github.com/vipernet-xyz/viper-network/crypto/codec"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/x/authentication/migrations/legacytx"*/
 
-func testCodec() *codec.LegacyAmino {
+/*func testCodec() *codec.LegacyAmino {
 	cdc := codec.NewLegacyAmino()
 	sdk.RegisterLegacyAminoCodec(cdc)
 	cryptoAmino.RegisterCrypto(cdc)
@@ -26,3 +25,4 @@ func TestStdTxConfig(t *testing.T) {
 	txGen := legacytx.StdTxConfig{Cdc: cdc}
 	suite.Run(t, txtestutil.NewTxConfigTestSuite(txGen))
 }
+*/

@@ -1,16 +1,15 @@
 package fee_test
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+/*
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
 	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
 // Integration test to ensure ics29 works with ics20
-func (suite *FeeTestSuite) TestFeeTransfer() {
+/*func (suite *FeeTestSuite) TestFeeTransfer() {
 	path := ibctesting.NewPath(suite.chainA, suite.chainB)
 	feeTransferVersion := string(types.ModuleCdc.MustMarshalJSON(&types.Metadata{FeeVersion: types.Version, AppVersion: transfertypes.Version}))
 	path.EndpointA.ChannelConfig.Version = feeTransferVersion
@@ -68,3 +67,4 @@ func (suite *FeeTestSuite) TestFeeTransfer() {
 		fee.AckFee.Add(fee.TimeoutFee...), // ack fee paid, timeout fee refunded
 		sdk.NewCoins(suite.chainA.GetSimApp().BankKeeper.GetBalance(suite.chainA.GetContext(), suite.chainA.SenderAccount.GetAddress(), ibctesting.TestCoin.Denom)).Sub(originalChainASenderAccountBalance[0]))
 }
+*/

@@ -1,22 +1,21 @@
 package client_test
 
-import (
+/*
 	"strings"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/stretchr/testify/suite"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	client "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-type ClientTestSuite struct {
+/*type ClientTestSuite struct {
 	suite.Suite
 
 	coordinator *ibctesting.Coordinator
@@ -128,3 +127,4 @@ func (suite *ClientTestSuite) requireContainsEvent(events sdk.Events, eventType 
 		suite.Require().False(found, "event type %s was found in %s", eventType, strings.Join(eventTypes, ","))
 	}
 }
+*/

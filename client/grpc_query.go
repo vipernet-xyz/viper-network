@@ -18,9 +18,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/vipernet-xyz/viper-network/codec/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
+	grpctypes "github.com/vipernet-xyz/viper-network/types/grpc"
 	"github.com/vipernet-xyz/viper-network/types/tx"
 )
 

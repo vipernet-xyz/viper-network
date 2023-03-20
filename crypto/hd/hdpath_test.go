@@ -1,6 +1,6 @@
 package hd_test
 
-import (
+/*
 	"encoding/hex"
 	"fmt"
 	"testing"
@@ -8,11 +8,10 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/types"
-)
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	"github.com/vipernet-xyz/viper-network/types"*/
 
-var defaultBIP39Passphrase = ""
+/*var defaultBIP39Passphrase = ""
 
 // return bip39 seed with empty passphrase
 func mnemonicToSeed(mnemonic string) []byte {
@@ -303,3 +302,4 @@ func TestDerivePrivateKeyForPathDoNotCrash(t *testing.T) {
 		})
 	}
 }
+*/

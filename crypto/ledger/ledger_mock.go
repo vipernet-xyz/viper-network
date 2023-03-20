@@ -3,6 +3,7 @@
 
 package ledger
 
+/*
 import (
 	"errors"
 	"fmt"
@@ -15,7 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	csecp256k1 "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // If ledger support (build tag) has been enabled, which implies a CGO dependency,
@@ -110,3 +111,4 @@ func (mock LedgerSECP256K1Mock) ShowAddressSECP256K1(bip32Path []uint32, hrp str
 	fmt.Printf("Request to show address for %v at %v", hrp, bip32Path)
 	return nil
 }
+*/

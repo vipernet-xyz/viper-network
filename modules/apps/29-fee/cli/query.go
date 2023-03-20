@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/client/flags"
@@ -68,7 +67,7 @@ func GetCmdIncentivizedPackets() *cobra.Command {
 		Short:   "Query for all of the unrelayed incentivized packets and associated fees across all channels.",
 		Long:    "Query for all of the unrelayed incentivized packets and associated fees across all channels.",
 		Args:    cobra.NoArgs,
-		Example: fmt.Sprintf("%s query ibc-fee packets", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee packets", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -109,7 +108,7 @@ func GetCmdTotalRecvFees() *cobra.Command {
 		Short:   "Query the total receive fees for a packet",
 		Long:    "Query the total receive fees for a packet",
 		Args:    cobra.ExactArgs(3),
-		Example: fmt.Sprintf("%s query ibc-fee total-recv-fees transfer channel-5 100", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee total-recv-fees transfer channel-5 100", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -155,7 +154,7 @@ func GetCmdTotalAckFees() *cobra.Command {
 		Short:   "Query the total acknowledgement fees for a packet",
 		Long:    "Query the total acknowledgement fees for a packet",
 		Args:    cobra.ExactArgs(3),
-		Example: fmt.Sprintf("%s query ibc-fee total-ack-fees transfer channel-5 100", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee total-ack-fees transfer channel-5 100", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -201,7 +200,7 @@ func GetCmdTotalTimeoutFees() *cobra.Command {
 		Short:   "Query the total timeout fees for a packet",
 		Long:    "Query the total timeout fees for a packet",
 		Args:    cobra.ExactArgs(3),
-		Example: fmt.Sprintf("%s query ibc-fee total-timeout-fees transfer channel-5 100", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee total-timeout-fees transfer channel-5 100", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -247,7 +246,7 @@ func GetCmdPayee() *cobra.Command {
 		Short:   "Query the relayer payee address on a given channel",
 		Long:    "Query the relayer payee address on a given channel",
 		Args:    cobra.ExactArgs(2),
-		Example: fmt.Sprintf("%s query ibc-fee payee channel-5 cosmos1layxcsmyye0dc0har9sdfzwckaz8sjwlfsj8zs", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee payee channel-5 cosmos1layxcsmyye0dc0har9sdfzwckaz8sjwlfsj8zs", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -286,7 +285,7 @@ func GetCmdCounterpartyPayee() *cobra.Command {
 		Short:   "Query the relayer counterparty payee on a given channel",
 		Long:    "Query the relayer counterparty payee on a given channel",
 		Args:    cobra.ExactArgs(2),
-		Example: fmt.Sprintf("%s query ibc-fee counterparty-payee channel-5 cosmos1layxcsmyye0dc0har9sdfzwckaz8sjwlfsj8zs", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee counterparty-payee channel-5 cosmos1layxcsmyye0dc0har9sdfzwckaz8sjwlfsj8zs", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -325,7 +324,7 @@ func GetCmdFeeEnabledChannels() *cobra.Command {
 		Short:   "Query the ibc-fee enabled channels",
 		Long:    "Query the ibc-fee enabled channels",
 		Args:    cobra.NoArgs,
-		Example: fmt.Sprintf("%s query ibc-fee channels", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee channels", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -366,7 +365,7 @@ func GetCmdFeeEnabledChannel() *cobra.Command {
 		Short:   "Query the ibc-fee enabled status of a channel",
 		Long:    "Query the ibc-fee enabled status of a channel",
 		Args:    cobra.ExactArgs(2),
-		Example: fmt.Sprintf("%s query ibc-fee channel transfer channel-6", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee channel transfer channel-6", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -401,7 +400,7 @@ func GetCmdIncentivizedPacketsForChannel() *cobra.Command {
 		Short:   "Query for all of the unrelayed incentivized packets on a given channel",
 		Long:    "Query for all of the unrelayed incentivized packets on a given channel. These are packets that have not yet been relayed.",
 		Args:    cobra.ExactArgs(2),
-		Example: fmt.Sprintf("%s query ibc-fee packets-for-channel", version.AppName),
+		Example: fmt.Sprintf("%s query ibc-fee packets-for-channel", 0.1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {

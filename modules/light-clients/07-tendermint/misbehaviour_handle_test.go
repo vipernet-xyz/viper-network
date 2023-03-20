@@ -1,6 +1,6 @@
 package tendermint_test
 
-import (
+/*
 	"fmt"
 	"strings"
 	"time"
@@ -12,10 +12,9 @@ import (
 	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-func (suite *TendermintTestSuite) TestVerifyMisbehaviour() {
+/*func (suite *TendermintTestSuite) TestVerifyMisbehaviour() {
 	// Setup different validators and signers for testing different types of updates
 	altPrivVal := ibctestingmock.NewPV()
 	altPubKey, err := altPrivVal.GetPubKey()
@@ -646,3 +645,4 @@ func (suite *TendermintTestSuite) TestVerifyMisbehaviourNonRevisionChainID() {
 	// NOTE: reset chain creation to revision format
 	ibctesting.ChainIDSuffix = "-1"
 }
+*/

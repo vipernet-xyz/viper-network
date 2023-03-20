@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
 )
 
 func TestDefaults(t *testing.T) {

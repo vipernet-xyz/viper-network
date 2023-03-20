@@ -1,10 +1,10 @@
 package cli
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
+	"github.com/vipernet-xyz/viper-network/client"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 )
 
 // GetQueryCmd returns the query commands for IBC clients
@@ -24,7 +24,6 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryConsensusStates(),
 		GetCmdQueryConsensusStateHeights(),
 		GetCmdQueryConsensusState(),
-		GetCmdQueryHeader(),
 		GetCmdSelfConsensusState(),
 		GetCmdClientParams(),
 	)

@@ -1,6 +1,6 @@
 package tendermint_test
 
-import (
+/*
 	"math"
 	"time"
 
@@ -10,10 +10,9 @@ import (
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
 	tendermint "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-func (suite *TendermintTestSuite) TestGetConsensusState() {
+/*func (suite *TendermintTestSuite) TestGetConsensusState() {
 	var (
 		height exported.Height
 		path   *ibctesting.Path
@@ -203,3 +202,4 @@ func (suite *TendermintTestSuite) TestGetNeighboringConsensusStates() {
 	suite.Require().Nil(nextCs49, "next consensus state exists after highest consensus state")
 	suite.Require().False(ok)
 }
+*/

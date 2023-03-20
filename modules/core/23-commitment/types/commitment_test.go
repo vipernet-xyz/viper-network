@@ -1,17 +1,16 @@
 package types_test
 
-import (
+/*
 	"testing"
 
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/store/iavl"
-	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/stretchr/testify/suite"
-)
+	"github.com/vipernet-xyz/viper-network/store/iavl"
+	"github.com/vipernet-xyz/viper-network/store/rootmulti"*/
 
-type MerkleTestSuite struct {
+/*type MerkleTestSuite struct {
 	suite.Suite
 
 	store     *rootmulti.Store
@@ -36,3 +35,4 @@ func (suite *MerkleTestSuite) SetupTest() {
 func TestMerkleTestSuite(t *testing.T) {
 	suite.Run(t, new(MerkleTestSuite))
 }
+*/

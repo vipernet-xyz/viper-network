@@ -11,8 +11,8 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
 )
 
 type addrData struct {

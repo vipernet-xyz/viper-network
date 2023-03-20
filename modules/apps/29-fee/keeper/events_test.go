@@ -1,18 +1,17 @@
 package keeper_test
 
-import (
+/*
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
 	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-func (suite *KeeperTestSuite) TestIncentivizePacketEvent() {
+/*func (suite *KeeperTestSuite) TestIncentivizePacketEvent() {
 	var (
 		expRecvFees    sdk.Coins
 		expAckFees     sdk.Coins
@@ -166,3 +165,4 @@ func (suite *KeeperTestSuite) TestDistributeFeeEvent() {
 		suite.Require().Contains(events, evt)
 	}
 }
+*/

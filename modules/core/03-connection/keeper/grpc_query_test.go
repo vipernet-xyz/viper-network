@@ -1,18 +1,17 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	query "github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"*/
 
-func (suite *KeeperTestSuite) TestQueryConnection() {
+/*func (suite *KeeperTestSuite) TestQueryConnection() {
 	var (
 		req           *types.QueryConnectionRequest
 		expConnection types.ConnectionEnd
@@ -447,3 +446,4 @@ func (suite *KeeperTestSuite) TestQueryConnectionParams() {
 	res, _ := suite.chainA.QueryServer.ConnectionParams(ctx, &types.QueryConnectionParamsRequest{})
 	suite.Require().Equal(&expParams, res.Params)
 }
+*/

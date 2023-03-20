@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
@@ -132,7 +131,7 @@ func EmitUpgradeChainEvent(ctx sdk.Ctx, height int64) {
 		sdk.NewEvent(
 			types.EventTypeUpgradeChain,
 			sdk.NewAttribute(types.AttributeKeyUpgradePlanHeight, strconv.FormatInt(height, 10)),
-			sdk.NewAttribute(types.AttributeKeyUpgradeStore, upgradetypes.StoreKey), // which store to query proof of consensus state from
+			sdk.NewAttribute(types.AttributeKeyUpgradeStore, "upgrade"), // which store to query proof of consensus state from
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,

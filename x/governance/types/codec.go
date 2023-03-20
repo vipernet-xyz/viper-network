@@ -27,3 +27,16 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgChangeParam{}, &MsgDAOTransfer{}, &MsgUpgrade{})
 	ModuleCdc = cdc
 }
+
+// Content defines an interface that a proposal must implement. It contains
+// information such as the title and description along with the type and routing
+// information for the appropriate handler to process the proposal. Content can
+// have additional fields, which will handled by a proposal's Handler.
+type Content interface {
+	GetTitle() string
+	GetDescription() string
+	ProposalRoute() string
+	ProposalType() string
+	ValidateBasic() error
+	String() string
+}

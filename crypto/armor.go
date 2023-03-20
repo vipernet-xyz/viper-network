@@ -12,10 +12,10 @@ import (
 	errorsmod "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/bcrypt"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	legacy "github.com/vipernet-xyz/viper-network/codec/legacy"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	"github.com/vipernet-xyz/viper-network/crypto/xsalsa20symmetric"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 const (

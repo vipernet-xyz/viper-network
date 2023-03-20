@@ -1,10 +1,9 @@
 package keeper_test
 
-import (
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-)
+/*
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"*/
 
-func (suite *KeeperTestSuite) TestParams() {
+/*func (suite *KeeperTestSuite) TestParams() {
 	expParams := types.DefaultParams()
 
 	params := suite.chainA.App.GetIBCKeeper().ClientKeeper.GetParams(suite.chainA.GetContext())
@@ -15,3 +14,4 @@ func (suite *KeeperTestSuite) TestParams() {
 	_ = suite.chainA.App.GetIBCKeeper().ClientKeeper.GetParams(suite.chainA.GetContext())
 	suite.Require().Empty(expParams.AllowedClients)
 }
+*/

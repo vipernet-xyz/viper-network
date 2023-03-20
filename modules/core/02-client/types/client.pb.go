@@ -7,7 +7,6 @@ import (
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
 	types "github.com/vipernet-xyz/viper-network/codec/types"
-	types1 "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
@@ -248,7 +247,7 @@ var xxx_messageInfo_ClientUpdateProposal proto.InternalMessageInfo
 type UpgradeProposal struct {
 	Title       string      `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description string      `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	Plan        types1.Plan `protobuf:"bytes,3,opt,name=plan,proto3" json:"plan"`
+	Plan        Plan        `protobuf:"bytes,3,opt,name=plan,proto3" json:"plan"`
 	// An UpgradedClientState must be provided to perform an IBC breaking upgrade.
 	// This will make the chain commit to the correct upgraded (self) client state
 	// before the upgrade occurs, so that connecting chains can verify that the

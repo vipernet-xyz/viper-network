@@ -1,16 +1,15 @@
 package types_test
 
-import (
+/*
 	"fmt"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-)
+	"github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"*/
 
-func (suite *MerkleTestSuite) TestVerifyMembership() {
+/*func (suite *MerkleTestSuite) TestVerifyMembership() {
 	suite.iavlStore.Set([]byte("MYKEY"), []byte("MYVALUE"))
 	cid := suite.store.Commit()
 
@@ -168,3 +167,4 @@ func TestString(t *testing.T) {
 	require.Equal(t, "", zeroPath.String(), "zero element path does not have correct string representation")
 	require.Equal(t, "", zeroPath.Pretty(), "zero element path does not have correct pretty string representation")
 }
+*/

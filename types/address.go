@@ -9,12 +9,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/hashicorp/golang-lru/simplelru"
 	tmCrypto "github.com/tendermint/tendermint/crypto"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
 	"github.com/vipernet-xyz/viper-network/internal/conv"
+	"github.com/vipernet-xyz/viper-network/types/bech32"
 	"gopkg.in/yaml.v2"
 )
 
@@ -406,4 +406,29 @@ func (aa AccAddress) Marshal() ([]byte, error) {
 // MarshalJSON marshals to JSON using Bech32.
 func (aa AccAddress) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aa.String())
+}
+
+// ValAddress defines a wrapper around bytes meant to present a validator's
+// operator. When marshaled to a string or JSON, it uses Bech32.
+type ValAddress []byte
+
+// ValAddressFromBech32 creates a ValAddress from a Bech32 string.
+func ValAddressFromBech32(address string) (addr ValAddress, err error) {
+	if len(strings.TrimSpace(address)) == 0 {
+		return ValAddress{}, errors.New("empty address string is not allowed")
+	}
+
+	bech32PrefixValAddr := GetConfig().GetBech32ValidatorAddrPrefix()
+
+	bz, err := GetFromBech32(address, bech32PrefixValAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	err = VerifyAddressFormat(bz)
+	if err != nil {
+		return nil, err
+	}
+
+	return ValAddress(bz), nil
 }

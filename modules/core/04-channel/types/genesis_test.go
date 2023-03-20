@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )
 
 const (

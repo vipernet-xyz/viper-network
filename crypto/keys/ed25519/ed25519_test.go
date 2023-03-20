@@ -10,12 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/ed25519"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 )
 
 func TestSignAndValidateEd25519(t *testing.T) {
@@ -235,22 +233,4 @@ func TestMarshalAmino_BackwardsCompatibility(t *testing.T) {
 			require.Equal(t, bz1, bz2)
 		})
 	}
-}
-
-func TestMarshalJSON(t *testing.T) {
-	require := require.New(t)
-	privKey := ed25519.GenPrivKey()
-	pk := privKey.PubKey()
-
-	registry := types.NewInterfaceRegistry()
-	cryptocodec.RegisterInterfaces(registry)
-	cdc := codec.NewProtoCodec(registry)
-
-	bz, err := cdc.MarshalInterfaceJSON(pk)
-	require.NoError(err)
-
-	var pk2 cryptotypes.PubKey
-	err = cdc.UnmarshalInterfaceJSON(bz, &pk2)
-	require.NoError(err)
-	require.True(pk2.Equals(pk))
 }

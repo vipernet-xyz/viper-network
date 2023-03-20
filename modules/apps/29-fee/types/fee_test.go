@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/cometbft/cometbft/crypto/secp256k1"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
 )
 
 var (

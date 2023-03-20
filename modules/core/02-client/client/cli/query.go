@@ -4,14 +4,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/client/flags"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/client/utils"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/client/utils"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 const (
@@ -25,7 +24,7 @@ func GetCmdQueryClientStates() *cobra.Command {
 		Use:     "states",
 		Short:   "Query all available light clients",
 		Long:    "Query all available light clients",
-		Example: fmt.Sprintf("%s query %s %s states", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s states", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -64,7 +63,7 @@ func GetCmdQueryClientState() *cobra.Command {
 		Use:     "state [client-id]",
 		Short:   "Query a client state",
 		Long:    "Query stored client state",
-		Example: fmt.Sprintf("%s query %s %s state [client-id]", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s state [client-id]", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -95,7 +94,7 @@ func GetCmdQueryClientStatus() *cobra.Command {
 		Use:     "status [client-id]",
 		Short:   "Query client status",
 		Long:    "Query client activity status. Any client without an 'Active' status is considered inactive",
-		Example: fmt.Sprintf("%s query %s %s status [client-id]", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s status [client-id]", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -131,7 +130,7 @@ func GetCmdQueryConsensusStates() *cobra.Command {
 		Use:     "consensus-states [client-id]",
 		Short:   "Query all the consensus states of a client.",
 		Long:    "Query all the consensus states from a given client state.",
-		Example: fmt.Sprintf("%s query %s %s consensus-states [client-id]", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s consensus-states [client-id]", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -173,7 +172,7 @@ func GetCmdQueryConsensusStateHeights() *cobra.Command {
 		Use:     "consensus-state-heights [client-id]",
 		Short:   "Query the heights of all consensus states of a client.",
 		Long:    "Query the heights of all consensus states associated with the provided client ID.",
-		Example: fmt.Sprintf("%s query %s %s consensus-state-heights [client-id]", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s consensus-state-heights [client-id]", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -217,7 +216,7 @@ func GetCmdQueryConsensusState() *cobra.Command {
 		Short: "Query the consensus state of a client at a given height",
 		Long: `Query the consensus state for a particular light client at a given height.
 If the '--latest' flag is included, the query returns the latest consensus state, overriding the height argument.`,
-		Example: fmt.Sprintf("%s query %s %s  consensus-state [client-id] [height]", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s  consensus-state [client-id] [height]", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -258,12 +257,12 @@ If the '--latest' flag is included, the query returns the latest consensus state
 }
 
 // GetCmdQueryHeader defines the command to query the latest header on the chain
-func GetCmdQueryHeader() *cobra.Command {
+/*func GetCmdQueryHeader() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "header",
 		Short:   "Query the latest header of the running chain",
 		Long:    "Query the latest Tendermint header of the running chain",
-		Example: fmt.Sprintf("%s query %s %s  header", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s  header", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -283,6 +282,7 @@ func GetCmdQueryHeader() *cobra.Command {
 
 	return cmd
 }
+*/
 
 // GetCmdSelfConsensusState defines the command to query the self consensus state of a chain
 func GetCmdSelfConsensusState() *cobra.Command {
@@ -290,7 +290,7 @@ func GetCmdSelfConsensusState() *cobra.Command {
 		Use:     "self-consensus-state",
 		Short:   "Query the self consensus state for this chain",
 		Long:    "Query the self consensus state for this chain. This result may be used for verifying IBC clients representing this chain which are hosted on counterparty chains.",
-		Example: fmt.Sprintf("%s query %s %s self-consensus-state", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s self-consensus-state", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -318,7 +318,7 @@ func GetCmdClientParams() *cobra.Command {
 		Short:   "Query the current ibc client parameters",
 		Long:    "Query the current ibc client parameters",
 		Args:    cobra.NoArgs,
-		Example: fmt.Sprintf("%s query %s %s params", version.AppName, ibcexported.ModuleName, types.SubModuleName),
+		Example: fmt.Sprintf("%s query %s %s params", 0.1, ibcexported.ModuleName, types.SubModuleName),
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {

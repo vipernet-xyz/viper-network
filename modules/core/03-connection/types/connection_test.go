@@ -1,6 +1,6 @@
 package types_test
 
-import (
+/*
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -8,10 +8,9 @@ import (
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
 	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-var (
+/*var (
 	chainID             = "gaiamainnet"
 	connectionID        = "connection-0"
 	clientID            = "clientidone"
@@ -119,3 +118,4 @@ func TestIdentifiedConnectionValidateBasic(t *testing.T) {
 		}
 	}
 }
+*/

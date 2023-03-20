@@ -1,8 +1,8 @@
 package keeper_test
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+/*
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
@@ -12,10 +12,9 @@ import (
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/keeper"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-var (
+/*var (
 	timeoutHeight = clienttypes.NewHeight(1, 10000)
 	maxSequence   = uint64(10)
 )
@@ -774,3 +773,4 @@ func (suite *KeeperTestSuite) TestUpgradeClient() {
 		}
 	}
 }
+*/

@@ -11,11 +11,11 @@ import (
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/spf13/pflag"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/client/input"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 	"github.com/vipernet-xyz/viper-network/types/tx"
 	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 	authsigning "github.com/vipernet-xyz/viper-network/x/authentication/signing"

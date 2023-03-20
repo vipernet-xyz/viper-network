@@ -7,10 +7,10 @@ import (
 
 	"cosmossdk.io/errors"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/ed25519"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 // FromCmtProtoPublicKey converts a CMT's cmtprotocrypto.PublicKey into our own PubKey.

@@ -7,16 +7,16 @@ import (
 	"os"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/codec"
 
-	clientutils "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/client/utils"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibcclient "github.com/vipernet-xyz/ibc-go/v7/modules/core/client"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
+	clientutils "github.com/vipernet-xyz/viper-network/modules/core/02-client/client/utils"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibcclient "github.com/vipernet-xyz/viper-network/modules/core/client"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
 )
 
 // QueryConnection returns a connection end.
@@ -50,7 +50,7 @@ func queryConnectionABCI(clientCtx client.Context, connectionID string) (*types.
 		return nil, errorsmod.Wrap(types.ErrConnectionNotFound, connectionID)
 	}
 
-	cdc := codec.NewProtoCodec(clientCtx.InterfaceRegistry)
+	cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
 
 	var connection types.ConnectionEnd
 	if err := cdc.Unmarshal(value, &connection); err != nil {

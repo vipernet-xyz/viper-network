@@ -5,9 +5,9 @@ import (
 
 	"github.com/cosmos/gogoproto/grpc"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 // Configurator provides the hooks to allow modules to configure and register

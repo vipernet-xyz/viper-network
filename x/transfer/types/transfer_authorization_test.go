@@ -1,7 +1,7 @@
 package types_test
 
 /*
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	sdk1 "github.com/vipernet-xyz/viper-network/types"
 

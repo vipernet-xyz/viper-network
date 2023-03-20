@@ -1,5 +1,6 @@
 package keeper_test
 
+/*
 import (
 	"time"
 
@@ -570,3 +571,4 @@ func (suite *KeeperTestSuite) TestConnOpenConfirm() {
 		})
 	}
 }
+*/

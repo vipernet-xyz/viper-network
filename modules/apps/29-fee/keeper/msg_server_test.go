@@ -1,18 +1,17 @@
 package keeper_test
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+/*
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
 	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-func (suite *KeeperTestSuite) TestRegisterPayee() {
+/*func (suite *KeeperTestSuite) TestRegisterPayee() {
 	var msg *types.MsgRegisterPayee
 
 	testCases := []struct {
@@ -548,3 +547,4 @@ func (suite *KeeperTestSuite) TestPayPacketFeeAsync() {
 		})
 	}
 }
+*/

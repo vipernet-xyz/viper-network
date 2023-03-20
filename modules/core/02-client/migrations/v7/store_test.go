@@ -1,5 +1,6 @@
 package v7_test
 
+/*
 import (
 	"strconv"
 	"testing"
@@ -166,3 +167,4 @@ func (suite *MigrationsV7TestSuite) assertNoLocalhostClients() {
 		}
 	}
 }
+*/

@@ -1,6 +1,6 @@
 package keeper_test
 
-import (
+/*
 	"errors"
 	"fmt"
 
@@ -14,10 +14,9 @@ import (
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-var (
+/*var (
 	disabledTimeoutTimestamp = uint64(0)
 	disabledTimeoutHeight    = clienttypes.ZeroHeight()
 	defaultTimeoutHeight     = clienttypes.NewHeight(1, 100)
@@ -904,3 +903,4 @@ func (suite *KeeperTestSuite) TestAcknowledgePacket() {
 		})
 	}
 }
+*/

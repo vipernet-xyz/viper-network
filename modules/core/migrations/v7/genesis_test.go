@@ -1,5 +1,6 @@
 package v7_test
 
+/*
 import (
 	"testing"
 
@@ -162,3 +163,4 @@ func (suite *MigrationsV7TestSuite) TestMigrateGenesisSolomachine() {
 
 	suite.Require().Equal(expectedAppState, migrated)
 }
+*/

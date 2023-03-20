@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/vipernet-xyz/viper-network/client"
 )
 
 func DefaultConfig() *ClientConfig {

@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/collections"
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/types"
@@ -13,11 +12,10 @@ import (
 
 // Keeper of the supply store
 type Keeper struct {
-	Cdc         *codec.Codec
-	storeKey    sdk.StoreKey
-	subspace    sdk.Subspace
-	permAddrs   map[string]types.PermissionsForAddress
-	SendEnabled collections.Map[string, bool]
+	Cdc       *codec.Codec
+	storeKey  sdk.StoreKey
+	subspace  sdk.Subspace
+	permAddrs map[string]types.PermissionsForAddress
 }
 
 // NewKeeper creates a new Keeper instance

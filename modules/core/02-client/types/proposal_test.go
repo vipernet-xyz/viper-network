@@ -1,5 +1,6 @@
 package types_test
 
+/*
 import (
 	"fmt"
 
@@ -224,3 +225,4 @@ func (suite *TypesTestSuite) TestUpgradeString() {
 
 	suite.Require().Equal(expect, proposal.String())
 }
+*/

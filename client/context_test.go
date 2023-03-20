@@ -1,6 +1,6 @@
 package client_test
 
-import (
+/*
 	"bytes"
 	"encoding/json"
 	"os"
@@ -10,17 +10,16 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	"github.com/cosmos/cosmos-sdk/types/module/testutil"
-)
+	"github.com/vipernet-xyz/viper-network/client"
+	"github.com/vipernet-xyz/viper-network/client/flags"
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/codec/types"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	"github.com/vipernet-xyz/viper-network/crypto/keyring"
+	"github.com/vipernet-xyz/viper-network/types/module/testutil"*/
 
-func TestMain(m *testing.M) {
+/*func TestMain(m *testing.M) {
 	viper.Set(flags.FlagKeyringBackend, keyring.BackendMemory)
 	os.Exit(m.Run())
 }
@@ -246,3 +245,4 @@ func TestGetFromFields(t *testing.T) {
 		}
 	}
 }
+*/

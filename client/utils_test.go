@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/vipernet-xyz/viper-network/client"
 )
 
 func TestPaginate(t *testing.T) {

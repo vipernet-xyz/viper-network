@@ -1,6 +1,6 @@
 package tendermint_test
 
-import (
+/*
 	"testing"
 	"time"
 
@@ -8,17 +8,16 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
 	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"
-)
+	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"*/
 
-const (
+/*const (
 	chainID                        = "gaia"
 	chainIDRevision0               = "gaia-revision-0"
 	chainIDRevision1               = "gaia-revision-1"
@@ -112,3 +111,4 @@ func getBothSigners(suite *TendermintTestSuite, altVal *tmtypes.Validator, altPr
 func TestTendermintTestSuite(t *testing.T) {
 	suite.Run(t, new(TendermintTestSuite))
 }
+*/

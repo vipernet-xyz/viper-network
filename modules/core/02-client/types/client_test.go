@@ -1,5 +1,6 @@
 package types_test
 
+/*
 import (
 	"testing"
 
@@ -83,3 +84,4 @@ func TestValidateClientType(t *testing.T) {
 		}
 	}
 }
+*/

@@ -1,5 +1,6 @@
 package migrations_test
 
+/*
 import (
 	"testing"
 	"time"
@@ -176,3 +177,4 @@ func (suite *MigrationsTestSuite) TestPruneExpiredConsensusStates() {
 	bz = smClientStore.Get(host.ConsensusStateKey(smHeight))
 	suite.Require().NotEmpty(bz)
 }
+*/

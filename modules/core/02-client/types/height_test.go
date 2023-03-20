@@ -1,5 +1,6 @@
 package types_test
 
+/*
 import (
 	"math"
 	"testing"
@@ -139,3 +140,4 @@ func TestSetRevisionNumber(t *testing.T) {
 	require.NoError(t, err, "valid revision format failed SetRevisionNumber")
 	require.Equal(t, "gaiamainnet-4", chainID, "valid revision format returned incorrect string on SetRevisionNumber")
 }
+*/

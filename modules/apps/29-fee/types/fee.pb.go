@@ -29,11 +29,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // Fee defines the ICS29 receive, acknowledgement and timeout fees
 type Fee struct {
 	// the packet receive fee
-	RecvFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=recv_fee,json=recvFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"recv_fee" yaml:"recv_fee"`
+	RecvFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=recv_fee,json=recvFee,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"recv_fee" yaml:"recv_fee"`
 	// the packet acknowledgement fee
-	AckFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=ack_fee,json=ackFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"ack_fee" yaml:"ack_fee"`
+	AckFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=ack_fee,json=ackFee,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"ack_fee" yaml:"ack_fee"`
 	// the packet timeout fee
-	TimeoutFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=timeout_fee,json=timeoutFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"timeout_fee" yaml:"timeout_fee"`
+	TimeoutFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=timeout_fee,json=timeoutFee,proto3,castrepeated=github.com/vipernet-xyz/viper-network/types.Coins" json:"timeout_fee" yaml:"timeout_fee"`
 }
 
 func (m *Fee) Reset()         { *m = Fee{} }

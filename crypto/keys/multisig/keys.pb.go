@@ -6,7 +6,7 @@ package multisig
 import (
 	fmt "fmt"
 	types "github.com/vipernet-xyz/viper-network/codec/types"
-	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
+	_ "github.com/vipernet-xyz/viper-network/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"

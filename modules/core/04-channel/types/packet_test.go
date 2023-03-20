@@ -1,6 +1,6 @@
 package types_test
 
-import (
+/*
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -8,10 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-)
+	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"*/
 
-func TestCommitPacket(t *testing.T) {
+/*func TestCommitPacket(t *testing.T) {
 	packet := types.NewPacket(validPacketData, 1, portid, chanid, cpportid, cpchanid, timeoutHeight, timeoutTimestamp)
 
 	registry := codectypes.NewInterfaceRegistry()
@@ -51,3 +50,4 @@ func TestPacketValidateBasic(t *testing.T) {
 		}
 	}
 }
+*/

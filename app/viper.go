@@ -6,9 +6,6 @@ import (
 
 	"github.com/tendermint/tendermint/libs/os"
 
-	//bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
-	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	bam "github.com/vipernet-xyz/viper-network/baseapp"
 	"github.com/vipernet-xyz/viper-network/codec"
 	upgradeKeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
@@ -50,18 +47,17 @@ type ViperCoreApp struct {
 	Tkeys   map[string]*sdk.TransientStoreKey
 	memKeys map[string]*sdk.MemoryStoreKey
 	// Keepers for each module
-	accountKeeper        authentication.Keeper
-	providersKeeper      providersKeeper.Keeper
-	servicersKeeper      servicersKeeper.Keeper
-	governanceKeeper     governanceKeeper.Keeper
-	transferKeeper       transferKeeper.Keeper
-	IBCKeeper            *ibckeeper.Keeper
-	CapabilityKeeper     *capabilityKeeper.Keeper
-	AccountKeeper        authkeeper.Keeper
-	BankKeeper           authkeeper.Keeper
-	UpgradeKeeper        upgradeKeeper.Keeper
-	StakingKeeper        stakingKeeper.Keeper
-	EvidenceKeeper       evidencekeeper.Keeper
+	accountKeeper    authentication.Keeper
+	providersKeeper  providersKeeper.Keeper
+	servicersKeeper  servicersKeeper.Keeper
+	governanceKeeper governanceKeeper.Keeper
+	transferKeeper   transferKeeper.Keeper
+	IBCKeeper        *ibckeeper.Keeper
+	CapabilityKeeper *capabilityKeeper.Keeper
+	AccountKeeper    authkeeper.Keeper
+	BankKeeper       authkeeper.Keeper
+	UpgradeKeeper    upgradeKeeper.Keeper
+	//StakingKeeper        stakingKeeper.Keeper
 	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
 	scopedTransferKeeper capabilityKeeper.ScopedKeeper
 

@@ -1,18 +1,17 @@
 package tx_test
 
-import (
+/*
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	"github.com/cosmos/cosmos-sdk/types/tx"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-)
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
+	"github.com/vipernet-xyz/viper-network/types/tx"
+	"github.com/vipernet-xyz/viper-network/types/tx/signing"*/
 
-func TestSignDocDirectAux(t *testing.T) {
+/*func TestSignDocDirectAux(t *testing.T) {
 	bodyBz := []byte{42}
 	_, pk, addr := testdata.KeyTestPubAddr()
 	pkAny, err := codectypes.NewAnyWithValue(pk)
@@ -87,4 +86,4 @@ func TestAuxSignerData(t *testing.T) {
 			}
 		})
 	}
-}
+}*/

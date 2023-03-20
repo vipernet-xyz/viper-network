@@ -176,7 +176,7 @@ func ErrForbidden(msg string) Error {
 	return newErrorWithRootCodespace(CodeForbidden, msg)
 }
 
-//----------------------------------------
+// ----------------------------------------
 // sdk Error type
 type Error interface {
 	Error() string

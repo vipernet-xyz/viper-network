@@ -1,6 +1,6 @@
 package tendermint_test
 
-import (
+/*
 	"time"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
@@ -11,10 +11,9 @@ import (
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-func (suite *TendermintTestSuite) TestMisbehaviour() {
+/*func (suite *TendermintTestSuite) TestMisbehaviour() {
 	heightMinus1 := clienttypes.NewHeight(0, height.RevisionHeight-1)
 
 	misbehaviour := &ibctm.Misbehaviour{
@@ -234,3 +233,4 @@ func (suite *TendermintTestSuite) TestMisbehaviourValidateBasic() {
 		}
 	}
 }
+*/

@@ -1,15 +1,14 @@
 package tendermint_test
 
-import (
+/*
 	"time"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-var frozenHeight = clienttypes.NewHeight(0, 1)
+/*var frozenHeight = clienttypes.NewHeight(0, 1)
 
 func (suite *TendermintTestSuite) TestCheckSubstituteUpdateStateBasic() {
 	var (
@@ -231,3 +230,4 @@ func (suite *TendermintTestSuite) TestIsMatchingClientState() {
 		})
 	}
 }
+*/

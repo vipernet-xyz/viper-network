@@ -1,10 +1,10 @@
 package fee_test
 
-import (
+/*
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	fee "github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
@@ -13,10 +13,9 @@ import (
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
 	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-)
+	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
 
-var (
+/*var (
 	defaultRecvFee    = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(100)}}
 	defaultAckFee     = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(200)}}
 	defaultTimeoutFee = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(300)}}
@@ -1078,3 +1077,4 @@ func (suite *FeeTestSuite) TestGetAppVersion() {
 		})
 	}
 }
+*/

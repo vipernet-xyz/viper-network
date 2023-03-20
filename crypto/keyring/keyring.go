@@ -19,7 +19,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/vipernet-xyz/viper-network/client/input"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
@@ -27,6 +26,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto/ledger"
 	"github.com/vipernet-xyz/viper-network/crypto/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 )
 

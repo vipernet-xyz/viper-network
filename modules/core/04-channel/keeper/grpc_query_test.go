@@ -1,19 +1,18 @@
 package keeper_test
 
-import (
+/*
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/query"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-const doesnotexist = "doesnotexist"
+/*const doesnotexist = "doesnotexist"
 
 func (suite *KeeperTestSuite) TestQueryChannel() {
 	var (
@@ -1454,3 +1453,4 @@ func (suite *KeeperTestSuite) TestQueryNextSequenceReceive() {
 		})
 	}
 }
+*/

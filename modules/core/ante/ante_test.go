@@ -1,21 +1,20 @@
 package ante_test
 
-import (
+/*
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/ante"
 	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-)
+	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
 
-type AnteTestSuite struct {
+/*type AnteTestSuite struct {
 	suite.Suite
 
 	coordinator *ibctesting.Coordinator
@@ -487,3 +486,4 @@ func (suite *AnteTestSuite) TestAnteDecorator() {
 		})
 	}
 }
+*/

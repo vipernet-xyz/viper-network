@@ -5,10 +5,10 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
 
 // MaxGasWanted defines the max gas allowed.
