@@ -43,6 +43,12 @@ type InterfaceRegistry interface {
 	// Ex:
 	//  registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSend{}, &MsgMultiSend{})
 	RegisterImplementations(iface interface{}, impls ...proto.Message)
+	// ListAllInterfaces list the type URLs of all registered interfaces.
+	ListAllInterfaces() []string
+
+	// ListImplementations lists the valid type URLs for the given interface name that can be used
+	// for the provided interface type URL.
+	ListImplementations(ifaceTypeURL string) []string
 }
 
 // UnpackInterfacesMessage is meant to extend protobuf types (which implement
@@ -207,4 +213,31 @@ func (registry *interfaceRegistry) Resolve(typeURL string) (proto.Message, error
 	}
 
 	return msg, nil
+}
+
+func (registry *interfaceRegistry) ListAllInterfaces() []string {
+	interfaceNames := registry.interfaceNames
+	keys := make([]string, 0, len(interfaceNames))
+	for key := range interfaceNames {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+func (registry *interfaceRegistry) ListImplementations(ifaceName string) []string {
+	typ, ok := registry.interfaceNames[ifaceName]
+	if !ok {
+		return []string{}
+	}
+
+	impls, ok := registry.interfaceImpls[typ.Elem()]
+	if !ok {
+		return []string{}
+	}
+
+	keys := make([]string, 0, len(impls))
+	for key := range impls {
+		keys = append(keys, key)
+	}
+	return keys
 }

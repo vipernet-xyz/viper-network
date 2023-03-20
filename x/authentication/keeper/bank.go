@@ -5,6 +5,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/x/authentication/types"
 
+	gogotypes "github.com/cosmos/gogoproto/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
@@ -226,4 +227,43 @@ func (k Keeper) HasCoins(ctx sdk.Ctx, addr sdk.Address, amt sdk.Coins) bool {
 
 func (k Keeper) GetFee(ctx sdk.Ctx, msg sdk.Msg) sdk.BigInt {
 	return k.GetParams(ctx).FeeMultiplier.GetFee(msg)
+}
+
+// IsSendEnabledCoin returns the current SendEnabled status of the provided coin's denom
+func (k Keeper) IsSendEnabledCoin(ctx sdk.Ctx, coin sdk.Coin) bool {
+	return k.IsSendEnabledDenom(ctx, coin.Denom)
+}
+
+// IsSendEnabledDenom returns the current SendEnabled status of the provided denom.
+func (k Keeper) IsSendEnabledDenom(ctx sdk.Ctx, denom string) bool {
+	return k.getSendEnabledOrDefault(ctx.KVStore(k.storeKey), denom, k.GetParams(ctx).DefaultSendEnabled)
+}
+
+// getSendEnabledOrDefault gets the SendEnabled value for a denom. If it's not
+// in the store, this will return defaultVal.
+func (k Keeper) getSendEnabledOrDefault(store sdk.KVStore, denom string, defaultVal bool) bool {
+	sendEnabled, found := k.getSendEnabled(store, denom)
+	if found {
+		return sendEnabled
+	}
+
+	return defaultVal
+}
+
+func (k Keeper) getSendEnabled(store sdk.KVStore, denom string) (bool, bool) {
+	key := types.CreateSendEnabledKey(denom)
+	a, _ := store.Has(key)
+	if !a {
+		return false, false
+	}
+
+	bz, _ := store.Get(key)
+	if bz == nil {
+		return false, false
+	}
+
+	var enabled gogotypes.BoolValue
+	k.Bcdc.MustUnmarshal(bz, &enabled)
+
+	return enabled.Value, true
 }

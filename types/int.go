@@ -6,10 +6,15 @@ import (
 	"fmt"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/vipernet-xyz/viper-network/codec"
 )
 
 const maxBitLen = 255
+
+type (
+	Dec = sdkmath.LegacyDec
+)
 
 func newIntegerFromString(s string) (*big.Int, bool) {
 	return new(big.Int).SetString(s, 0)

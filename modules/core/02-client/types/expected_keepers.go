@@ -3,13 +3,12 @@ package types
 import (
 	"time"
 
-	//stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // StakingKeeper expected staking keeper
 type StakingKeeper interface {
-	GetHistoricalInfo(ctx sdk.Ctx, height int64) (stakingtypes.HistoricalInfo, bool)
+	GetHistoricalInfo(ctx sdk.Ctx, height int64) (HistoricalInfo, bool)
 	UnbondingTime(ctx sdk.Ctx) time.Duration
 }
 

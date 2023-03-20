@@ -28,9 +28,10 @@ var _ sdk.ParamSet = &Params{}
 
 // Params defines the parameters for the authentication module.
 type Params struct {
-	MaxMemoCharacters uint64         `json:"max_memo_characters" yaml:"max_memo_characters"`
-	TxSigLimit        uint64         `json:"tx_sig_limit" yaml:"tx_sig_limit"`
-	FeeMultiplier     FeeMultipliers `json:"fee_multipliers"`
+	MaxMemoCharacters  uint64         `json:"max_memo_characters" yaml:"max_memo_characters"`
+	TxSigLimit         uint64         `json:"tx_sig_limit" yaml:"tx_sig_limit"`
+	FeeMultiplier      FeeMultipliers `json:"fee_multipliers"`
+	DefaultSendEnabled bool           `protobuf:"varint,2,opt,name=default_send_enabled,json=defaultSendEnabled,proto3" json:"default_send_enabled,omitempty"`
 }
 
 // ParamKeyTable for authentication module

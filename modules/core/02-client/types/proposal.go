@@ -209,3 +209,30 @@ func (p Plan) ValidateBasic() error {
 
 	return nil
 }
+
+func (p Plan) String() string {
+	due := p.DueAt()
+	return fmt.Sprintf(`Upgrade Plan
+  Name: %s
+  %s
+  Info: %s.`, p.Name, due, p.Info)
+}
+
+// DueAt is a string representation of when this plan is due to be executed
+func (p Plan) DueAt() string {
+	return fmt.Sprintf("height: %d", p.Height)
+}
+
+func (sup SoftwareUpgradeProposal) String() string {
+	return fmt.Sprintf(`Software Upgrade Proposal:
+  Title:       %s
+  Description: %s
+`, sup.Title, sup.Description)
+}
+
+func (csup CancelSoftwareUpgradeProposal) String() string {
+	return fmt.Sprintf(`Cancel Software Upgrade Proposal:
+  Title:       %s
+  Description: %s
+`, csup.Title, csup.Description)
+}

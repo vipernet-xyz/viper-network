@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/vipernet-xyz/viper-network/codec/types"
 )
 
 type reflectionServiceServer struct {
