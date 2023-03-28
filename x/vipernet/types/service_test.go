@@ -353,7 +353,7 @@ func (m MockPosKeeper) GetValidatorsByChain(ctx sdk.Ctx, networkID string) (vali
 	return
 }
 
-func (m MockPosKeeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, providerAdddress sdk.Address) sdk.BigInt {
+func (m MockPosKeeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, provider providersType.Provider) sdk.BigInt {
 	panic("implement me")
 }
 

@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
@@ -46,8 +47,8 @@ func (k Keeper) GetSelfNode(ctx sdk.Ctx) (servicer exported.ValidatorI, er sdk.E
 }
 
 // "AwardCoinsForRelays" - Award coins to servicers for relays completed using the servicers keeper
-func (k Keeper) AwardCoinsForRelays(ctx sdk.Ctx, relays int64, toAddr sdk.Address, providerAddress sdk.Address) sdk.BigInt {
-	return k.posKeeper.RewardForRelays(ctx, sdk.NewInt(relays), toAddr, providerAddress)
+func (k Keeper) AwardCoinsForRelays(ctx sdk.Ctx, relays int64, toAddr sdk.Address, provider providersTypes.Provider) sdk.BigInt {
+	return k.posKeeper.RewardForRelays(ctx, sdk.NewInt(relays), toAddr, provider)
 }
 
 // "BurnCoinsForChallenges" - Executes the burn for challenge function in the servicers module

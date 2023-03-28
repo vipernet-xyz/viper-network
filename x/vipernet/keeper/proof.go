@@ -12,6 +12,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/authentication/util"
+	providersType "github.com/vipernet-xyz/viper-network/x/providers/types"
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/tendermint/tendermint/rpc/client"
@@ -172,6 +173,8 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) (tokens sdk.BigInt, err sdk.Error) {
 	//provider address
 	providerAddress := sdk.Address(claim.SessionHeader.ProviderPubKey)
+	provider := k.providerKeeper.Provider(ctx, providerAddress)
+	provider1 := provider.(providersType.Provider)
 	// convert to value for switch consistency
 	l := proof.GetLeaf()
 	if reflect.ValueOf(l).Kind() == reflect.Ptr {
@@ -180,7 +183,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) 
 	switch l.(type) {
 	case vc.RelayProof:
 		ctx.Logger().Info(fmt.Sprintf("reward coins to %s, for %d relays", claim.FromAddress.String(), claim.TotalProofs))
-		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs, claim.FromAddress, providerAddress)
+		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs, claim.FromAddress, provider1)
 		err := k.DeleteClaim(ctx, claim.FromAddress, claim.SessionHeader, vc.RelayEvidence)
 		if err != nil {
 			return tokens, sdk.ErrInternal(err.Error())
@@ -202,7 +205,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) 
 			return sdk.ZeroInt(), sdk.ErrInternal(err.Error())
 		}
 		// small reward for the challenge proof invalid data
-		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs/100, claim.FromAddress, providerAddress)
+		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs/100, claim.FromAddress, provider1)
 	}
 	return tokens, nil
 }

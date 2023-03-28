@@ -96,7 +96,7 @@ func (p Params) Equal(p2 Params) bool {
 func (p Params) String() string {
 	return fmt.Sprintf(`Params:
   Unstaking Time:              %s
-  Max Providers:            %d
+  Max Providers:               %d
   Minimum Stake:     	       %d
   BaseRelaysPerVIPR            %d
   Stability Adjustment         %d

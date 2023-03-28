@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicersExported "github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
@@ -29,7 +30,7 @@ type AuthKeeper interface {
 }
 
 type PosKeeper interface {
-	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, providerAddress sdk.Address)
+	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider)
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
 	Validator(ctx sdk.Ctx, addr sdk.Address) servicersExported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt

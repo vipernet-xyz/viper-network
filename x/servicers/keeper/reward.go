@@ -11,7 +11,7 @@ import (
 )
 
 // RewardForRelays - Award coins to an address
-func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, providerAddress sdk.Address) sdk.BigInt {
+func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt {
 	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
 		var found bool
 		address, found = k.GetValidatorOutputAddress(ctx, address)
@@ -45,6 +45,8 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 		coins = k.TokenRewardFactor(ctx).Mul(relays)
 	}
 
+	coins1 := relays.Quo((sdk.NewInt(k.providerKeeper.BaselineThroughputStakeRate(ctx)).Quo(sdk.NewInt(100))).Mul(sdk.NewInt(24)))
+
 	toNode, toFeeCollector := k.NodeReward(ctx, coins)
 	if toNode.IsPositive() {
 		k.mint(ctx, toNode, address)
@@ -54,8 +56,10 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 	}
 	toProvider := k.ProviderReward(ctx, coins)
 	if toProvider.IsPositive() {
-		k.mint(ctx, toProvider, providerAddress)
+		k.mint(ctx, toProvider, provider.Address)
 	}
+
+	k.burn(ctx, coins1, providersTypes.Provider{})
 	return toNode
 }
 
@@ -135,7 +139,10 @@ func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, provider providersTypes.Pro
 	if err != nil {
 		return sdk.Result{}, sdk.ErrInternal(err.Error())
 	}
+	//reset provider relays
 	provider.MaxRelays = k.providerKeeper.CalculateProviderRelays(ctx, provider)
+
+	k.providerKeeper.SetProvider(ctx, provider)
 	// if falls below minimum force burn all of the stake
 	if provider.GetTokens().LT(sdk.NewInt(k.providerKeeper.MinimumStake(ctx))) {
 		var err error

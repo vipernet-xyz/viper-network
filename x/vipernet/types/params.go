@@ -12,7 +12,7 @@ import (
 const (
 	// DefaultParamspace for params keeper
 	DefaultParamspace                 = ModuleName
-	DefaultSessionNodeCount           = int64(5)       // default number of servicers in a session
+	DefaultSessionNodeCount           = int64(24)      // default number of servicers in a session
 	DefaultClaimSubmissionWindow      = int64(3)       // default sessions to submit a claim
 	DefaultClaimExpiration            = int64(24)      // default servicers to exprie claims
 	DefaultReplayAttackBurnMultiplier = int64(3)       // default replay attack burn multiplier
