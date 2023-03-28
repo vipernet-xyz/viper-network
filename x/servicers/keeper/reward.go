@@ -121,6 +121,42 @@ func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Re
 	}
 }
 
+func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, provider providersTypes.Provider) (sdk.Result, sdk.Error) {
+	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
+	burnErr := k.AccountKeeper.BurnCoins(ctx, providersTypes.StakedPoolName, coins)
+	if burnErr != nil {
+		ctx.Logger().Error(fmt.Sprintf("unable to burn tokens, at height %d: ", ctx.BlockHeight()) + burnErr.Error())
+		return burnErr.Result(), nil
+	}
+	// cannot decrease balance below zero
+	tokensToBurn := sdk.MinInt(amount, provider.StakedTokens)
+	tokensToBurn = sdk.MaxInt(tokensToBurn, sdk.ZeroInt()) // defensive.
+	provider, err := provider.RemoveStakedTokens(tokensToBurn)
+	if err != nil {
+		return sdk.Result{}, sdk.ErrInternal(err.Error())
+	}
+	provider.MaxRelays = k.providerKeeper.CalculateProviderRelays(ctx, provider)
+	// if falls below minimum force burn all of the stake
+	if provider.GetTokens().LT(sdk.NewInt(k.providerKeeper.MinimumStake(ctx))) {
+		var err error
+		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
+			err = k.providerKeeper.ForceProviderUnstake(ctx, provider)
+		} else {
+			err = k.providerKeeper.LegacyForceProviderUnstake(ctx, provider)
+		}
+		if err != nil {
+			k.Logger(ctx).Error("could not force unstake in simpleSlash: " + err.Error() + "\nfor provider " + provider.Address.String())
+			return sdk.Result{}, nil
+		}
+	}
+	logString := fmt.Sprintf("an amount of %s tokens was burned from %s", amount.String(), provider.Address.String())
+	k.Logger(ctx).Info(logString)
+	return sdk.Result{
+		Log: logString,
+	}, nil
+
+}
+
 // MintRate = (total supply * inflation rate) / (30 day avg. of daily relays * 365 days)
 
 // GetPreviousProposer - Retrieve the proposer public key for this block

@@ -16,11 +16,12 @@ var _ types.ValidatorSet = Keeper{}
 
 // Keeper of the staking store
 type Keeper struct {
-	storeKey      sdk.StoreKey
-	Cdc           *codec.Codec
-	AccountKeeper types.AuthKeeper
-	ViperKeeper   types.ViperKeeper // todo combine all modules
-	Paramstore    sdk.Subspace
+	storeKey       sdk.StoreKey
+	Cdc            *codec.Codec
+	AccountKeeper  types.AuthKeeper
+	ViperKeeper    types.ViperKeeper // todo combine all modules
+	Paramstore     sdk.Subspace
+	providerKeeper types.ProvidersKeeper
 	// codespace
 	codespace sdk.CodespaceType
 	// Cache

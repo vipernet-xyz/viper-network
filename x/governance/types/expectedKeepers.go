@@ -29,7 +29,7 @@ type AuthKeeper interface {
 }
 
 type PosKeeper interface {
-	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, appAddress sdk.Address)
+	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, providerAddress sdk.Address)
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
 	Validator(ctx sdk.Ctx, addr sdk.Address) servicersExported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt

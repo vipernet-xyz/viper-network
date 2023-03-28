@@ -22,6 +22,7 @@ type Keeper struct {
 	POSKeeper     types.PosKeeper
 	ViperKeeper   types.ViperKeeper
 	Paramstore    sdk.Subspace
+
 	// codespace
 	codespace sdk.CodespaceType
 	// Cache

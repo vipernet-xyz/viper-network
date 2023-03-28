@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
+	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
 	posexported "github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
@@ -65,4 +66,16 @@ type ValidatorSet interface {
 	UnjailValidator(sdk.Ctx, sdk.Address)
 	// MaxValidators returns the maximum amount of staked validators
 	MaxValidators(sdk.Ctx) int64
+}
+
+type ProvidersKeeper interface {
+	CalculateProviderRelays(ctx sdk.Ctx, provider providerexported.ProviderI) sdk.BigInt
+	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
+	Provider(ctx sdk.Ctx, addr sdk.Address) providerexported.ProviderI
+	AllProviders(ctx sdk.Ctx) (providers []providerexported.ProviderI)
+	TotalTokens(ctx sdk.Ctx) sdk.BigInt
+	JailProvider(ctx sdk.Ctx, addr sdk.Address)
+	ForceProviderUnstake(ctx sdk.Ctx, provider providerexported.ProviderI) sdk.Error
+	LegacyForceProviderUnstake(ctx sdk.Ctx, provider providerexported.ProviderI) sdk.Error
+	MinimumStake(ctx sdk.Ctx) (res int64)
 }
