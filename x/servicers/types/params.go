@@ -27,6 +27,7 @@ const (
 	DefaultMaxJailedBlocks                = 2000
 	DefaultMinServicerStakeBinWidth int64 = 15000000000
 	DefaultMaxServicerStakeBin      int64 = 60000000000
+	DefaultServicerCountLock        bool  = false
 )
 
 // - Keys for parameter access
@@ -58,6 +59,7 @@ var (
 	DefaultMinSignedPerWindow       = sdk.NewDecWithPrec(5, 1)
 	DefaultSlashFractionDoubleSign  = sdk.NewDec(1).Quo(sdk.NewDec(20))
 	DefaultSlashFractionDowntime    = sdk.NewDec(1).Quo(sdk.NewDec(100))
+	ServicerCountLock               = []byte("ServicerCountLock")
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -85,6 +87,7 @@ type Params struct {
 	ServicerStakeWeight      sdk.BigDec    `json:"servicer_stake_weight_multipler" yaml:"servicer_stake_weight_multipler"`
 	MaxServicerStakeBin      int64         `json:"servicer_stake_weight_ceiling" yaml:"servicer_stake_weight_cieling"`
 	ServicerStakeBinExponent sdk.BigDec    `json:"servicer_stake_floor_multiplier_exponent" yaml:"servicer_stake_floor_multiplier_exponent"`
+	ServicerCountLock        bool          `json:"servicer_count_lock" yaml:"servicer_count_lock"`
 }
 
 // Implements sdk.ParamSet
@@ -111,6 +114,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyServicerStakeWeight, Value: &p.ServicerStakeWeight},
 		{Key: KeyMaxServicerStakeBin, Value: &p.MaxServicerStakeBin},
 		{Key: KeyServicerStakeBinExponent, Value: &p.ServicerStakeBinExponent},
+		{Key: ServicerCountLock, Value: &p.ServicerCountLock},
 	}
 }
 
@@ -134,6 +138,7 @@ func DefaultParams() Params {
 		TokenRewardFactor:       DefaultTokenRewardFactor,
 		MaximumChains:           DefaultMaxChains,
 		MaxJailedBlocks:         DefaultMaxJailedBlocks,
+		ServicerCountLock:       DefaultServicerCountLock,
 	}
 }
 
@@ -187,9 +192,10 @@ func (p Params) String() string {
   BlocksPerSession         %d
   Proposer Allocation      %d
   DAO allocation           %d
-  Provider allocation           %d
+  Provider allocation      %d
   Maximum Chains           %d
-  Max Jailed Blocks        %d`,
+  Max Jailed Blocks        %d
+  Servicer Count Lock      %v  `,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -205,5 +211,6 @@ func (p Params) String() string {
 		p.DAOAllocation,
 		p.ProviderAllocation,
 		p.MaximumChains,
-		p.MaxJailedBlocks)
+		p.MaxJailedBlocks,
+		p.ServicerCountLock)
 }

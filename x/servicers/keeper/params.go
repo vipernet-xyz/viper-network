@@ -180,6 +180,11 @@ func (k Keeper) MaxJailedBlocks(ctx sdk.Ctx) (res int64) {
 	return
 }
 
+func (k Keeper) ServicerCountLock(ctx sdk.Ctx) (isOn bool) {
+	k.Paramstore.Get(ctx, types.ServicerCountLock, &isOn)
+	return
+}
+
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -204,6 +209,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		ServicerStakeWeight:      k.ServicerStakeWeight(ctx),
 		MaxServicerStakeBin:      k.MaxServicerStakeBin(ctx).Int64(),
 		ServicerStakeBinExponent: k.ServicerStakeBinExponent(ctx),
+		ServicerCountLock:        k.ServicerCountLock(ctx),
 	}
 }
 
