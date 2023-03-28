@@ -66,6 +66,7 @@ type ValidatorSet interface {
 	UnjailValidator(sdk.Ctx, sdk.Address)
 	// MaxValidators returns the maximum amount of staked validators
 	MaxValidators(sdk.Ctx) int64
+	ServicerCountLock(ctx sdk.Ctx) (isOn bool)
 }
 
 type ProvidersKeeper interface {

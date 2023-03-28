@@ -32,6 +32,7 @@ import (
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
+	"github.com/vipernet-xyz/viper-network/x/transfer"
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -309,6 +310,7 @@ func oneValTwoNodeGenesisState() []byte {
 		servicers.AppModuleBasic{},
 		viper.AppModuleBasic{},
 		governance.AppModuleBasic{},
+		transfer.AppModuleBasic{},
 	).DefaultGenesis()
 	// set coinbase as a validator
 	rawPOS := defaultGenesis[servicersTypes.ModuleName]
@@ -380,7 +382,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/SlashFractionDoubleSign", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDowntime", kp.GetAddress())
 		acl.SetOwner("authentication/FeeMultipliers", kp.GetAddress())
-		acl.SetOwner("provider/ProviderStakeMinimum", kp.GetAddress())
+		acl.SetOwner("provider/MinProviderStake", kp.GetAddress())
 		acl.SetOwner("vipercore/ClaimExpiration", kp.GetAddress())
 		acl.SetOwner("vipercore/SessionNodeCount", kp.GetAddress())
 		acl.SetOwner("vipercore/MinimumNumberOfProofs", kp.GetAddress())
@@ -388,13 +390,13 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
 		acl.SetOwner("provider/StabilityAdjustment", kp.GetAddress())
-		acl.SetOwner("provider/", kp.GetAddress())
+		acl.SetOwner("provider/ProviderUnstakingTime", kp.GetAddress())
 		acl.SetOwner("provider/ParticipationRateOn", kp.GetAddress())
 		acl.SetOwner("pos/MaxEvidenceAge", kp.GetAddress())
 		acl.SetOwner("pos/MinSignedPerWindow", kp.GetAddress())
 		acl.SetOwner("pos/StakeMinimum", kp.GetAddress())
 		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
-		acl.SetOwner("pos/RelaysToTokensMultiplier", kp.GetAddress())
+		acl.SetOwner("pos/TokenRewardFactor", kp.GetAddress())
 		acl.SetOwner("provider/BaseRelaysPerVIPR", kp.GetAddress())
 		acl.SetOwner("vipercore/ClaimSubmissionWindow", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())
@@ -406,6 +408,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("provider/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaxJailedBlocks", kp.GetAddress())
+
 		testACL = acl
 	}
 	return testACL

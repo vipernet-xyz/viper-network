@@ -177,5 +177,7 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("pos/StakeDenom", addr)
 	acl.SetOwner("pos/StakeMinimum", addr)
 	acl.SetOwner("pos/UnstakingTime", addr)
+	acl.SetOwner("pos/ServicerCountLock", addr)
+	acl.SetOwner("pos/BurnActive", addr)
 	return acl
 }
