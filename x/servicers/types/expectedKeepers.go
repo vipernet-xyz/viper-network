@@ -4,7 +4,6 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	posexported "github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
@@ -81,5 +80,4 @@ type ProvidersKeeper interface {
 	MinimumStake(ctx sdk.Ctx) (res int64)
 	SetProvider(ctx sdk.Ctx, provider providerexported.ProviderI)
 	BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64)
-	GetProvider(ctx sdk.Ctx, addr sdk.Address) (provider providersTypes.Provider, found bool)
 }

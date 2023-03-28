@@ -58,8 +58,11 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 	if toProvider.IsPositive() {
 		k.mint(ctx, toProvider, provider.Address)
 	}
-
-	k.burn(ctx, coins1, providersTypes.Provider{})
+	p := k.providerKeeper.Provider(ctx, provider.Address)
+	p1 := p.(providersTypes.Provider)
+	if k.BurnActive(ctx) == true {
+		k.burn(ctx, coins1, p1)
+	}
 	return toNode
 }
 

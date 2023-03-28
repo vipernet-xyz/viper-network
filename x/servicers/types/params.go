@@ -28,6 +28,7 @@ const (
 	DefaultMinServicerStakeBinWidth int64 = 15000000000
 	DefaultMaxServicerStakeBin      int64 = 60000000000
 	DefaultServicerCountLock        bool  = false
+	DefaultBurnActive               bool  = false
 )
 
 // - Keys for parameter access
@@ -60,6 +61,7 @@ var (
 	DefaultSlashFractionDoubleSign  = sdk.NewDec(1).Quo(sdk.NewDec(20))
 	DefaultSlashFractionDowntime    = sdk.NewDec(1).Quo(sdk.NewDec(100))
 	ServicerCountLock               = []byte("ServicerCountLock")
+	BurnActive                      = []byte("BurnActive")
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -88,6 +90,7 @@ type Params struct {
 	MaxServicerStakeBin      int64         `json:"servicer_stake_weight_ceiling" yaml:"servicer_stake_weight_cieling"`
 	ServicerStakeBinExponent sdk.BigDec    `json:"servicer_stake_floor_multiplier_exponent" yaml:"servicer_stake_floor_multiplier_exponent"`
 	ServicerCountLock        bool          `json:"servicer_count_lock" yaml:"servicer_count_lock"`
+	BurnActive               bool          `json:"burn_active" yaml:"burn_active"`
 }
 
 // Implements sdk.ParamSet
@@ -115,6 +118,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyMaxServicerStakeBin, Value: &p.MaxServicerStakeBin},
 		{Key: KeyServicerStakeBinExponent, Value: &p.ServicerStakeBinExponent},
 		{Key: ServicerCountLock, Value: &p.ServicerCountLock},
+		{Key: BurnActive, Value: &p.BurnActive},
 	}
 }
 
@@ -195,7 +199,8 @@ func (p Params) String() string {
   Provider allocation      %d
   Maximum Chains           %d
   Max Jailed Blocks        %d
-  Servicer Count Lock      %v  `,
+  Servicer Count Lock      %v 
+  Burn Active              %v `,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -212,5 +217,6 @@ func (p Params) String() string {
 		p.ProviderAllocation,
 		p.MaximumChains,
 		p.MaxJailedBlocks,
-		p.ServicerCountLock)
+		p.ServicerCountLock,
+		p.BurnActive)
 }

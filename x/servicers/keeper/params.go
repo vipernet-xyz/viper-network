@@ -185,6 +185,11 @@ func (k Keeper) ServicerCountLock(ctx sdk.Ctx) (isOn bool) {
 	return
 }
 
+func (k Keeper) BurnActive(ctx sdk.Ctx) (isOn bool) {
+	k.Paramstore.Get(ctx, types.BurnActive, &isOn)
+	return
+}
+
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -210,6 +215,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		MaxServicerStakeBin:      k.MaxServicerStakeBin(ctx).Int64(),
 		ServicerStakeBinExponent: k.ServicerStakeBinExponent(ctx),
 		ServicerCountLock:        k.ServicerCountLock(ctx),
+		BurnActive:               k.BurnActive(ctx),
 	}
 }
 

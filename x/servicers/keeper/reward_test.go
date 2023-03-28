@@ -232,8 +232,9 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k := tt.fields.keeper
 			ctx := tt.args.ctx
-			p, _ := k.providerKeeper.GetProvider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(10000), tt.args.validator, p)
+			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
+			p1 := p.(providersTypes.Provider)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(10000), tt.args.validator, p1)
 			acc := k.GetAccount(ctx, tt.args.Output)
 			acc1 := k.GetAccount(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
 			assert.False(t, acc.Coins.IsZero())
@@ -243,7 +244,7 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 			acc = k.GetAccount(ctx, tt.args.validator)
 			assert.True(t, acc.Coins.IsZero())
 			// no output now
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(10000), tt.args.validatorNoOutput, p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(10000), tt.args.validatorNoOutput, p1)
 			acc = k.GetAccount(ctx, tt.args.OutputNoOutput)
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(8000000)))))
@@ -313,20 +314,21 @@ func TestKeeper_rewardFromRelaysNoEXP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k := tt.fields.keeper
 			ctx := tt.args.ctx
-			p, _ := k.providerKeeper.GetProvider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p)
+			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
+			p1 := p.(providersTypes.Provider)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p1)
 			acc := k.GetAccount(ctx, tt.args.validator1.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator2.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward.Mul(sdk.NewInt(2))))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator3.GetAddress(), p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator3.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator3.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward.Mul(sdk.NewInt(3))))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator4.GetAddress(), p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator4.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator4.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward.Mul(sdk.NewInt(4))))))
@@ -384,12 +386,13 @@ func TestKeeper_checkCheckCeiling(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k := tt.fields.keeper
 			ctx := tt.args.ctx
-			p, _ := k.providerKeeper.GetProvider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p)
+			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
+			p1 := p.(providersTypes.Provider)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p1)
 			acc := k.GetAccount(ctx, tt.args.validator1.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator2.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward))))
@@ -451,20 +454,21 @@ func TestKeeper_rewardFromRelaysEXP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k := tt.fields.keeper
 			ctx := tt.args.ctx
-			p, _ := k.providerKeeper.GetProvider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator1.GetAddress(), p)
+			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
+			p1 := p.(providersTypes.Provider)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator1.GetAddress(), p1)
 			acc := k.GetAccount(ctx, tt.args.validator1.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(800000)))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator2.GetAddress(), p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator2.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator2.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(1131372)))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator3.GetAddress(), p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator3.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator3.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(1385641)))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator4.GetAddress(), p)
+			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator4.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator4.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(1600000)))))
