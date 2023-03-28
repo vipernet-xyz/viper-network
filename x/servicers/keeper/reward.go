@@ -45,7 +45,7 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 		coins = k.TokenRewardFactor(ctx).Mul(relays)
 	}
 
-	coins1 := relays.Quo((sdk.NewInt(k.providerKeeper.BaselineThroughputStakeRate(ctx)).Quo(sdk.NewInt(100))).Mul(sdk.NewInt(24)))
+	coins1 := relays.Quo((sdk.NewInt(k.providerKeeper.BaselineThroughputStakeRate(ctx)).Quo(sdk.NewInt(100))))
 
 	toNode, toFeeCollector := k.NodeReward(ctx, coins)
 	if toNode.IsPositive() {
@@ -155,7 +155,7 @@ func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, provider providersTypes.Pro
 			err = k.providerKeeper.LegacyForceProviderUnstake(ctx, provider)
 		}
 		if err != nil {
-			k.Logger(ctx).Error("could not force unstake in simpleSlash: " + err.Error() + "\nfor provider " + provider.Address.String())
+			k.Logger(ctx).Error("could not force unstake: " + err.Error() + "\nfor provider " + provider.Address.String())
 			return sdk.Result{}, nil
 		}
 	}
