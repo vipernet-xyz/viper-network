@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/vipernet-xyz/viper-network/app"
+	"github.com/vipernet-xyz/viper-network/rpc"
 	"github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/spf13/cobra"
@@ -66,18 +67,28 @@ If no changes are desired for the parameter, just enter the current param value 
 			fmt.Println(err)
 			return
 		}
+		params := rpc.HeightAndKeyParams{
+			Height: 0,
+			Key:    "ServicerCountLock",
+		}
+		j, _ := json.Marshal(params)
+		res, _ := QueryRPC(GetParamPath, j)
+		if res == "true" {
+			fmt.Println("Node Staking is Locked; 'ServicerCountLock' is activated to control inflated node count")
+			return
+		}
 		fmt.Println("Enter Passphrase: ")
-		res, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], types.NewInt(int64(amount)), int64(fee))
+		res1, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		j, err := json.Marshal(res)
+		j1, err := json.Marshal(res1)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		resp, err := QueryRPC(SendRawTxPath, j)
+		resp, err := QueryRPC(SendRawTxPath, j1)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -124,18 +135,28 @@ The signer may be the operator or the output address.`,
 			fmt.Println(err)
 			return
 		}
+		params := rpc.HeightAndKeyParams{
+			Height: 0,
+			Key:    "ServicerCountLock",
+		}
+		j, _ := json.Marshal(params)
+		res, _ := QueryRPC(GetParamPath, j)
+		if res == "true" {
+			fmt.Println("Node Staking is Locked; 'ServicerCountLock' is activated to control inflated node count")
+			return
+		}
 		fmt.Println("Enter Passphrase: ")
-		res, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], types.NewInt(int64(amount)), int64(fee))
+		res1, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		j, err := json.Marshal(res)
+		j1, err := json.Marshal(res1)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		resp, err := QueryRPC(SendRawTxPath, j)
+		resp, err := QueryRPC(SendRawTxPath, j1)
 		if err != nil {
 			fmt.Println(err)
 			return

@@ -85,9 +85,6 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 			return nil, err
 		}
 	}
-	if servicerTypes.DefaultServicerCountLock == true {
-		return nil, sdk.ErrInternal("Node Staking is Locked; 'ServicerCountLock' is activated to control inflated node count")
-	}
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
@@ -164,9 +161,6 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 		if err != nil {
 			return nil, err
 		}
-	}
-	if servicerTypes.DefaultServicerCountLock == true {
-		return nil, sdk.ErrInternal("Node Staking is Locked; 'ServicerCountLock' is activated to control inflated node count")
 	}
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
