@@ -25,10 +25,10 @@ import (
 func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique relay here
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
-	providerPrivateKey := GetRandomPrivateKey()
-	providerPubKey := providerPrivateKey.PublicKey().RawString()
+	appPrivateKey := GetRandomPrivateKey()
+	appPubKey := appPrivateKey.PublicKey().RawString()
 	npk := getRandomPubKey()
-	servicerPubKey := npk.RawString()
+	nodePubKey := npk.RawString()
 	ethereum := hex.EncodeToString([]byte{01})
 	bitcoin := hex.EncodeToString([]byte{02})
 	p := Payload{
@@ -43,11 +43,11 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		Proof: RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 1,
-			ServicerPubKey:     servicerPubKey,
+			ServicerPubKey:     nodePubKey,
 			Blockchain:         ethereum,
 			Token: AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: providerPubKey,
+				ProviderPublicKey: appPubKey,
 				ClientPublicKey:   clientPubKey,
 				ProviderSignature: "",
 			},
@@ -55,11 +55,11 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		},
 	}
 	validRelay.Proof.RequestHash = validRelay.RequestHashString()
-	providerSig, er := providerPrivateKey.Sign(validRelay.Proof.Token.Hash())
+	appSig, er := appPrivateKey.Sign(validRelay.Proof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validRelay.Proof.Token.ProviderSignature = hex.EncodeToString(providerSig)
+	validRelay.Proof.Token.ProviderSignature = hex.EncodeToString(appSig)
 	clientSig, er := clientPrivateKey.Sign(validRelay.Proof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -78,10 +78,10 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		StakedTokens:            sdk.NewInt(100000),
 		UnstakingCompletionTime: time.Time{},
 	}
-	var noEthereumServicers []exported.ValidatorI
+	var noEthereumNodes []exported.ValidatorI
 	for i := 0; i < 4; i++ {
 		pubKey := getRandomPubKey()
-		noEthereumServicers = append(noEthereumServicers, servicersTypes.Validator{
+		noEthereumNodes = append(noEthereumNodes, servicersTypes.Validator{
 			Address:                 sdk.Address(pubKey.Address()),
 			PublicKey:               pubKey,
 			Jailed:                  false,
@@ -92,7 +92,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 			UnstakingCompletionTime: time.Time{},
 		})
 	}
-	noEthereumServicers = append(noEthereumServicers, selfNode)
+	noEthereumNodes = append(noEthereumNodes, selfNode)
 	hb := HostedBlockchains{
 		M: map[string]HostedBlockchain{ethereum: {
 			ID:  ethereum,
@@ -100,7 +100,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		}},
 	}
 	pubKey := getRandomPubKey()
-	provider := providersType.Provider{
+	app := providersType.Provider{
 		Address:                 sdk.Address(pubKey.Address()),
 		PublicKey:               pubKey,
 		Jailed:                  false,
@@ -111,44 +111,45 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		UnstakingCompletionTime: time.Time{},
 	}
 	tests := []struct {
-		name         string
-		relay        Relay
-		servicer     servicersTypes.Validator
-		provider     providersType.Provider
-		allServicers []exported.ValidatorI
-		hb           *HostedBlockchains
-		hasError     bool
+		name     string
+		relay    Relay
+		node     servicersTypes.Validator
+		app      providersType.Provider
+		allNodes []exported.ValidatorI
+		hb       *HostedBlockchains
+		hasError bool
 	}{
 		{
-			name:         "invalid relay: not enough service servicers",
-			relay:        validRelay,
-			servicer:     selfNode,
-			provider:     provider,
-			allServicers: noEthereumServicers,
-			hb:           &hb,
-			hasError:     true,
+			name:     "invalid relay: not enough service nodes",
+			relay:    validRelay,
+			node:     selfNode,
+			app:      app,
+			allNodes: noEthereumNodes,
+			hb:       &hb,
+			hasError: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			k := MockPosKeeper{Validators: tt.allServicers}
-			k2 := MockProvidersKeeper{Providers: []exported2.ProviderI{tt.provider}}
+			k := MockPosKeeper{Validators: tt.allNodes}
+			k2 := MockProvidersKeeper{Providers: []exported2.ProviderI{tt.app}}
 			k3 := MockViperKeeper{}
-			_, err := tt.relay.Validate(newContext(t, false).WithAppVersion("0.0.0"), k, k2, k3, tt.servicer.Address, tt.hb, 1)
+			viperNode := GetViperNode()
+			_, err := tt.relay.Validate(newContext(t, false).WithAppVersion("0.0.0"), k, k2, k3, tt.hb, 1, viperNode)
 			assert.Equal(t, err != nil, tt.hasError)
 		})
-		ClearSessionCache()
+		ClearSessionCache(GlobalSessionCache)
 	}
 }
 
 func TestRelay_Execute(t *testing.T) {
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
-	providerPrivateKey := GetRandomPrivateKey()
-	providerPubKey := providerPrivateKey.PublicKey().RawString()
+	appPrivateKey := GetRandomPrivateKey()
+	appPubKey := appPrivateKey.PublicKey().RawString()
 	npk := getRandomPubKey()
-	servicerPubKey := npk.RawString()
+	nodeAddr := sdk.Address(npk.Address())
+	nodePubKey := npk.RawString()
 	ethereum := hex.EncodeToString([]byte{01})
 	p := Payload{
 		Data:    "foo",
@@ -161,11 +162,11 @@ func TestRelay_Execute(t *testing.T) {
 		Proof: RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 1,
-			ServicerPubKey:     servicerPubKey,
+			ServicerPubKey:     nodePubKey,
 			Blockchain:         ethereum,
 			Token: AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: providerPubKey,
+				ProviderPublicKey: appPubKey,
 				ClientPublicKey:   clientPubKey,
 				ProviderSignature: "",
 			},
@@ -186,7 +187,7 @@ func TestRelay_Execute(t *testing.T) {
 			URL: "https://server.com/relay/",
 		}},
 	}
-	response, err := validRelay.Execute(&hb)
+	response, err := validRelay.Execute(&hb, &nodeAddr)
 	assert.True(t, err == nil)
 	assert.Equal(t, response, "bar")
 }
@@ -194,10 +195,10 @@ func TestRelay_Execute(t *testing.T) {
 func TestRelay_HandleProof(t *testing.T) {
 	clientPrivateKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
-	providerPrivateKey := GetRandomPrivateKey()
-	providerPubKey := providerPrivateKey.PublicKey().RawString()
+	appPrivateKey := GetRandomPrivateKey()
+	appPubKey := appPrivateKey.PublicKey().RawString()
 	npk := getRandomPubKey()
-	servicerPubKey := npk.RawString()
+	nodePubKey := npk.RawString()
 	ethereum := hex.EncodeToString([]byte{01})
 	p := Payload{
 		Data:    "foo",
@@ -210,11 +211,11 @@ func TestRelay_HandleProof(t *testing.T) {
 		Proof: RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 1,
-			ServicerPubKey:     servicerPubKey,
+			ServicerPubKey:     nodePubKey,
 			Blockchain:         ethereum,
 			Token: AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: providerPubKey,
+				ProviderPublicKey: appPubKey,
 				ClientPublicKey:   clientPubKey,
 				ProviderSignature: "",
 			},
@@ -222,12 +223,12 @@ func TestRelay_HandleProof(t *testing.T) {
 		},
 	}
 	validRelay.Proof.RequestHash = validRelay.RequestHashString()
-	validRelay.Proof.Store(sdk.NewInt(100000))
+	validRelay.Proof.Store(sdk.NewInt(100000), GlobalEvidenceCache)
 	res := GetProof(SessionHeader{
-		ProviderPubKey:     providerPubKey,
+		ProviderPubKey:     appPubKey,
 		Chain:              ethereum,
 		SessionBlockHeight: 1,
-	}, RelayEvidence, 0)
+	}, RelayEvidence, 0, GlobalEvidenceCache)
 	assert.True(t, reflect.DeepEqual(validRelay.Proof, res))
 }
 

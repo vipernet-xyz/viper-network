@@ -3,12 +3,13 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	"github.com/vipernet-xyz/viper-network/codec"
 
 	"github.com/vipernet-xyz/viper-network/crypto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/authentication"
+	auth "github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
@@ -16,18 +17,15 @@ import (
 )
 
 // "SendClaimTx" - Automatically sends a claim of work/challenge based on relays or challenges stored.
-func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx func(pk crypto.PrivateKey, cliCtx util.CLIContext, txBuilder authentication.TxBuilder, header vc.SessionHeader, totalProofs int64, root vc.HashRange, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
+func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, node *vc.ViperNode, claimTx func(pk crypto.PrivateKey, cliCtx util.CLIContext, txBuilder auth.TxBuilder, header vc.SessionHeader, totalProofs int64, root vc.HashRange, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
 	// get the private val key (main) account from the keybase
-	kp, err := k.GetPKFromFile(ctx)
-	if err != nil {
-		ctx.Logger().Error(fmt.Sprintf("an error occured retrieving the private key from file for the claim transaction:\n%s", err.Error()))
-		return
-	}
+	address := node.GetAddress()
 	// retrieve the iterator to go through each piece of evidence in storage
-	iter := vc.EvidenceIterator()
+	iter := vc.EvidenceIterator(node.EvidenceStore)
 	defer iter.Close()
 	// loop through each evidence
 	for ; iter.Valid(); iter.Next() {
+		now := time.Now()
 		evidence := iter.Value()
 		// if the number of proofs in the evidence object is zero
 		if evidence.NumOfProofs == 0 {
@@ -44,7 +42,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 		}
 		// if the evidence length is less than minimum, it would not satisfy our merkle tree needs
 		if evidence.NumOfProofs < keeper.MinimumNumberOfProofs(sessionCtx) {
-			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType); err != nil {
+			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType, node.EvidenceStore); err != nil {
 				ctx.Logger().Debug(err.Error())
 			}
 			continue
@@ -53,39 +51,43 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 			ctx.Logger().Info("the session is ongoing, so will not send the claim-tx yet")
 			continue
 		}
-		// if the blockchain in the evidence is not supported then delete it because servicers don't get paid/challenged for unsupported blockchains
+		// if the blockchain in the evidence is not supported then delete it because nodes don't get paid/challenged for unsupported blockchains
 		if !k.IsViperSupportedBlockchain(sessionCtx.WithBlockHeight(evidence.SessionHeader.SessionBlockHeight), evidence.SessionHeader.Chain) {
 			ctx.Logger().Info(fmt.Sprintf("claim for %s blockchain isn't viper supported, so will not send. Deleting evidence\n", evidence.SessionHeader.Chain))
-			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType); err != nil {
+			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType, node.EvidenceStore); err != nil {
 				ctx.Logger().Debug(err.Error())
 			}
 			continue
 		}
 		// check the current state to see if the unverified evidence has already been sent and processed (if so, then skip this evidence)
-		if _, found := k.GetClaim(ctx, sdk.Address(kp.PublicKey().Address()), evidence.SessionHeader, evidenceType); found {
+		if _, found := k.GetClaim(ctx, address, evidence.SessionHeader, evidenceType); found {
 			continue
 		}
 		// if the claim is mature, delete it because we cannot submit a mature claim
 		if k.ClaimIsMature(ctx, evidence.SessionBlockHeight) {
-			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType); err != nil {
+			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType, node.EvidenceStore); err != nil {
 				ctx.Logger().Debug(err.Error())
 			}
 			continue
 		}
-		provider, found := k.GetProviderFromPublicKey(sessionCtx, evidence.ProviderPubKey)
+		app, found := k.GetProviderFromPublicKey(sessionCtx, evidence.ProviderPubKey)
 		if !found {
-			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the claim transaction with provider %s not found with evidence %v", evidence.ProviderPubKey, evidence))
+			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the claim transaction with app %s not found with evidence %v", evidence.ProviderPubKey, evidence))
 		}
 		// generate the merkle root for this evidence
-		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(provider, k.SessionNodeCount(sessionCtx)).Int64())
+		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionCtx)).Int64(), node.EvidenceStore)
+		claimTxTotalTime := float64(time.Since(now).Milliseconds())
+		go func() {
+			vc.GlobalServiceMetric().AddClaimTiming(evidence.SessionHeader.Chain, claimTxTotalTime, &address)
+		}()
 		// generate the auto txbuilder and clictx
-		txBuilder, cliCtx, err := newTxBuilderAndCliCtx(ctx, &vc.MsgClaim{}, n, kp, k)
+		txBuilder, cliCtx, err := newTxBuilderAndCliCtx(ctx, &vc.MsgClaim{}, n, node.PrivateKey, k)
 		if err != nil {
 			ctx.Logger().Error(fmt.Sprintf("an error occured creating the tx builder for the claim tx:\n%s", err.Error()))
 			return
 		}
 		// send in the evidence header, the total relays completed, and the merkle root (ensures data integrity)
-		if _, err := claimTx(kp, cliCtx, txBuilder, evidence.SessionHeader, evidence.NumOfProofs, root, evidenceType); err != nil {
+		if _, err := claimTx(node.PrivateKey, cliCtx, txBuilder, evidence.SessionHeader, evidence.NumOfProofs, root, evidenceType); err != nil {
 			ctx.Logger().Error(fmt.Sprintf("an error occured executing the claim transaciton: \n%s", err.Error()))
 		}
 	}
@@ -114,27 +116,27 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	if !k.IsViperSupportedBlockchain(sessionContext, claim.SessionHeader.Chain) {
 		return vc.NewChainNotSupportedErr(vc.ModuleName)
 	}
-	// get the servicer from the keeper (at the state of the start of the session)
+	// get the node from the keeper (at the state of the start of the session)
 	_, found := k.GetNode(sessionContext, claim.FromAddress)
 	// if not found return not found error
 	if !found {
 		return vc.NewNodeNotFoundErr(vc.ModuleName)
 	}
-	// get the provider (at the state of the start of the session)
-	provider, found := k.GetProviderFromPublicKey(sessionContext, claim.SessionHeader.ProviderPubKey)
+	// get the application (at the state of the start of the session)
+	app, found := k.GetProviderFromPublicKey(sessionContext, claim.SessionHeader.ProviderPubKey)
 	// if not found return not found error
 	if !found {
 		return vc.NewProviderNotFoundError(vc.ModuleName)
 	}
 	if vc.ModuleCdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.MaxRelayProtKey) {
-		if vc.MaxPossibleRelays(provider, k.SessionNodeCount(sessionContext)).LT(sdk.NewInt(claim.TotalProofs)) {
+		if vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionContext)).LT(sdk.NewInt(claim.TotalProofs)) {
 			return vc.NewOverServiceError(vc.ModuleName)
 		}
 	}
-	// get the session servicer count for the time of the session
+	// get the session node count for the time of the session
 	sessionNodeCount := int(k.SessionNodeCount(sessionContext))
 	// check cache
-	session, found := vc.GetSession(claim.SessionHeader)
+	session, found := vc.GetSession(claim.SessionHeader, vc.GlobalSessionCache)
 	if !found {
 		// use the session end context to ensure that people who were jailed mid session do not get to submit claims
 		sessionEndCtx, er := ctx.PrevCtx(sessionEndHeight)
@@ -148,12 +150,12 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 		// create a new session to validate
 		session, err = vc.NewSession(sessionContext, sessionEndCtx, k.posKeeper, claim.SessionHeader, hex.EncodeToString(hash), sessionNodeCount)
 		if err != nil {
-			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", provider.GetPublicKey().RawString(), claim.SessionHeader.Chain).Error())
+			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", app.GetPublicKey().RawString(), claim.SessionHeader.Chain).Error())
 			return err
 		}
 	}
 	// validate the session
-	err = session.Validate(claim.FromAddress, provider, sessionNodeCount)
+	err = session.Validate(claim.FromAddress, app, sessionNodeCount)
 	if err != nil {
 		return err
 	}

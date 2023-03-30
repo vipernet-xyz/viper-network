@@ -743,16 +743,16 @@ func TestQueryRelay(t *testing.T) {
 				Reply(200).
 				BodyString(expectedResponse)
 			_, kb, cleanup := tc.memoryNodeFn(t, genBz)
-			providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+			appPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 			assert.Nil(t, err)
 			// setup AAT
 			aat := types.AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: providerPrivateKey.PublicKey().RawString(),
-				ClientPublicKey:   providerPrivateKey.PublicKey().RawString(),
+				ProviderPublicKey: appPrivateKey.PublicKey().RawString(),
+				ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
 				ProviderSignature: "",
 			}
-			sig, err := providerPrivateKey.Sign(aat.Hash())
+			sig, err := appPrivateKey.Sign(aat.Hash())
 			if err != nil {
 				panic(err)
 			}
@@ -775,7 +775,7 @@ func TestQueryRelay(t *testing.T) {
 				},
 			}
 			relay.Proof.RequestHash = relay.RequestHashString()
-			sig, err = providerPrivateKey.Sign(relay.Proof.Hash())
+			sig, err = appPrivateKey.Sign(relay.Proof.Hash())
 			if err != nil {
 				panic(err)
 			}
@@ -797,7 +797,7 @@ func TestQueryRelay(t *testing.T) {
 					ProviderPubKey:     aat.ProviderPublicKey,
 					Chain:              relay.Proof.Blockchain,
 					SessionBlockHeight: relay.Proof.SessionBlockHeight,
-				}, types.RelayEvidence, sdk.NewInt(10000))
+				}, types.RelayEvidence, sdk.NewInt(10000), types.GlobalEvidenceCache)
 				assert.Nil(t, err)
 				assert.NotNil(t, inv)
 				assert.Equal(t, inv.NumOfProofs, int64(1))
@@ -809,7 +809,6 @@ func TestQueryRelay(t *testing.T) {
 		})
 	}
 }
-
 func TestQueryDispatch(t *testing.T) {
 	tt := []struct {
 		name         string

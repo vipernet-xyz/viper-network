@@ -62,9 +62,16 @@ type codecUpgrade struct {
 	height     int64
 }
 
+// NewInMemoryTendermintNodeAmino will create a TM node with only one validator. LeanViper is disabled.
 func NewInMemoryTendermintNodeAmino(t *testing.T, genesisState []byte) (tendermintNode *node.Node, keybase keys.Keybase, cleanup func()) {
+	return NewInMemoryTendermintNodeAminoWithValidators(t, genesisState, nil)
+}
+
+// NewInMemoryTendermintNodeAminoWithValidators will create a TM node with 'n' "validators".
+// If "validators" is nil, LeanVIPR is disabled
+func NewInMemoryTendermintNodeAminoWithValidators(t *testing.T, genesisState []byte, validators []crypto.PrivateKey) (tendermintNode *node.Node, keybase keys.Keybase, cleanup func()) {
 	// create the in memory tendermint node and keybase
-	tendermintNode, keybase = inMemTendermintNode(genesisState)
+	tendermintNode, keybase = inMemTendermintNodeWithValidators(genesisState, validators)
 	// test assertions
 	if tendermintNode == nil {
 		panic("tendermintNode should not be nil")
@@ -74,10 +81,16 @@ func NewInMemoryTendermintNodeAmino(t *testing.T, genesisState []byte) (tendermi
 	}
 	assert.NotNil(t, tendermintNode)
 	assert.NotNil(t, keybase)
+
 	// init cache in memory
+	defaultConfig := sdk.DefaultTestingViperConfig()
+	if validators != nil {
+		defaultConfig.ViperConfig.LeanViper = true
+	}
+
 	viperTypes.InitConfig(&viperTypes.HostedBlockchains{
 		M: make(map[string]viperTypes.HostedBlockchain),
-	}, tendermintNode.Logger, sdk.DefaultTestingViperConfig())
+	}, tendermintNode.Logger, defaultConfig)
 	// start the in memory node
 	err := tendermintNode.Start()
 	if err != nil {
@@ -91,8 +104,7 @@ func NewInMemoryTendermintNodeAmino(t *testing.T, genesisState []byte) (tendermi
 		if err != nil {
 			panic(err)
 		}
-		viperTypes.ClearEvidence()
-		viperTypes.ClearSessionCache()
+		viperTypes.CleanViperNodes()
 		VCA = nil
 		inMemKB = nil
 		err := inMemDB.Close()
@@ -112,9 +124,17 @@ func NewInMemoryTendermintNodeAmino(t *testing.T, genesisState []byte) (tendermi
 	}
 	return
 }
+
+// NewInMemoryTendermintNodeProto will create a TM node with only one validator. LeanViper is disabled.
 func NewInMemoryTendermintNodeProto(t *testing.T, genesisState []byte) (tendermintNode *node.Node, keybase keys.Keybase, cleanup func()) {
+	return NewInMemoryTendermintNodeProtoWithValidators(t, genesisState, nil)
+}
+
+// NewInMemoryTendermintNodeWithValidators will create a TM node with 'n' "validators".
+// If "validators" is nil, this creates a pre-leanvipr TM node, else it will enable lean viper
+func NewInMemoryTendermintNodeProtoWithValidators(t *testing.T, genesisState []byte, validators []crypto.PrivateKey) (tendermintNode *node.Node, keybase keys.Keybase, cleanup func()) {
 	// create the in memory tendermint node and keybase
-	tendermintNode, keybase = inMemTendermintNode(genesisState)
+	tendermintNode, keybase = inMemTendermintNodeWithValidators(genesisState, validators)
 	// test assertions
 	if tendermintNode == nil {
 		panic("tendermintNode should not be nil")
@@ -124,10 +144,15 @@ func NewInMemoryTendermintNodeProto(t *testing.T, genesisState []byte) (tendermi
 	}
 	assert.NotNil(t, tendermintNode)
 	assert.NotNil(t, keybase)
+
 	// init cache in memory
+	defaultConfig := sdk.DefaultTestingViperConfig()
+	if validators != nil {
+		defaultConfig.ViperConfig.LeanViper = true
+	}
 	viperTypes.InitConfig(&viperTypes.HostedBlockchains{
 		M: make(map[string]viperTypes.HostedBlockchain),
-	}, tendermintNode.Logger, sdk.DefaultTestingViperConfig())
+	}, tendermintNode.Logger, defaultConfig)
 	// start the in memory node
 	err := tendermintNode.Start()
 	if err != nil {
@@ -143,8 +168,8 @@ func NewInMemoryTendermintNodeProto(t *testing.T, genesisState []byte) (tendermi
 		if err != nil {
 			panic(err)
 		}
-		viperTypes.ClearEvidence()
-		viperTypes.ClearSessionCache()
+
+		viperTypes.CleanViperNodes()
 
 		VCA = nil
 		inMemKB = nil
@@ -163,6 +188,103 @@ func NewInMemoryTendermintNodeProto(t *testing.T, genesisState []byte) (tendermi
 		time.Sleep(3 * time.Second)
 	}
 	return
+}
+
+// inMemTendermintNodeWithValidators will create a TM node with 'n' "validators".
+// If "validators" is nil, LeanVipr is disabled and uses in memory CB as the sole validator for consensus
+func inMemTendermintNodeWithValidators(genesisState []byte, validatorsPk []crypto.PrivateKey) (*node.Node, keys.Keybase) {
+	kb := getInMemoryKeybase()
+	cb, err := kb.GetCoinbase()
+	if err != nil {
+		panic(err)
+	}
+	pk, err := kb.ExportPrivateKeyObject(cb.GetAddress(), "test")
+	if err != nil {
+		panic(err)
+	}
+	genDocProvider := func() (*types.GenesisDoc, error) {
+		return &types.GenesisDoc{
+			GenesisTime: time.Time{},
+			ChainID:     "viper-test",
+			ConsensusParams: &types.ConsensusParams{
+				Block: types.BlockParams{
+					MaxBytes:   15000,
+					MaxGas:     -1,
+					TimeIotaMs: 1,
+				},
+				Evidence: types.EvidenceParams{
+					MaxAge: 1000000,
+				},
+				Validator: types.ValidatorParams{
+					PubKeyTypes: []string{"ed25519"},
+				},
+			},
+			Validators: nil,
+			AppHash:    nil,
+			AppState:   genesisState,
+		}, nil
+	}
+	loggerFile, _ := os.Open(os.DevNull)
+	c := config{
+		TmConfig: getTestConfig(),
+		Logger:   log.NewTMLogger(loggerFile),
+	}
+	db := getInMemoryDB()
+	traceWriter, err := openTraceWriter(c.TraceWriter)
+	if err != nil {
+		panic(err)
+	}
+	nodeKey := p2p.NodeKey{PrivKey: pk}
+	var privVal *privval.FilePVLean
+	if validatorsPk == nil {
+		// only set cb as validator
+		privVal = privval.GenFilePVLean(c.TmConfig.PrivValidatorKey, c.TmConfig.PrivValidatorState)
+		privVal.Keys[0].PrivKey = pk
+		privVal.Keys[0].PubKey = pk.PubKey()
+		privVal.Keys[0].Address = pk.PubKey().Address()
+		viperTypes.CleanViperNodes()
+		viperTypes.AddViperNodeByFilePVKey(privVal.Keys[0], c.Logger)
+	} else {
+		// (LeanVIPR) Set multiple nodes as validators
+		viperTypes.CleanViperNodes()
+		// generating a stub of n validators
+		privVal = privval.GenFilePVsLean(c.TmConfig.PrivValidatorKey, c.TmConfig.PrivValidatorState, uint(len(validatorsPk)))
+		// replace the stub validators with the correct validators
+		for i, pk := range validatorsPk {
+			privVal.Keys[i].PrivKey = pk.PrivKey()
+			privVal.Keys[i].PubKey = pk.PubKey()
+			privVal.Keys[i].Address = pk.PubKey().Address()
+			viperTypes.AddViperNode(pk, c.Logger)
+		}
+	}
+
+	dbProvider := func(*node.DBContext) (dbm.DB, error) {
+		return db, nil
+	}
+	app := GetApp(c.Logger, db, traceWriter)
+	txDB := dbm.NewMemDB()
+	tmNode, err := node.NewNode(app.BaseApp,
+		c.TmConfig,
+		0,
+		privVal,
+		&nodeKey,
+		proxy.NewLocalClientCreator(app),
+		sdk.NewTransactionIndexer(txDB),
+		genDocProvider,
+		dbProvider,
+		node.DefaultMetricsProvider(c.TmConfig.Instrumentation),
+		c.Logger.With("module", "node"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	VCA = app
+	app.SetTxIndexer(tmNode.TxIndexer())
+	app.SetBlockstore(tmNode.BlockStore())
+	app.SetEvidencePool(tmNode.EvidencePool())
+	app.viperKeeper.TmNode = local.New(tmNode)
+	app.SetTendermintNode(tmNode)
+	return tmNode, kb
 }
 
 func TestNewInMemoryAmino(t *testing.T) {
@@ -201,84 +323,6 @@ func getInMemoryDB() dbm.DB {
 		inMemDB = dbm.NewMemDB()
 	}
 	return inMemDB
-}
-
-func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
-	kb := getInMemoryKeybase()
-	cb, err := kb.GetCoinbase()
-	if err != nil {
-		panic(err)
-	}
-	pk, err := kb.ExportPrivateKeyObject(cb.GetAddress(), "test")
-	if err != nil {
-		panic(err)
-	}
-	genDocServicer := func() (*types.GenesisDoc, error) {
-		return &types.GenesisDoc{
-			GenesisTime: time.Time{},
-			ChainID:     "viper-test",
-			ConsensusParams: &types.ConsensusParams{
-				Block: types.BlockParams{
-					MaxBytes:   15000,
-					MaxGas:     -1,
-					TimeIotaMs: 1,
-				},
-				Evidence: types.EvidenceParams{
-					MaxAge: 1000000,
-				},
-				Validator: types.ValidatorParams{
-					PubKeyTypes: []string{"ed25519"},
-				},
-			},
-			Validators: nil,
-			AppHash:    nil,
-			AppState:   genesisState,
-		}, nil
-	}
-	loggerFile, _ := os.Open(os.DevNull)
-	c := config{
-		TmConfig: getTestConfig(),
-		Logger:   log.NewTMLogger(loggerFile),
-	}
-	db := getInMemoryDB()
-	traceWriter, err := openTraceWriter(c.TraceWriter)
-	if err != nil {
-		panic(err)
-	}
-	nodeKey := p2p.NodeKey{PrivKey: pk}
-	privVal := GenFilePV(c.TmConfig.PrivValidatorKey, c.TmConfig.PrivValidatorState)
-	privVal.Key.PrivKey = pk
-	privVal.Key.PubKey = pk.PubKey()
-	privVal.Key.Address = pk.PubKey().Address()
-	viperTypes.InitPVKeyFile(privVal.Key)
-
-	dbServicer := func(*node.DBContext) (dbm.DB, error) {
-		return db, nil
-	}
-	app := GetApp(c.Logger, db, traceWriter)
-	txDB := dbm.NewMemDB()
-	tmNode, err := node.NewNode(app.BaseApp,
-		c.TmConfig,
-		0,
-		privVal,
-		&nodeKey,
-		proxy.NewLocalClientCreator(app),
-		sdk.NewTransactionIndexer(txDB),
-		genDocServicer,
-		dbServicer,
-		node.DefaultMetricsProvider(c.TmConfig.Instrumentation),
-		c.Logger.With("module", "node"),
-	)
-	if err != nil {
-		panic(err)
-	}
-	VCA = app
-	app.SetTxIndexer(tmNode.TxIndexer())
-	app.SetBlockstore(tmNode.BlockStore())
-	app.SetEvidencePool(tmNode.EvidencePool())
-	app.viperKeeper.TmNode = local.New(tmNode)
-	app.SetTendermintNode(tmNode)
-	return tmNode, kb
 }
 
 // GenFilePV generates a new validator with randomly generated private key

@@ -114,36 +114,42 @@ func ActivateAdditionalParameters(ctx sdk.Ctx, pm AppModule) {
 }
 
 // EndBlock "EndBlock" - Functionality that is called at the end of (every) block
-func (pm AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	// get blocks per session
-	blocksPerSession := pm.keeper.BlocksPerSession(ctx)
-	// get self address
-	addr := pm.keeper.GetSelfAddress(ctx)
-	if addr != nil {
-		// use the offset as a trigger to see if it's time to attempt to submit proofs
-		if (ctx.BlockHeight()+int64(addr[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
-			// run go routine because cannot access TmNode during end-block period
-			go func() {
-				// use this sleep timer to bypass the beginBlock lock over transactions
-				time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
-				s, err := pm.keeper.TmNode.Status()
-				if err != nil {
-					ctx.Logger().Error(fmt.Sprintf("could not get status for tendermint servicer (cannot submit claims/proofs in this state): %s", err.Error()))
-				} else {
-					if !s.SyncInfo.CatchingUp {
-						// auto send the proofs
-						pm.keeper.SendClaimTx(ctx, pm.keeper, pm.keeper.TmNode, ClaimTx)
-						// auto claim the proofs
-						pm.keeper.SendProofTx(ctx, pm.keeper.TmNode, ProofTx)
-						// clear session cache and db
-						types.ClearSessionCache()
-					}
-				}
-			}()
+	blocksPerSession := am.keeper.BlocksPerSession(ctx)
+
+	// run go routine because cannot access TmNode during end-block period
+	go func() {
+		// use this sleep timer to bypass the beginBlock lock over transactions
+		minSleep := 2000
+		maxSleep := 5000
+		time.Sleep(time.Duration(rand.Intn(maxSleep-minSleep)+minSleep) * time.Millisecond)
+
+		// check the consensus reactor sync status
+		status, err := am.keeper.TmNode.ConsensusReactorStatus()
+		if err != nil {
+			ctx.Logger().Error(fmt.Sprintf("could not get status for tendermint node (cannot submit claims/proofs in this state): %s", err.Error()))
+			return
 		}
-	} else {
-		ctx.Logger().Error("could not get self address in end block")
-	}
+
+		if status.IsCatchingUp {
+			//moving this to Debug as it shows up as an error on every block while syncing.
+			ctx.Logger().Debug("tendermint is currently syncing still (cannot submit claims/proofs in this state)")
+			return
+		}
+
+		for _, node := range types.GlobalViperNodes {
+			address := node.GetAddress()
+			if (ctx.BlockHeight()+int64(address[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
+				// auto send the proofs
+				am.keeper.SendClaimTx(ctx, am.keeper, am.keeper.TmNode, node, ClaimTx)
+				// auto claim the proofs
+				am.keeper.SendProofTx(ctx, am.keeper.TmNode, node, ProofTx)
+				// clear session cache and db
+				types.ClearSessionCache(node.SessionStore)
+			}
+		}
+	}()
 	return []abci.ValidatorUpdate{}
 }
 

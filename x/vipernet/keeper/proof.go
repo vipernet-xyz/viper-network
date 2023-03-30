@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"time"
 
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto"
@@ -19,45 +20,41 @@ import (
 )
 
 // auto sends a proof transaction for the claim
-func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx util.CLIContext, txBuilder authentication.TxBuilder, merkleProof vc.MerkleProof, leafNode vc.Proof, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
-	kp, err := k.GetPKFromFile(ctx)
-	if err != nil {
-		ctx.Logger().Error(fmt.Sprintf("an error occured retrieving the pk from the file for the Proof Transaction:\n%v", err))
-		return
-	}
-	// get the self address
-	addr := sdk.Address(kp.PublicKey().Address())
+func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, proofTx func(cliCtx util.CLIContext, txBuilder authentication.TxBuilder, merkleProof vc.MerkleProof, leafNode vc.Proof, evidenceType vc.EvidenceType) (*sdk.TxResponse, error)) {
+	addr := node.GetAddress()
 	// get all mature (waiting period has passed) claims for your address
 	claims, err := k.GetMatureClaims(ctx, addr)
 	if err != nil {
 		ctx.Logger().Error(fmt.Sprintf("an error occured getting the mature claims in the Proof Transaction:\n%v", err))
 		return
 	}
+
 	// for every claim of the mature set
 	for _, claim := range claims {
+		now := time.Now()
 		// check to see if evidence is stored in cache
-		evidence, err := vc.GetEvidence(claim.SessionHeader, claim.EvidenceType, sdk.ZeroInt())
+		evidence, err := vc.GetEvidence(claim.SessionHeader, claim.EvidenceType, sdk.ZeroInt(), node.EvidenceStore)
 		if err != nil || evidence.Proofs == nil || len(evidence.Proofs) == 0 {
-			ctx.Logger().Info(fmt.Sprintf("the evidence object for evidence is not found, ignoring pending claim for provider: %s, at sessionHeight: %d", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
+			ctx.Logger().Info(fmt.Sprintf("the evidence object for evidence is not found, ignoring pending claim for app: %s, at sessionHeight: %d", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
 			continue
 		}
 		if ctx.BlockHeight()-claim.SessionHeader.SessionBlockHeight > int64(vc.GlobalViperConfig.MaxClaimAgeForProofRetry) {
-			err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType)
+			err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType, node.EvidenceStore)
 			ctx.Logger().Error(fmt.Sprintf("deleting evidence older than MaxClaimAgeForProofRetry"))
 			if err != nil {
 				ctx.Logger().Error(fmt.Sprintf("unable to delete evidence that is older than 32 blocks: %s", err.Error()))
 			}
 			continue
 		}
-		if !evidence.IsSealed() {
-			err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType)
+		if !node.EvidenceStore.IsSealed(evidence) {
+			err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType, node.EvidenceStore)
 			ctx.Logger().Error(fmt.Sprintf("evidence is not sealed, could cause a relay leak:"))
 			if err != nil {
 				ctx.Logger().Error(fmt.Sprintf("could not delete evidence is not sealed, could cause a relay leak: %s", err.Error()))
 			}
 		}
 		if evidence.NumOfProofs != claim.TotalProofs {
-			err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType)
+			err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType, node.EvidenceStore)
 			ctx.Logger().Error(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak"))
 			if err != nil {
 				ctx.Logger().Error(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak: %s", err.Error()))
@@ -66,7 +63,7 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx ut
 		// get the session context
 		sessionCtx, err := ctx.PrevCtx(claim.SessionHeader.SessionBlockHeight)
 		if err != nil {
-			ctx.Logger().Info(fmt.Sprintf("could not get Session Context, ignoring pending claim for provider: %s, at sessionHeight: %d", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
+			ctx.Logger().Info(fmt.Sprintf("could not get Session Context, ignoring pending claim for app: %s, at sessionHeight: %d", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
 			continue
 		}
 		// generate the needed pseudorandom index using the information found in the first transaction
@@ -75,27 +72,31 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx ut
 			ctx.Logger().Error(err.Error())
 			continue
 		}
-		provider, found := k.GetProviderFromPublicKey(sessionCtx, claim.SessionHeader.ProviderPubKey)
+		app, found := k.GetProviderFromPublicKey(sessionCtx, claim.SessionHeader.ProviderPubKey)
 		if !found {
-			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the proof transaction with provider %s not found with evidence %v", evidence.ProviderPubKey, evidence))
+			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the proof transaction with app %s not found with evidence %v", evidence.ProviderPubKey, evidence))
 		}
 		// get the merkle proof object for the pseudorandom index
-		mProof, leaf := evidence.GenerateMerkleProof(claim.SessionHeader.SessionBlockHeight, int(index), vc.MaxPossibleRelays(provider, k.SessionNodeCount(sessionCtx)).Int64())
+		mProof, leaf := evidence.GenerateMerkleProof(claim.SessionHeader.SessionBlockHeight, int(index), vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionCtx)).Int64())
 		// if prevalidation on, then pre-validate
 		if vc.GlobalViperConfig.ProofPrevalidation {
 			// validate level count on claim by total relays
 			levelCount := len(mProof.HashRanges)
 			if levelCount != int(math.Ceil(math.Log2(float64(claim.TotalProofs)))) {
-				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for provider: %s, at sessionHeight: %d, level count", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
+				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for app: %s, at sessionHeight: %d, level count", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
 				continue
 			}
 			if isValid, _ := mProof.Validate(claim.SessionHeader.SessionBlockHeight, claim.MerkleRoot, leaf, levelCount); !isValid {
-				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for provider: %s, at sessionHeight: %d", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
+				ctx.Logger().Error(fmt.Sprintf("produced invalid proof for pending claim for app: %s, at sessionHeight: %d", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
 				continue
 			}
 		}
+		proofTxTotalTime := float64(time.Since(now))
+		go func() {
+			vc.GlobalServiceMetric().AddProofTiming(evidence.SessionHeader.Chain, proofTxTotalTime, &addr)
+		}()
 		// generate the auto txbuilder and clictx
-		txBuilder, cliCtx, err := newTxBuilderAndCliCtx(ctx, &vc.MsgProof{}, n, kp, k)
+		txBuilder, cliCtx, err := newTxBuilderAndCliCtx(ctx, &vc.MsgProof{}, n, node.PrivateKey, k)
 		if err != nil {
 			ctx.Logger().Error(fmt.Sprintf("an error occured in the transaction process of the Proof Transaction:\n%v", err))
 			return

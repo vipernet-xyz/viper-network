@@ -11,15 +11,18 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
-// "Session" - The relationship between an provider and the viper network
+// "Session" - The relationship between an application and the viper network
 
-func (s Session) IsSealed() bool {
+func (s Session) IsSealable() bool {
 	return false
 }
 
-func (s Session) Seal() CacheObject {
-	return s
+func (s Session) HashString() string {
+	return s.HashString()
 }
+
+// "SessionNodes" - Service nodes in a session
+type SessionNodes []sdk.Address
 
 // "NewSession" - create a new session from seed data
 func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string, sessionServicersCount int) (Session, sdk.Error) {
@@ -266,11 +269,11 @@ func BlockHash(ctx sdk.Context) string {
 	return hex.EncodeToString(ctx.BlockHeader().LastBlockId.Hash)
 }
 
-// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an Provider on a sessions
-func MaxPossibleRelays(provider providerexported.ProviderI, sessionNodeCount int64) sdk.BigInt {
+// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an App on a sessions
+func MaxPossibleRelays(app providerexported.ProviderI, sessionNodeCount int64) sdk.BigInt {
 	//GetMaxRelays Max value is bound to math.MaxUint64,
-	//current worse case is 1 chain and 5 servicers per session with a result of 3689348814741910323 which can be used safely as int64
-	return provider.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(provider.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
+	//current worse case is 1 chain and 5 nodes per session with a result of 3689348814741910323 which can be used safely as int64
+	return app.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(app.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
 }
 
 // "NodeHashChain" - Returns whether or not the servicer has the relayChain
@@ -283,4 +286,22 @@ func NodeHasChain(chain string, servicer exported.ValidatorI) bool {
 		}
 	}
 	return hasChain
+}
+
+// "Contains" - Verifies if the session nodes contains the node using the address
+func (sn SessionNodes) Contains(addr sdk.Address) bool {
+	// if nil return
+	if addr == nil {
+		return false
+	}
+	// loop over the nodes
+	for _, node := range sn {
+		if node == nil {
+			continue
+		}
+		if node.Equals(addr) {
+			return true
+		}
+	}
+	return false
 }

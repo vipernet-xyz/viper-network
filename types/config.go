@@ -1,6 +1,7 @@
 package types
 
 import (
+	"path"
 	"sync"
 	"time"
 
@@ -47,6 +48,12 @@ type ViperConfig struct {
 	IavlCacheSize            int64  `json:"iavl_cache_size"`
 	ChainsHotReload          bool   `json:"chains_hot_reload"`
 	GenerateTokenOnStart     bool   `json:"generate_token_on_start"`
+	LeanViper                bool   `json:"lean_viper"`
+	LeanViperUserKeyFileName string `json:"lean_viper_user_key_file"`
+}
+
+func (c ViperConfig) GetLeanViperUserKeyFilePath() string {
+	return path.Join(c.DataDir, c.LeanViperUserKeyFileName)
 }
 
 type Config struct {

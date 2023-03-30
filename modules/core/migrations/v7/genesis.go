@@ -1,5 +1,6 @@
 package v7
 
+/*
 import (
 	//genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/vipernet-xyz/viper-network/codec"
@@ -40,3 +41,4 @@ func MigrateGenesis(appState genutiltypes.AppMap, cdc codec.ProtoCodecMarshaler)
 	appState[ibcexported.ModuleName] = cdc.MustMarshalJSON(ibcGenState)
 	return appState, nil
 }
+*/

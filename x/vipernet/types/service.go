@@ -26,7 +26,7 @@ type Relay struct {
 }
 
 // "Validate" - Checks the validity of a relay request using store data
-func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper ProvidersKeeper, viperKeeper ViperKeeper, servicer sdk.Address, hb *HostedBlockchains, sessionBlockHeight int64) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
+func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper ProvidersKeeper, viperKeeper ViperKeeper, hb *HostedBlockchains, sessionBlockHeight int64, node *ViperNode) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
 	// validate payload
 	if err := r.Payload.Validate(); err != nil {
 		return sdk.ZeroInt(), NewEmptyPayloadDataError(ModuleName)
@@ -52,15 +52,15 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper Provi
 	if er != nil {
 		return sdk.ZeroInt(), sdk.ErrInternal(er.Error())
 	}
-	// get the provider that staked on behalf of the client
-	provider, found := GetProviderFromPublicKey(sessionCtx, providersKeeper, r.Proof.Token.ProviderPublicKey)
+	// get the application that staked on behalf of the client
+	app, found := GetProviderFromPublicKey(sessionCtx, appsKeeper, r.Proof.Token.ProviderPublicKey)
 	if !found {
 		return sdk.ZeroInt(), NewProviderNotFoundError(ModuleName)
 	}
-	// get session servicer count from that session height
+	// get session node count from that session height
 	sessionNodeCount := viperKeeper.SessionNodeCount(sessionCtx)
 	// get max possible relays
-	maxPossibleRelays = MaxPossibleRelays(provider, sessionNodeCount)
+	maxPossibleRelays = MaxPossibleRelays(app, sessionNodeCount)
 	// generate the session header
 	header := SessionHeader{
 		ProviderPubKey:     r.Proof.Token.ProviderPublicKey,
@@ -68,8 +68,8 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper Provi
 		SessionBlockHeight: r.Proof.SessionBlockHeight,
 	}
 	// validate unique relay
-	evidence, totalRelays := GetTotalProofs(header, RelayEvidence, maxPossibleRelays)
-	if evidence.IsSealed() {
+	evidence, totalRelays := GetTotalProofs(header, RelayEvidence, maxPossibleRelays, node.EvidenceStore)
+	if node.EvidenceStore.IsSealed(evidence) {
 		return sdk.ZeroInt(), NewSealedEvidenceError(ModuleName)
 	}
 	// get evidence key by proof
@@ -81,11 +81,12 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper Provi
 		return sdk.ZeroInt(), NewOverServiceError(ModuleName)
 	}
 	// validate the Proof
-	if err := r.Proof.ValidateLocal(provider.GetChains(), int(sessionNodeCount), sessionBlockHeight, servicer); err != nil {
+	nodeAddr := node.GetAddress()
+	if err := r.Proof.ValidateLocal(app.GetChains(), int(sessionNodeCount), sessionBlockHeight, nodeAddr); err != nil {
 		return sdk.ZeroInt(), err
 	}
 	// check cache
-	session, found := GetSession(header)
+	session, found := GetSession(header, node.SessionStore)
 	// if not found generate the session
 	if !found {
 		bh, err := sessionCtx.BlockHash(viperKeeper.Codec(), sessionCtx.BlockHeight())
@@ -98,10 +99,10 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper Provi
 			return sdk.ZeroInt(), er
 		}
 		// add to cache
-		SetSession(session)
+		SetSession(session, node.SessionStore)
 	}
 	// validate the session
-	err = session.Validate(servicer, provider, int(sessionNodeCount))
+	err = session.Validate(nodeAddr, app, int(sessionNodeCount))
 	if err != nil {
 		return sdk.ZeroInt(), err
 	}
@@ -113,12 +114,12 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper Provi
 }
 
 // "Execute" - Attempts to do a request on the non-native blockchain specified
-func (r Relay) Execute(hostedBlockchains *HostedBlockchains) (string, sdk.Error) {
+func (r Relay) Execute(hostedBlockchains *HostedBlockchains, address *sdk.Address) (string, sdk.Error) {
 	// retrieve the hosted blockchain url requested
 	chain, err := hostedBlockchains.GetChain(r.Proof.Blockchain)
 	if err != nil {
 		// metric track
-		GlobalServiceMetric().AddErrorFor(r.Proof.Blockchain)
+		addServiceMetricErrorFor(r.Proof.Blockchain, address)
 		return "", err
 	}
 	url := strings.Trim(chain.URL, `/`)
@@ -129,7 +130,7 @@ func (r Relay) Execute(hostedBlockchains *HostedBlockchains) (string, sdk.Error)
 	res, er := executeHTTPRequest(r.Payload.Data, url, GlobalViperConfig.UserAgent, chain.BasicAuth, r.Payload.Method, r.Payload.Headers)
 	if er != nil {
 		// metric track
-		GlobalServiceMetric().AddErrorFor(r.Proof.Blockchain)
+		addServiceMetricErrorFor(r.Proof.Blockchain, address)
 		return res, NewHTTPExecutionError(ModuleName, er)
 	}
 	return res, nil
@@ -349,4 +350,12 @@ func ErrorWarrantsDispatch(err error) bool {
 		return true
 	}
 	return false
+}
+
+func addServiceMetricErrorFor(blockchain string, address *sdk.Address) {
+	if GlobalViperConfig.LeanViper {
+		go GlobalServiceMetric().AddErrorFor(blockchain, address)
+	} else {
+		GlobalServiceMetric().AddErrorFor(blockchain, address)
+	}
 }

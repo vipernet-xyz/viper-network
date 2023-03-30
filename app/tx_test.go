@@ -27,8 +27,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	viperTypes.ClearSessionCache()
-	viperTypes.ClearEvidence()
+	viperTypes.CleanViperNodes()
 	sdk.InitCtxCache(1)
 	m.Run()
 }
@@ -853,16 +852,16 @@ func TestClaimAminoTx(t *testing.T) {
 			_, _, cleanup := tc.memoryNodeFn(t, genBz)
 			time.Sleep(1 * time.Second)
 			for i := 0; i < 5; i++ {
-				providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+				appPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 				assert.Nil(t, err)
 				// setup AAT
 				aat := viperTypes.AAT{
 					Version:           "0.0.1",
-					ProviderPublicKey: providerPrivateKey.PublicKey().RawString(),
-					ClientPublicKey:   providerPrivateKey.PublicKey().RawString(),
+					ProviderPublicKey: appPrivateKey.PublicKey().RawString(),
+					ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
 					ProviderSignature: "",
 				}
-				sig, err := providerPrivateKey.Sign(aat.Hash())
+				sig, err := appPrivateKey.Sign(aat.Hash())
 				if err != nil {
 					panic(err)
 				}
@@ -876,21 +875,20 @@ func TestClaimAminoTx(t *testing.T) {
 					Token:              aat,
 					Signature:          "",
 				}
-				sig, err = providerPrivateKey.Sign(proof.Hash())
+				sig, err = appPrivateKey.Sign(proof.Hash())
 				if err != nil {
 					t.Fatal(err)
 				}
 				proof.Signature = hex.EncodeToString(sig)
 				viperTypes.SetProof(viperTypes.SessionHeader{
-					ProviderPubKey:     providerPrivateKey.PublicKey().RawString(),
+					ProviderPubKey:     appPrivateKey.PublicKey().RawString(),
 					Chain:              sdk.PlaceholderHash,
 					SessionBlockHeight: 1,
-				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000))
+				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000), viperTypes.GlobalEvidenceCache)
 				assert.Nil(t, err)
 			}
 			_, _, evtChan := subscribeTo(t, tmTypes.EventTx)
 			res := <-evtChan
-			fmt.Println(res)
 			if res.Events["message.action"][0] != viperTypes.EventTypeClaim {
 				t.Fatal("claim message was not received first")
 			}
@@ -928,16 +926,16 @@ func TestClaimProtoTx(t *testing.T) {
 			_, _, cleanup := tc.memoryNodeFn(t, genBz)
 			time.Sleep(1 * time.Second)
 			for i := 0; i < 5; i++ {
-				providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+				appPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 				assert.Nil(t, err)
 				// setup AAT
 				aat := viperTypes.AAT{
 					Version:           "0.0.1",
-					ProviderPublicKey: providerPrivateKey.PublicKey().RawString(),
-					ClientPublicKey:   providerPrivateKey.PublicKey().RawString(),
+					ProviderPublicKey: appPrivateKey.PublicKey().RawString(),
+					ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
 					ProviderSignature: "",
 				}
-				sig, err := providerPrivateKey.Sign(aat.Hash())
+				sig, err := appPrivateKey.Sign(aat.Hash())
 				if err != nil {
 					panic(err)
 				}
@@ -951,16 +949,16 @@ func TestClaimProtoTx(t *testing.T) {
 					Token:              aat,
 					Signature:          "",
 				}
-				sig, err = providerPrivateKey.Sign(proof.Hash())
+				sig, err = appPrivateKey.Sign(proof.Hash())
 				if err != nil {
 					t.Fatal(err)
 				}
 				proof.Signature = hex.EncodeToString(sig)
 				viperTypes.SetProof(viperTypes.SessionHeader{
-					ProviderPubKey:     providerPrivateKey.PublicKey().RawString(),
+					ProviderPubKey:     appPrivateKey.PublicKey().RawString(),
 					Chain:              sdk.PlaceholderHash,
 					SessionBlockHeight: 1,
-				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000))
+				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000), viperTypes.GlobalEvidenceCache)
 				assert.Nil(t, err)
 			}
 			_, _, evtChan := subscribeTo(t, tmTypes.EventTx)
@@ -998,7 +996,7 @@ func TestAminoClaimTxChallenge(t *testing.T) {
 			challenges := NewValidChallengeProof(t, keys, 5)
 			_, _, cleanup := tc.memoryNodeFn(t, genBz)
 			for _, c := range challenges {
-				c.Store(sdk.NewInt(1000000))
+				c.Store(sdk.NewInt(1000000), viperTypes.GlobalEvidenceCache)
 			}
 			_, _, evtChan := subscribeTo(t, tmTypes.EventTx)
 			res := <-evtChan // Wait for tx
@@ -1035,7 +1033,7 @@ func TestProtoClaimTxChallenge(t *testing.T) {
 			challenges := NewValidChallengeProof(t, keys, 5)
 			_, _, cleanup := tc.memoryNodeFn(t, genBz)
 			for _, c := range challenges {
-				c.Store(sdk.NewInt(1000000))
+				c.Store(sdk.NewInt(1000000), viperTypes.GlobalEvidenceCache)
 			}
 			_, _, evtChan := subscribeTo(t, tmTypes.EventTx)
 			res := <-evtChan // Wait for tx

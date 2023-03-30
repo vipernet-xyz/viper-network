@@ -80,8 +80,7 @@ func NewInMemoryTendermintNode(t *testing.T, genesisState []byte) (tendermintNod
 		if err != nil {
 			panic(err)
 		}
-		viperTypes.ClearEvidence()
-		viperTypes.ClearSessionCache()
+		viperTypes.CleanViperNodes()
 		inMemKB = nil
 		//err = os.RemoveAll(tendermintNode.Config().DBPath)
 		if err != nil {
@@ -139,7 +138,7 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 	if err != nil {
 		panic(err)
 	}
-	genDocServicer := func() (*types.GenesisDoc, error) {
+	genDocProvider := func() (*types.GenesisDoc, error) {
 		return &types.GenesisDoc{
 			GenesisTime: time.Time{},
 			ChainID:     "viper-test",
@@ -168,11 +167,12 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 	}
 	db := dbm.NewMemDB()
 	nodeKey := p2p.NodeKey{PrivKey: pk}
-	privVal := privval.GenFilePV(c.TmConfig.PrivValidatorKey, c.TmConfig.PrivValidatorState)
-	privVal.Key.PrivKey = pk
-	privVal.Key.PubKey = pk.PubKey()
-	privVal.Key.Address = pk.PubKey().Address()
-	viperTypes.InitPVKeyFile(privVal.Key)
+	privVal := privval.GenFilePVLean(c.TmConfig.PrivValidatorKey, c.TmConfig.PrivValidatorState)
+	privVal.Keys[0].PrivKey = pk
+	privVal.Keys[0].PubKey = pk.PubKey()
+	privVal.Keys[0].Address = pk.PubKey().Address()
+	viperTypes.CleanViperNodes()
+	viperTypes.AddViperNodeByFilePVKey(privVal.Keys[0], c.Logger)
 
 	creator := func(logger log.Logger, db dbm.DB, _ io.Writer) *app.ViperCoreApp {
 		m := map[string]viperTypes.HostedBlockchain{sdk.PlaceholderHash: {
@@ -183,34 +183,33 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 		return p
 	}
 	//upgradePrivVal(c.TmConfig)
-	dbServicer := func(*node.DBContext) (dbm.DB, error) {
+	dbProvider := func(*node.DBContext) (dbm.DB, error) {
 		return db, nil
 	}
 	txDB := dbm.NewMemDB()
-	baseprovider := creator(c.Logger, db, io.Writer(nil))
-	tmNode, err := node.NewNode(baseprovider,
+	baseapp := creator(c.Logger, db, io.Writer(nil))
+	tmNode, err := node.NewNode(baseapp,
 		c.TmConfig,
 		0,
 		privVal,
 		&nodeKey,
-		proxy.NewLocalClientCreator(baseprovider),
+		proxy.NewLocalClientCreator(baseapp),
 		sdk.NewTransactionIndexer(txDB),
-		genDocServicer,
-		dbServicer,
+		genDocProvider,
+		dbProvider,
 		node.DefaultMetricsProvider(c.TmConfig.Instrumentation),
 		c.Logger.With("module", "node"),
 	)
 	if err != nil {
 		panic(err)
 	}
-	baseprovider.SetTxIndexer(tmNode.TxIndexer())
-	baseprovider.SetBlockstore(tmNode.BlockStore())
-	baseprovider.SetEvidencePool(tmNode.EvidencePool())
-	baseprovider.SetTendermintNode(tmNode)
-	app.VCA = baseprovider
+	baseapp.SetTxIndexer(tmNode.TxIndexer())
+	baseapp.SetBlockstore(tmNode.BlockStore())
+	baseapp.SetEvidencePool(tmNode.EvidencePool())
+	baseapp.SetTendermintNode(tmNode)
+	app.VCA = baseapp
 	return tmNode, kb
 }
-
 func memCodec() *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())

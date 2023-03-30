@@ -21,8 +21,8 @@ func TestParams_Validate(t *testing.T) {
 	validParams := DefaultParams()
 	validParams.SupportedBlockchains = []string{ethereum}
 	// invalid session servicer count
-	invalidParamsSessionProviders := validParams
-	invalidParamsSessionProviders.SessionNodeCount = -1
+	invalidParamsSessionNodes := validParams
+	invalidParamsSessionNodes.SessionNodeCount = -1
 	// invalid waiting period
 	invalidParamsWaitingPeriod := validParams
 	invalidParamsWaitingPeriod.ClaimSubmissionWindow = -1
@@ -39,7 +39,7 @@ func TestParams_Validate(t *testing.T) {
 	}{
 		{
 			name:     "Invalid Params, session servicers",
-			params:   invalidParamsSessionProviders,
+			params:   invalidParamsSessionNodes,
 			hasError: true,
 		},
 		{

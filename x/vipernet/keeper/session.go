@@ -25,7 +25,7 @@ func (k Keeper) HandleDispatch(ctx sdk.Ctx, header types.SessionHeader) (*types.
 		return nil, sdk.ErrInternal(er.Error())
 	}
 	// check cache
-	session, found := types.GetSession(header)
+	session, found := types.GetSession(header, types.GlobalSessionCache)
 	// if not found generate the session
 	if !found {
 		var err sdk.Error
@@ -38,16 +38,16 @@ func (k Keeper) HandleDispatch(ctx sdk.Ctx, header types.SessionHeader) (*types.
 			return nil, err
 		}
 		// add to cache
-		types.SetSession(session)
+		types.SetSession(session, types.GlobalSessionCache)
 	}
-	actualNodes := make([]exported.ValidatorI, len(session.SessionServicers))
+	actualServicers := make([]exported.ValidatorI, len(session.SessionServicers))
 	for i, addr := range session.SessionServicers {
-		actualNodes[i], _ = k.GetNode(sessionCtx, addr)
+		actualServicers[i], _ = k.GetNode(sessionCtx, addr)
 	}
 	return &types.DispatchResponse{Session: types.DispatchSession{
 		SessionHeader:    session.SessionHeader,
 		SessionKey:       session.SessionKey,
-		SessionServicers: actualNodes,
+		SessionServicers: actualServicers,
 	}, BlockHeight: ctx.BlockHeight()}, nil
 }
 
@@ -86,5 +86,5 @@ func (k Keeper) IsViperSupportedBlockchain(ctx sdk.Ctx, chain string) bool {
 }
 
 func (Keeper) ClearSessionCache() {
-	types.ClearSessionCache()
+	types.ClearSessionCache(types.GlobalSessionCache)
 }

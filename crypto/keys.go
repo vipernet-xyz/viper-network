@@ -4,8 +4,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/tendermint/tendermint/types"
 	"reflect"
+
+	"github.com/tendermint/tendermint/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -167,4 +168,12 @@ func CheckConsensusPubKey(pubKey crypto.PubKey) (abci.PubKey, error) {
 	default:
 		return abci.PubKey{}, fmt.Errorf("unknown pubkey type: %v %v", pubKey, reflect.TypeOf(pubKey))
 	}
+}
+
+func NewPrivateKey(hexString string) (PrivateKey, error) {
+	b, err := hex.DecodeString(hexString)
+	if err != nil {
+		return nil, err
+	}
+	return NewPrivateKeyBz(b)
 }
