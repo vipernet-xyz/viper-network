@@ -41,6 +41,8 @@ func init() {
 	accountsCmd.AddCommand(signNexMS)
 	accountsCmd.AddCommand(buildMultisig)
 	accountsCmd.AddCommand(unsafeDeleteCmd)
+	accountsCmd.AddCommand(getNodesLean)
+	accountsCmd.AddCommand(setValidatorsLean)
 }
 
 // accountsCmd represents the accounts namespace command
@@ -111,6 +113,11 @@ var getValidator = &cobra.Command{
 	Long:  `Retrieves the main validator from the priv_val file`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		if app.GlobalConfig.ViperConfig.LeanViper {
+			fmt.Println("Lean pocket is enabled. You might be trying to use get-validators.")
+			return
+		}
+
 		kb := app.MustGetKeybase()
 		if kb == nil {
 			fmt.Println(app.UninitializedKeybaseError.Error())
@@ -121,6 +128,32 @@ var getValidator = &cobra.Command{
 	},
 }
 
+var setValidatorsLean = &cobra.Command{
+	Use:   `set-validators <path to keyfile>`,
+	Short: "Sets the main validator accounts for tendermint; NOTE: keyfile should be a json string array of private keys",
+	Long:  `Sets the main validator accounts that will be used across all Tendermint functions; NOTE: keyfile should be a json string array of private keys`,
+	Args:  cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		if !app.GlobalConfig.ViperConfig.LeanViper {
+			fmt.Println("Lean pocket is not enabled. You might be trying to use set-validator.")
+			return
+		}
+
+		keys, err := app.ReadValidatorPrivateKeyFileLean(args[0])
+		if err != nil {
+			fmt.Println("Failed to read validators json file ", err)
+			os.Exit(1)
+		}
+		err = app.SetValidatorsFilesLean(keys)
+		if err != nil {
+			fmt.Println("Failed to set validators", err)
+			os.Exit(1)
+			return
+		}
+	},
+}
+
 var setValidator = &cobra.Command{
 	Use:   "set-validator <address>",
 	Short: "Sets the main validator account for tendermint",
@@ -128,6 +161,11 @@ var setValidator = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		if app.GlobalConfig.ViperConfig.LeanViper {
+			fmt.Println("Lean pocket is enabled. You  might be trying to use set-validators.")
+			return
+		}
+
 		addr, err := types.AddressFromHex(args[0])
 		if err != nil {
 			fmt.Printf("Address Error %s", err)
@@ -644,5 +682,28 @@ NOTE: you MUST be the next signer (in order of public keys in the ms public key 
 			fmt.Println(fmt.Errorf("error signing the multisig: %v", err))
 		}
 		fmt.Println("Multisig transaction: \n" + hex.EncodeToString(bz))
+	},
+}
+
+var getNodesLean = &cobra.Command{
+	Use:   "get-validators",
+	Short: "Retrieves all nodes set by set-validators",
+	Long:  `Retrieves all nodes set by set-validators`,
+	Run: func(cmd *cobra.Command, args []string) {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		config := app.GlobalConfig
+		if !config.ViperConfig.LeanViper {
+			fmt.Println("Lean pocket is not enabled. You might be trying to use get-validator.")
+			return
+		}
+
+		keys, err := app.LoadFilePVKeysFromFileLean(config.ViperConfig.DataDir + app.FS + config.TendermintConfig.PrivValidatorKey)
+		if err != nil {
+			fmt.Println("Failed to read set validators")
+			return
+		}
+		for _, value := range keys {
+			fmt.Printf("Node Address: %s\n", strings.ToLower(value.Address.String()))
+		}
 	},
 }

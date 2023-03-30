@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cometbft/cometbft/libs/rand"
 	kitlevel "github.com/go-kit/kit/log/level"
 	"github.com/go-kit/kit/log/term"
 	"github.com/spf13/cobra"
@@ -23,7 +24,6 @@ import (
 	"github.com/tendermint/tendermint/libs/cli/flags"
 	"github.com/tendermint/tendermint/libs/log"
 	cmn "github.com/tendermint/tendermint/libs/os"
-	"github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
@@ -78,14 +78,12 @@ const (
 	DefaultGenesisType
 )
 
-func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keybase bool, genesisType GenesisType, useCache bool) *node.Node {
+func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keybase bool, genesisType GenesisType, useCache bool, forceSetValidatorsLean bool) *node.Node {
 	// init config
 	InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 	GlobalConfig.ViperConfig.Cache = useCache
 	// init AuthToken
-	InitAuthToken()
-	// init the keyfiles
-	InitKeyfiles()
+	InitAuthToken(GlobalConfig.ViperConfig.GenerateTokenOnStart)
 	// get hosted blockchains
 	chains := NewHostedChains(false)
 	if GlobalConfig.ViperConfig.ChainsHotReload {
@@ -94,16 +92,36 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	}
 	// create logger
 	logger := InitLogger()
-	// init cache
+	// prestart hook, so users don't have to create their own set-validator prestart script
+	if GlobalConfig.ViperConfig.LeanViper {
+		userProvidedKeyPath := GlobalConfig.ViperConfig.GetLeanViperUserKeyFilePath()
+		pvkName := path.Join(GlobalConfig.ViperConfig.DataDir, GlobalConfig.TendermintConfig.PrivValidatorKey)
+		if _, err := os.Stat(pvkName); err != nil && os.IsNotExist(err) || forceSetValidatorsLean { // user has not ran set-validators
+			// read the user provided lean nodes
+			keys, err := ReadValidatorPrivateKeyFileLean(userProvidedKeyPath)
+			if err != nil {
+				logger.Error("Can't read user provided validator keys, did you create keys in", userProvidedKeyPath, err)
+				os.Exit(1)
+			}
+			// set them
+			err = SetValidatorsFilesLean(keys)
+			if err != nil {
+				logger.Error("Failed to set validators for user provided file, try pocket accounts set-validators", userProvidedKeyPath, err)
+				os.Exit(1)
+			}
+		}
+	}
+	// init key files
+	InitKeyfiles(logger)
+	// init configs & evidence/session caches
 	InitViperCoreConfig(chains, logger)
 	// init genesis
 	InitGenesis(genesisType, logger)
 	// log the config and chains
-	logger.Debug(fmt.Sprintf("Viper Config: \n%v", GlobalConfig))
+	logger.Debug(fmt.Sprintf("Pocket Config: \n%v", GlobalConfig))
 	// init the tendermint node
 	return InitTendermint(keybase, chains, logger)
 }
-
 func InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string) {
 	log2.Println("Initializing Viper Datadir")
 	// setup the codec
@@ -352,30 +370,17 @@ func InitTendermint(keybase bool, chains *types.HostedBlockchains, logger log.Lo
 	return tmNode
 }
 
-func InitKeyfiles() {
-	datadir := GlobalConfig.ViperConfig.DataDir
-	// Check if privvalkey file exist
-	if _, err := os.Stat(datadir + FS + GlobalConfig.TendermintConfig.PrivValidatorKey); err != nil {
-		// if not exist continue creating as other files may be missing
-		if os.IsNotExist(err) {
-			// generate random key for easy orchestration
-			randomKey := crypto.GenerateEd25519PrivKey()
-			privValKey(randomKey)
-			privValState()
-			nodeKey(randomKey)
-			log2.Printf("No Validator Set! Creating Random Key: %s", randomKey.PublicKey().RawString())
-			return
-		} else {
-			//panic on other errors
-			log2.Fatal(err)
+func InitKeyfiles(logger log.Logger) {
+
+	if GlobalConfig.ViperConfig.LeanViper {
+		err := InitNodesLean(logger)
+		if err != nil {
+			logger.Error("Failed to init lean nodes", err)
+			os.Exit(1)
 		}
-	} else {
-		// file exist so we can load pk from file.
-		file, _ := loadPKFromFile(datadir + FS + GlobalConfig.TendermintConfig.PrivValidatorKey)
-		types.InitPVKeyFile(file)
+		return
 	}
 }
-
 func InitLogger() (logger log.Logger) {
 	logger = log.NewTMLoggerWithColorFn(log.NewSyncWriter(os.Stdout), func(keyvals ...interface{}) term.FgBgColor {
 		if keyvals[0] != kitlevel.Key() {
@@ -878,7 +883,25 @@ func GetDefaultConfig(datadir string) string {
 	return string(jsonbytes)
 }
 
-func InitAuthToken() {
+func InitAuthToken(generateToken bool) {
+	//Example auth.json located in the config folder
+	//{
+	//	"Value": "S6fvg51BOeUO89HafOhF6jPuT",
+	//	"Issued": "2022-06-20T16:06:47.419153-04:00"
+	//}
+
+	if generateToken {
+		//default behaviour: generate a new token on each start.
+		GenerateToken()
+	} else {
+		//new: if config is set to false use existing auth.json and do not generate
+		//User should make sure file exist, else execution will end with error ("cannot open/create auth token json file:"...)
+		t := GetAuthTokenFromFile()
+		AuthToken = t
+	}
+}
+
+func GenerateToken() {
 	var t = sdk.AuthToken{
 		Value:  rand.Str(25),
 		Issued: time.Now(),
@@ -891,7 +914,7 @@ func InitAuthToken() {
 
 	jsonFile, err := os.OpenFile(configFilepath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		log2.Fatalf("canot open/create auth token json file: " + err.Error())
+		log2.Fatalf("cannot open/create auth token json file: " + err.Error())
 	}
 	err = jsonFile.Truncate(0)
 

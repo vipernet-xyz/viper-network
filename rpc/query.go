@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"strconv"
 
+	types4 "github.com/vipernet-xyz/viper-network/rpc/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	types2 "github.com/vipernet-xyz/viper-network/x/authentication/types"
+	types3 "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/bytes"
@@ -25,6 +27,31 @@ import (
 
 func Version(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	WriteResponse(w, APIVersion, r.URL.Path, r.Host)
+}
+
+func LocalNodes(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	value := r.URL.Query().Get("authtoken")
+	if value != app.AuthToken.Value {
+		WriteErrorResponse(w, 401, "wrong authtoken "+value)
+		return
+	}
+	var localNodes []types4.PublicViperNode
+	for _, node := range types3.GlobalViperNodes {
+		if node == nil {
+			continue
+		}
+		localNodes = append(localNodes, types4.PublicViperNode{Address: node.GetAddress().String()})
+	}
+	j, err := json.Marshal(localNodes)
+	if err != nil {
+		WriteErrorResponse(w, 400, err.Error())
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	_, err = w.Write(j)
+	if err != nil {
+		WriteErrorResponse(w, 400, err.Error())
+	}
 }
 
 type HeightParams struct {
