@@ -464,3 +464,15 @@ type ProtoCodecMarshaler interface {
 	Codec
 	InterfaceRegistry() types.InterfaceRegistry
 }
+
+// Marshal implements BinaryMarshaler.Marshal method.
+// NOTE: this function must be used with a concrete type which
+// implements proto.Message. For interface please use the codec.MarshalInterface
+func (pc *ProtoCodec) Marshal(o ProtoMarshaler) ([]byte, error) {
+	// Size() check can catch the typed nil value.
+	if o == nil || o.Size() == 0 {
+		// return empty bytes instead of nil, because nil has special meaning in places like store.Set
+		return []byte{}, nil
+	}
+	return o.Marshal()
+}

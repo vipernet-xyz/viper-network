@@ -432,3 +432,7 @@ func ValAddressFromBech32(address string) (addr ValAddress, err error) {
 
 	return ValAddress(bz), nil
 }
+
+// ConsAddress defines a wrapper around bytes meant to present a consensus node.
+// When marshaled to a string or JSON, it uses Bech32.
+type ConsAddress []byte

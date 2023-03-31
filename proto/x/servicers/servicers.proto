@@ -4,6 +4,8 @@ package x.servicers;
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
+import "tendermint/types/types.proto";
+import "tendermint/abci/types.proto";
 
 option go_package = "github.com/vipernet-xyz/viper-network/x/servicers/types";
 

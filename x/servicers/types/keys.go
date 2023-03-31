@@ -2,9 +2,11 @@ package types
 
 import (
 	"encoding/binary"
+	"strconv"
 	"time"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/kv"
 )
 
 const (
@@ -28,6 +30,8 @@ var ( // Keys for store prefixes
 	AwardValidatorKey               = []byte{0x51} // prefix for awarding validators
 	BurnValidatorKey                = []byte{0x52} // prefix for awarding validators
 	WaitingToBeginUnstakingKey      = []byte{0x43} // prefix for waiting validators
+	HistoricalInfoKey               = []byte{0x50} // prefix for the historical info
+	LastValidatorPowerKey           = []byte{0x11} // prefix for each key to a validator index, for bonded validators
 )
 
 func KeyForValidatorByNetworkID(addr sdk.Address, networkID []byte) []byte {
@@ -133,4 +137,15 @@ func GetValMissedBlockKey(v sdk.Address, i int64) []byte {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, uint64(i))
 	return append(GetValMissedBlockPrefixKey(v), b...)
+}
+
+// GetHistoricalInfoKey returns a key prefix for indexing HistoricalInfo objects.
+func GetHistoricalInfoKey(height int64) []byte {
+	return append(HistoricalInfoKey, []byte(strconv.FormatInt(height, 10))...)
+}
+
+// AddressFromLastValidatorPowerKey creates the validator operator address from LastValidatorPowerKey
+func AddressFromLastValidatorPowerKey(key []byte) []byte {
+	kv.AssertKeyAtLeastLength(key, 3)
+	return key[2:] // remove prefix bytes and address length
 }

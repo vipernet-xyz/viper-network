@@ -91,6 +91,7 @@ type Params struct {
 	ServicerStakeBinExponent sdk.BigDec    `json:"servicer_stake_floor_multiplier_exponent" yaml:"servicer_stake_floor_multiplier_exponent"`
 	ServicerCountLock        bool          `json:"servicer_count_lock" yaml:"servicer_count_lock"`
 	BurnActive               bool          `json:"burn_active" yaml:"burn_active"`
+	UnbondingTime            time.Duration `protobuf:"bytes,1,opt,name=unbonding_time,json=unbondingTime,proto3,stdduration" json:"unbonding_time"`
 }
 
 // Implements sdk.ParamSet

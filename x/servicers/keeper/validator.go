@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"bytes"
+	"fmt"
 	"sort"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -267,4 +268,41 @@ func sortNoLongerStakedValidators(prevState valPowerMap) [][]byte {
 		return bytes.Compare(noLongerStaked[i], noLongerStaked[j]) == -1
 	})
 	return noLongerStaked
+}
+
+// get the group of the bonded validators
+func (k Keeper) GetLastValidators(ctx sdk.Ctx) (validators []types.Validator) {
+	store := ctx.KVStore(k.storeKey)
+
+	// add the actual validator power sorted store
+	maxValidators := k.MaxValidators(ctx)
+	validators = make([]types.Validator, maxValidators)
+
+	iterator, _ := sdk.KVStorePrefixIterator(store, types.LastValidatorPowerKey)
+	defer iterator.Close()
+
+	i := 0
+	for ; iterator.Valid(); iterator.Next() {
+		// sanity check
+		if i >= int(maxValidators) {
+			panic("more validators than maxValidators found")
+		}
+
+		address := types.AddressFromLastValidatorPowerKey(iterator.Key())
+		validator := k.mustGetValidator(ctx, address)
+
+		validators[i] = validator
+		i++
+	}
+
+	return validators[:i] // trim
+}
+
+func (k Keeper) mustGetValidator(ctx sdk.Ctx, addr sdk.Address) types.Validator {
+	validator, found := k.GetValidator(ctx, addr)
+	if !found {
+		panic(fmt.Sprintf("validator record not found for address: %X\n", addr))
+	}
+
+	return validator
 }

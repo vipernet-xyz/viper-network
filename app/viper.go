@@ -21,6 +21,7 @@ import (
 	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
+	stakingKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
@@ -47,17 +48,17 @@ type ViperCoreApp struct {
 	Tkeys   map[string]*sdk.TransientStoreKey
 	memKeys map[string]*sdk.MemoryStoreKey
 	// Keepers for each module
-	accountKeeper    authentication.Keeper
-	providersKeeper  providersKeeper.Keeper
-	servicersKeeper  servicersKeeper.Keeper
-	governanceKeeper governanceKeeper.Keeper
-	transferKeeper   transferKeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper
-	CapabilityKeeper *capabilityKeeper.Keeper
-	AccountKeeper    authkeeper.Keeper
-	BankKeeper       authkeeper.Keeper
-	UpgradeKeeper    upgradeKeeper.Keeper
-	//StakingKeeper        stakingKeeper.Keeper
+	accountKeeper        authentication.Keeper
+	providersKeeper      providersKeeper.Keeper
+	servicersKeeper      servicersKeeper.Keeper
+	governanceKeeper     governanceKeeper.Keeper
+	transferKeeper       transferKeeper.Keeper
+	IBCKeeper            *ibckeeper.Keeper
+	CapabilityKeeper     *capabilityKeeper.Keeper
+	AccountKeeper        authkeeper.Keeper
+	BankKeeper           authkeeper.Keeper
+	UpgradeKeeper        upgradeKeeper.Keeper
+	StakingKeeper        stakingKeeper.Keeper
 	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
 	scopedTransferKeeper capabilityKeeper.ScopedKeeper
 

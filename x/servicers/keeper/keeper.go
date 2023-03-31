@@ -18,6 +18,7 @@ var _ types.ValidatorSet = Keeper{}
 type Keeper struct {
 	storeKey       sdk.StoreKey
 	Cdc            *codec.Codec
+	Bcdc           codec.BinaryCodec
 	AccountKeeper  types.AuthKeeper
 	ViperKeeper    types.ViperKeeper // todo combine all modules
 	Paramstore     sdk.Subspace
