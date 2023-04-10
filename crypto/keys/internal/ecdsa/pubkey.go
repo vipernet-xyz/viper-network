@@ -8,7 +8,7 @@ import (
 	"math/big"
 
 	cmtcrypto "github.com/cometbft/cometbft/crypto"
-	address "github.com/cosmos/cosmos-sdk/types/address"
+	address "github.com/vipernet-xyz/viper-network/types/address"
 
 	errorsmod "cosmossdk.io/errors"
 

@@ -268,3 +268,5 @@ func setUsed(err *Error) {
 func (e Error) Error() string {
 	return e.desc
 }
+
+var AssertNil = errorsmod.AssertNil

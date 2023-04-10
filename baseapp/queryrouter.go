@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"

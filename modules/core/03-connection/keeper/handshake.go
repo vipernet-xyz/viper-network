@@ -2,7 +2,7 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/telemetry"
+	"github.com/vipernet-xyz/viper-network/telemetry"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"

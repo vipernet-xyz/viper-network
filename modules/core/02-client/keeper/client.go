@@ -3,7 +3,7 @@ package keeper
 import (
 	errorsmod "cosmossdk.io/errors"
 	metrics "github.com/armon/go-metrics"
-	"github.com/cosmos/cosmos-sdk/telemetry"
+	"github.com/vipernet-xyz/viper-network/telemetry"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"

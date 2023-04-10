@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/telemetry"
+	"github.com/vipernet-xyz/viper-network/telemetry"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
