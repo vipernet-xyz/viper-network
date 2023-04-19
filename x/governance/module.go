@@ -153,15 +153,6 @@ func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm AppModule) {
 		//update params
 		pm.keeper.SetParams(ctx, gParams)
 	}
-	//activate RSCALKey params
-	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
-		params := pm.keeper.GetParams(ctx)
-		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "MinServicerStakeBinWidth"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "ServicerStakeWeight"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "MaxServicerStakeBin"), pm.keeper.GetDAOOwner(ctx))
-		params.ACL.SetOwner(types.NewACLKey(types.ServicersSubspace, "ServicerStakeBinExponent"), pm.keeper.GetDAOOwner(ctx))
-		pm.keeper.SetParams(ctx, params)
-	}
 }
 
 // EndBlock returns the end blocker for the staking module. It returns no validator

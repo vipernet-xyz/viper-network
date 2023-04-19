@@ -100,32 +100,6 @@ func (k Keeper) TokenRewardFactor(ctx sdk.Ctx) sdk.BigInt {
 	return sdk.NewInt(multiplier)
 }
 
-// MinServicerStakeBinWidth - Retrieve MinServicerStakeBinWidth
-func (k Keeper) MinServicerStakeBinWidth(ctx sdk.Ctx) sdk.BigInt {
-	var multiplier int64
-	k.Paramstore.Get(ctx, types.KeyMinServicerStakeBinWidth, &multiplier)
-	return sdk.NewInt(multiplier)
-}
-
-// ServicerStakeWeight - Retrieve ServicerStakeWeight
-func (k Keeper) ServicerStakeWeight(ctx sdk.Ctx) (res sdk.BigDec) {
-	k.Paramstore.Get(ctx, types.KeyServicerStakeWeight, &res)
-	return
-}
-
-// MaxServicerStakeBin - Retrieve MaxServicerStakeBin
-func (k Keeper) MaxServicerStakeBin(ctx sdk.Ctx) sdk.BigInt {
-	var multiplier int64
-	k.Paramstore.Get(ctx, types.KeyMaxServicerStakeBin, &multiplier)
-	return sdk.NewInt(multiplier)
-}
-
-// ServicerStakeBinExponent - Retrieve ServicerStakeBinExponent
-func (k Keeper) ServicerStakeBinExponent(ctx sdk.Ctx) (res sdk.BigDec) {
-	k.Paramstore.Get(ctx, types.KeyServicerStakeBinExponent, &res)
-	return
-}
-
 func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk.BigInt, feesCollected sdk.BigInt) {
 	// convert reward to dec
 	r := reward.ToDec()
@@ -193,29 +167,25 @@ func (k Keeper) BurnActive(ctx sdk.Ctx) (isOn bool) {
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
-		TokenRewardFactor:        k.TokenRewardFactor(ctx).Int64(),
-		UnstakingTime:            k.UnStakingTime(ctx),
-		MaxValidators:            k.MaxValidators(ctx),
-		StakeDenom:               k.StakeDenom(ctx),
-		StakeMinimum:             k.MinimumStake(ctx),
-		SessionBlockFrequency:    k.BlocksPerSession(ctx),
-		DAOAllocation:            k.DAOAllocation(ctx),
-		ProviderAllocation:       k.ProviderAllocation(ctx),
-		ProposerAllocation:       k.ProposerAllocation(ctx),
-		MaximumChains:            k.MaxChains(ctx),
-		MaxJailedBlocks:          k.MaxJailedBlocks(ctx),
-		MaxEvidenceAge:           k.MaxEvidenceAge(ctx),
-		SignedBlocksWindow:       k.SignedBlocksWindow(ctx),
-		MinSignedPerWindow:       sdk.NewDec(k.MinSignedPerWindow(ctx)),
-		DowntimeJailDuration:     k.DowntimeJailDuration(ctx),
-		SlashFractionDoubleSign:  k.SlashFractionDoubleSign(ctx),
-		SlashFractionDowntime:    k.SlashFractionDowntime(ctx),
-		MinServicerStakeBinWidth: k.MinServicerStakeBinWidth(ctx).Int64(),
-		ServicerStakeWeight:      k.ServicerStakeWeight(ctx),
-		MaxServicerStakeBin:      k.MaxServicerStakeBin(ctx).Int64(),
-		ServicerStakeBinExponent: k.ServicerStakeBinExponent(ctx),
-		ServicerCountLock:        k.ServicerCountLock(ctx),
-		BurnActive:               k.BurnActive(ctx),
+		TokenRewardFactor:       k.TokenRewardFactor(ctx).Int64(),
+		UnstakingTime:           k.UnStakingTime(ctx),
+		MaxValidators:           k.MaxValidators(ctx),
+		StakeDenom:              k.StakeDenom(ctx),
+		StakeMinimum:            k.MinimumStake(ctx),
+		SessionBlockFrequency:   k.BlocksPerSession(ctx),
+		DAOAllocation:           k.DAOAllocation(ctx),
+		ProviderAllocation:      k.ProviderAllocation(ctx),
+		ProposerAllocation:      k.ProposerAllocation(ctx),
+		MaximumChains:           k.MaxChains(ctx),
+		MaxJailedBlocks:         k.MaxJailedBlocks(ctx),
+		MaxEvidenceAge:          k.MaxEvidenceAge(ctx),
+		SignedBlocksWindow:      k.SignedBlocksWindow(ctx),
+		MinSignedPerWindow:      sdk.NewDec(k.MinSignedPerWindow(ctx)),
+		DowntimeJailDuration:    k.DowntimeJailDuration(ctx),
+		SlashFractionDoubleSign: k.SlashFractionDoubleSign(ctx),
+		SlashFractionDowntime:   k.SlashFractionDowntime(ctx),
+		ServicerCountLock:       k.ServicerCountLock(ctx),
+		BurnActive:              k.BurnActive(ctx),
 	}
 }
 

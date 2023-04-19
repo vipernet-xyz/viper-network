@@ -134,7 +134,6 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 	stakedProvider := getStakedProvider()
 	stakedValidator.OutputAddress = getRandomValidatorAddress()
 	stakedProvider.Address = getRandomApplicationAddress()
-	codec.UpgradeFeatureMap[codec.RSCALKey] = 0
 	codec.TestMode = -3
 	amount := sdk.NewInt(10000)
 	fees := sdk.NewCoins(sdk.NewCoin("uvipr", amount))
@@ -210,7 +209,6 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 	stakedValidatorNoOutput.OutputAddress = nil
 	stakedValidator.OutputAddress = getRandomValidatorAddress()
 	codec.TestMode = -3
-	codec.UpgradeFeatureMap[codec.RSCALKey] = 0
 	context, _, keeper := createTestInput(t, true)
 	keeper.SetValidator(context, stakedValidator)
 	keeper.SetValidator(context, stakedValidatorNoOutput)
@@ -268,32 +266,17 @@ func TestKeeper_rewardFromRelaysNoEXP(t *testing.T) {
 		validator4 types.Validator
 	}
 
-	codec.UpgradeFeatureMap[codec.RSCALKey] = 3
 	context, _, keeper := createTestInput(t, true)
 	context = context.WithBlockHeight(3)
 	p := keeper.GetParams(context)
-	p.MinServicerStakeBinWidth = types.DefaultMinServicerStakeBinWidth
-	p.ServicerStakeWeight = types.DefaultServicerStakeWeight
-	p.ServicerStakeBinExponent = sdk.NewDec(1)
-	p.MaxServicerStakeBin = 60000000000
 	keeper.SetParams(context, p)
 
-	stakedValidatorBin1 := getStakedValidator()
-	stakedValidatorBin1.StakedTokens = keeper.MinServicerStakeBinWidth(context)
-	stakedValidatorBin2 := getStakedValidator()
-	stakedValidatorBin2.StakedTokens = keeper.MinServicerStakeBinWidth(context).Mul(sdk.NewInt(2))
-	stakedValidatorBin3 := getStakedValidator()
-	stakedValidatorBin3.StakedTokens = keeper.MinServicerStakeBinWidth(context).Mul(sdk.NewInt(3))
-	stakedValidatorBin4 := getStakedValidator()
-	stakedValidatorBin4.StakedTokens = keeper.MinServicerStakeBinWidth(context).Mul(sdk.NewInt(4))
+	stakedValidator := getStakedValidator()
 
 	numRelays := int64(10000)
-	base := sdk.NewDec(1).Quo(keeper.ServicerStakeWeight(context)).Mul(sdk.NewDec(numRelays)).Mul(sdk.NewDecWithPrec(80, 2)).TruncateInt().Mul(keeper.TokenRewardFactor(context))
+	base := keeper.TokenRewardFactor(context)
 
-	keeper.SetValidator(context, stakedValidatorBin1)
-	keeper.SetValidator(context, stakedValidatorBin2)
-	keeper.SetValidator(context, stakedValidatorBin3)
-	keeper.SetValidator(context, stakedValidatorBin4)
+	keeper.SetValidator(context, stakedValidator)
 	tests := []struct {
 		name   string
 		fields fields
@@ -304,10 +287,7 @@ func TestKeeper_rewardFromRelaysNoEXP(t *testing.T) {
 				ctx:        context,
 				baseReward: base,
 				relays:     numRelays,
-				validator1: stakedValidatorBin1,
-				validator2: stakedValidatorBin2,
-				validator3: stakedValidatorBin3,
-				validator4: stakedValidatorBin4,
+				validator1: stakedValidator,
 			}},
 	}
 	for _, tt := range tests {
@@ -348,26 +328,17 @@ func TestKeeper_checkCheckCeiling(t *testing.T) {
 		validator2 types.Validator
 	}
 
-	codec.UpgradeFeatureMap[codec.RSCALKey] = 3
 	context, _, keeper := createTestInput(t, true)
 	context = context.WithBlockHeight(3)
 	p := keeper.GetParams(context)
-	p.MinServicerStakeBinWidth = types.DefaultMinServicerStakeBinWidth
-	p.ServicerStakeWeight = types.DefaultServicerStakeWeight
-	p.ServicerStakeBinExponent = sdk.NewDec(1)
-	p.MaxServicerStakeBin = 15000000000
 	keeper.SetParams(context, p)
 
-	stakedValidatorBin1 := getStakedValidator()
-	stakedValidatorBin1.StakedTokens = keeper.MinServicerStakeBinWidth(context)
-	stakedValidatorBin2 := getStakedValidator()
-	stakedValidatorBin2.StakedTokens = keeper.MinServicerStakeBinWidth(context).Mul(sdk.NewInt(2))
+	stakedValidator := getStakedValidator()
 
 	numRelays := int64(10000)
-	base := sdk.NewDec(1).Quo(keeper.ServicerStakeWeight(context)).Mul(sdk.NewDec(numRelays)).Mul(sdk.NewDecWithPrec(80, 2)).TruncateInt().Mul(keeper.TokenRewardFactor(context))
+	base := keeper.TokenRewardFactor(context)
 
-	keeper.SetValidator(context, stakedValidatorBin1)
-	keeper.SetValidator(context, stakedValidatorBin2)
+	keeper.SetValidator(context, stakedValidator)
 	tests := []struct {
 		name   string
 		fields fields
@@ -378,8 +349,7 @@ func TestKeeper_checkCheckCeiling(t *testing.T) {
 				ctx:        context,
 				baseReward: base,
 				relays:     numRelays,
-				validator1: stakedValidatorBin1,
-				validator2: stakedValidatorBin2,
+				validator1: stakedValidator,
 			}},
 	}
 	for _, tt := range tests {
@@ -412,30 +382,15 @@ func TestKeeper_rewardFromRelaysEXP(t *testing.T) {
 		validator4 types.Validator
 	}
 
-	codec.UpgradeFeatureMap[codec.RSCALKey] = 3
 	context, _, keeper := createTestInput(t, true)
 	context = context.WithBlockHeight(3)
 	p := keeper.GetParams(context)
-	p.MinServicerStakeBinWidth = types.DefaultMinServicerStakeBinWidth
-	p.ServicerStakeWeight = types.DefaultServicerStakeWeight
-	p.ServicerStakeBinExponent = sdk.NewDecWithPrec(50, 2)
-	p.ServicerStakeWeight = sdk.NewDec(1)
-	p.MaxServicerStakeBin = 60000000000
 	keeper.SetParams(context, p)
 
-	stakedValidatorBin1 := getStakedValidator()
-	stakedValidatorBin1.StakedTokens = keeper.MinServicerStakeBinWidth(context)
-	stakedValidatorBin2 := getStakedValidator()
-	stakedValidatorBin2.StakedTokens = keeper.MinServicerStakeBinWidth(context).Mul(sdk.NewInt(2))
-	stakedValidatorBin3 := getStakedValidator()
-	stakedValidatorBin3.StakedTokens = keeper.MinServicerStakeBinWidth(context).Mul(sdk.NewInt(3))
-	stakedValidatorBin4 := getStakedValidator()
-	stakedValidatorBin4.StakedTokens = keeper.MinServicerStakeBinWidth(context).Mul(sdk.NewInt(4))
+	stakedValidator := getStakedValidator()
 
-	keeper.SetValidator(context, stakedValidatorBin1)
-	keeper.SetValidator(context, stakedValidatorBin2)
-	keeper.SetValidator(context, stakedValidatorBin3)
-	keeper.SetValidator(context, stakedValidatorBin4)
+	keeper.SetValidator(context, stakedValidator)
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -444,10 +399,7 @@ func TestKeeper_rewardFromRelaysEXP(t *testing.T) {
 		{"Test RelayReward", fields{keeper: keeper},
 			args{
 				ctx:        context,
-				validator1: stakedValidatorBin1,
-				validator2: stakedValidatorBin2,
-				validator3: stakedValidatorBin3,
-				validator4: stakedValidatorBin4,
+				validator1: stakedValidator,
 			}},
 	}
 	for _, tt := range tests {

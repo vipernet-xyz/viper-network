@@ -43,9 +43,9 @@ var (
 )
 
 const (
-	UpgradeCodecHeight      = int64(30024)
-	CodecChainHaltHeight    = int64(30334)
-	ValidatorSplitHeight    = int64(45353)
+	UpgradeCodecHeight      = int64(0)
+	CodecChainHaltHeight    = int64(0)
+	ValidatorSplitHeight    = int64(0)
 	UpgradeCodecUpdateKey   = "CODEC"
 	ValidatorSplitUpdateKey = "SPLIT"
 	NonCustodialUpdateKey   = "NCUST"
@@ -53,7 +53,6 @@ const (
 	MaxRelayProtKey         = "MREL"
 	ReplayBurnKey           = "REPBR"
 	BlockSizeModifyKey      = "BLOCK"
-	RSCALKey                = "RSCAL"
 	VEDITKey                = "VEDIT"
 )
 

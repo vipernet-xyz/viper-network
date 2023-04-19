@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
@@ -23,27 +22,7 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 
 	var coins sdk.BigInt
 
-	if k.Cdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
-		//grab stake
-		validator, found := k.GetValidator(ctx, address)
-		if !found {
-			ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", address.String(), ctx.BlockHeight()).Error())
-			return sdk.ZeroInt()
-		}
-
-		stake := validator.GetTokens()
-		//floorstake to the lowest bin multiple or take ceiling, whicherver is smaller
-		flooredStake := sdk.MinInt(stake.Sub(stake.Mod(k.MinServicerStakeBinWidth(ctx))), k.MaxServicerStakeBin(ctx).Sub(k.MaxServicerStakeBin(ctx).Mod(k.MinServicerStakeBinWidth(ctx))))
-		//Convert from tokens to a BIN number
-		bin := flooredStake.Quo(k.MinServicerStakeBinWidth(ctx))
-		//calculate the weight value, weight will be a floatng point number so cast to DEC here and then truncate back to big int
-		weight := bin.ToDec().FracPow(k.ServicerStakeBinExponent(ctx), ExponentDenominator).Quo(k.ServicerStakeWeight(ctx))
-		coinsDecimal := k.TokenRewardFactor(ctx).ToDec().Mul(relays.ToDec()).Mul(weight)
-		//truncate back to int
-		coins = coinsDecimal.TruncateInt()
-	} else {
-		coins = k.TokenRewardFactor(ctx).Mul(relays)
-	}
+	coins = k.TokenRewardFactor(ctx).Mul(relays)
 
 	coins1 := relays.Quo((sdk.NewInt(k.providerKeeper.BaselineThroughputStakeRate(ctx)).Quo(sdk.NewInt(100))))
 

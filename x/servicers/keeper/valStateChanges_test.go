@@ -179,10 +179,8 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 			// test setup
 			codec.UpgradeHeight = -1
 			if tt.Edit {
-				codec.UpgradeFeatureMap[codec.RSCALKey] = -1
 				codec.UpgradeFeatureMap[codec.VEDITKey] = -1
 			} else {
-				codec.UpgradeFeatureMap[codec.RSCALKey] = 0
 				codec.UpgradeFeatureMap[codec.VEDITKey] = 0
 			}
 			context, _, keeper := createTestInput(t, true)

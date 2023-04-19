@@ -12,7 +12,6 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
@@ -202,17 +201,6 @@ func (k Keeper) ValidateEditStake(ctx sdk.Ctx, currentValidator, newValidtor typ
 	diff := amount.Sub(currentValidator.StakedTokens)
 	if diff.IsNegative() {
 		return types.ErrMinimumEditStake(k.codespace)
-	}
-
-	if k.Cdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) && k.Cdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.VEDITKey) {
-		//check that we are bumping up into a new bin or are above the cieling, if not return an error
-		if amount.LT(k.MaxServicerStakeBin(ctx)) {
-			//grab the bin and check if we are in a new bin
-			flooredNewStake := amount.Sub(amount.Mod(k.MinServicerStakeBinWidth(ctx)))
-			if flooredNewStake.LTE(currentValidator.StakedTokens) {
-				return types.ErrSameBinEditStake(k.codespace)
-			}
-		}
 	}
 
 	// if stake bump

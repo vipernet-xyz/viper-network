@@ -11,87 +11,75 @@ import (
 // POS params default values
 const (
 	// DefaultParamspace for params keeper
-	DefaultTokenRewardFactor        int64 = 1000
-	DefaultParamspace                     = ModuleName
-	DefaultUnstakingTime                  = time.Hour * 24 * 7 * 3
-	DefaultMaxValidators            int64 = 1000
-	DefaultMinStake                 int64 = 15000000000
-	DefaultMaxEvidenceAge                 = 60 * 2 * time.Second
-	DefaultSignedBlocksWindow             = int64(10)
-	DefaultDowntimeJailDuration           = 60 * 10 * time.Second
-	DefaultSessionBlocktime               = 4
-	DefaultProposerAllocation             = 5
-	DefaultDAOAllocation                  = 10
-	DefaultProviderAllocation             = 5
-	DefaultMaxChains                      = 15
-	DefaultMaxJailedBlocks                = 2000
-	DefaultMinServicerStakeBinWidth int64 = 15000000000
-	DefaultMaxServicerStakeBin      int64 = 60000000000
-	DefaultServicerCountLock        bool  = false
-	DefaultBurnActive               bool  = false
+	DefaultTokenRewardFactor    int64 = 1000
+	DefaultParamspace                 = ModuleName
+	DefaultUnstakingTime              = time.Hour * 24 * 7 * 3
+	DefaultMaxValidators        int64 = 1000
+	DefaultMinStake             int64 = 15000000000
+	DefaultMaxEvidenceAge             = 60 * 2 * time.Second
+	DefaultSignedBlocksWindow         = int64(10)
+	DefaultDowntimeJailDuration       = 60 * 10 * time.Second
+	DefaultSessionBlocktime           = 4
+	DefaultProposerAllocation         = 5
+	DefaultDAOAllocation              = 10
+	DefaultProviderAllocation         = 5
+	DefaultMaxChains                  = 15
+	DefaultMaxJailedBlocks            = 2000
+	DefaultServicerCountLock    bool  = false
+	DefaultBurnActive           bool  = false
 )
 
 // - Keys for parameter access
 var (
-	KeyUnstakingTime                = []byte("UnstakingTime")
-	KeyMaxValidators                = []byte("MaxValidators")
-	KeyStakeDenom                   = []byte("StakeDenom")
-	KeyStakeMinimum                 = []byte("StakeMinimum")
-	KeyMaxEvidenceAge               = []byte("MaxEvidenceAge")
-	KeySignedBlocksWindow           = []byte("SignedBlocksWindow")
-	KeyMinSignedPerWindow           = []byte("MinSignedPerWindow")
-	KeyDowntimeJailDuration         = []byte("DowntimeJailDuration")
-	KeySlashFractionDoubleSign      = []byte("SlashFractionDoubleSign")
-	KeySlashFractionDowntime        = []byte("SlashFractionDowntime")
-	KeyTokenRewardFactor            = []byte("TokenRewardFactor")
-	KeySessionBlock                 = []byte("BlocksPerSession")
-	KeyDAOAllocation                = []byte("DAOAllocation")
-	KeyProviderAllocation           = []byte("ProviderAllocation")
-	KeyProposerAllocation           = []byte("ProposerPercentage")
-	KeyMaxChains                    = []byte("MaximumChains")
-	KeyMaxJailedBlocks              = []byte("MaxJailedBlocks")
-	KeyMinServicerStakeBinWidth     = []byte("MinServicerStakeBinWidth")
-	KeyServicerStakeWeight          = []byte("ServicerStakeWeight")
-	KeyMaxServicerStakeBin          = []byte("MaxServicerStakeBin")
-	KeyServicerStakeBinExponent     = []byte("ServicerStakeBinExponent")
-	DefaultServicerStakeWeight      = sdk.NewDec(1)
-	DefaultServicerStakeBinExponent = sdk.NewDec(1)
-	DoubleSignJailEndTime           = time.Unix(253402300799, 0) // forever
-	DefaultMinSignedPerWindow       = sdk.NewDecWithPrec(5, 1)
-	DefaultSlashFractionDoubleSign  = sdk.NewDec(1).Quo(sdk.NewDec(20))
-	DefaultSlashFractionDowntime    = sdk.NewDec(1).Quo(sdk.NewDec(100))
-	ServicerCountLock               = []byte("ServicerCountLock")
-	BurnActive                      = []byte("BurnActive")
+	KeyUnstakingTime               = []byte("UnstakingTime")
+	KeyMaxValidators               = []byte("MaxValidators")
+	KeyStakeDenom                  = []byte("StakeDenom")
+	KeyStakeMinimum                = []byte("StakeMinimum")
+	KeyMaxEvidenceAge              = []byte("MaxEvidenceAge")
+	KeySignedBlocksWindow          = []byte("SignedBlocksWindow")
+	KeyMinSignedPerWindow          = []byte("MinSignedPerWindow")
+	KeyDowntimeJailDuration        = []byte("DowntimeJailDuration")
+	KeySlashFractionDoubleSign     = []byte("SlashFractionDoubleSign")
+	KeySlashFractionDowntime       = []byte("SlashFractionDowntime")
+	KeyTokenRewardFactor           = []byte("TokenRewardFactor")
+	KeySessionBlock                = []byte("BlocksPerSession")
+	KeyDAOAllocation               = []byte("DAOAllocation")
+	KeyProviderAllocation          = []byte("ProviderAllocation")
+	KeyProposerAllocation          = []byte("ProposerPercentage")
+	KeyMaxChains                   = []byte("MaximumChains")
+	KeyMaxJailedBlocks             = []byte("MaxJailedBlocks")
+	DoubleSignJailEndTime          = time.Unix(253402300799, 0) // forever
+	DefaultMinSignedPerWindow      = sdk.NewDecWithPrec(5, 1)
+	DefaultSlashFractionDoubleSign = sdk.NewDec(1).Quo(sdk.NewDec(20))
+	DefaultSlashFractionDowntime   = sdk.NewDec(1).Quo(sdk.NewDec(100))
+	ServicerCountLock              = []byte("ServicerCountLock")
+	BurnActive                     = []byte("BurnActive")
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
 
 // Params defines the high level settings for pos module
 type Params struct {
-	TokenRewardFactor        int64         `json:"relays_to_tokens_multiplier" yaml:"relays_to_tokens_multiplier"`
-	UnstakingTime            time.Duration `json:"unstaking_time" yaml:"unstaking_time"`                   // how much time must pass between the begin_unstaking_tx and the servicer going to -> unstaked status
-	MaxValidators            int64         `json:"max_validators" yaml:"max_validators"`                   // maximum number of validators in the network at any given block
-	StakeDenom               string        `json:"stake_denom" yaml:"stake_denom"`                         // the monetary denomination of the coins in the network `uvipr` or `uVipr` or `Wei`
-	StakeMinimum             int64         `json:"stake_minimum" yaml:"stake_minimum"`                     // minimum amount of `uvipr` needed to stake in the network as a servicer
-	SessionBlockFrequency    int64         `json:"session_block_frequency" yaml:"session_block_frequency"` // how many blocks are in a session (viper network unit)
-	DAOAllocation            int64         `json:"dao_allocation" yaml:"dao_allocation"`
-	ProviderAllocation       int64         `json:"provider_allocation" yaml:"provider_allocation"`
-	ProposerAllocation       int64         `json:"proposer_allocation" yaml:"proposer_allocation"`
-	MaximumChains            int64         `json:"maximum_chains" yaml:"maximum_chains"`
-	MaxJailedBlocks          int64         `json:"max_jailed_blocks" yaml:"max_jailed_blocks"`
-	MaxEvidenceAge           time.Duration `json:"max_evidence_age" yaml:"max_evidence_age"`                     // maximum age of tendermint evidence that is still valid (currently not implemented in Cosmos or Viper-Core)
-	SignedBlocksWindow       int64         `json:"signed_blocks_window" yaml:"signed_blocks_window"`             // window of time in blocks (unit) used for signature verification -> specifically in not signing (missing) blocks
-	MinSignedPerWindow       sdk.BigDec    `json:"min_signed_per_window" yaml:"min_signed_per_window"`           // minimum number of blocks the servicer must sign per window
-	DowntimeJailDuration     time.Duration `json:"downtime_jail_duration" yaml:"downtime_jail_duration"`         // minimum amount of time servicer must spend in jail after missing blocks
-	SlashFractionDoubleSign  sdk.BigDec    `json:"slash_fraction_double_sign" yaml:"slash_fraction_double_sign"` // the factor of which a servicer is slashed for a double sign
-	SlashFractionDowntime    sdk.BigDec    `json:"slash_fraction_downtime" yaml:"slash_fraction_downtime"`       // the factor of which a servicer is slashed for missing blocks
-	MinServicerStakeBinWidth int64         `json:"servicer_stake_floor_multipler" yaml:"servicer_stake_floor_multipler"`
-	ServicerStakeWeight      sdk.BigDec    `json:"servicer_stake_weight_multipler" yaml:"servicer_stake_weight_multipler"`
-	MaxServicerStakeBin      int64         `json:"servicer_stake_weight_ceiling" yaml:"servicer_stake_weight_cieling"`
-	ServicerStakeBinExponent sdk.BigDec    `json:"servicer_stake_floor_multiplier_exponent" yaml:"servicer_stake_floor_multiplier_exponent"`
-	ServicerCountLock        bool          `json:"servicer_count_lock" yaml:"servicer_count_lock"`
-	BurnActive               bool          `json:"burn_active" yaml:"burn_active"`
-	UnbondingTime            time.Duration `protobuf:"bytes,1,opt,name=unbonding_time,json=unbondingTime,proto3,stdduration" json:"unbonding_time"`
+	TokenRewardFactor       int64         `json:"relays_to_tokens_multiplier" yaml:"relays_to_tokens_multiplier"`
+	UnstakingTime           time.Duration `json:"unstaking_time" yaml:"unstaking_time"`                   // how much time must pass between the begin_unstaking_tx and the servicer going to -> unstaked status
+	MaxValidators           int64         `json:"max_validators" yaml:"max_validators"`                   // maximum number of validators in the network at any given block
+	StakeDenom              string        `json:"stake_denom" yaml:"stake_denom"`                         // the monetary denomination of the coins in the network `uvipr` or `uVipr` or `Wei`
+	StakeMinimum            int64         `json:"stake_minimum" yaml:"stake_minimum"`                     // minimum amount of `uvipr` needed to stake in the network as a servicer
+	SessionBlockFrequency   int64         `json:"session_block_frequency" yaml:"session_block_frequency"` // how many blocks are in a session (viper network unit)
+	DAOAllocation           int64         `json:"dao_allocation" yaml:"dao_allocation"`
+	ProviderAllocation      int64         `json:"provider_allocation" yaml:"provider_allocation"`
+	ProposerAllocation      int64         `json:"proposer_allocation" yaml:"proposer_allocation"`
+	MaximumChains           int64         `json:"maximum_chains" yaml:"maximum_chains"`
+	MaxJailedBlocks         int64         `json:"max_jailed_blocks" yaml:"max_jailed_blocks"`
+	MaxEvidenceAge          time.Duration `json:"max_evidence_age" yaml:"max_evidence_age"`                     // maximum age of tendermint evidence that is still valid (currently not implemented in Cosmos or Viper-Core)
+	SignedBlocksWindow      int64         `json:"signed_blocks_window" yaml:"signed_blocks_window"`             // window of time in blocks (unit) used for signature verification -> specifically in not signing (missing) blocks
+	MinSignedPerWindow      sdk.BigDec    `json:"min_signed_per_window" yaml:"min_signed_per_window"`           // minimum number of blocks the servicer must sign per window
+	DowntimeJailDuration    time.Duration `json:"downtime_jail_duration" yaml:"downtime_jail_duration"`         // minimum amount of time servicer must spend in jail after missing blocks
+	SlashFractionDoubleSign sdk.BigDec    `json:"slash_fraction_double_sign" yaml:"slash_fraction_double_sign"` // the factor of which a servicer is slashed for a double sign
+	SlashFractionDowntime   sdk.BigDec    `json:"slash_fraction_downtime" yaml:"slash_fraction_downtime"`       // the factor of which a servicer is slashed for missing blocks
+	ServicerCountLock       bool          `json:"servicer_count_lock" yaml:"servicer_count_lock"`
+	BurnActive              bool          `json:"burn_active" yaml:"burn_active"`
+	UnbondingTime           time.Duration `protobuf:"bytes,1,opt,name=unbonding_time,json=unbondingTime,proto3,stdduration" json:"unbonding_time"`
 }
 
 // Implements sdk.ParamSet
@@ -114,10 +102,6 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyTokenRewardFactor, Value: &p.TokenRewardFactor},
 		{Key: KeyMaxChains, Value: &p.MaximumChains},
 		{Key: KeyMaxJailedBlocks, Value: &p.MaxJailedBlocks},
-		{Key: KeyMinServicerStakeBinWidth, Value: &p.MinServicerStakeBinWidth},
-		{Key: KeyServicerStakeWeight, Value: &p.ServicerStakeWeight},
-		{Key: KeyMaxServicerStakeBin, Value: &p.MaxServicerStakeBin},
-		{Key: KeyServicerStakeBinExponent, Value: &p.ServicerStakeBinExponent},
 		{Key: ServicerCountLock, Value: &p.ServicerCountLock},
 		{Key: BurnActive, Value: &p.BurnActive},
 	}

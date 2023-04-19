@@ -9,34 +9,14 @@ import (
 
 	"github.com/tendermint/tendermint/crypto"
 
-	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 // BurnForChallenge - Tries to remove coins from account & supply for a challenged validator
 func (k Keeper) BurnForChallenge(ctx sdk.Ctx, challenges sdk.BigInt, address sdk.Address) {
 	var coins sdk.BigInt
-	//check if it is enabled, if so scale the rewards
-	if k.Cdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
-		//grab stake
-		validator, found := k.GetValidator(ctx, address)
-		if !found {
-			ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", address.String(), ctx.BlockHeight()).Error())
-			return
-		}
+	coins = k.TokenRewardFactor(ctx).Mul(challenges)
 
-		stake := validator.GetTokens()
-		//floorstake to the lowest bin multiple or take ceiling, whicherver is smaller
-		flooredStake := sdk.MinInt(stake.Sub(stake.Mod(k.MinServicerStakeBinWidth(ctx))), k.MaxServicerStakeBin(ctx).Sub(stake.Mod(k.MinServicerStakeBinWidth(ctx))))
-		//Convert from tokens to a BIN number
-		bin := flooredStake.Quo(k.MinServicerStakeBinWidth(ctx))
-		//calculate the weight value
-		weight := bin.ToDec().FracPow(k.ServicerStakeBinExponent(ctx), ExponentDenominator).Quo(k.ServicerStakeWeight(ctx))
-		coinsDecimal := k.TokenRewardFactor(ctx).ToDec().Mul(challenges.ToDec()).Mul(weight)
-		coins = coinsDecimal.TruncateInt()
-	} else {
-		coins = k.TokenRewardFactor(ctx).Mul(challenges)
-	}
 	k.simpleSlash(ctx, address, coins)
 }
 
