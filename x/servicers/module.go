@@ -120,23 +120,7 @@ func (pm AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
 
 // BeginBlock module begin-block
 func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
-	ActivateAdditionalParameters(ctx, pm)
 	keeper.BeginBlocker(ctx, req, pm.keeper)
-}
-
-// ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
-func ActivateAdditionalParameters(ctx sdk.Ctx, pm AppModule) {
-	if pm.keeper.Cdc.IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.RSCALKey) {
-		//on the height we set the default value
-		params := pm.keeper.GetParams(ctx)
-		params.MinServicerStakeBinWidth = types.DefaultMinServicerStakeBinWidth
-		params.ServicerStakeWeight = types.DefaultServicerStakeWeight
-		params.MaxServicerStakeBin = types.DefaultMaxServicerStakeBin
-		params.ServicerStakeBinExponent = types.DefaultServicerStakeBinExponent
-		// custom logic for minSignedPerWindow
-		params.MinSignedPerWindow = params.MinSignedPerWindow.QuoInt64(params.SignedBlocksWindow)
-		pm.keeper.SetParams(ctx, params)
-	}
 }
 
 // EndBlock returns the end blocker for the staking module. It returns no validator
