@@ -1,14 +1,12 @@
 package transfer
 
 import (
-	//"fmt"
 	"reflect"
 
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer/keeper"
-	//"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 
 func NewHandler(k keeper.Keeper) sdk.Handler {
