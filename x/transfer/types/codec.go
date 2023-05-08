@@ -7,17 +7,34 @@ import (
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/codec/types"
-	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
+
+	//crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/types/msgservice"
 )
 
 // RegisterCodec registers concrete types on the codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterStructure(MsgTransfer{}, "transfer/Msgtransfer")
-	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgTransfer{})
-	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgTransfer{})
-	ModuleCdc = cdc
 
+}
+
+// RegisterLegacyAminoCodec registers the necessary x/ibc transfer interfaces and concrete types
+// on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgTransfer{}, "vipernet-xyz/MsgTransfer", nil)
+}
+
+// RegisterInterfaces register the ibc transfer module interfaces to protobuf
+// Any.
+func RegisterInterfaces(registry types.InterfaceRegistry) {
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgTransfer{})
+
+	registry.RegisterImplementations(
+		(Authorization)(nil),
+		&TransferAuthorization{},
+	)
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
 // module wide codec
@@ -26,9 +43,8 @@ var amino = codec.NewLegacyAmino()
 var AminoCdc = codec.NewAminoCodec(amino)
 
 func init() {
-	ModuleCdc = codec.NewCodec(types.NewInterfaceRegistry())
-	RegisterCodec(ModuleCdc)
-	crypto.RegisterAmino(ModuleCdc.AminoCodec().Amino)
+	RegisterLegacyAminoCodec(amino)
+	amino.Seal()
 }
 
 // mustProtoMarshalJSON provides an auxiliary function to return Proto3 JSON encoded
@@ -58,4 +74,35 @@ func mustProtoMarshalJSON(msg proto.Message) []byte {
 	}
 
 	return buf.Bytes()
+}
+
+// Authorization represents the interface of various Authorization types implemented
+// by other modules.
+type Authorization interface {
+	proto.Message
+
+	// MsgTypeURL returns the fully-qualified Msg service method URL (as described in ADR 031),
+	// which will process and accept or reject a request.
+	MsgTypeURL() string
+
+	// Accept determines whether this grant permits the provided sdk.Msg to be performed,
+	// and if so provides an upgraded authorization instance.
+	Accept(ctx sdk.Context, msg sdk.Msg) (AcceptResponse, error)
+
+	// ValidateBasic does a simple validation check that
+	// doesn't require access to any other information.
+	ValidateBasic() error
+}
+
+// AcceptResponse instruments the controller of an authz message if the request is accepted
+// and if it should be updated or deleted.
+type AcceptResponse struct {
+	// If Accept=true, the controller can accept and authorization and handle the update.
+	Accept bool
+	// If Delete=true, the controller must delete the authorization object and release
+	// storage resources.
+	Delete bool
+	// Controller, who is calling Authorization.Accept must check if `Updated != nil`. If yes,
+	// it must use the updated version and handle the update on the storage level.
+	Updated Authorization
 }
