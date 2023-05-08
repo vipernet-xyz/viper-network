@@ -12,12 +12,10 @@ import (
 // has all Tendermint crypto and evidence types registered.
 //
 // TODO: Deprecated - remove this global.
-var Cdc *codec.LegacyAmino
+var Cdc = codec.NewLegacyAminoCodec()
 
 func init() {
-	Cdc = codec.NewLegacyAminoCodec()
 	crypto.RegisterAmino(Cdc.Amino)
-	crypto.RegisterCrypto(Cdc)
 	codec.RegisterEvidences(Cdc, nil)
 	Cdc.Seal()
 }

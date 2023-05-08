@@ -5,11 +5,11 @@ import (
 	cryptoAmino "github.com/vipernet-xyz/viper-network/crypto/codec"
 )
 
-var cdc = codec.NewLegacyAmino()
+var cdc = codec.NewLegacyAminoCodec()
 
 func init() {
 	RegisterAmino(cdc)
-	cryptoAmino.RegisterCrypto(cdc)
+	cryptoAmino.RegisterAmino(cdc.Amino)
 }
 
 // RegisterAmino registers all go-crypto related types in the given (amino) codec.
