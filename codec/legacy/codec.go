@@ -19,7 +19,6 @@ func init() {
 	crypto.RegisterAmino(Cdc.Amino)
 	crypto.RegisterCrypto(Cdc)
 	codec.RegisterEvidences(Cdc, nil)
-	crypto.RegisterCrypto(Cdc)
 	Cdc.Seal()
 }
 
