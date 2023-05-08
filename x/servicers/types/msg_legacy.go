@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 

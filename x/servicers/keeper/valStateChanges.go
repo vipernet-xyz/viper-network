@@ -8,7 +8,7 @@ import (
 
 	"github.com/tendermint/tendermint/libs/strings"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 

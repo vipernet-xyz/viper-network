@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"testing"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

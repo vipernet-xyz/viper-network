@@ -13,7 +13,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/rpc"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	"github.com/vipernet-xyz/viper-network/types"
 

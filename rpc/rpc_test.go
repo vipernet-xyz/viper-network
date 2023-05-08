@@ -19,7 +19,7 @@ import (
 
 	rand2 "github.com/tendermint/tendermint/libs/rand"
 	"github.com/vipernet-xyz/viper-network/app"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	types3 "github.com/vipernet-xyz/viper-network/x/providers/types"

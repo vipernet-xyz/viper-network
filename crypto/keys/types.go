@@ -3,7 +3,7 @@ package keys
 import (
 	tmcrypto "github.com/cometbft/cometbft/crypto"
 	proto "github.com/cosmos/gogoproto/proto"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/types"
 )
 

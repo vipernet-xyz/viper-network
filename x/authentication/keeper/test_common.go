@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	cdcTypes "github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"

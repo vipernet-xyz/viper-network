@@ -4,7 +4,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"

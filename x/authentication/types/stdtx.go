@@ -6,14 +6,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/vipernet-xyz/viper-network/codec"
-	"github.com/vipernet-xyz/viper-network/codec/types"
-	posCrypto "github.com/vipernet-xyz/viper-network/crypto"
-	sdk "github.com/vipernet-xyz/viper-network/types"
-	types2 "github.com/vipernet-xyz/viper-network/x/servicers/types"
-
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/multisig"
+	"github.com/vipernet-xyz/viper-network/codec"
+	"github.com/vipernet-xyz/viper-network/codec/types"
+	posCrypto "github.com/vipernet-xyz/viper-network/crypto/codec"
+	sdk "github.com/vipernet-xyz/viper-network/types"
+	types2 "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"gopkg.in/yaml.v2"
 )
 

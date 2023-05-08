@@ -5,7 +5,7 @@ package keeper
 import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	cdcTypes "github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/store"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"

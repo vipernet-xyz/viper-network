@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/golang-lru/simplelru"
 	tmCrypto "github.com/tendermint/tendermint/crypto"
 	"github.com/vipernet-xyz/viper-network/codec"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/internal/conv"
 	"github.com/vipernet-xyz/viper-network/types/bech32"
 	"gopkg.in/yaml.v2"

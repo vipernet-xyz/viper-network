@@ -4,7 +4,7 @@ import (
 	//"fmt"
 	"reflect"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer/keeper"
@@ -24,17 +24,3 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		return sdk.Result{}
 	}
 }
-
-/*func handleMsgTransfer(ctx sdk.Ctx, msg types.MsgTransfer, k keeper.Keeper) sdk.Result {
-	da, err := types.IBCActionFromString(msg.Action)
-	if err != nil {
-		return err.Result()
-	}
-	switch da {
-	case types.Transfer:
-		return k.IBCTransferFrom(ctx, msg.FromAddress, msg.ToAddress, msg.Amount)
-	case types.Burn:
-		return k.Burn(ctx, msg.FromAddress, msg.Amount)
-	}
-	return sdk.Result{}
-}*/

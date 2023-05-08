@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	viperCrypto "github.com/vipernet-xyz/viper-network/crypto"
+	viperCrypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/stretchr/testify/assert"

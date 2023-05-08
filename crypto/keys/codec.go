@@ -1,7 +1,7 @@
 package keys
 
 import (
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	cryptoAmino "github.com/tendermint/tendermint/crypto/encoding/amino"
 

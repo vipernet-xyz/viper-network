@@ -217,15 +217,16 @@ func (config *SDKConfig) assertNotSealed() {
 
 // SetTxEncoder builds the TmConfig with TxEncoder used to marshal StdTx to bytes
 func (config *SDKConfig) SetTxEncoder(encoder TxEncoder) {
-	config.assertNotSealed()
 	config.txEncoder = encoder
+	config.assertNotSealed()
 }
 
 // SetAddressVerifier builds the TmConfig with the provided function for verifying that Addresses
 // have the correct format
 func (config *SDKConfig) SetAddressVerifier(addressVerifier func([]byte) error) {
-	config.assertNotSealed()
 	config.addressVerifier = addressVerifier
+	config.assertNotSealed()
+
 }
 
 // Set the BIP-0044 CoinType code on the config

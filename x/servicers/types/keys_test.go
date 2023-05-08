@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/types"
 )
 

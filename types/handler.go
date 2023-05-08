@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	"github.com/tendermint/tendermint/state/txindex"
 )

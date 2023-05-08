@@ -34,7 +34,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/baseapp"
 	"github.com/vipernet-xyz/viper-network/codec"
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	kb "github.com/vipernet-xyz/viper-network/crypto/keys"
 	ibc "github.com/vipernet-xyz/viper-network/modules/core"
 	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"

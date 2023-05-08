@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/vipernet-xyz/viper-network/codec"
-	posCrypto "github.com/vipernet-xyz/viper-network/crypto"
+	posCrypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/keeper"
 	"github.com/vipernet-xyz/viper-network/x/authentication/types"

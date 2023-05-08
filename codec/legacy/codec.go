@@ -2,8 +2,8 @@ package legacy
 
 import (
 	"github.com/vipernet-xyz/viper-network/codec"
-	//"github.com/vipernet-xyz/viper-network/crypto"
-	cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
+
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	//sdk "github.com/vipernet-xyz/viper-network/types"
 )
@@ -16,11 +16,11 @@ var Cdc *codec.LegacyAmino
 
 func init() {
 	Cdc = codec.NewLegacyAminoCodec()
-	//crypto.RegisterAmino(Cdc.Amino)
+	crypto.RegisterAmino(Cdc.Amino)
+	crypto.RegisterCrypto(Cdc)
 	codec.RegisterEvidences(Cdc, nil)
+	crypto.RegisterCrypto(Cdc)
 	Cdc.Seal()
-	cryptocodec.RegisterCrypto(Cdc)
-	//sdk.RegisterLegacyAminoCodec(Cdc)
 }
 
 // PrivKeyFromBytes unmarshals private key bytes and returns a PrivKey

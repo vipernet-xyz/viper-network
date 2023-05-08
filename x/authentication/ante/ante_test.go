@@ -3,7 +3,7 @@ package ante
 import (
 	"testing"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	"github.com/stretchr/testify/assert"
 )

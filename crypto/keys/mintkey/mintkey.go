@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"strconv"
 
-	posCrypto "github.com/vipernet-xyz/viper-network/crypto"
+	posCrypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/armor"

@@ -1,11 +1,12 @@
-package crypto
+package codec
 
 import (
 	"encoding/hex"
 	"encoding/json"
+	"strings"
+
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
-	"strings"
 )
 
 type (

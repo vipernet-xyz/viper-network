@@ -3,7 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )

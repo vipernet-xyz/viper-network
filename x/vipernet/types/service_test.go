@@ -8,7 +8,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec"
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	exported2 "github.com/vipernet-xyz/viper-network/x/providers/exported"

@@ -1,8 +1,9 @@
-package crypto
+package codec
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func MultiSigSetup(t *testing.T) (pubKey PublicKeyMultiSig, privateKeys []PrivateKey) {

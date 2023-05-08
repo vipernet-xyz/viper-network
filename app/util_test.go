@@ -6,7 +6,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	"github.com/vipernet-xyz/viper-network/x/servicers"

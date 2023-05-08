@@ -19,7 +19,7 @@ import (
 	"syscall"
 
 	"github.com/vipernet-xyz/viper-network/codec/types"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
 

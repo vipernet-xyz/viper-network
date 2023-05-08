@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/vipernet-xyz/viper-network/codec"
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	tmCrypto "github.com/tendermint/tendermint/crypto"
 	cryptoKeys "github.com/vipernet-xyz/viper-network/crypto/keys"

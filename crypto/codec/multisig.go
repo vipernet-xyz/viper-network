@@ -1,9 +1,10 @@
-package crypto
+package codec
 
 import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+
 	"github.com/tendermint/tendermint/crypto"
 )
 

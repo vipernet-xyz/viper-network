@@ -5,7 +5,7 @@ import (
 
 	"github.com/tendermint/tendermint/config"
 
-	"github.com/vipernet-xyz/viper-network/crypto"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	cmn "github.com/tendermint/tendermint/libs/os"
 
