@@ -106,7 +106,7 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 			// set them
 			err = SetValidatorsFilesLean(keys)
 			if err != nil {
-				logger.Error("Failed to set validators for user provided file, try pocket accounts set-validators", userProvidedKeyPath, err)
+				logger.Error("Failed to set validators for user provided file, try viper accounts set-validators", userProvidedKeyPath, err)
 				os.Exit(1)
 			}
 		}
@@ -118,7 +118,7 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	// init genesis
 	InitGenesis(genesisType, logger)
 	// log the config and chains
-	logger.Debug(fmt.Sprintf("Pocket Config: \n%v", GlobalConfig))
+	logger.Debug(fmt.Sprintf("Viper Config: \n%v", GlobalConfig))
 	// init the tendermint node
 	return InitTendermint(keybase, chains, logger)
 }

@@ -114,7 +114,7 @@ var getValidator = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		if app.GlobalConfig.ViperConfig.LeanViper {
-			fmt.Println("Lean pocket is enabled. You might be trying to use get-validators.")
+			fmt.Println("Lean viper is enabled. You might be trying to use get-validators.")
 			return
 		}
 
@@ -136,7 +136,7 @@ var setValidatorsLean = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		if !app.GlobalConfig.ViperConfig.LeanViper {
-			fmt.Println("Lean pocket is not enabled. You might be trying to use set-validator.")
+			fmt.Println("Lean viper is not enabled. You might be trying to use set-validator.")
 			return
 		}
 
@@ -162,7 +162,7 @@ var setValidator = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		if app.GlobalConfig.ViperConfig.LeanViper {
-			fmt.Println("Lean pocket is enabled. You  might be trying to use set-validators.")
+			fmt.Println("Lean viper is enabled. You  might be trying to use set-validators.")
 			return
 		}
 
@@ -693,7 +693,7 @@ var getNodesLean = &cobra.Command{
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		config := app.GlobalConfig
 		if !config.ViperConfig.LeanViper {
-			fmt.Println("Lean pocket is not enabled. You might be trying to use get-validator.")
+			fmt.Println("Lean viper is not enabled. You might be trying to use get-validator.")
 			return
 		}
 
