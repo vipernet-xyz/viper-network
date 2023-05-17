@@ -15,7 +15,7 @@ import (
 
 // RegisterCodec registers concrete types on the codec
 func RegisterCodec(cdc *codec.Codec) {
-
+	ModuleCdc = cdc
 }
 
 // RegisterLegacyAminoCodec registers the necessary x/ibc transfer interfaces and concrete types
