@@ -2,14 +2,12 @@ package ledger
 
 import (
 	"github.com/vipernet-xyz/viper-network/codec"
-	cryptoAmino "github.com/vipernet-xyz/viper-network/crypto/codec"
 )
 
 var cdc = codec.NewLegacyAminoCodec()
 
 func init() {
 	RegisterAmino(cdc)
-	cryptoAmino.RegisterAmino(cdc.Amino)
 }
 
 // RegisterAmino registers all go-crypto related types in the given (amino) codec.

@@ -12,13 +12,15 @@ import (
 // has all Tendermint crypto and evidence types registered.
 //
 // TODO: Deprecated - remove this global.
-var Cdc = codec.NewLegacyAminoCodec()
 
 func init() {
+	var Cdc = codec.NewLegacyAminoCodec()
 	crypto.RegisterAmino(Cdc.Amino)
 	codec.RegisterEvidences(Cdc, nil)
 	Cdc.Seal()
 }
+
+var Cdc = codec.NewLegacyAminoCodec()
 
 // PrivKeyFromBytes unmarshals private key bytes and returns a PrivKey
 func PrivKeyFromBytes(privKeyBytes []byte) (privKey cryptotypes.PrivKey, err error) {

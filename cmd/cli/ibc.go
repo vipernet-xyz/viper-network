@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/client/tx"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
@@ -38,6 +39,7 @@ var GetCmdQueryDenomTrace = &cobra.Command{
 	Example: fmt.Sprintf("%s query ibc-transfer denom-trace 27A6394C3F9FF9C9DCF5DFFADF9BB5FE9A37C7E92B006199894CF1824DF9AC7C", version),
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		clientCtx, err := client.GetClientQueryContext(cmd)
 		if err != nil {
 			return err
@@ -65,6 +67,7 @@ var GetCmdParams = &cobra.Command{
 	Args:    cobra.NoArgs,
 	Example: fmt.Sprintf("%s query ibc-transfer params", version),
 	RunE: func(cmd *cobra.Command, _ []string) error {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		clientCtx, err := client.GetClientQueryContext(cmd)
 		if err != nil {
 			return err
@@ -88,6 +91,7 @@ var GetCmdQueryEscrowAddress = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	Example: fmt.Sprintf("%s query ibc-transfer escrow-address [port] [channel-id]", version),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		clientCtx, err := client.GetClientQueryContext(cmd)
 		if err != nil {
 			return err
@@ -119,6 +123,7 @@ corresponding to the counterparty channel. Any timeout set to 0 is disabled.`),
 	Example: fmt.Sprintf("%s tx ibc-transfer transfer [src-port] [src-channel] [receiver] [amount]", version),
 	Args:    cobra.ExactArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		clientCtx, err := client.GetClientTxContext(cmd)
 		if err != nil {
 			return err
