@@ -745,7 +745,7 @@ func MakeCodec() {
 		ibctm.AppModuleBasic{},
 	).RegisterCodec(cdc)
 	// register the sdk types
-	sdk.RegisterCodec(cdc)
+	//sdk.RegisterCodec(cdc)
 	// register the crypto types
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	cryptoamino.RegisterAmino(cdc.AminoCodec().Amino)
