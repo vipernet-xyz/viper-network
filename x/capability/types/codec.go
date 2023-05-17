@@ -17,6 +17,7 @@ var AminoCdc = codec.NewAminoCodec(amino)
 
 func init() {
 	ModuleCdc = codec.NewCodec(types.NewInterfaceRegistry())
+	RegisterCodec(ModuleCdc)
 	crypto.RegisterAmino(ModuleCdc.AminoCodec().Amino)
 }
 

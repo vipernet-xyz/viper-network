@@ -44,6 +44,7 @@ var AminoCdc = codec.NewAminoCodec(amino)
 
 func init() {
 	RegisterLegacyAminoCodec(amino)
+	RegisterCodec(ModuleCdc)
 	amino.Seal()
 }
 
