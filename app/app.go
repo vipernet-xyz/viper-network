@@ -152,18 +152,18 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		transferModule,
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, ibcexported.ModuleName, governanceTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, ibcexported.ModuleName, governanceTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName)
+	app.mm.SetOrderEndBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		capabilityTypes.ModuleName,
 		authentication.ModuleName,
 		servicersTypes.ModuleName,
 		providersTypes.ModuleName,
-		ibcexported.ModuleName,
-		transferTypes.ModuleName,
 		viperTypes.ModuleName,
 		governance.ModuleName,
+		ibcexported.ModuleName,
+		transferTypes.ModuleName,
 	)
 	// register all module routes and module queriers
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())

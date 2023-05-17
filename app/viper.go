@@ -53,12 +53,12 @@ type ViperCoreApp struct {
 	servicersKeeper      servicersKeeper.Keeper
 	governanceKeeper     governanceKeeper.Keeper
 	transferKeeper       transferKeeper.Keeper
+	StakingKeeper        stakingKeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
 	CapabilityKeeper     *capabilityKeeper.Keeper
 	AccountKeeper        authkeeper.Keeper
 	BankKeeper           authkeeper.Keeper
 	UpgradeKeeper        upgradeKeeper.Keeper
-	StakingKeeper        stakingKeeper.Keeper
 	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
 	scopedTransferKeeper capabilityKeeper.ScopedKeeper
 
