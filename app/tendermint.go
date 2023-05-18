@@ -188,7 +188,7 @@ type config struct {
 /*
 func modifyPrivValidatorsFile(config *cfg.Config, rollbackHeight int64) error {
 	var sig []byte
-	filePv := pvm.LoadOrGenFilePV(config.PrivValidatorKeyFile(), config.PrivValidatorStateFile())
+	filePv := pvm.LoadOrGenFilePVLean(config.PrivValidatorKeyFile(), config.PrivValidatorStateFile())
 	filePv.LastSignState.Height = rollbackHeight
 	filePv.LastSignState.Round = 0
 	filePv.LastSignState.Step = 0

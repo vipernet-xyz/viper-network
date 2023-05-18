@@ -1119,3 +1119,8 @@ func (_m *Ctx) BlockHash(cdc *codec.Codec, _ int64) ([]byte, error) {
 
 	return r0, r1
 }
+
+func createTestInputWithLean(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Validator, []providersTypes.Provider, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
+	ctx, vals, ap, accs, keeper, keys, kb := createTestInput(t, isCheckTx)
+	return ctx, vals, ap, accs, keeper, keys, kb
+}

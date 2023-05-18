@@ -106,7 +106,7 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 			// set them
 			err = SetValidatorsFilesLean(keys)
 			if err != nil {
-				logger.Error("Failed to set validators for user provided file, try viper accounts set-validators", userProvidedKeyPath, err)
+				logger.Error("Failed to set validators for user provided file, try pocket accounts set-validators", userProvidedKeyPath, err)
 				os.Exit(1)
 			}
 		}
@@ -118,10 +118,11 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	// init genesis
 	InitGenesis(genesisType, logger)
 	// log the config and chains
-	logger.Debug(fmt.Sprintf("Viper Config: \n%v", GlobalConfig))
+	logger.Debug(fmt.Sprintf("Pocket Config: \n%v", GlobalConfig))
 	// init the tendermint node
 	return InitTendermint(keybase, chains, logger)
 }
+
 func InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string) {
 	log2.Println("Initializing Viper Datadir")
 	// setup the codec
@@ -205,6 +206,11 @@ func InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string) {
 	c.TendermintConfig.P2P.AllowDuplicateIP = true
 
 	GlobalConfig = c
+	if GlobalConfig.ViperConfig.LeanViper {
+		GlobalConfig.TendermintConfig.PrivValidatorState = sdk.DefaultPVSNameLean
+		GlobalConfig.TendermintConfig.PrivValidatorKey = sdk.DefaultPVKNameLean
+		GlobalConfig.TendermintConfig.NodeKey = sdk.DefaultNKNameLean
+	}
 }
 
 func UpdateConfig(datadir string) {
@@ -237,6 +243,7 @@ func UpdateConfig(datadir string) {
 	GlobalConfig.ViperConfig.CtxCacheSize = sdk.DefaultCtxCacheSize
 	GlobalConfig.ViperConfig.RPCTimeout = sdk.DefaultRPCTimeout
 	GlobalConfig.ViperConfig.IavlCacheSize = sdk.DefaultIavlCacheSize
+	GlobalConfig.ViperConfig.LeanViper = sdk.DefaultLeanViper
 
 	// Backup and Save the File
 	var jsonFile *os.File
@@ -369,7 +376,6 @@ func InitTendermint(keybase bool, chains *types.HostedBlockchains, logger log.Lo
 	}
 	return tmNode
 }
-
 func InitKeyfiles(logger log.Logger) {
 
 	if GlobalConfig.ViperConfig.LeanViper {
@@ -380,7 +386,31 @@ func InitKeyfiles(logger log.Logger) {
 		}
 		return
 	}
+
+	datadir := GlobalConfig.ViperConfig.DataDir
+	// Check if privvalkey file exist
+	if _, err := os.Stat(datadir + FS + GlobalConfig.TendermintConfig.PrivValidatorKey); err != nil {
+		// if not exist continue creating as other files may be missing
+		if os.IsNotExist(err) {
+			// generate random key for easy orchestration
+			randomKey := crypto.GenerateEd25519PrivKey()
+			privValKey := privValKey(randomKey)
+			privValState()
+			nodeKey(randomKey)
+			types.AddViperNodeByFilePVKey(privValKey, logger)
+			log2.Printf("No Validator Set! Creating Random Key: %s", randomKey.PublicKey().RawString())
+			return
+		} else {
+			//panic on other errors
+			log2.Fatal(err)
+		}
+	} else {
+		// file exist so we can load pk from file.
+		file, _ := loadPKFromFile(datadir + FS + GlobalConfig.TendermintConfig.PrivValidatorKey)
+		types.AddViperNodeByFilePVKey(file, logger)
+	}
 }
+
 func InitLogger() (logger log.Logger) {
 	logger = log.NewTMLoggerWithColorFn(log.NewSyncWriter(os.Stdout), func(keyvals ...interface{}) term.FgBgColor {
 		if keyvals[0] != kitlevel.Key() {
@@ -457,7 +487,7 @@ func loadPKFromFile(path string) (privval.FilePVKey, string) {
 	return pvKey, path
 }
 
-func privValKey(res crypto.PrivateKey) {
+func privValKey(res crypto.PrivateKey) privval.FilePVKey {
 	privValKey := privval.FilePVKey{
 		Address: res.PubKey().Address(),
 		PubKey:  res.PubKey(),
@@ -475,7 +505,7 @@ func privValKey(res crypto.PrivateKey) {
 	if err != nil {
 		log2.Fatal(err)
 	}
-	types.InitPVKeyFile(privValKey)
+	return privValKey
 }
 
 func nodeKey(res crypto.PrivateKey) {

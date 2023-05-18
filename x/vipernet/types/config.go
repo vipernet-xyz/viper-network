@@ -3,9 +3,9 @@ package types
 import (
 	"encoding/hex"
 	"fmt"
-	"sync"
 	"time"
 
+	"github.com/tendermint/tendermint/config"
 	"github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/tendermint/tendermint/libs/log"
@@ -18,21 +18,24 @@ const (
 )
 
 var (
-	globalRPCTimeout  time.Duration
-	GlobalViperConfig types.ViperConfig
+	globalRPCTimeout       time.Duration
+	GlobalViperConfig      types.ViperConfig
+	GlobalTenderMintConfig config.Config
 )
 
 // "InitConfig" - Initializes the cache for sessions and evidence
 func InitConfig(chains *HostedBlockchains, logger log.Logger, c types.Config) {
-	cacheOnce.Do(func() {
-		globalEvidenceCache = new(CacheStorage)
-		globalSessionCache = new(CacheStorage)
-		globalEvidenceSealedMap = sync.Map{}
-		globalEvidenceCache.Init(c.ViperConfig.DataDir, c.ViperConfig.EvidenceDBName, c.TendermintConfig.LevelDBOptions, c.ViperConfig.MaxEvidenceCacheEntires, false)
-		globalSessionCache.Init(c.ViperConfig.DataDir, "", c.TendermintConfig.LevelDBOptions, c.ViperConfig.MaxSessionCacheEntries, true)
+	ConfigOnce.Do(func() {
 		InitGlobalServiceMetric(chains, logger, c.ViperConfig.PrometheusAddr, c.ViperConfig.PrometheusMaxOpenfiles)
 	})
+	InitViperNodeCaches(c, logger)
 	GlobalViperConfig = c.ViperConfig
+	GlobalTenderMintConfig = c.TendermintConfig
+	if GlobalViperConfig.LeanViper {
+		GlobalTenderMintConfig.PrivValidatorState = types.DefaultPVSNameLean
+		GlobalTenderMintConfig.PrivValidatorKey = types.DefaultPVKNameLean
+		GlobalTenderMintConfig.NodeKey = types.DefaultPVSNameLean
+	}
 	SetRPCTimeout(c.ViperConfig.RPCTimeout)
 }
 

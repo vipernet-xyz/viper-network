@@ -71,6 +71,9 @@ const (
 	DefaultKeybaseName                 = "viper-keybase"
 	DefaultPVKName                     = "priv_val_key.json"
 	DefaultPVSName                     = "priv_val_state.json"
+	DefaultPVKNameLean                 = "priv_val_key_lean.json"
+	DefaultPVSNameLean                 = "priv_val_state_lean.json"
+	DefaultNKNameLean                  = "node_key_lean.json"
 	DefaultNKName                      = "servicer_key.json"
 	DefaultChainsName                  = "chains.json"
 	DefaultGenesisName                 = "genesis.json"
@@ -108,6 +111,8 @@ const (
 	DefaultIavlCacheSize               = 5000000
 	DefaultChainHotReload              = false
 	DefaultGenerateTokenOnStart        = true
+	DefaultLeanViper                   = false
+	DefaultLeanViperUserKeyFileName    = "lean_nodes_keys.json"
 )
 
 func DefaultConfig(dataDir string) Config {
@@ -141,6 +146,8 @@ func DefaultConfig(dataDir string) Config {
 			IavlCacheSize:            DefaultIavlCacheSize,
 			ChainsHotReload:          DefaultChainHotReload,
 			GenerateTokenOnStart:     DefaultGenerateTokenOnStart,
+			LeanViper:                DefaultLeanViper,
+			LeanViperUserKeyFileName: DefaultLeanViperUserKeyFileName,
 		},
 	}
 	c.TendermintConfig.LevelDBOptions = config.DefaultLevelDBOpts()

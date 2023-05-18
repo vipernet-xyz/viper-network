@@ -26,6 +26,8 @@ var (
 	cacheOnce sync.Once
 
 	globalEvidenceSealedMap sync.Map
+
+	ConfigOnce sync.Once
 )
 
 // "CacheStorage" - Contains an LRU cache and a database instance w/ mutex
