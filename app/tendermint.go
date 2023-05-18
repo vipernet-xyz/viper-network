@@ -96,7 +96,7 @@ func hotReloadValidatorsLean(c config, tmNode *node.Node) {
 
 func NewClient(c config, creator AppCreator) (*node.Node, *ViperCoreApp, error) {
 	// setup the database
-	appDB, err := OpenProviderDB(GlobalConfig)
+	appDB, err := OpenApplicationDB(GlobalConfig)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -147,7 +147,7 @@ func NewClient(c config, creator AppCreator) (*node.Node, *ViperCoreApp, error) 
 	return tmNode, app, nil
 }
 
-func OpenProviderDB(config sdk.Config) (dbm.DB, error) {
+func OpenApplicationDB(config sdk.Config) (dbm.DB, error) {
 	dataDir := filepath.Join(config.TendermintConfig.RootDir, GlobalConfig.TendermintConfig.DBPath)
 	return sdk.NewLevelDB(sdk.ProviderDBName, dataDir, config.TendermintConfig.LevelDBOptions.ToGoLevelDBOpts())
 }
@@ -185,6 +185,7 @@ type config struct {
 	TraceWriter string
 }
 
+/*
 func modifyPrivValidatorsFile(config *cfg.Config, rollbackHeight int64) error {
 	var sig []byte
 	filePv := pvm.LoadOrGenFilePV(config.PrivValidatorKeyFile(), config.PrivValidatorStateFile())
@@ -196,3 +197,4 @@ func modifyPrivValidatorsFile(config *cfg.Config, rollbackHeight int64) error {
 	filePv.Save()
 	return nil
 }
+*/
