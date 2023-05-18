@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-	tmbytes "github.com/cometbft/cometbft/libs/bytes"
-	tmtypes "github.com/cometbft/cometbft/types"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	tmtypes "github.com/tendermint/tendermint/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"

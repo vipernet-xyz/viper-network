@@ -39,8 +39,7 @@ type Keeper struct {
 
 // NewKeeper creates a new ibc Keeper
 func NewKeeper(
-	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
-	stakingKeeper clienttypes.StakingKeeper, upgradeKeeper clienttypes.UpgradeKeeper,
+	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace, upgradeKeeper clienttypes.UpgradeKeeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
 ) *Keeper {
 	// register paramSpace at top level keeper
@@ -51,10 +50,6 @@ func NewKeeper(
 		paramSpace = paramSpace.WithKeyTable(keyTable)
 	}
 
-	// panic if any of the keepers passed in is empty
-	if isEmpty(stakingKeeper) {
-		panic(fmt.Errorf("cannot initialize IBC keeper: empty staking keeper"))
-	}
 	if isEmpty(upgradeKeeper) {
 		panic(fmt.Errorf("cannot initialize IBC keeper: empty upgrade keeper"))
 	}
@@ -63,7 +58,7 @@ func NewKeeper(
 		panic(fmt.Errorf("cannot initialize IBC keeper: empty scoped keeper"))
 	}
 
-	clientKeeper := clientkeeper.NewKeeper(cdc, key, paramSpace, stakingKeeper, upgradeKeeper)
+	clientKeeper := clientkeeper.NewKeeper(cdc, key, paramSpace, upgradeKeeper)
 	connectionKeeper := connectionkeeper.NewKeeper(cdc, key, paramSpace, clientKeeper)
 	portKeeper := portkeeper.NewKeeper(scopedKeeper)
 	channelKeeper := channelkeeper.NewKeeper(cdc, key, clientKeeper, connectionKeeper, portKeeper, scopedKeeper)

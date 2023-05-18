@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	tmbytes "github.com/cometbft/cometbft/libs/bytes"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"

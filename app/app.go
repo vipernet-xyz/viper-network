@@ -5,6 +5,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	ibc "github.com/vipernet-xyz/viper-network/modules/core"
+	upgradeKeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
 	port "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
 	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
@@ -108,11 +109,18 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		authSubspace, servicersSubspace, providersSubspace, viperSubspace,
 	)
 
+	app.UpgradeKeeper = upgradeKeeper.NewKeeper(
+		app.Bcdc,
+		app.Keys[ibcexported.StoreKey],
+		ibcSubspace,
+		app.UpgradeKeeper,
+	)
+
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		app.Bcdc,
 		app.Keys[ibcexported.StoreKey],
 		ibcSubspace,
-		app.StakingKeeper,
+		//app.StakingKeeper,
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
 	)
@@ -124,7 +132,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
+		app.accountKeeper,
 		app.BankKeeper,
 		scopedTransferKeeper,
 	)

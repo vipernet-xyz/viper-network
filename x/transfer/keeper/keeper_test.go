@@ -1,8 +1,12 @@
 package keeper_test
 
 /*
+	"fmt"
 	"testing"
 
+	"github.com/vipernet-xyz/viper-network/x/authentication"*/
+
+/*
 	"github.com/stretchr/testify/suite"
 	"github.com/vipernet-xyz/viper-network/baseapp"
 

@@ -12,8 +12,24 @@ import (
 
 // AccountKeeper defines the contract required for account APIs.
 type AccountKeeper interface {
-	GetModuleAddress(moduleName string) sdk.Address
+	// get total supply of tokens
+	GetSupply(ctx sdk.Ctx) exported.SupplyI
+	// get the address of a module account
+	GetModuleAddress(name string) sdk.Address
+	// get the module account structure
 	GetModuleAccount(ctx sdk.Ctx, moduleName string) exported.ModuleAccountI
+	// set module account structure
+	SetModuleAccount(sdk.Ctx, exported.ModuleAccountI)
+	// send coins to/from module accounts
+	SendCoinsFromModuleToModule(ctx sdk.Ctx, senderModule, recipientModule string, amt sdk.Coins) sdk.Error
+	// send coins from module to validator
+	SendCoinsFromModuleToAccount(ctx sdk.Ctx, senderModule string, recipientAddr sdk.Address, amt sdk.Coins) sdk.Error
+	// send coins from validator to module
+	SendCoinsFromAccountToModule(ctx sdk.Ctx, senderAddr sdk.Address, recipientModule string, amt sdk.Coins) sdk.Error
+	// mint coins
+	MintCoins(ctx sdk.Ctx, moduleName string, amt sdk.Coins) sdk.Error
+	// burn coins
+	BurnCoins(ctx sdk.Ctx, name string, amt sdk.Coins) sdk.Error
 }
 
 // BankKeeper defines the expected bank keeper

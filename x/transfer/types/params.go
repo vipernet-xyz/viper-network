@@ -53,7 +53,7 @@ func (p Params) Validate() error {
 }
 
 // ParamSetPairs implements params.ParamSet
-func (p *Params) ParamSetPairs1() paramtypes.ParamSetPairs {
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeySendEnabled, p.SendEnabled, validateEnabledType),
 		paramtypes.NewParamSetPair(KeyReceiveEnabled, p.ReceiveEnabled, validateEnabledType),
