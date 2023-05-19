@@ -281,8 +281,7 @@ If the '--latest' flag is included, the query returns the latest consensus state
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
-}
-*/
+}*/
 
 // GetCmdSelfConsensusState defines the command to query the self consensus state of a chain
 func GetCmdSelfConsensusState() *cobra.Command {
