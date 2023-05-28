@@ -754,10 +754,10 @@ github.com/valyala/fasthttp v1.6.0/go.mod h1:FstJa9V+Pj9vQ7OJie2qMHdwemEDaDiSdBn
 github.com/valyala/fasttemplate v1.0.1/go.mod h1:UQGH1tvbgY+Nz5t2n7tXsz52dQxojPUpymEIMZ47gx8=
 github.com/valyala/fasttemplate v1.2.1/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
 github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a/go.mod h1:v3UYOV9WzVtRmSR+PDvWpU/qWl4Wa5LApYYX4ZtKbio=
+github.com/vipernet-xyz/tendermint v0.34.0 h1:VehL67LFQx5PMF8FjfOpslo7TupGwmjAPQt9V46/ha4=
+github.com/vipernet-xyz/tendermint v0.34.0/go.mod h1:f4ewZSyMeiLAanDwS8PTz5S5xDo3gwzYDDxE4VgS8UI=
 github.com/vipernet-xyz/tm-db v0.1.0 h1:lzv7Zx4GZStYh4usH39kTkjyqHD7dvUWneo161LQufQ=
 github.com/vipernet-xyz/tm-db v0.1.0/go.mod h1:VrPTx04QJhQ9d8TFUTc2GpPBvBf/U9vIdBIzkjBk7Lk=
-github.com/vishruthsk/tendermint v0.33.8 h1:42QeDXgKR+eyLAozOkgNuPvENFdpFAddJjBCc4WP474=
-github.com/vishruthsk/tendermint v0.33.8/go.mod h1:LEclHjACs71N8SeUr2Y7Uxy9A+1etiTVQ+98HflRscI=
 github.com/willf/bitset v1.1.11 h1:N7Z7E9UvjW+sGsEl7k/SJrvY2reP1A07MrGuCjIOjRE=
 github.com/willf/bitset v1.1.11/go.mod h1:83CECat5yLh5zVOf4P1ErAgKA5UDvKtgyUABdr3+MjI=
 github.com/willf/bloom v2.0.3+incompatible h1:QDacWdqcAUI1MPOwIQZRy9kOR7yxfyEmxX8Wdm2/JPA=

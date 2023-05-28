@@ -138,6 +138,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/tendermint/tendermint => github.com/vishruthsk/tendermint v0.33.8
+replace github.com/tendermint/tendermint => github.com/vipernet-xyz/tendermint v0.34.0
 
 replace github.com/tendermint/tm-db => github.com/vipernet-xyz/tm-db v0.1.0
