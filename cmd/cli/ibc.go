@@ -36,7 +36,7 @@ var GetCmdQueryDenomTrace = &cobra.Command{
 	Use:     "denom-trace [hash/denom]",
 	Short:   "Query the denom trace info from a given trace hash or ibc denom",
 	Long:    "Query the denom trace info from a given trace hash or ibc denom",
-	Example: fmt.Sprintf("%s query ibc-transfer denom-trace 27A6394C3F9FF9C9DCF5DFFADF9BB5FE9A37C7E92B006199894CF1824DF9AC7C", version),
+	Example: fmt.Sprintf("%s query ibc-transfer denom-trace 27A6394C3F9FF9C9DCF5DFFADF9BB5FE9A37C7E92B006199894CF1824DF9AC7C", version.Version),
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
@@ -65,7 +65,7 @@ var GetCmdParams = &cobra.Command{
 	Short:   "Query the current ibc-transfer parameters",
 	Long:    "Query the current ibc-transfer parameters",
 	Args:    cobra.NoArgs,
-	Example: fmt.Sprintf("%s query ibc-transfer params", version),
+	Example: fmt.Sprintf("%s query ibc-transfer params", version.Version),
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		clientCtx, err := client.GetClientQueryContext(cmd)
@@ -89,7 +89,7 @@ var GetCmdQueryEscrowAddress = &cobra.Command{
 	Short:   "Get the escrow address for a channel",
 	Long:    "Get the escrow address for a channel",
 	Args:    cobra.ExactArgs(2),
-	Example: fmt.Sprintf("%s query ibc-transfer escrow-address [port] [channel-id]", version),
+	Example: fmt.Sprintf("%s query ibc-transfer escrow-address [port] [channel-id]", version.Version),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		clientCtx, err := client.GetClientQueryContext(cmd)
@@ -120,7 +120,7 @@ in the form {revision}-{height} using the "packet-timeout-height" flag. Relative
 height queried from the latest consensus state corresponding to the counterparty channel. Relative timeout timestamp 
 is added to the greater value of the local clock time and the block timestamp queried from the latest consensus state 
 corresponding to the counterparty channel. Any timeout set to 0 is disabled.`),
-	Example: fmt.Sprintf("%s tx ibc-transfer transfer [src-port] [src-channel] [receiver] [amount]", version),
+	Example: fmt.Sprintf("%s tx ibc-transfer transfer [src-port] [src-channel] [receiver] [amount]", version.Version),
 	Args:    cobra.ExactArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
