@@ -542,7 +542,7 @@ var queryClients = &cobra.Command{
 }
 
 var queryClient = &cobra.Command{
-	Use:   "Client <address> [<height>]",
+	Use:   "client <address> [<height>]",
 	Short: "Gets client from address",
 	Long:  `Retrieves the client at the specified <height>.`,
 	Args:  cobra.MinimumNArgs(1),
