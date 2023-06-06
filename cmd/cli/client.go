@@ -9,11 +9,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/cobra"
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/crypto/keys/mintkey"
 	"github.com/vipernet-xyz/viper-network/types"
-
-	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -37,14 +36,14 @@ func init() {
 }
 
 var clientStakeCmd = &cobra.Command{
-	Use:   "stake <fromAddr> <amount> <relayChainIDs> <networkID> <clientType> <fee>",
+	Use:   "stake <fromAddr> <amount> <relayChainIDs> <networkID> <fee>",
 	Short: "Stake a client into the network",
 	Long: `Stake the client into the network, giving it network throughput for the selected chains.
 Will prompt the user for the <fromAddr> account passphrase. If the client is already staked, this transaction acts as an *update* transaction.
 A client can updated relayChainIDs, and raise the stake/max_relays amount with this transaction.
 If the client is currently staked at X and you submit an update with new stake Y. Only Y-X will be subtracted from an account
 If no changes are desired for the parameter, just enter the current param value just as before`,
-	Args: cobra.ExactArgs(6),
+	Args: cobra.ExactArgs(5),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		fromAddr := args[0]
@@ -57,12 +56,7 @@ If no changes are desired for the parameter, just enter the current param value 
 		if err != nil {
 			log.Fatal(err)
 		}
-		fee, err := strconv.Atoi(args[5])
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		clientType, err := strconv.Atoi(args[5])
+		fee, err := strconv.Atoi(args[4])
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -70,49 +64,22 @@ If no changes are desired for the parameter, just enter the current param value 
 		rawChains := reg.ReplaceAllString(args[2], "")
 		chains := strings.Split(rawChains, ",")
 		fmt.Println("Enter passphrase: ")
-		if args[4] == "02" {
-			fmt.Println("Enter StakingKey : ")
-			res, err := VerifyStakingKey(pwd, fromAddr)
-			if err != nil {
-				fmt.Println(err)
-			}
-			if res == true {
-				res, err := StakeClient(chains, fromAddr, app.Credentials(pwd), args[3], types.NewInt(int64(amount)), int64(fee), int64(clientType), false)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				j, err := json.Marshal(res)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				resp, err := QueryRPC(SendRawTxPath, j)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				fmt.Println(resp)
-			}
+		res, err := StakeClient(chains, fromAddr, app.Credentials(pwd), args[3], types.NewInt(int64(amount)), int64(fee), false)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
-		if args[4] == "01" {
-			res, err := StakeClient(chains, fromAddr, app.Credentials(pwd), args[3], types.NewInt(int64(amount)), int64(fee), int64(clientType), false)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			j, err := json.Marshal(res)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			resp, err := QueryRPC(SendRawTxPath, j)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			fmt.Println(resp)
+		j, err := json.Marshal(res)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
+		resp, err := QueryRPC(SendRawTxPath, j)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(resp)
 	},
 }
 

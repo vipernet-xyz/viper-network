@@ -24,6 +24,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgBeginUnstake(ctx, msg, k)
 		case types.MsgUnjail:
 			return handleMsgUnjail(ctx, msg, k)
+		case types.MsgStakingKey:
+			return HandleMsgStoreStakingKey(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -114,4 +116,12 @@ func handleMsgUnjail(ctx sdk.Ctx, msg types.MsgUnjail, k keeper.Keeper) sdk.Resu
 		),
 	)
 	return sdk.Result{Events: ctx.EventManager().Events()}
+}
+
+// HandleMsgStoreStakingKey handles the MsgStoreStakingKey message.
+func HandleMsgStoreStakingKey(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgStakingKey) sdk.Result {
+	// Store the staking key in the module's state
+	k.SetStakingKey(ctx, msg.Address, msg.StakingKey)
+
+	return sdk.Result{}
 }

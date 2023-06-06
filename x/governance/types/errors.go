@@ -3,7 +3,6 @@ package types
 import (
 	"fmt"
 
-	github_com_viper_network_viper_core_types "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 )
@@ -35,7 +34,7 @@ func ErrZeroValueDAOAction(codespace sdk.CodespaceType) sdk.Error {
 func ErrUnrecognizedDAOAction(codespace sdk.CodespaceType, daoActionString string) sdk.Error {
 	return sdk.NewError(codespace, CodeUnrecognizedDAOAction, "unrecognized dao action: "+daoActionString)
 }
-func ErrUnrecognizedClientType(codespace sdk.CodespaceType, clientTypeNumber github_com_viper_network_viper_core_types.Int64) sdk.Error {
+func ErrUnrecognizedClientType(codespace sdk.CodespaceType, clientTypeNumber sdk.Int64) sdk.Error {
 	return sdk.NewError(codespace, CodeUnrecognizedClientType, "unrecognized client type: %v", clientTypeNumber)
 }
 func ErrInvalidACL(codespace sdk.CodespaceType, err error) sdk.Error {

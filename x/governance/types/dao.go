@@ -1,7 +1,6 @@
 package types
 
 import (
-	github_com_viper_network_viper_core_types "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
@@ -38,7 +37,7 @@ func DAOActionFromString(s string) (DAOAction, sdk.Error) {
 	}
 }
 
-func ClientTypeFromNumber(s github_com_viper_network_viper_core_types.Int64) (int64, sdk.Error) {
+func ClientTypeFromNumber(s sdk.Int64) (int64, sdk.Error) {
 	switch s {
 	case DappNumber:
 		return 01, nil

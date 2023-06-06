@@ -1,6 +1,7 @@
 package types
 
 import (
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
@@ -81,4 +82,6 @@ type ProvidersKeeper interface {
 	MinimumStake(ctx sdk.Ctx) (res int64)
 	SetProvider(ctx sdk.Ctx, provider providerexported.ProviderI)
 	BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64)
+	GetStakingKey(ctx sdk.Ctx, address sdk.Address) (string, error) // staking key
+	SetStakingKey(ctx sdk.Ctx, address sdk.Address, stakingKey crypto.PublicKey)
 }

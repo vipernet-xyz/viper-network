@@ -13,8 +13,9 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterStructure(MsgStake{}, "providers/MsgProviderStake")
 	cdc.RegisterStructure(MsgBeginUnstake{}, "providers/MsgProviderBeginUnstake")
 	cdc.RegisterStructure(MsgUnjail{}, "providers/MsgProviderUnjail")
-	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgStake{}, &MsgBeginUnstake{}, &MsgUnjail{})
-	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgStake{}, &MsgBeginUnstake{}, &MsgUnjail{})
+	cdc.RegisterStructure(MsgStakingKey{}, "providers/MsgStakingKey")
+	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgStake{}, &MsgBeginUnstake{}, &MsgUnjail{}, &MsgStakingKey{})
+	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgStake{}, &MsgBeginUnstake{}, &MsgUnjail{}, &MsgStakingKey{})
 	ModuleCdc = cdc
 }
 

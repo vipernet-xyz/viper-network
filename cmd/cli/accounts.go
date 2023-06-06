@@ -53,7 +53,7 @@ var accountsCmd = &cobra.Command{
 from creating and deleting accounts; to importing and exporting accounts.`,
 }
 
-var pwd, oldPwd, decryptPwd, encryptPwd string
+var pwd, oldPwd, decryptPwd, encryptPwd, stakePwd string
 
 func init() {
 	buildMultisig.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
@@ -65,6 +65,7 @@ func init() {
 	signMS.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 	signNexMS.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 
+	clientStakeCmd.Flags().StringVar(&stakePwd, "pwd-stake", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 	exportCmd.Flags().StringVar(&decryptPwd, "pwd-decrypt", "", "decrypt passphrase used by the cmd, non empty usage bypass interactive prompt")
 	exportCmd.Flags().StringVar(&encryptPwd, "pwd-encrypt", "", "encrypt passphrase used by the cmd, non empty usage bypass interactive prompt")
 
