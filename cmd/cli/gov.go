@@ -254,7 +254,7 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 }
 
 var governanceGenerateStakingKey = &cobra.Command{
-	Use:   "GenStakingKey <fromAddr> <toAddr> <networkID> <fees>",
+	Use:   "genstakingkey <fromAddr> <toAddr> <networkID> <fees>",
 	Short: "generate staking key",
 	Long: `If authorized, generate the staking key for the client.
 Will prompt the user for the <fromAddr> account passphrase and <toAddr>.`,
@@ -280,12 +280,12 @@ Will prompt the user for the <fromAddr> account passphrase and <toAddr>.`,
 			fmt.Printf("StakingKey generation Failed, %s", err)
 			return
 		}
-		fmt.Printf("StakingKey generated successfully:\nStakingKey: %s\n", kp.PublicKey)
 		res, err := stakingKeyTx(string(kp.GetAddress()), toAddr, pass, args[2], int64(fees), false)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Printf("StakingKey generated successfully:\nStakingKey: %s\n", kp.PublicKey)
 		j, err := json.Marshal(res)
 		if err != nil {
 			fmt.Println(err)
@@ -297,5 +297,6 @@ Will prompt the user for the <fromAddr> account passphrase and <toAddr>.`,
 			return
 		}
 		fmt.Println(resp)
+		fmt.Printf("StakingKey generated successfully:\nStakingKey: %s\n", kp.PublicKey)
 	},
 }
