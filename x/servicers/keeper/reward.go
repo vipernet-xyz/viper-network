@@ -19,30 +19,42 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 			return sdk.ZeroInt()
 		}
 	}
-
 	var coins sdk.BigInt
 
 	coins = k.TokenRewardFactor(ctx).Mul(relays)
 
 	coins1 := relays.Quo((sdk.NewInt(k.providerKeeper.BaselineThroughputStakeRate(ctx)).Quo(sdk.NewInt(100))))
+	res, err := governanceTypes.GetStakingKey(provider.Address)
+	if err != nil {
+		toNode, toFeeCollector := k.NodeReward01(ctx, coins)
+		if toNode.IsPositive() {
+			k.mint(ctx, toNode, address)
+		}
+		if toFeeCollector.IsPositive() {
+			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
+		}
+		return toNode
 
-	toNode, toFeeCollector := k.NodeReward(ctx, coins)
-	if toNode.IsPositive() {
-		k.mint(ctx, toNode, address)
-	}
-	if toFeeCollector.IsPositive() {
-		k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
-	}
-	toProvider := k.ProviderReward(ctx, coins)
-	if toProvider.IsPositive() {
-		k.mint(ctx, toProvider, provider.Address)
+	} else if res != nil {
+		toNode, toFeeCollector := k.NodeReward02(ctx, coins)
+		if toNode.IsPositive() {
+			k.mint(ctx, toNode, address)
+		}
+		if toFeeCollector.IsPositive() {
+			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
+		}
+		toProvider := k.ProviderReward(ctx, coins)
+		if toProvider.IsPositive() {
+			k.mint(ctx, toProvider, provider.Address)
+		}
+		return toNode
 	}
 	p := k.providerKeeper.Provider(ctx, provider.Address)
 	p1 := p.(providersTypes.Provider)
 	if k.BurnActive(ctx) == true {
 		k.burn(ctx, coins1, p1)
 	}
-	return toNode
+	return sdk.ZeroInt()
 }
 
 // blockReward - Handles distribution of the collected fees

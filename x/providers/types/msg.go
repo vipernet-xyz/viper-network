@@ -24,9 +24,10 @@ const (
 )
 
 type MsgStake struct {
-	PubKey crypto.PublicKey `json:"pubkey" yaml:"pubkey"`
-	Chains []string         `json:"chains" yaml:"chains"`
-	Value  sdk.BigInt       `json:"value" yaml:"value"`
+	PubKey     crypto.PublicKey `json:"pubkey" yaml:"pubkey"`
+	Chains     []string         `json:"chains" yaml:"chains"`
+	Value      sdk.BigInt       `json:"value" yaml:"value"`
+	ClientType int64            `json:"clienttype" yaml:"clienttype"`
 }
 
 // GetSigners return address(es) that must sign over msg.GetSignBytes()

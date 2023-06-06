@@ -153,6 +153,70 @@ func (*MsgDAOTransfer) XXX_MessageName() string {
 	return "x.governance.MsgDAOTransfer"
 }
 
+type MsgProtoStakingKey struct{
+	FromAddress github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=fromAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"from_address"`
+	ToAddress   github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=toAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"to_address"`
+	PubKey      []byte                                            `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3" json:"pubkey" yaml:"pubkey"`
+	ClientType  github_com_viper_network_viper_core_types.Int64   `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/vipernet-xyz/viper-network/types.Int64" json:"client_type"`
+}
+func (m *MsgProtoStakingKey) Reset()         { *m = MsgProtoStakingKey{} }
+func (m *MsgProtoStakingKey) String() string { return proto.CompactTextString(m) }
+func (*MsgProtoStakingKey) ProtoMessage()    {}
+func (*MsgProtoStakingKey) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8366cfab811ef854, []int{1}
+}
+func (m *MsgProtoStakingKey) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgProtoStakingKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgProtoStakingKey.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgProtoStakingKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgProtoStakingKey.Merge(m, src)
+}
+func (m *MsgProtoStakingKey) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgProtoStakingKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgProtoStakingKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgProtoStakingKey proto.InternalMessageInfo
+
+func (m *MsgStakingKey) GetFromAddress() github_com_viper_network_viper_core_types.Address {
+	if m != nil {
+		return m.FromAddress
+	}
+	return nil
+}
+
+func (m *MsgProtoStakingKey) GetToAddress() github_com_viper_network_viper_core_types.Address {
+	if m != nil {
+		return m.ToAddress
+	}
+	return nil
+}
+
+func (m *MsgProtoStakingKey) GetClinetType() github_com_viper_network_viper_core_types.Int64  {
+	if m != nil {
+		return m.ClientType
+	}
+	return 01
+}
+
+func (*MsgProtoStakingKey) XXX_MessageName() string {
+	return "x.governance.MsgProtoStakingKey"
+}
+
 type MsgUpgrade struct {
 	Address github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=address,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address"`
 	Upgrade Upgrade                                           `protobuf:"bytes,2,opt,name=upgrade,proto3" json:"upgrade"`
@@ -476,7 +540,37 @@ func (m *MsgDAOTransfer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	return len(dAtA) - i, nil
 }
-
+func (m *MsgProtoStakingKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.ClientType.Size()
+		i -= size
+		if _, err := m.ClientType.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintGov(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if len(m.ToAddress) > 0 {
+		i -= len(m.ToAddress)
+		copy(dAtA[i:], m.ToAddress)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.ToAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.FromAddress) > 0 {
+		i -= len(m.FromAddress)
+		copy(dAtA[i:], m.FromAddress)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.FromAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
 func (m *MsgUpgrade) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -669,6 +763,25 @@ func (m *MsgUpgrade) Size() (n int) {
 		n += 1 + l + sovGov(uint64(l))
 	}
 	l = m.Upgrade.Size()
+	n += 1 + l + sovGov(uint64(l))
+	return n
+}
+
+func (m *MsgProtoStakingKey) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FromAddress)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	l = len(m.ToAddress)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	l = m.ClientType.Size()
 	n += 1 + l + sovGov(uint64(l))
 	return n
 }
@@ -1181,6 +1294,179 @@ func (m *MsgUpgrade) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *MsgProtoStakingKey) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGov
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgDAOTransfer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgDAOTransfer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FromAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FromAddress = append(m.FromAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.FromAddress == nil {
+				m.FromAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ToAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ToAddress = append(m.ToAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.ToAddress == nil {
+				m.ToAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PubKey", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PubKey = append(m.PubKey[:0], dAtA[iNdEx:postIndex]...)
+			if m.PubKey == nil {
+				m.PubKey = []byte{}
+			}
+			iNdEx = postIndex
+			
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Client Type", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ClientType.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *Upgrade) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1538,4 +1824,7 @@ var (
 	ErrInvalidLengthGov        = fmt.Errorf("proto: negative length found during unmarshaling")
 	ErrIntOverflowGov          = fmt.Errorf("proto: integer overflow")
 	ErrUnexpectedEndOfGroupGov = fmt.Errorf("proto: unexpected end of group")
+	ErrInvalidLengthMsg        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowMsg          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupMsg = fmt.Errorf("proto: unexpected end of group")
 )

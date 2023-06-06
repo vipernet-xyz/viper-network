@@ -1,6 +1,7 @@
 package types
 
 import (
+	github_com_viper_network_viper_core_types "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
@@ -10,6 +11,8 @@ const (
 	DAOBurnString               = "dao_burn"
 	DAOTransfer       DAOAction = iota + 1
 	DAOBurn
+	DappNumber      = 01
+	NaasToolsNumber = 02
 )
 
 type DAOAction int
@@ -32,5 +35,16 @@ func DAOActionFromString(s string) (DAOAction, sdk.Error) {
 		return DAOBurn, nil
 	default:
 		return 0, ErrUnrecognizedDAOAction(ModuleName, s)
+	}
+}
+
+func ClientTypeFromNumber(s github_com_viper_network_viper_core_types.Int64) (int64, sdk.Error) {
+	switch s {
+	case DappNumber:
+		return 01, nil
+	case NaasToolsNumber:
+		return 02, nil
+	default:
+		return 0, ErrUnrecognizedClientType(ModuleName, s)
 	}
 }

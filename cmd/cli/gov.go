@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/vipernet-xyz/viper-network/app"
+	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	"github.com/vipernet-xyz/viper-network/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
@@ -21,6 +22,7 @@ func init() {
 	governanceCmd.AddCommand(governanceChangeParam)
 	governanceCmd.AddCommand(governanceUpgrade)
 	governanceCmd.AddCommand(governanceFeatureEnable)
+	governanceCmd.AddCommand(governanceGenerateStakingKey)
 }
 
 var governanceCmd = &cobra.Command{
@@ -233,6 +235,53 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 
 		fmt.Println("Enter Password: ")
 		res, err := Upgrade(args[0], u, app.Credentials(pwd), args[3], int64(fees), false)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		j, err := json.Marshal(res)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		resp, err := QueryRPC(SendRawTxPath, j)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(resp)
+	},
+}
+
+var governanceGenerateStakingKey = &cobra.Command{
+	Use:   "GenStakingKey <fromAddr> <toAddr> <networkID> <fees>",
+	Short: "generate staking key",
+	Long: `If authorized, generate the staking key for the client.
+Will prompt the user for the <fromAddr> account passphrase and <toAddr>.`,
+	Args: cobra.ExactArgs(4),
+	Run: func(cmd *cobra.Command, args []string) {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		var toAddr string
+		if len(args) == 3 {
+			toAddr = args[1]
+		}
+		fromAddr := args[0]
+		fees, err := strconv.Atoi(args[3])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("Enter Password: ")
+		pass := app.Credentials(pwd)
+		kb := keys.New(app.GlobalConfig.ViperConfig.KeybaseName, app.GlobalConfig.ViperConfig.DataDir)
+		input := fromAddr + toAddr + pass
+		kp, err := kb.Create(input)
+		if err != nil {
+			fmt.Printf("StakingKey generation Failed, %s", err)
+			return
+		}
+		fmt.Printf("StakingKey generated successfully:\nStakingKey: %s\n", kp.PublicKey)
+		res, err := stakingKeyTx(string(kp.GetAddress()), toAddr, pass, args[2], int64(fees), false)
 		if err != nil {
 			fmt.Println(err)
 			return

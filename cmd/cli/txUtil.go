@@ -256,7 +256,7 @@ func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) 
 	}, nil
 }
 
-func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64, clientType int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -279,10 +279,14 @@ func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount s
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
+	if clientType == 01 || clientType == 02 {
+		return nil, sdk.ErrInternal("Client Type must be 01 or 02")
+	}
 	msg := providersType.MsgStake{
-		PubKey: kp.PublicKey,
-		Chains: chains,
-		Value:  amount,
+		PubKey:     kp.PublicKey,
+		Chains:     chains,
+		Value:      amount,
+		ClientType: clientType,
 	}
 	err = msg.ValidateBasic()
 	if err != nil {
@@ -437,4 +441,58 @@ func newTxBz(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, chainID s
 		return authentication.DefaultTxEncoder(cdc)(tx, 0)
 	}
 	return authentication.DefaultTxEncoder(cdc)(tx, -1)
+}
+
+func stakingKeyTx(fromAddr, toAddr, passphrase string, chainID string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+	fa, err := sdk.AddressFromHex(fromAddr)
+	if err != nil {
+		return nil, err
+	}
+	ta, err := sdk.AddressFromHex(toAddr)
+	if err != nil {
+		return nil, err
+	}
+	kb, err := app.GetKeybase()
+	if err != nil {
+		return nil, err
+	}
+	kp, err := kb.Get(fa)
+	if err != nil {
+		return nil, err
+	}
+	sk, err := governanceTypes.GetStakingKey(ta)
+	if err != nil {
+		return nil, err
+	}
+	msg := governanceTypes.MsgStakingKey{
+		FromAddress: fa,
+		ToAddress:   ta,
+		StakingKey:  sk,
+		ClientType:  02,
+	}
+	governanceTypes.MapToAddressToStakingKey(sdk.Address(toAddr), kp.PublicKey)
+	err = msg.ValidateBasic()
+	if err != nil {
+		return nil, err
+	}
+	txBz, err := newTxBz(app.Codec(), &msg, fa, chainID, kb, passphrase, fees, "", legacyCodec)
+	if err != nil {
+		return nil, err
+	}
+	return &rpc.SendRawTxParams{
+		Addr:        fromAddr,
+		RawHexBytes: hex.EncodeToString(txBz),
+	}, nil
+
+}
+
+func VerifyStakingKey(pwd string, Addr string) (bool, error) {
+	res, err := governanceTypes.GetStakingKey(sdk.Address(Addr))
+	if err != nil {
+		return false, fmt.Errorf("the staking key doesn't exist")
+	}
+	if pwd == res.String() {
+		return true, nil
+	}
+	return false, fmt.Errorf("the staking key didn't match")
 }

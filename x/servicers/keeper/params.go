@@ -100,7 +100,24 @@ func (k Keeper) TokenRewardFactor(ctx sdk.Ctx) sdk.BigInt {
 	return sdk.NewInt(multiplier)
 }
 
-func (k Keeper) NodeReward(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk.BigInt, feesCollected sdk.BigInt) {
+func (k Keeper) NodeReward01(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk.BigInt, feesCollected sdk.BigInt) {
+	// convert reward to dec
+	r := reward.ToDec()
+	// get the dao and proposer % ex DAO .05 or 5% Proposer .01 or 1%  App .05 or 5%
+	daoAllocationPercentage := sdk.NewDec(k.DAOAllocation(ctx)).QuoInt64(int64(100))           // dec percentage
+	proposerAllocationPercentage := sdk.NewDec(k.ProposerAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
+	providerAllocationPercentage := sdk.NewDec(k.ProviderAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
+	// the dao and proposer allocations go to the fee collector
+	daoAllocation := r.Mul(daoAllocationPercentage.Add(providerAllocationPercentage))
+	proposerAllocation := r.Mul(proposerAllocationPercentage)
+	// truncate int ex 1.99 uvipr goes to 1 uvipr
+	feesCollected = daoAllocation.Add(proposerAllocation).TruncateInt()
+	// the rest goes to the servicer
+	servicerReward = reward.Sub(feesCollected)
+	return
+}
+
+func (k Keeper) NodeReward02(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk.BigInt, feesCollected sdk.BigInt) {
 	// convert reward to dec
 	r := reward.ToDec()
 	// get the dao and proposer % ex DAO .08 or 8% Proposer .01 or 1%  App .02 or 2%
