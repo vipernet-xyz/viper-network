@@ -24,6 +24,7 @@ func TestNewValidator(t *testing.T) {
 		tokensToStake sdk.BigInt
 		chains        []string
 		serviceURL    string
+		geozone       int64
 	}
 	var pub crypto.Ed25519PublicKey
 	_, err := rand.Read(pub[:])
@@ -36,7 +37,7 @@ func TestNewValidator(t *testing.T) {
 		args args
 		want Validator
 	}{
-		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443"},
+		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443", 01},
 			Validator{
 				Address:                 sdk.Address(pub.Address()),
 				PublicKey:               pub,
@@ -51,7 +52,7 @@ func TestNewValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewValidator(tt.args.addr, tt.args.consPubKey, tt.args.chains, tt.args.serviceURL, tt.args.tokensToStake, tt.args.addr); !reflect.DeepEqual(got, tt.want) {
+			if got := NewValidator(tt.args.addr, tt.args.consPubKey, tt.args.chains, tt.args.serviceURL, tt.args.tokensToStake, tt.args.geozone, tt.args.addr); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewValidator() = %v, want %v", got, tt.want)
 			}
 		})

@@ -151,6 +151,7 @@ type MsgStake struct {
 	Chains     []string         `json:"chains" yaml:"chains"`
 	Value      sdk.BigInt       `json:"value" yaml:"value"`
 	ServiceUrl string           `json:"service_url" yaml:"service_url"`
+	GeoZone    int64            `json:"geo_zone" yaml:"geo_zone"`
 	Output     sdk.Address      `json:"output_address,omitempty" yaml:"output_address"`
 }
 
@@ -189,6 +190,7 @@ func (msg *MsgStake) Unmarshal(data []byte) error {
 		Chains:     m.Chains,
 		Value:      m.Value,
 		ServiceUrl: m.ServiceUrl,
+		GeoZone:    m.GeoZone,
 		Output:     m.OutputAddress,
 	}
 	*msg = newMsg
@@ -273,6 +275,7 @@ func (msg MsgStake) ToProto() MsgProtoStake {
 		Chains:        msg.Chains,
 		Value:         msg.Value,
 		ServiceUrl:    msg.ServiceUrl,
+		GeoZone:       msg.GeoZone,
 		OutputAddress: msg.Output,
 	}
 }

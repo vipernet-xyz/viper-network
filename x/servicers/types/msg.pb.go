@@ -30,7 +30,8 @@ type MsgProtoStake struct {
 	Chains        []string                                          `protobuf:"bytes,2,rep,name=Chains,proto3" json:"chains" yaml:"chains"`
 	Value         github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
 	ServiceUrl    string                                            `protobuf:"bytes,4,opt,name=ServiceUrl,proto3" json:"service_url" yaml:"service_url"`
-	OutputAddress github_com_viper_network_viper_core_types.Address `protobuf:"bytes,5,opt,name=OutputAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"output_address,omitempty" yaml:"output_address"`
+	GeoZone       int64                                            `protobuf:"bytes,5,opt,name=GeoZone,proto3" json:"geo_zone" yaml:"geo_zone"`
+	OutputAddress github_com_viper_network_viper_core_types.Address `protobuf:"bytes,6,opt,name=OutputAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"output_address,omitempty" yaml:"output_address"`
 }
 
 func (m *MsgProtoStake) Reset()         { *m = MsgProtoStake{} }

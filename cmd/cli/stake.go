@@ -32,14 +32,14 @@ var servicerStakeCmd = &cobra.Command{
 }
 
 var custodialStakeCmd = &cobra.Command{
-	Use:   "custodial <fromAddr> <amount> <RelayChainIDs> <serviceURI> <networkID> <fee>",
+	Use:   "custodial <fromAddr> <amount> <RelayChainIDs> <serviceURI> <networkID> <geoZone> <fee>",
 	Short: "Stake a servicer in the network. Custodial stake uses the same address as operator/output for rewards/return of staked funds.",
 	Long: `Stake the servicer into the network, making it available for service.
 Will prompt the user for the <fromAddr> account passphrase. If the servicer is already staked, this transaction acts as an *update* transaction.
 A servicer can updated relayChainIDs, serviceURI, and raise the stake amount with this transaction.
 If the servicer is currently staked at X and you submit an update with new stake Y. Only Y-X will be subtracted from an account
 If no changes are desired for the parameter, just enter the current param value just as before`,
-	Args: cobra.ExactArgs(6),
+	Args: cobra.ExactArgs(7),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		fromAddr := args[0]
@@ -62,7 +62,12 @@ If no changes are desired for the parameter, just enter the current param value 
 		rawChains := reg.ReplaceAllString(args[2], "")
 		chains := strings.Split(rawChains, ",")
 		serviceURI := args[3]
-		fee, err := strconv.Atoi(args[5])
+		fee, err := strconv.Atoi(args[6])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		geozone, err := strconv.Atoi(args[5])
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -78,7 +83,7 @@ If no changes are desired for the parameter, just enter the current param value 
 			return
 		}
 		fmt.Println("Enter Passphrase: ")
-		res1, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], types.NewInt(int64(amount)), int64(fee))
+		res1, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], int64(geozone), types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -98,7 +103,7 @@ If no changes are desired for the parameter, just enter the current param value 
 }
 
 var nonCustodialstakeCmd = &cobra.Command{
-	Use:   "non-custodial <operatorPublicKey> <outputAddress> <amount> <RelayChainIDs> <serviceURI> <networkID> <fee>",
+	Use:   "non-custodial <operatorPublicKey> <outputAddress> <amount> <RelayChainIDs> <serviceURI> <networkID> <geoZone> <fee>",
 	Short: "Stake a servicer in the network, non-custodial stake allows a different output address for rewards/return of staked funds. The signer may be the operator or the output address. The signer must specify the public key of the operator",
 	Long: `Stake the servicer into the network, making it available for service.
 Will prompt the user for the signer account passphrase, fund and fees are collected from signer account. If both accounts are present signer priority is first output then operator. If the servicer is already staked, this transaction acts as an *update* transaction.
@@ -106,7 +111,7 @@ A servicer can updated relayChainIDs, serviceURI, and raise the stake amount wit
 If the servicer is currently staked at X and you submit an update with new stake Y. Only Y-X will be subtracted from an account
 If no changes are desired for the parameter, just enter the current param value just as before.
 The signer may be the operator or the output address.`,
-	Args: cobra.ExactArgs(7),
+	Args: cobra.ExactArgs(8),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		operatorPubKey := args[0]
@@ -130,7 +135,12 @@ The signer may be the operator or the output address.`,
 		rawChains := reg.ReplaceAllString(args[3], "")
 		chains := strings.Split(rawChains, ",")
 		serviceURI := args[4]
-		fee, err := strconv.Atoi(args[6])
+		fee, err := strconv.Atoi(args[7])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		geozone, err := strconv.Atoi(args[6])
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -146,7 +156,7 @@ The signer may be the operator or the output address.`,
 			return
 		}
 		fmt.Println("Enter Passphrase: ")
-		res1, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], types.NewInt(int64(amount)), int64(fee))
+		res1, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], int64(geozone), types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return

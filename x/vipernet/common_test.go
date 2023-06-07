@@ -172,8 +172,9 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, daoCoin
 		addr := sdk.Address(pubKey.Address())
 		privKey2 := crypto.GenerateEd25519PrivKey()
 		pubKey2 := privKey2.PublicKey()
+		geozone := int64(01)
 		addr2 := sdk.Address(pubKey2.Address())
-		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, addr2)
+		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, geozone, addr2)
 		// set the vals from the data
 		nk.SetValidator(ctx, val)
 		// ensure there's a signing info entry for the val (used in slashing)
@@ -193,7 +194,8 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, daoCoin
 	if er != nil {
 		panic(er)
 	}
-	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, kp.GetAddress())
+	geozone := int64(01)
+	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, geozone, kp.GetAddress())
 	// set the vals from the data
 	nk.SetValidator(ctx, val)
 	// ensure there's a signing info entry for the val (used in slashing)

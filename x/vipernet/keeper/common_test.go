@@ -248,8 +248,9 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 		addr := sdk.Address(pubKey.Address())
 		privKey2 := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey2 := privKey2.PublicKey()
+		geozone := int64(01)
 		addr2 := sdk.Address(pubKey2.Address())
-		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, addr2)
+		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, geozone, addr2)
 		// set the vals from the data
 		nk.SetValidator(ctx, val)
 		nk.SetStakedValidatorByChains(ctx, val)
@@ -270,7 +271,8 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 	if er != nil {
 		panic(er)
 	}
-	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, kp.GetAddress())
+	geozone := int64(01)
+	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, geozone, kp.GetAddress())
 	// set the vals from the data
 	nk.SetValidator(ctx, val)
 	nk.SetStakedValidatorByChains(ctx, val)

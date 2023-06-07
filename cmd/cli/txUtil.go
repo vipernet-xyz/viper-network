@@ -59,7 +59,7 @@ func SendTransaction(fromAddr, toAddr, passphrase, chainID string, amount sdk.Bi
 }
 
 // LegacyStakeNode - Deliver Stake message to servicer
-func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
+func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, geozone int64, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -98,6 +98,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 		Chains:     chains,
 		Value:      amount,
 		ServiceUrl: serviceURL,
+		GeoZone:    geozone,
 		Output:     fa,
 	}
 	err = msg.ValidateBasic()
@@ -115,7 +116,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 }
 
 // StakeNode - Deliver Stake message to servicer
-func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
+func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, geozone int64, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	var operatorPublicKey crypto.PublicKey
 	var operatorAddress sdk.Address
 	var fromAddress sdk.Address
@@ -175,6 +176,7 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 		Chains:     chains,
 		Value:      amount,
 		ServiceUrl: serviceURL,
+		GeoZone:    geozone,
 		Output:     outputAddress,
 	}
 	err = msg.ValidateBasic()

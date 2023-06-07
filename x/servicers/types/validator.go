@@ -25,12 +25,13 @@ type Validator struct {
 	Chains                  []string         `json:"chains" yaml:"chains"`                           // validator non native blockchains
 	ServiceURL              string           `json:"service_url" yaml:"service_url"`                 // url where the viper service api is hosted
 	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`                           // tokens staked in the network
+	GeoZone                 int64            `json:"geo_zone" yaml:"geo_zone"`                       //geo-zone of the node
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"`           // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address      `json:"output_address,omitempty" yaml:"output_address"` // the custodial output address of the validator
 }
 
 // NewValidator - initialize a new validator
-func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string, serviceURL string, tokensToStake sdk.BigInt, outputAddress sdk.Address) Validator {
+func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string, serviceURL string, tokensToStake sdk.BigInt, geozone int64, outputAddress sdk.Address) Validator {
 	return Validator{
 		Address:                 addr,
 		PublicKey:               consPubKey,
@@ -39,6 +40,7 @@ func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string
 		Chains:                  chains,
 		ServiceURL:              serviceURL,
 		StakedTokens:            tokensToStake,
+		GeoZone:                 geozone,
 		UnstakingCompletionTime: time.Time{},
 		OutputAddress:           outputAddress,
 	}
