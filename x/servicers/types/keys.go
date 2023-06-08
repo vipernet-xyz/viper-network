@@ -32,6 +32,7 @@ var ( // Keys for store prefixes
 	WaitingToBeginUnstakingKey      = []byte{0x43} // prefix for waiting validators
 	HistoricalInfoKey               = []byte{0x50} // prefix for the historical info
 	LastValidatorPowerKey           = []byte{0x11} // prefix for each key to a validator index, for bonded validators
+	StakedValidatorsByGeoZoneKey    = []byte{0x24}
 )
 
 func KeyForValidatorByNetworkID(addr sdk.Address, networkID []byte) []byte {
@@ -42,8 +43,17 @@ func KeyForValidatorsByNetworkID(networkID []byte) []byte {
 	return append(StakedValidatorsByNetIDKey, networkID...)
 }
 
+func KeyForValidatorsByGeozone(geozone []byte) []byte {
+	return append(StakedValidatorsByGeoZoneKey, geozone...)
+}
+
 func AddressForValidatorByNetworkIDKey(key, networkID []byte) sdk.Address {
 	i := len(StakedValidatorsByNetIDKey) + len(networkID)
+	return key[i:]
+}
+
+func AddressForValidatorByGeozoneKey(key, geozone []byte) sdk.Address {
+	i := len(StakedValidatorsByGeoZoneKey) + len(geozone)
 	return key[i:]
 }
 

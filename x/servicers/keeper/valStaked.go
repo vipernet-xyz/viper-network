@@ -143,3 +143,41 @@ func (k Keeper) IterateAndExecuteOverStakedVals(
 		}
 	}
 }
+
+// GetValidatorsByGeozone returns the validators staked by geozone identifier
+func (k Keeper) GetValidatorsByGeozone(ctx sdk.Ctx, geozone string) (validators []sdk.Address, count int) {
+	defer sdk.TimeTrack(time.Now())
+	l, exist := sdk.VbCCache.Get(sdk.GetCacheKey(int(ctx.BlockHeight()), geozone))
+
+	if !exist {
+		// Assuming the geozone is a hex-encoded string, you can decode it
+		gBz, err := hex.DecodeString(geozone)
+		if err != nil {
+			ctx.Logger().Error(fmt.Errorf("could not hex decode geozone when GetValidatorsByGeozone: with geozone: %s, at height: %d", geozone, ctx.BlockHeight()).Error())
+			return
+		}
+
+		iterator, _ := k.validatorByGeozoneIterator(ctx, gBz)
+		defer iterator.Close()
+		for ; iterator.Valid(); iterator.Next() {
+			address := types.AddressForValidatorByGeozoneKey(iterator.Key(), gBz)
+			count++
+			validators = append(validators, address)
+		}
+
+		if sdk.VbCCache.Cap() > 1 {
+			_ = sdk.VbCCache.Add(sdk.GetCacheKey(int(ctx.BlockHeight()), geozone), validators)
+		}
+
+		return validators, count
+	}
+
+	validators = l.([]sdk.Address)
+	return validators, len(validators)
+}
+
+// validatorByGeozoneIterator returns an iterator for the current staked validators by geozone
+func (k Keeper) validatorByGeozoneIterator(ctx sdk.Ctx, geozoneBz []byte) (sdk.Iterator, error) {
+	store := ctx.KVStore(k.storeKey)
+	return sdk.KVStorePrefixIterator(store, types.KeyForValidatorsByGeozone(geozoneBz))
+}
