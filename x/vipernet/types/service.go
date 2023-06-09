@@ -290,18 +290,28 @@ type DispatchSession struct {
 
 // "executeHTTPRequest" takes in the raw JSON string and forwards it to the RPC endpoint
 func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, method string, headers map[string]string) (string, error) {
+	// Check if the payload is compressed
+	isCompressed := strings.Contains(headers["Content-Encoding"], "gzip")
+
+	// Decompress the payload if it is compressed
+	if isCompressed {
+		decodedPayload, err := decompressPayload(payload)
+		if err != nil {
+			return "", err
+		}
+		payload = decodedPayload
+	}
+
 	// Generate an HTTP request
 	req, err := http.NewRequest(method, url, bytes.NewBuffer([]byte(payload)))
 	if err != nil {
 		return "", err
 	}
 
-	// Set basic authentication if provided
 	if basicAuth.Username != "" {
 		req.SetBasicAuth(basicAuth.Username, basicAuth.Password)
 	}
 
-	// Set the User-Agent header
 	if userAgent != "" {
 		req.Header.Set("User-Agent", userAgent)
 	}
@@ -315,62 +325,75 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, met
 		}
 	}
 
-	// Compress the request if it exceeds 1KB
-	if len(payload) > 1024 {
-		compressedPayload, err := compressPayload(payload)
-		if err != nil {
-			return "", err
-		}
-		req.Header.Set("Content-Encoding", "gzip")
-		req.Body = ioutil.NopCloser(bytes.NewReader(compressedPayload))
-		req.ContentLength = int64(len(compressedPayload))
-	}
+	// Set the "Accept-Encoding" header to indicate compressed response is expected
+	req.Header.Set("Accept-Encoding", "gzip")
 
+	// Execute the request
 	resp, err := (&http.Client{Timeout: globalRPCTimeout * time.Millisecond}).Do(req)
 	if err != nil {
 		return "", err
 	}
 
+	defer resp.Body.Close()
+
+	// Check if the response is compressed
+	isResponseCompressed := strings.Contains(resp.Header.Get("Content-Encoding"), "gzip")
+
 	// Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
 	if err != nil {
 		return "", err
 	}
 
-	// Decompress the response if it is compressed
-	if resp.Header.Get("Content-Encoding") == "gzip" {
-		body, err = decompressResponse(body)
+	// Compress the response body if the payload was not already compressed
+	if isCompressed && !isResponseCompressed {
+		body, err = compressResponse(string(body))
 		if err != nil {
 			return "", err
 		}
+	}
+
+	if GlobalViperConfig.JSONSortRelayResponses {
+		body = []byte(sortJSONResponse(string(body)))
 	}
 
 	// Return the response
 	return string(body), nil
 }
 
-// Compresses the payload using gzip
-func compressPayload(payload string) ([]byte, error) {
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-	if _, err := gz.Write([]byte(payload)); err != nil {
-		return nil, err
+// Decompresses a gzip-encoded payload
+func decompressPayload(payload string) (string, error) {
+	reader, err := gzip.NewReader(strings.NewReader(payload))
+	if err != nil {
+		return "", err
 	}
-	if err := gz.Close(); err != nil {
-		return nil, err
+
+	defer reader.Close()
+
+	decoded, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", err
 	}
-	return buf.Bytes(), nil
+
+	return string(decoded), nil
 }
 
-// Decompresses the gzip-compressed response
-func decompressResponse(compressedResponse []byte) ([]byte, error) {
-	r, err := gzip.NewReader(bytes.NewReader(compressedResponse))
+// Compresses a response using gzip
+func compressResponse(response string) ([]byte, error) {
+	var buf bytes.Buffer
+	writer := gzip.NewWriter(&buf)
+
+	_, err := writer.Write([]byte(response))
 	if err != nil {
 		return nil, err
 	}
-	defer r.Close()
-	return ioutil.ReadAll(r)
+
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
 }
 
 // "sortJSONResponse" - sorts json from a relay response
