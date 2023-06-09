@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/tendermint/tendermint/config"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/tendermint/tendermint/libs/log"
@@ -40,8 +41,10 @@ func InitConfig(chains *HostedBlockchains, logger log.Logger, c types.Config) {
 }
 
 func ConvertEvidenceToProto(config types.Config) error {
+	node := AddViperNode(crypto.GenerateEd25519PrivKey().GenPrivateKey(), log.NewNopLogger())
 	InitConfig(nil, log.NewNopLogger(), config)
-	gec := globalEvidenceCache
+
+	gec := node.EvidenceStore
 	it, err := gec.Iterator()
 	if err != nil {
 		return fmt.Errorf("error creating evidence iterator: %s", err.Error())
@@ -65,18 +68,22 @@ func ConvertEvidenceToProto(config types.Config) error {
 	return nil
 }
 
-// NOTE: evidence cache is flushed every time db iterator is created (every claim/proof submission)
 func FlushSessionCache() {
-	err := globalSessionCache.FlushToDB()
-	if err != nil {
-		fmt.Printf("unable to flush sessions to the database before shutdown!! %s\n", err.Error())
-	}
-	err = globalEvidenceCache.FlushToDB()
-	if err != nil {
-		fmt.Printf("unable to flush GOBEvidence to the database before shutdown!! %s\n", err.Error())
+	for _, k := range GlobalViperNodes {
+		if k.SessionStore != nil {
+			err := k.SessionStore.FlushToDB()
+			if err != nil {
+				fmt.Printf("unable to flush sessions to the database before shutdown!! %s\n", err.Error())
+			}
+		}
+		if k.EvidenceStore != nil {
+			err := k.EvidenceStore.FlushToDB()
+			if err != nil {
+				fmt.Printf("unable to flush GOBEvidence to the database before shutdown!! %s\n", err.Error())
+			}
+		}
 	}
 }
-
 func GetRPCTimeout() time.Duration {
 	return globalRPCTimeout
 }
