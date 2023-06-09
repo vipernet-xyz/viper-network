@@ -291,7 +291,7 @@ type DispatchSession struct {
 // "executeHTTPRequest" takes in the raw JSON string and forwards it to the RPC endpoint
 func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, method string, headers map[string]string) (string, error) {
 	// Check if the payload is compressed
-	isCompressed := strings.Contains(headers["Content-Encoding"], "gzip")
+	isCompressed := isPayloadCompressed(payload)
 
 	// Decompress the payload if it is compressed
 	if isCompressed {
@@ -359,6 +359,12 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, met
 
 	// Return the response
 	return string(body), nil
+}
+
+// Check if the payload is compressed
+func isPayloadCompressed(payload string) bool {
+	// Check if the payload starts with the gzip magic number
+	return strings.HasPrefix(payload, "\x1f\x8b")
 }
 
 // Decompresses a gzip-encoded payload
