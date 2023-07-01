@@ -445,13 +445,13 @@ func TestChallengeProofInvalidData_ValidateLocal(t *testing.T) {
 	minResp.Signature = hex.EncodeToString(sig)
 	invalidProofAllMajority.MinorityResponse = minResp
 	ethereum := hex.EncodeToString([]byte{01})
-	sessionNodes := SessionNodes{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(appPubKey.Address())}
+	sessionNodes := SessionServicers{sdk.Address(ser1PubKey.Address()), sdk.Address(ser2PubKey.Address()), sdk.Address(ser3PubKey.Address()), sdk.Address(reporterPubKey.Address()), sdk.Address(appPubKey.Address())}
 	tests := []struct {
 		name                 string
 		proof                ChallengeProofInvalidData
 		maxRelays            sdk.BigInt
 		supportedBlockchains []string
-		sessionNodes         SessionNodes
+		sessionNodes         SessionServicers
 		reporterAddress      sdk.Address
 		hasError             bool
 	}{

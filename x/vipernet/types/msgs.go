@@ -158,7 +158,7 @@ func (msg MsgProof) ToProto() MsgProtoProof {
 	}
 }
 
-// "GetFee" - Returns the fee (sdk.BigInt) of the messgae type
+// "GetFee" - Returns the fee (sdk.BigInt) of the message type
 func (msg MsgProof) GetFee() sdk.BigInt {
 	return sdk.NewInt(ViperFeeMap[msg.Type()])
 }

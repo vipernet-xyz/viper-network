@@ -213,5 +213,5 @@ func (k Keeper) SetParams(ctx sdk.Ctx, params types.Params) {
 
 // UnbondingTime - The time duration for unbonding
 func (k Keeper) UnbondingTime(ctx sdk.Ctx) time.Duration {
-	return k.GetParams(ctx).UnbondingTime
+	return k.GetParams(ctx).UnstakingTime
 }

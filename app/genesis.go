@@ -12,6 +12,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
+	"github.com/vipernet-xyz/viper-network/x/capability"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	providers "github.com/vipernet-xyz/viper-network/x/providers"
@@ -49,6 +50,7 @@ func newDefaultGenesisState() []byte {
 	defaultGenesis := module.NewBasicManager(
 		providers.AppModuleBasic{},
 		authentication.AppModuleBasic{},
+		capability.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
 		transfer.AppModuleBasic{},

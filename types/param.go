@@ -17,10 +17,8 @@ const (
 var (
 	ParamsKey  = NewKVStoreKey(paramsKey)
 	ParamsTKey = NewTransientStoreKey(paramsTKey)
-	// AdditionalParametersKeys Tracks the keys for parameter added on the live network for RC-0.9.0 and future releases
-	AdditionalParametersKeys = []string{"BlockByteSize",
-		"MinServicerStakeBinWidth", "ServicerStakeWeight",
-		"MaxServicerStakeBin", "ServicerStakeBinExponent"}
+	// AdditionalParametersKeys Tracks the keys for parameter added on the live network
+	AdditionalParametersKeys = []string{"BlockByteSize"}
 )
 
 // Individual parameter store for each keeper

@@ -236,7 +236,7 @@ func (rp RelayProof) GetSigner() sdk.Address {
 var _ Proof = ChallengeProofInvalidData{} // compile time interface implementation
 
 // "ValidateLocal" - Validate local is used to validate a challenge request directly from a client
-func (c ChallengeProofInvalidData) ValidateLocal(h SessionHeader, maxRelays sdk.BigInt, supportedBlockchains []string, sessionNodeCount int, sessionNodes SessionNodes, selfAddr sdk.Address, evidenceStore *CacheStorage) sdk.Error {
+func (c ChallengeProofInvalidData) ValidateLocal(h SessionHeader, maxRelays sdk.BigInt, supportedBlockchains []string, sessionNodeCount int, sessionNodes SessionServicers, selfAddr sdk.Address, evidenceStore *CacheStorage) sdk.Error {
 	// check if verifyPubKey in session (must be in session to do challenges)
 	if !sessionNodes.Contains(selfAddr) {
 		return NewNodeNotInSessionError(ModuleName)
