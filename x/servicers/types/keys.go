@@ -43,8 +43,12 @@ func KeyForValidatorsByNetworkID(networkID []byte) []byte {
 	return append(StakedValidatorsByNetIDKey, networkID...)
 }
 
-func KeyForValidatorsByGeozone(geozone []byte) []byte {
-	return append(StakedValidatorsByGeoZoneKey, geozone...)
+func KeyForValidatorByGeoZone(addr sdk.Address, geoZone []byte) []byte {
+	return append(append(StakedValidatorsByGeoZoneKey, geoZone...), addr.Bytes()...)
+}
+
+func KeyForValidatorsByGeoZone(geoZone []byte) []byte {
+	return append(StakedValidatorsByGeoZoneKey, geoZone...)
 }
 
 func AddressForValidatorByNetworkIDKey(key, networkID []byte) sdk.Address {

@@ -24,7 +24,7 @@ func TestNewValidator(t *testing.T) {
 		tokensToStake sdk.BigInt
 		chains        []string
 		serviceURL    string
-		geozone       int64
+		geozone       string
 	}
 	var pub crypto.Ed25519PublicKey
 	_, err := rand.Read(pub[:])
@@ -37,7 +37,7 @@ func TestNewValidator(t *testing.T) {
 		args args
 		want Validator
 	}{
-		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443", 01},
+		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443", "0001"},
 			Validator{
 				Address:                 sdk.Address(pub.Address()),
 				PublicKey:               pub,

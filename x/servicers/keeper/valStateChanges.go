@@ -258,6 +258,7 @@ func (k Keeper) StakeValidator(ctx sdk.Ctx, validator types.Validator, amount sd
 	// save in the validator store
 	k.SetValidator(ctx, validator)
 	k.SetStakedValidatorByChains(ctx, validator)
+	k.SetStakedValidatorByGeoZones(ctx, validator)
 	// ensure there's a signing info entry for the validator (used in slashing)
 	_, found := k.GetValidatorSigningInfo(ctx, validator.GetAddress())
 	if !found {
@@ -305,7 +306,8 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 	k.SetValidator(ctx, currentValidator)
 	// save the validator by chains
 	k.SetStakedValidatorByChains(ctx, currentValidator)
-	// patch for june 30 fork
+	//save the validato by geozones
+	k.SetStakedValidatorByGeoZones(ctx, currentValidator)
 	if ctx.BlockHeight() >= 30040 {
 		// reset signing info
 		k.ResetValidatorSigningInfo(ctx, currentValidator.Address)

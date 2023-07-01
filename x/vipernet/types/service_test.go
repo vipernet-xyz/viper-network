@@ -76,6 +76,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		Chains:                  []string{ethereum, bitcoin},
 		ServiceURL:              "https://www.google.com:443",
 		StakedTokens:            sdk.NewInt(100000),
+		GeoZone:                 "0001",
 		UnstakingCompletionTime: time.Time{},
 	}
 	var noEthereumNodes []exported.ValidatorI
@@ -89,6 +90,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 			Chains:                  []string{bitcoin},
 			ServiceURL:              "https://www.google.com:443",
 			StakedTokens:            sdk.NewInt(100000),
+			GeoZone:                 "0001",
 			UnstakingCompletionTime: time.Time{},
 		})
 	}
@@ -108,6 +110,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		Chains:                  []string{ethereum},
 		StakedTokens:            sdk.NewInt(1000),
 		MaxRelays:               sdk.NewInt(1000),
+		GeoZones:                []string{"0001"},
 		UnstakingCompletionTime: time.Time{},
 	}
 	tests := []struct {
@@ -295,6 +298,7 @@ type MockValidatorI interface {
 	GetTokens() sdk.BigInt          // validation tokens
 	GetConsensusPower() int64       // validation power in tendermint
 	GetChains() []string
+	GetGeoZone() string
 }
 
 type MockProvidersKeeper struct {
@@ -346,6 +350,20 @@ func (m MockPosKeeper) GetValidatorsByChain(ctx sdk.Ctx, networkID string) (vali
 		chains := s.GetChains()
 		for _, c := range chains {
 			if c == networkID {
+				total++
+				validators = append(validators, v.GetAddress())
+			}
+		}
+	}
+	return
+}
+
+func (m MockPosKeeper) GetValidatorsByGeoZone(ctx sdk.Ctx, geoZone string) (validators []sdk.Address, total int) {
+	for _, v := range m.Validators {
+		s := v.(MockValidatorI)
+		geoZone := s.GetGeoZone()
+		for _, c := range geoZone {
+			if c == rune(geoZone[0]) {
 				total++
 				validators = append(validators, v.GetAddress())
 			}

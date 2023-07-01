@@ -17,4 +17,5 @@ type ValidatorI interface {
 	GetTokens() sdk.BigInt          // validation tokens
 	GetConsensusPower() int64       // validation power in tendermint
 	GetChains() []string            // get chains staked for validator
+	GetGeoZone() string             //get geozone staked for validator
 }

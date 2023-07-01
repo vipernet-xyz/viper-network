@@ -49,7 +49,8 @@ type ProtoProvider struct {
 	Chains                  []string                                              `protobuf:"bytes,5,rep,name=chains,proto3" json:"chains" yaml:"chains"`
 	StakedTokens            github_com_viper_network_viper_core_types.BigInt      `protobuf:"bytes,6,opt,name=staked_tokens,json=stakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens" yaml:"tokens"`
 	MaxRelays               github_com_viper_network_viper_core_types.BigInt      `protobuf:"bytes,7,opt,name=max_relays,json=maxRelays,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"max_relays" yaml:"max_relays"`
-	UnstakingCompletionTime time.Time                                             `protobuf:"bytes,8,opt,name=unstaking_completion_time,json=unstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
+	GeoZones                []string                                              `protobuf:"bytes,8,rep,name=geo_zones,proto3" json:"geo_zones" yaml:"geo_zones"`
+	UnstakingCompletionTime time.Time                                             `protobuf:"bytes,9,opt,name=unstaking_completion_time,json=unstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
 }
 
 func (m *ProtoProvider) Reset()         { *m = ProtoProvider{} }
@@ -693,6 +694,14 @@ func (this *ProtoProvider) Equal(that interface{}) bool {
 			return false
 		}
 	}
+	if len(this.GeoZones) != len(that1.GeoZones) {
+		return false
+	}
+	for i := range this.GeoZones {
+		if this.GeoZones[i] != that1.GeoZones[i] {
+			return false
+		}
+	}
 	if !this.StakedTokens.Equal(that1.StakedTokens) {
 		return false
 	}
@@ -781,6 +790,17 @@ func (m *ProtoProvider) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i -= len(m.Chains[iNdEx])
 			copy(dAtA[i:], m.Chains[iNdEx])
 			i = encodeVarintProviders(dAtA, i, uint64(len(m.Chains[iNdEx])))
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	i--
+	dAtA[i] = 0x32
+	if len(m.GeoZones) > 0 {
+		for iNdEx := len(m.GeoZones) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.GeoZones[iNdEx])
+			copy(dAtA[i:], m.GeoZones[iNdEx])
+			i = encodeVarintProviders(dAtA, i, uint64(len(m.GeoZones[iNdEx])))
 			i--
 			dAtA[i] = 0x2a
 		}
@@ -941,6 +961,12 @@ func (m *ProtoProvider) Size() (n int) {
 	}
 	if len(m.Chains) > 0 {
 		for _, s := range m.Chains {
+			l = len(s)
+			n += 1 + l + sovProviders(uint64(l))
+		}
+	}
+	if len(m.GeoZones) > 0 {
+		for _, s := range m.GeoZones {
 			l = len(s)
 			n += 1 + l + sovProviders(uint64(l))
 		}
@@ -1230,6 +1256,38 @@ func (m *ProtoProvider) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZones", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProviders
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProviders
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProviders
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZones = append(m.GeoZones, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UnstakingCompletionTime", wireType)
 			}

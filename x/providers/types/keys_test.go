@@ -114,7 +114,7 @@ func TestKeyForProviderInStakingSet(t *testing.T) {
 		args args
 		want []byte
 	}{
-		{"NewProvider", args{provider: NewProvider(types.Address(pub.Address()), pub, []string{"0001"}, types.ZeroInt())}, append([]byte{0x02, 0, 0, 0, 0, 0, 0, 0, 0}, operAddrInvr...)},
+		{"NewProvider", args{provider: NewProvider(types.Address(pub.Address()), pub, []string{"0001"}, types.ZeroInt(), []string{"0001"})}, append([]byte{0x02, 0, 0, 0, 0, 0, 0, 0, 0}, operAddrInvr...)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

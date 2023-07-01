@@ -67,11 +67,6 @@ If no changes are desired for the parameter, just enter the current param value 
 			fmt.Println(err)
 			return
 		}
-		geozone, err := strconv.Atoi(args[5])
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
 		params := rpc.HeightAndKeyParams{
 			Height: 0,
 			Key:    "ServicerCountLock",
@@ -83,7 +78,7 @@ If no changes are desired for the parameter, just enter the current param value 
 			return
 		}
 		fmt.Println("Enter Passphrase: ")
-		res1, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], int64(geozone), types.NewInt(int64(amount)), int64(fee))
+		res1, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], args[5], types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -140,11 +135,6 @@ The signer may be the operator or the output address.`,
 			fmt.Println(err)
 			return
 		}
-		geozone, err := strconv.Atoi(args[6])
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
 		params := rpc.HeightAndKeyParams{
 			Height: 0,
 			Key:    "ServicerCountLock",
@@ -156,7 +146,7 @@ The signer may be the operator or the output address.`,
 			return
 		}
 		fmt.Println("Enter Passphrase: ")
-		res1, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], int64(geozone), types.NewInt(int64(amount)), int64(fee))
+		res1, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], args[6], types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return

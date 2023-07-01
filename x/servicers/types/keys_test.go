@@ -225,7 +225,7 @@ func TestKeyForValidatorInStakingSet(t *testing.T) {
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	geozone := int64(01)
+	geozone := "0001"
 	operAddrInvr := types.CopyBytes(pub.Address())
 	for i, b := range operAddrInvr {
 		operAddrInvr[i] = ^b
@@ -282,7 +282,7 @@ func Test_getStakedValPowerRankKey(t *testing.T) {
 	for i, b := range operAddrInvr {
 		operAddrInvr[i] = ^b
 	}
-	geozone := int64(01)
+	geozone := "0001"
 	tests := []struct {
 		name string
 		args args

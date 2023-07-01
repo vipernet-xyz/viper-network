@@ -23,17 +23,19 @@ type Provider struct {
 	Chains                  []string         `json:"chains" yaml:"chains"`                 // requested chains
 	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`                 // tokens staked in the network
 	MaxRelays               sdk.BigInt       `json:"max_relays" yaml:"max_relays"`         // maximum number of relays allowed
+	GeoZones                []string         `json:"geo_zone" yaml:"geo_zone"`             //geo location
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the provider to complete unstaking
 }
 
 // NewProvider - initialize a new instance of an provider
-func NewProvider(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt) Provider {
+func NewProvider(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt, geoZones []string) Provider {
 	return Provider{
 		Address:                 addr,
 		PublicKey:               publicKey,
 		Jailed:                  false,
 		Status:                  sdk.Staked,
 		Chains:                  chains,
+		GeoZones:                geoZones,
 		StakedTokens:            tokensToStake,
 		UnstakingCompletionTime: time.Time{}, // zero out because status: staked
 	}
@@ -94,6 +96,7 @@ func (a Provider) GetPublicKey() crypto.PublicKey { return a.PublicKey }
 func (a Provider) GetTokens() sdk.BigInt          { return a.StakedTokens }
 func (a Provider) GetConsensusPower() int64       { return a.ConsensusPower() }
 func (a Provider) GetMaxRelays() sdk.BigInt       { return a.MaxRelays }
+func (a Provider) GetGeoZones() []string          { return a.GeoZones }
 
 var _ codec.ProtoMarshaler = &Provider{}
 
@@ -145,6 +148,7 @@ func (a Provider) ToProto() ProtoProvider {
 		Chains:                  a.Chains,
 		StakedTokens:            a.StakedTokens,
 		MaxRelays:               a.MaxRelays,
+		GeoZones:                a.GeoZones,
 		UnstakingCompletionTime: a.UnstakingCompletionTime,
 	}
 }
@@ -162,6 +166,7 @@ func (ae ProtoProvider) FromProto() (Provider, error) {
 		Chains:                  ae.Chains,
 		StakedTokens:            ae.StakedTokens,
 		MaxRelays:               ae.MaxRelays,
+		GeoZones:                ae.GeoZones,
 		UnstakingCompletionTime: ae.UnstakingCompletionTime,
 	}, nil
 }
@@ -178,20 +183,21 @@ func (a Providers) String() (out string) {
 
 // String returns a human readable string representation of a provider.
 func (a Provider) String() string {
-	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nChains:\t\t\t%v\nMaxRelays:\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\nUnstaking Time:\t%v\n----\n",
-		a.Address, a.PublicKey.RawString(), a.Jailed, a.Chains, a.MaxRelays, a.Status, a.StakedTokens, a.UnstakingCompletionTime,
+	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nChains:\t\t\t%v\nMaxRelays:\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\nGeoZones:\t\t\t%sUnstaking Time:\t%v\n----\n",
+		a.Address, a.PublicKey.RawString(), a.Jailed, a.Chains, a.MaxRelays, a.Status, a.StakedTokens, a.GeoZones, a.UnstakingCompletionTime,
 	)
 }
 
 // this is a helper struct used for JSON de- and encoding only
 type JSONProvider struct {
-	Address                 sdk.Address     `json:"address" yaml:"address"`               // the hex address of the provider
-	PublicKey               string          `json:"public_key" yaml:"public_key"`         // the hex consensus public key of the provider
-	Jailed                  bool            `json:"jailed" yaml:"jailed"`                 // has the provider been jailed from staked status?
-	Chains                  []string        `json:"chains" yaml:"chains"`                 // non native (external) blockchains needed for the provider
-	MaxRelays               sdk.BigInt      `json:"max_relays" yaml:"max_relays"`         // maximum number of relays allowed for the provider
-	Status                  sdk.StakeStatus `json:"status" yaml:"status"`                 // provider status (staked/unstaking/unstaked)
-	StakedTokens            sdk.BigInt      `json:"staked_tokens" yaml:"staked_tokens"`   // how many staked tokens
+	Address                 sdk.Address     `json:"address" yaml:"address"`             // the hex address of the provider
+	PublicKey               string          `json:"public_key" yaml:"public_key"`       // the hex consensus public key of the provider
+	Jailed                  bool            `json:"jailed" yaml:"jailed"`               // has the provider been jailed from staked status?
+	Chains                  []string        `json:"chains" yaml:"chains"`               // non native (external) blockchains needed for the provider
+	MaxRelays               sdk.BigInt      `json:"max_relays" yaml:"max_relays"`       // maximum number of relays allowed for the provider
+	Status                  sdk.StakeStatus `json:"status" yaml:"status"`               // provider status (staked/unstaking/unstaked)
+	StakedTokens            sdk.BigInt      `json:"staked_tokens" yaml:"staked_tokens"` // how many staked tokens
+	GeoZones                []string        `json:"geo_zones" yaml:"geo_zones"`
 	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the provider to complete unstaking
 }
 
@@ -210,6 +216,7 @@ func (a Provider) MarshalJSON() ([]byte, error) {
 		Chains:                  a.Chains,
 		MaxRelays:               a.MaxRelays,
 		StakedTokens:            a.StakedTokens,
+		GeoZones:                a.GeoZones,
 		UnstakingCompletionTime: a.UnstakingCompletionTime,
 	})
 }
@@ -232,6 +239,7 @@ func (a *Provider) UnmarshalJSON(data []byte) error {
 		Jailed:                  bv.Jailed,
 		StakedTokens:            bv.StakedTokens,
 		Status:                  bv.Status,
+		GeoZones:                bv.GeoZones,
 		UnstakingCompletionTime: bv.UnstakingCompletionTime,
 	}
 	return nil

@@ -36,14 +36,14 @@ func init() {
 }
 
 var clientStakeCmd = &cobra.Command{
-	Use:   "stake <fromAddr> <amount> <relayChainIDs> <networkID> <fee>",
+	Use:   "stake <fromAddr> <amount> <relayChainIDs> <networkID> <geoZones> <fee>",
 	Short: "Stake a client into the network",
 	Long: `Stake the client into the network, giving it network throughput for the selected chains.
 Will prompt the user for the <fromAddr> account passphrase. If the client is already staked, this transaction acts as an *update* transaction.
 A client can updated relayChainIDs, and raise the stake/max_relays amount with this transaction.
 If the client is currently staked at X and you submit an update with new stake Y. Only Y-X will be subtracted from an account
 If no changes are desired for the parameter, just enter the current param value just as before`,
-	Args: cobra.ExactArgs(5),
+	Args: cobra.ExactArgs(6),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		fromAddr := args[0]
@@ -56,15 +56,17 @@ If no changes are desired for the parameter, just enter the current param value 
 		if err != nil {
 			log.Fatal(err)
 		}
-		fee, err := strconv.Atoi(args[4])
+		fee, err := strconv.Atoi(args[5])
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		rawChains := reg.ReplaceAllString(args[2], "")
 		chains := strings.Split(rawChains, ",")
+		rawGeoZones := reg.ReplaceAllString(args[4], "")
+		geoZones := strings.Split(rawGeoZones, ",")
 		fmt.Println("Enter passphrase: ")
-		res, err := StakeClient(chains, fromAddr, app.Credentials(pwd), args[3], types.NewInt(int64(amount)), int64(fee), false)
+		res, err := StakeClient(chains, fromAddr, app.Credentials(pwd), args[3], types.NewInt(int64(amount)), geoZones, int64(fee), false)
 		if err != nil {
 			fmt.Println(err)
 			return

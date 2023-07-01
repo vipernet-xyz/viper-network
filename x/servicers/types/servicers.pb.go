@@ -39,6 +39,7 @@ type ProtoValidator struct {
 	Chains                  []string                                          `protobuf:"bytes,5,rep,name=Chains,proto3" json:"chains"`
 	ServiceURL              string                                            `protobuf:"bytes,6,opt,name=ServiceURL,proto3" json:"service_url"`
 	StakedTokens            github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,7,opt,name=StakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens"`
+	GeoZone                 string                                            `protobuf:"bytes,6,opt,name=GeoZone,proto3" json:"geo_zone"`
 	UnstakingCompletionTime time.Time                                         `protobuf:"bytes,8,opt,name=UnstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
 	OutputAddress           github_com_viper_network_viper_core_types.Address `protobuf:"bytes,9,opt,name=OutputAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"output_address,omitempty" yaml:"output_address"`
 }
@@ -136,6 +137,7 @@ type LegacyProtoValidator struct {
 	Chains                  []string                                          `protobuf:"bytes,5,rep,name=Chains,proto3" json:"chains"`
 	ServiceURL              string                                            `protobuf:"bytes,6,opt,name=ServiceURL,proto3" json:"service_url"`
 	StakedTokens            github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,7,opt,name=StakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens"`
+	GeoZone                 string                                            `protobuf:"bytes,6,opt,name=GeoZone,proto3" json:"geo_zone"`
 	UnstakingCompletionTime time.Time                                         `protobuf:"bytes,8,opt,name=UnstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
 }
 
@@ -485,6 +487,9 @@ func (this *ProtoValidator) Equal(that interface{}) bool {
 	if this.ServiceURL != that1.ServiceURL {
 		return false
 	}
+	if this.GeoZone != that1.GeoZone {
+		return false
+	}
 	if !this.StakedTokens.Equal(that1.StakedTokens) {
 		return false
 	}
@@ -536,6 +541,9 @@ func (this *LegacyProtoValidator) Equal(that interface{}) bool {
 		}
 	}
 	if this.ServiceURL != that1.ServiceURL {
+		return false
+	}
+	if this.GeoZone != that1.GeoZone {
 		return false
 	}
 	if !this.StakedTokens.Equal(that1.StakedTokens) {
@@ -703,6 +711,15 @@ func (m *ProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x32
 	}
+	i--
+	dAtA[i] = 0x3a
+	if len(m.GeoZone) > 0 {
+		i -= len(m.GeoZone)
+		copy(dAtA[i:], m.GeoZone)
+		i = encodeVarintServicers(dAtA, i, uint64(len(m.GeoZone)))
+		i--
+		dAtA[i] = 0x32
+	}
 	if len(m.Chains) > 0 {
 		for iNdEx := len(m.Chains) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.Chains[iNdEx])
@@ -801,6 +818,15 @@ func (m *LegacyProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.ServiceURL)
 		copy(dAtA[i:], m.ServiceURL)
 		i = encodeVarintServicers(dAtA, i, uint64(len(m.ServiceURL)))
+		i--
+		dAtA[i] = 0x32
+	}
+	i--
+	dAtA[i] = 0x3a
+	if len(m.GeoZone) > 0 {
+		i -= len(m.GeoZone)
+		copy(dAtA[i:], m.GeoZone)
+		i = encodeVarintServicers(dAtA, i, uint64(len(m.GeoZone)))
 		i--
 		dAtA[i] = 0x32
 	}
@@ -944,6 +970,10 @@ func (m *ProtoValidator) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovServicers(uint64(l))
 	}
+	l = len(m.GeoZone)
+	if l > 0 {
+		n += 1 + l + sovServicers(uint64(l))
+	}
 	l = m.StakedTokens.Size()
 	n += 1 + l + sovServicers(uint64(l))
 	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.UnstakingCompletionTime)
@@ -982,6 +1012,10 @@ func (m *LegacyProtoValidator) Size() (n int) {
 		}
 	}
 	l = len(m.ServiceURL)
+	if l > 0 {
+		n += 1 + l + sovServicers(uint64(l))
+	}
+	l = len(m.GeoZone)
 	if l > 0 {
 		n += 1 + l + sovServicers(uint64(l))
 	}
@@ -1261,6 +1295,38 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 8:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowServicers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthServicers
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthServicers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZone = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UnstakingCompletionTime", wireType)
 			}
 			var msglen int
@@ -1292,7 +1358,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 9:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field OutputAddress", wireType)
 			}
@@ -1702,6 +1768,38 @@ func (m *LegacyProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowServicers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthServicers
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthServicers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZone = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UnstakingCompletionTime", wireType)
 			}

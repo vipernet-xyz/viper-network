@@ -25,13 +25,13 @@ type Validator struct {
 	Chains                  []string         `json:"chains" yaml:"chains"`                           // validator non native blockchains
 	ServiceURL              string           `json:"service_url" yaml:"service_url"`                 // url where the viper service api is hosted
 	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`                           // tokens staked in the network
-	GeoZone                 int64            `json:"geo_zone" yaml:"geo_zone"`                       //geo-zone of the node
+	GeoZone                 string           `json:"geo_zone" yaml:"geo_zone"`                       //geo-zone of the node
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"`           // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address      `json:"output_address,omitempty" yaml:"output_address"` // the custodial output address of the validator
 }
 
 // NewValidator - initialize a new validator
-func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string, serviceURL string, tokensToStake sdk.BigInt, geozone int64, outputAddress sdk.Address) Validator {
+func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string, serviceURL string, tokensToStake sdk.BigInt, geozone string, outputAddress sdk.Address) Validator {
 	return Validator{
 		Address:                 addr,
 		PublicKey:               consPubKey,
@@ -130,6 +130,7 @@ func (v Validator) GetAddress() sdk.Address        { return v.Address }
 func (v Validator) GetPublicKey() crypto.PublicKey { return v.PublicKey }
 func (v Validator) GetTokens() sdk.BigInt          { return v.StakedTokens }
 func (v Validator) GetConsensusPower() int64       { return v.ConsensusPower() }
+func (v Validator) GetGeoZone() string             { return v.GeoZone }
 func (v *Validator) Reset()                        { *v = Validator{} }
 
 func (v Validator) ProtoMessage() {
@@ -174,9 +175,9 @@ func (v Validator) String() string {
 		outputPubKeyString = v.OutputAddress.String()
 	}
 	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
-		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nUnstaking Completion Time:\t\t%v\nOutput Address:\t\t%s"+
+		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nGeoZone:\t\t%s\nUnstaking Completion Time:\t\t%v\nOutput Address:\t\t%s"+
 		"\n----\n",
-		v.Address, v.PublicKey.RawString(), v.Jailed, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.UnstakingCompletionTime, outputPubKeyString,
+		v.Address, v.PublicKey.RawString(), v.Jailed, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.GeoZone, v.UnstakingCompletionTime, outputPubKeyString,
 	)
 }
 
@@ -192,6 +193,7 @@ func (v Validator) MarshalJSON() ([]byte, error) {
 		ServiceURL:              v.ServiceURL,
 		Chains:                  v.Chains,
 		StakedTokens:            v.StakedTokens,
+		GeoZone:                 v.GeoZone,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
 	})
@@ -250,20 +252,22 @@ func (v Validator) ToProto() ProtoValidator {
 		Chains:                  v.Chains,
 		ServiceURL:              v.ServiceURL,
 		StakedTokens:            v.StakedTokens,
+		GeoZone:                 v.GeoZone,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
 	}
 }
 
 type JSONValidator struct {
-	Address                 sdk.Address     `json:"address" yaml:"address"`               // address of the validator; hex encoded in JSON
-	PublicKey               string          `json:"public_key" yaml:"public_key"`         // the consensus public key of the validator; hex encoded in JSON
-	Jailed                  bool            `json:"jailed" yaml:"jailed"`                 // has the validator been jailed from staked status?
-	Status                  sdk.StakeStatus `json:"status" yaml:"status"`                 // validator status (staked/unstaking/unstaked)
-	Chains                  []string        `json:"chains" yaml:"chains"`                 // validator non native blockchains
-	ServiceURL              string          `json:"service_url" yaml:"service_url"`       // url where the viper service api is hosted
-	StakedTokens            sdk.BigInt      `json:"tokens" yaml:"tokens"`                 // tokens staked in the network
-	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the validator to complete unstaking
+	Address                 sdk.Address     `json:"address" yaml:"address"`         // address of the validator; hex encoded in JSON
+	PublicKey               string          `json:"public_key" yaml:"public_key"`   // the consensus public key of the validator; hex encoded in JSON
+	Jailed                  bool            `json:"jailed" yaml:"jailed"`           // has the validator been jailed from staked status?
+	Status                  sdk.StakeStatus `json:"status" yaml:"status"`           // validator status (staked/unstaking/unstaked)
+	Chains                  []string        `json:"chains" yaml:"chains"`           // validator non native blockchains
+	ServiceURL              string          `json:"service_url" yaml:"service_url"` // url where the viper service api is hosted
+	StakedTokens            sdk.BigInt      `json:"tokens" yaml:"tokens"`           // tokens staked in the network
+	GeoZone                 string          `json:"geo_zone" yaml:"service_url"`
+	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"geo_zone"`       // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address     `json:"output_address" yaml:"output_address"` // custodial output address of tokens
 }
 

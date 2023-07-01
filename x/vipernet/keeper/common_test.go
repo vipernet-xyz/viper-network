@@ -248,7 +248,7 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 		addr := sdk.Address(pubKey.Address())
 		privKey2 := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey2 := privKey2.PublicKey()
-		geozone := int64(01)
+		geozone := "0001"
 		addr2 := sdk.Address(pubKey2.Address())
 		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, geozone, addr2)
 		// set the vals from the data
@@ -271,7 +271,7 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 	if er != nil {
 		panic(er)
 	}
-	geozone := int64(01)
+	geozone := "0001"
 	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, geozone, kp.GetAddress())
 	// set the vals from the data
 	nk.SetValidator(ctx, val)
@@ -318,7 +318,7 @@ func createTestProviders(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak provi
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey := privKey.PublicKey()
 		addr := sdk.Address(pubKey.Address())
-		provider := providersTypes.NewProvider(addr, pubKey, []string{ethereum}, valCoins)
+		provider := providersTypes.NewProvider(addr, pubKey, []string{ethereum}, valCoins, []string{"0001"})
 		// set the vals from the data
 		// calculate relays
 		provider.MaxRelays = ak.CalculateProviderRelays(ctx, provider)

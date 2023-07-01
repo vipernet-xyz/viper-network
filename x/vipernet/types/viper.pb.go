@@ -26,8 +26,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // SessionHeader defines the header for session information
 type SessionHeader struct {
-	ProviderPubKey  string `protobuf:"bytes,1,opt,name=providerPubKey,proto3" json:"provider_public_key"`
+	ProviderPubKey     string `protobuf:"bytes,1,opt,name=providerPubKey,proto3" json:"provider_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
+	GeoZone            string `protobuf:"bytes,2,opt,name=geo_zone,proto3" json:"geo_zone"`
 	SessionBlockHeight int64  `protobuf:"varint,3,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }
 

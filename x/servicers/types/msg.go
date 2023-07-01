@@ -151,7 +151,7 @@ type MsgStake struct {
 	Chains     []string         `json:"chains" yaml:"chains"`
 	Value      sdk.BigInt       `json:"value" yaml:"value"`
 	ServiceUrl string           `json:"service_url" yaml:"service_url"`
-	GeoZone    int64            `json:"geo_zone" yaml:"geo_zone"`
+	GeoZone    string           `json:"geo_zone" yaml:"geo_zone"`
 	Output     sdk.Address      `json:"output_address,omitempty" yaml:"output_address"`
 }
 

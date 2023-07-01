@@ -21,6 +21,7 @@ type PosKeeper interface {
 	BlocksPerSession(ctx sdk.Ctx) (res int64)
 	StakeDenom(ctx sdk.Ctx) (res string)
 	GetValidatorsByChain(ctx sdk.Ctx, networkID string) (validators []sdk.Address, total int)
+	GetValidatorsByGeoZone(ctx sdk.Ctx, geoZone string) (validators []sdk.Address, count int)
 }
 
 type ProvidersKeeper interface {

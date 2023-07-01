@@ -24,7 +24,7 @@ func TestKeeper_HandleRelay(t *testing.T) {
 	apk := providerPrivateKey.PublicKey()
 	providerPubKey := apk.RawString()
 	// add provider to world state
-	provider := providersTypes.NewProvider(sdk.Address(apk.Address()), apk, []string{ethereum}, sdk.NewInt(10000000))
+	provider := providersTypes.NewProvider(sdk.Address(apk.Address()), apk, []string{ethereum}, sdk.NewInt(10000000), []string{"0001"})
 	// calculate relays
 	provider.MaxRelays = ak.CalculateProviderRelays(ctx, provider)
 	// set the vals from the data

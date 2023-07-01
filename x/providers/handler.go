@@ -38,7 +38,7 @@ func handleStake(ctx sdk.Ctx, msg types.MsgStake, k keeper.Keeper) sdk.Result {
 	addr := pk.Address()
 	ctx.Logger().Info("Begin Staking Provider Message received from " + sdk.Address(pk.Address()).String())
 	// create provider object using the message fields
-	provider := types.NewProvider(sdk.Address(addr), pk, msg.Chains, sdk.ZeroInt())
+	provider := types.NewProvider(sdk.Address(addr), pk, msg.Chains, sdk.ZeroInt(), msg.GeoZone)
 	ctx.Logger().Info("Validate Provider Can Stake " + sdk.Address(addr).String())
 	// check if they can stake
 	if err := k.ValidateProviderStaking(ctx, provider, msg.Value); err != nil {

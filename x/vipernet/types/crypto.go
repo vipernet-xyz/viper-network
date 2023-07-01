@@ -17,6 +17,7 @@ var (
 	Hasher                  = sha.SHA3_256
 	HashLength              = sha.SHA3_256.Size()
 	NetworkIdentifierLength = 4
+	GeoZoneIdentifierLength = 4
 	AddrLength              = tmhash.TruncatedSize
 	globalPVKeyFile         = privval.FilePVKey{}
 )
@@ -35,6 +36,25 @@ func NetworkIdentifierVerification(hash string) sdk.Error {
 	}
 	// ensure Length
 	if hashLen > NetworkIdentifierLength {
+		return NewInvalidHashLengthError(ModuleName)
+	}
+	return nil
+}
+
+// "GeoZoneIdentifierVerification"- Verify the geoZoneID format (hex string)
+func GeoZoneIdentifierVerification(hash string) sdk.Error {
+	// decode string into bz
+	h, err := hex.DecodeString(hash)
+	if err != nil {
+		return NewHexDecodeError(ModuleName, err)
+	}
+	hashLen := len(h)
+	// ensure Length isn't 0
+	if hashLen == 0 {
+		return NewEmptyHashError(ModuleName)
+	}
+	// ensure Length
+	if hashLen > GeoZoneIdentifierLength {
 		return NewInvalidHashLengthError(ModuleName)
 	}
 	return nil

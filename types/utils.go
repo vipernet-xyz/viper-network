@@ -19,6 +19,7 @@ var (
 	// This is set at compile time. Could be cleveldb, defaults is goleveldb.
 	DBBackend         = ""
 	VbCCache          *Cache
+	VbGZCache         *Cache
 	ShowTimeTrackData = false
 )
 

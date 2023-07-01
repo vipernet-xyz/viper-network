@@ -59,7 +59,7 @@ func SendTransaction(fromAddr, toAddr, passphrase, chainID string, amount sdk.Bi
 }
 
 // LegacyStakeNode - Deliver Stake message to servicer
-func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, geozone int64, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
+func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, geoZone string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -92,13 +92,17 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 	if err != nil {
 		return nil, err
 	}
+	err = viperTypes.GeoZoneIdentifierVerification(geoZone)
+	if err != nil {
+		return nil, err
+	}
 	var msg sdk.ProtoMsg
 	msg = &servicerTypes.MsgStake{
 		PublicKey:  kp.PublicKey,
 		Chains:     chains,
 		Value:      amount,
 		ServiceUrl: serviceURL,
-		GeoZone:    geozone,
+		GeoZone:    geoZone,
 		Output:     fa,
 	}
 	err = msg.ValidateBasic()
@@ -116,7 +120,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 }
 
 // StakeNode - Deliver Stake message to servicer
-func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, geozone int64, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
+func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, geoZone string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	var operatorPublicKey crypto.PublicKey
 	var operatorAddress sdk.Address
 	var fromAddress sdk.Address
@@ -170,13 +174,17 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 	if err != nil {
 		return nil, err
 	}
+	err = viperTypes.GeoZoneIdentifierVerification(geoZone)
+	if err != nil {
+		return nil, err
+	}
 	var msg sdk.ProtoMsg
 	msg = &servicerTypes.MsgStake{
 		PublicKey:  operatorPublicKey,
 		Chains:     chains,
 		Value:      amount,
 		ServiceUrl: serviceURL,
-		GeoZone:    geozone,
+		GeoZone:    geoZone,
 		Output:     outputAddress,
 	}
 	err = msg.ValidateBasic()
@@ -258,7 +266,7 @@ func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) 
 	}, nil
 }
 
-func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, geoZones []string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -278,13 +286,20 @@ func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount s
 			return nil, err
 		}
 	}
+	for _, geoZone := range geoZones {
+		err := viperTypes.GeoZoneIdentifierVerification(geoZone)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
 	msg := providersType.MsgStake{
-		PubKey: kp.PublicKey,
-		Chains: chains,
-		Value:  amount,
+		PubKey:  kp.PublicKey,
+		Chains:  chains,
+		Value:   amount,
+		GeoZone: geoZones,
 	}
 	err = msg.ValidateBasic()
 	if err != nil {

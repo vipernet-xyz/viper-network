@@ -32,7 +32,7 @@ func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader Session
 		return Session{}, err
 	}
 	// then generate the service servicers for that session
-	sessionServicers, err := NewSessionServicers(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionKey, sessionServicersCount)
+	sessionServicers, err := NewSessionServicers(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionHeader.GeoZone, sessionKey, sessionServicersCount)
 	if err != nil {
 		return Session{}, err
 	}
@@ -104,53 +104,72 @@ func (s Session) Key() ([]byte, error) {
 // "SessionServicers" - Service servicers in a session
 type SessionServicers []sdk.Address
 
-// "NewSessionServicers" - Generates servicers for the session
-func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, sessionKey SessionKey, sessionServicersCount int) (sessionServicers SessionServicers, err sdk.Error) {
-	// all servicersAddrs at session genesis
-	servicersAddrs, totalServicers := keeper.GetValidatorsByChain(sessionCtx, chain)
-	// validate servicersAddrs
-	if totalServicers < sessionServicersCount {
+// NewSessionServicers - Generates servicers for the session based on both chain and geo zone
+func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZone string, sessionKey SessionKey, sessionServicersCount int) (sessionServicers SessionServicers, err sdk.Error) {
+	// all servicersAddrs at session genesis based on the chain
+	servicersByChain, _ := keeper.GetValidatorsByChain(sessionCtx, chain)
+
+	// all servicersAddrs at session genesis based on the geo zone
+	servicersByGeoZone, _ := keeper.GetValidatorsByGeoZone(sessionCtx, geoZone)
+
+	// Filter validators that are present in both lists (matching chain and geo zone)
+	validatorsInBoth := make([]sdk.Address, 0)
+	for _, addrByChain := range servicersByChain {
+		for _, addrByGeoZone := range servicersByGeoZone {
+			if addrByChain.Equals(addrByGeoZone) {
+				validatorsInBoth = append(validatorsInBoth, addrByChain)
+				break // Break to avoid duplicates
+			}
+		}
+	}
+
+	// Validate that the number of servicers is sufficient
+	if len(validatorsInBoth) < sessionServicersCount {
 		return nil, NewInsufficientServicersError(ModuleName)
 	}
+
 	sessionServicers = make(SessionServicers, sessionServicersCount)
 	var servicer exported.ValidatorI
-	//unique address map to avoid re-checking a pseudorandomly selected servicer
+
+	// Unique address map to avoid re-checking a pseudorandomly selected servicer
 	m := make(map[string]struct{})
-	// only select the servicersAddrs if not jailed
+	// Only select the servicersAddrs if not jailed and contain both chain and geo zone
 	for i, numOfServicers := 0, 0; ; i++ {
-		//if this is true we already checked all servicers we got on getValidatorsBychain
-		if len(m) >= totalServicers {
+		// If this is true we already checked all servicers we got on GetValidatorsByChain
+		if len(m) >= len(validatorsInBoth) {
 			return nil, NewInsufficientServicersError(ModuleName)
 		}
-		// generate the random index
-		index := PseudorandomSelection(sdk.NewInt(int64(totalServicers)), sessionKey)
-		// merkleHash the session key to provide new entropy
+
+		// Generate the random index
+		index := PseudorandomSelection(sdk.NewInt(int64(len(validatorsInBoth))), sessionKey)
+		// MerkleHash the session key to provide new entropy
 		sessionKey = Hash(sessionKey)
-		// get the servicer from the array
-		n := servicersAddrs[index.Int64()]
-		//if we already have seen this address we continue as it's either on the list or discarded
+		// Get the servicer from the array
+		n := validatorsInBoth[index.Int64()]
+		// If we already have seen this address we continue as it's either on the list or discarded
 		if _, ok := m[n.String()]; ok {
 			continue
 		}
-		//add the servicer address to the map
+		// Add the servicer address to the map
 		m[n.String()] = struct{}{}
 
-		// cross check the servicer from the `new` or `end` world state
+		// Cross check the servicer from the `new` or `end` world state
 		servicer = keeper.Validator(ctx, n)
-		// if not found or jailed, don't add to session and continue
-		if servicer == nil || servicer.IsJailed() || !NodeHasChain(chain, servicer) || sessionServicers.Contains(servicer.GetAddress()) {
+		// If not found or jailed, don't add to session and continue
+		if servicer == nil || servicer.IsJailed() || !NodeHasChain(chain, servicer) || !NodeHasGeoZone(geoZone, servicer) || sessionServicers.Contains(servicer.GetAddress()) {
 			continue
 		}
-		// else add the servicer to the session
+		// Else add the servicer to the session
 		sessionServicers[numOfServicers] = n
-		// increment the number of servicersAddrs in the sessionServicers slice
+		// Increment the number of servicers in the sessionServicers slice
 		numOfServicers++
-		// if maxing out the session count end loop
+		// If maxing out the session count, end the loop
 		if numOfServicers == sessionServicersCount {
 			break
 		}
 	}
-	// return the servicersAddrs
+
+	// Return the servicers
 	return sessionServicers, nil
 }
 
@@ -286,6 +305,18 @@ func NodeHasChain(chain string, servicer exported.ValidatorI) bool {
 		}
 	}
 	return hasChain
+}
+
+// "NodeHashChain" - Returns whether or not the servicer has the relayChain
+func NodeHasGeoZone(geoZone string, servicer exported.ValidatorI) bool {
+	hasGeoZone := false
+	for _, c := range servicer.GetGeoZone() {
+		if string(c) == geoZone {
+			hasGeoZone = true
+			break
+		}
+	}
+	return hasGeoZone
 }
 
 // "Contains" - Verifies if the session nodes contains the node using the address
