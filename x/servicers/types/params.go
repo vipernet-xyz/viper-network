@@ -14,8 +14,8 @@ const (
 	DefaultTokenRewardFactor    int64 = 1000
 	DefaultParamspace                 = ModuleName
 	DefaultUnstakingTime              = time.Hour * 24 * 7 * 3
-	DefaultMaxValidators        int64 = 1000
-	DefaultMinStake             int64 = 15000000000
+	DefaultMaxValidators        int64 = 100
+	DefaultMinStake             int64 = 10000000000
 	DefaultMaxEvidenceAge             = 60 * 2 * time.Second
 	DefaultSignedBlocksWindow         = int64(10)
 	DefaultDowntimeJailDuration       = 60 * 10 * time.Second

@@ -23,8 +23,9 @@ const (
 	CodeNoChains              CodeType          = 116
 	CodeInvalidNetworkID      CodeType          = 117
 	CodeTooManyChains         CodeType          = 118
-	CodeMaxProviders          CodeType          = 119
-	CodeMinimumEditStake      CodeType          = 120
+	CodeInvalidGeoZone        CodeType          = 119
+	CodeMaxProviders          CodeType          = 120
+	CodeMinimumEditStake      CodeType          = 121
 )
 
 func ErrTooManyChains(Codespace sdk.CodespaceType) sdk.Error {
@@ -95,6 +96,10 @@ func ErrStakeTooLow(codespace sdk.CodespaceType) sdk.Error {
 
 func ErrInvalidNetworkIdentifier(codespace sdk.CodespaceType, err error) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidNetworkID, "the providers network identifier is not valid: "+err.Error())
+}
+
+func ErrInvalidGeoZoneIdentifier(codespace sdk.CodespaceType, err error) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidGeoZone, "the providers geo zone identifier is not valid: "+err.Error())
 }
 
 func ErrMinimumEditStake(codespace sdk.CodespaceType) sdk.Error {

@@ -129,6 +129,8 @@ func (k Keeper) EditStakeProvider(ctx sdk.Ctx, provider, updatedProvider types.P
 	}
 	// update chains
 	provider.Chains = updatedProvider.Chains
+	// update geozones
+	provider.GeoZones = updatedProvider.GeoZones
 	// delete the validator from the staking set
 	k.deleteProviderFromStakingSet(ctx, origAppForDeletion)
 	// delete in main store

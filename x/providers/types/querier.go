@@ -40,6 +40,7 @@ type QueryProvidersWithOpts struct {
 	Limit         int             `json:"per_page"`
 	StakingStatus sdk.StakeStatus `json:"staking_status"`
 	Blockchain    string          `json:"blockchain"`
+	GeoZone       string          `json:"geozone"`
 }
 
 func (opts QueryProvidersWithOpts) IsValid(provider Provider) bool {
@@ -52,6 +53,18 @@ func (opts QueryProvidersWithOpts) IsValid(provider Provider) bool {
 		var contains bool
 		for _, chain := range provider.Chains {
 			if chain == opts.Blockchain {
+				contains = true
+				break
+			}
+		}
+		if !contains {
+			return false
+		}
+	}
+	if opts.GeoZone != "" {
+		var contains bool
+		for _, chain := range provider.GeoZones {
+			if chain == opts.GeoZone {
 				contains = true
 				break
 			}

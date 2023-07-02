@@ -102,6 +102,12 @@ func validateGenesisStateProviders(providers []types.Provider, minimumStake sdk.
 				return err
 			}
 		}
+		for _, geoZone := range provider.GeoZones {
+			err := types.ValidateGeoZoneIdentifier(geoZone)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	return
 }
