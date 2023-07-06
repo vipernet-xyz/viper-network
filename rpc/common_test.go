@@ -179,7 +179,10 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 			ID:  sdk.PlaceholderHash,
 			URL: dummyChainsURL,
 		}}
-		p := app.NewViperCoreApp(app.GenState, getInMemoryKeybase(), getInMemoryTMClient(), &viperTypes.HostedBlockchains{M: m}, logger, db, false, 5000000, bam.SetPruning(store.PruneNothing))
+		m1 := map[string]viperTypes.GeoZone{sdk.PlaceholderHash: {
+			ID: sdk.PlaceholderHash,
+		}}
+		p := app.NewViperCoreApp(app.GenState, getInMemoryKeybase(), getInMemoryTMClient(), &viperTypes.HostedBlockchains{M: m}, &viperTypes.HostedGeoZones{M: m1}, logger, db, false, 5000000, bam.SetPruning(store.PruneNothing))
 		return p
 	}
 	//upgradePrivVal(c.TmConfig)
@@ -382,10 +385,9 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/SlashFractionDowntime", kp.GetAddress())
 		acl.SetOwner("authentication/FeeMultipliers", kp.GetAddress())
 		acl.SetOwner("provider/MinProviderStake", kp.GetAddress())
-		acl.SetOwner("vipercore/ClaimExpiration", kp.GetAddress())
-		acl.SetOwner("vipercore/SessionNodeCount", kp.GetAddress())
-		acl.SetOwner("vipercore/MinimumNumberOfProofs", kp.GetAddress())
-		acl.SetOwner("vipercore/ReplayAttackBurnMultiplier", kp.GetAddress())
+		acl.SetOwner("vipernet/ClaimExpiration", kp.GetAddress())
+		acl.SetOwner("vipernet/MinimumNumberOfProofs", kp.GetAddress())
+		acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", kp.GetAddress())
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
 		acl.SetOwner("provider/StabilityAdjustment", kp.GetAddress())
@@ -397,7 +399,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
 		acl.SetOwner("pos/TokenRewardFactor", kp.GetAddress())
 		acl.SetOwner("provider/BaseRelaysPerVIPR", kp.GetAddress())
-		acl.SetOwner("vipercore/ClaimSubmissionWindow", kp.GetAddress())
+		acl.SetOwner("vipernet/ClaimSubmissionWindow", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())
 		acl.SetOwner("pos/SignedBlocksWindow", kp.GetAddress())
 		acl.SetOwner("pos/BlocksPerSession", kp.GetAddress())

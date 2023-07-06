@@ -27,7 +27,7 @@ type Relay struct {
 }
 
 // "Validate" - Checks the validity of a relay request using store data
-func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper ProvidersKeeper, viperKeeper ViperKeeper, hb *HostedBlockchains, sessionBlockHeight int64, node *ViperNode) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
+func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, providersKeeper ProvidersKeeper, viperKeeper ViperKeeper, hb *HostedBlockchains, sessionBlockHeight int64, node *ViperNode) (maxPossibleRelays sdk.BigInt, err sdk.Error) {
 	// validate payload
 	if err := r.Payload.Validate(); err != nil {
 		return sdk.ZeroInt(), NewEmptyPayloadDataError(ModuleName)
@@ -54,18 +54,20 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper ProvidersK
 		return sdk.ZeroInt(), sdk.ErrInternal(er.Error())
 	}
 	// get the application that staked on behalf of the client
-	app, found := GetProviderFromPublicKey(sessionCtx, appsKeeper, r.Proof.Token.ProviderPublicKey)
+	app, found := GetProviderFromPublicKey(sessionCtx, providersKeeper, r.Proof.Token.ProviderPublicKey)
 	if !found {
 		return sdk.ZeroInt(), NewProviderNotFoundError(ModuleName)
 	}
 	// get session node count from that session height
-	sessionNodeCount := viperKeeper.SessionNodeCount(sessionCtx)
+	sessionNodeCount := int64(r.Proof.NumServicers)
 	// get max possible relays
 	maxPossibleRelays = MaxPossibleRelays(app, sessionNodeCount)
 	// generate the session header
 	header := SessionHeader{
 		ProviderPubKey:     r.Proof.Token.ProviderPublicKey,
 		Chain:              r.Proof.Blockchain,
+		GeoZone:            r.Proof.GeoZone,
+		NumServicers:       r.Proof.NumServicers,
 		SessionBlockHeight: r.Proof.SessionBlockHeight,
 	}
 	// validate unique relay
@@ -95,7 +97,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, appsKeeper ProvidersK
 			return sdk.ZeroInt(), sdk.ErrInternal(err.Error())
 		}
 		var er sdk.Error
-		session, er = NewSession(sessionCtx, ctx, posKeeper, header, hex.EncodeToString(bh), int(sessionNodeCount))
+		session, er = NewSession(sessionCtx, ctx, posKeeper, header, hex.EncodeToString(bh))
 		if er != nil {
 			return sdk.ZeroInt(), er
 		}

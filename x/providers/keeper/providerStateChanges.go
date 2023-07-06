@@ -18,6 +18,9 @@ func (k Keeper) ValidateProviderStaking(ctx sdk.Ctx, provider types.Provider, am
 	if int64(len(provider.Chains)) > k.MaxChains(ctx) {
 		return types.ErrTooManyChains(types.ModuleName)
 	}
+	if provider.NumServicers < int8(k.MinNumServicers(ctx)) || provider.NumServicers > int8(k.MaxNumServicers(ctx)) {
+		return types.ErrNumServicers(types.ModuleName)
+	}
 	// attempt to get the provider from the world state
 	app, found := k.GetProvider(ctx, provider.Address)
 	// if the provider exists
@@ -131,6 +134,8 @@ func (k Keeper) EditStakeProvider(ctx sdk.Ctx, provider, updatedProvider types.P
 	provider.Chains = updatedProvider.Chains
 	// update geozones
 	provider.GeoZones = updatedProvider.GeoZones
+	// update numservicers
+	provider.NumServicers = updatedProvider.NumServicers
 	// delete the validator from the staking set
 	k.deleteProviderFromStakingSet(ctx, origAppForDeletion)
 	// delete in main store

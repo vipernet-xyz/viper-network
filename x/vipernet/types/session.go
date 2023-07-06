@@ -25,14 +25,14 @@ func (s Session) HashString() string {
 type SessionNodes []sdk.Address
 
 // "NewSession" - create a new session from seed data
-func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string, sessionServicersCount int) (Session, sdk.Error) {
+func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader SessionHeader, blockHash string) (Session, sdk.Error) {
 	// first generate session key
 	sessionKey, err := NewSessionKey(sessionHeader.ProviderPubKey, sessionHeader.Chain, blockHash)
 	if err != nil {
 		return Session{}, err
 	}
 	// then generate the service servicers for that session
-	sessionServicers, err := NewSessionServicers(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionHeader.GeoZone, sessionKey, sessionServicersCount)
+	sessionServicers, err := NewSessionServicers(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionHeader.GeoZone, sessionKey, sessionHeader.NumServicers)
 	if err != nil {
 		return Session{}, err
 	}
@@ -105,7 +105,7 @@ func (s Session) Key() ([]byte, error) {
 type SessionServicers []sdk.Address
 
 // NewSessionServicers - Generates servicers for the session based on both chain and geo zone
-func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZone string, sessionKey SessionKey, sessionServicersCount int) (sessionServicers SessionServicers, err sdk.Error) {
+func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZone string, sessionKey SessionKey, sessionServicersCount int8) (sessionServicers SessionServicers, err sdk.Error) {
 	// all servicersAddrs at session genesis based on the chain
 	servicersByChain, _ := keeper.GetValidatorsByChain(sessionCtx, chain)
 
@@ -124,7 +124,7 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 	}
 
 	// Validate that the number of servicers is sufficient
-	if len(validatorsInBoth) < sessionServicersCount {
+	if len(validatorsInBoth) < int(sessionServicersCount) {
 		return nil, NewInsufficientServicersError(ModuleName)
 	}
 
@@ -164,7 +164,7 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 		// Increment the number of servicers in the sessionServicers slice
 		numOfServicers++
 		// If maxing out the session count, end the loop
-		if numOfServicers == sessionServicersCount {
+		if numOfServicers == int(sessionServicersCount) {
 			break
 		}
 	}

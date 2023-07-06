@@ -22,7 +22,6 @@ func TestValidateGenesis(t *testing.T) {
 	}
 	invalidParams := GenesisState{
 		Params: Params{
-			SessionNodeCount:      0,
 			ClaimSubmissionWindow: 0,
 			SupportedBlockchains:  nil,
 			ClaimExpiration:       0,
@@ -41,7 +40,6 @@ func TestValidateGenesis(t *testing.T) {
 	}
 	invalidClaims := GenesisState{
 		Params: Params{
-			SessionNodeCount:      1,
 			ClaimSubmissionWindow: 5,
 			SupportedBlockchains:  []string{nn},
 			ClaimExpiration:       50,
@@ -60,7 +58,6 @@ func TestValidateGenesis(t *testing.T) {
 	}
 	validGenesisState := GenesisState{
 		Params: Params{
-			SessionNodeCount:      1,
 			ClaimSubmissionWindow: 5,
 			SupportedBlockchains:  []string{nn},
 			ClaimExpiration:       50,
@@ -117,7 +114,6 @@ func TestDefaultGenesisState(t *testing.T) {
 	}
 	validGenesisState := GenesisState{
 		Params: Params{
-			SessionNodeCount:      1,
 			ClaimSubmissionWindow: 5,
 			SupportedBlockchains:  []string{nn},
 			ClaimExpiration:       50,
@@ -134,7 +130,6 @@ func TestDefaultGenesisState(t *testing.T) {
 		}},
 	}
 	DefaultGenState := GenesisState{Params: Params{
-		SessionNodeCount:           DefaultSessionNodeCount,
 		ClaimSubmissionWindow:      DefaultClaimSubmissionWindow,
 		SupportedBlockchains:       DefaultSupportedBlockchains,
 		ClaimExpiration:            DefaultClaimExpiration,

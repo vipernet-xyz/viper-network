@@ -158,7 +158,7 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 		if er != nil {
 			return nil, sdk.ErrInternal(er.Error())
 		}
-		session, err = vc.NewSession(sessionCtx, ctx, k.posKeeper, header, hex.EncodeToString(blockHashBz), int(k.SessionNodeCount(sessionCtx)))
+		session, err = vc.NewSession(sessionCtx, ctx, k.posKeeper, header, hex.EncodeToString(blockHashBz))
 		if err != nil {
 			return nil, err
 		}
@@ -166,7 +166,7 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 		vc.SetSession(session, node.SessionStore)
 	}
 	// validate the challenge
-	err := challenge.ValidateLocal(header, app.GetMaxRelays(), app.GetChains(), int(k.SessionNodeCount(sessionCtx)), vc.SessionServicers(session.SessionServicers), nodeAddress, node.EvidenceStore)
+	err := challenge.ValidateLocal(header, app.GetMaxRelays(), app.GetChains(), int(app.GetNumServicers()), vc.SessionServicers(session.SessionServicers), nodeAddress, node.EvidenceStore)
 	if err != nil {
 		return nil, err
 	}

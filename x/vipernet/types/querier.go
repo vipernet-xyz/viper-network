@@ -9,6 +9,7 @@ const (
 	QueryReceipt              = "receipt"
 	QueryReceipts             = "receipts"
 	QuerySupportedBlockchains = "supportedBlockchains"
+	QuerySupportedGeoZones    = "supportedGeoZones"
 	QueryRelay                = "relay"
 	QueryDispatch             = "dispatch"
 	QueryChallenge            = "challenge"

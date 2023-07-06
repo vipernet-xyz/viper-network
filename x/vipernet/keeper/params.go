@@ -10,13 +10,6 @@ func ParamKeyTable() sdk.KeyTable {
 	return sdk.NewKeyTable().RegisterParamSet(&types.Params{})
 }
 
-// "SessionNodeCount" - Returns the session servicer count parameter from the paramstore
-// Number of servicers dispatched in a single session
-func (k Keeper) SessionNodeCount(ctx sdk.Ctx) (res int64) {
-	k.Paramstore.Get(ctx, types.KeySessionNodeCount, &res)
-	return
-}
-
 // "ClaimExpiration" - Returns the claim expiration parameter from the paramstore
 // Number of sessions pass before claim is expired
 func (k Keeper) ClaimExpiration(ctx sdk.Ctx) (res int64) {
@@ -52,6 +45,13 @@ func (k Keeper) SupportedBlockchains(ctx sdk.Ctx) (res []string) {
 	return
 }
 
+// "SupportedGeoZones" - Returns a supported geozones parameter from the paramstore
+// What geozones are supported in viper network (list of network identifier hashes)
+func (k Keeper) SupportedGeoZones(ctx sdk.Ctx) (res []string) {
+	k.Paramstore.Get(ctx, types.KeySupportedGeoZones, &res)
+	return
+}
+
 // "MinimumNumberOfProofs" - Returns a minimun number of proofs parameter from the paramstore
 // What blockchains are supported in viper network (list of network identifier hashes)
 func (k Keeper) MinimumNumberOfProofs(ctx sdk.Ctx) (res int64) {
@@ -67,13 +67,13 @@ func (k Keeper) BlockByteSize(ctx sdk.Ctx) (res int64) {
 // "GetParams" - Returns all module parameters in a `Params` struct
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
-		SessionNodeCount:           k.SessionNodeCount(ctx),
 		ClaimSubmissionWindow:      k.ClaimSubmissionWindow(ctx),
 		SupportedBlockchains:       k.SupportedBlockchains(ctx),
 		ClaimExpiration:            k.ClaimExpiration(ctx),
 		ReplayAttackBurnMultiplier: k.ReplayAttackBurnMultiplier(ctx),
 		MinimumNumberOfProofs:      k.MinimumNumberOfProofs(ctx),
 		BlockByteSize:              k.BlockByteSize(ctx),
+		SupportedGeoZones:          k.SupportedGeoZones(ctx),
 	}
 }
 

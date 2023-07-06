@@ -12,57 +12,54 @@ import (
 const (
 	// DefaultParamspace for params keeper
 	DefaultParamspace                 = ModuleName
-	DefaultSessionNodeCount           = int64(24)      // default number of servicers in a session
 	DefaultClaimSubmissionWindow      = int64(3)       // default sessions to submit a claim
 	DefaultClaimExpiration            = int64(24)      // default servicers to exprie claims
 	DefaultReplayAttackBurnMultiplier = int64(3)       // default replay attack burn multiplier
 	DefaultMinimumNumberOfProofs      = int64(1000)    // default minimum number of proofs
 	DefaultBlockByteSize              = int64(8000000) // default block size in bytes
-
 )
 
 var (
 	DefaultSupportedBlockchains   = []string{"0001"}
-	KeySessionNodeCount           = []byte("SessionNodeCount")
 	KeyClaimSubmissionWindow      = []byte("ClaimSubmissionWindow")
 	KeySupportedBlockchains       = []byte("SupportedBlockchains")
 	KeyClaimExpiration            = []byte("ClaimExpiration")
 	KeyReplayAttackBurnMultiplier = []byte("ReplayAttackBurnMultiplier")
 	KeyMinimumNumberOfProofs      = []byte("MinimumNumberOfProofs")
 	KeyBlockByteSize              = []byte("BlockByteSize")
+	KeySupportedGeoZones          = []byte("SupportedGeoZones")
 )
 
 var _ types.ParamSet = (*Params)(nil)
 
 // "Params" - defines the governance set, high level settings for vipernet module
 type Params struct {
-	SessionNodeCount           int64    `json:"session_servicer_count"`
 	ClaimSubmissionWindow      int64    `json:"proof_waiting_period"`
 	SupportedBlockchains       []string `json:"supported_blockchains"`
 	ClaimExpiration            int64    `json:"claim_expiration"` // per session
 	ReplayAttackBurnMultiplier int64    `json:"replay_attack_burn_multiplier"`
 	MinimumNumberOfProofs      int64    `json:"minimum_number_of_proofs"`
 	BlockByteSize              int64    `json:"block_byte_size,omitempty"`
+	SupportedGeoZones          []string `json:"supported_geo_zones"`
 }
 
 // "ParamSetPairs" - returns an kv params object
 // Note: Implements params.ParamSet
 func (p *Params) ParamSetPairs() types.ParamSetPairs {
 	return types.ParamSetPairs{
-		{Key: KeySessionNodeCount, Value: &p.SessionNodeCount},
 		{Key: KeyClaimSubmissionWindow, Value: &p.ClaimSubmissionWindow},
 		{Key: KeySupportedBlockchains, Value: &p.SupportedBlockchains},
 		{Key: KeyClaimExpiration, Value: &p.ClaimExpiration},
 		{Key: KeyReplayAttackBurnMultiplier, Value: p.ReplayAttackBurnMultiplier},
 		{Key: KeyMinimumNumberOfProofs, Value: p.MinimumNumberOfProofs},
 		{Key: KeyBlockByteSize, Value: p.BlockByteSize},
+		{Key: KeySupportedGeoZones, Value: p.SupportedGeoZones},
 	}
 }
 
 // "DefaultParams" - Returns a default set of parameters
 func DefaultParams() Params {
 	return Params{
-		SessionNodeCount:           DefaultSessionNodeCount,
 		ClaimSubmissionWindow:      DefaultClaimSubmissionWindow,
 		SupportedBlockchains:       DefaultSupportedBlockchains,
 		ClaimExpiration:            DefaultClaimExpiration,
@@ -73,10 +70,6 @@ func DefaultParams() Params {
 
 // "Validate" - Validate a set of params
 func (p Params) Validate() error {
-	// session count constraints
-	if p.SessionNodeCount > 25 || p.SessionNodeCount < 1 {
-		return errors.New("invalid session servicer count")
-	}
 	// claim submission window constraints
 	if p.ClaimSubmissionWindow < 2 {
 		return errors.New("waiting period must be at least 2 sessions")
@@ -84,6 +77,12 @@ func (p Params) Validate() error {
 	// verify each supported blockchain
 	for _, chain := range p.SupportedBlockchains {
 		if err := NetworkIdentifierVerification(chain); err != nil {
+			return err
+		}
+	}
+	// verify each supported GeoZone
+	for _, geoZone := range p.SupportedGeoZones {
+		if err := GeoZoneIdentifierVerification(geoZone); err != nil {
 			return err
 		}
 	}
@@ -109,17 +108,17 @@ func (p Params) Equal(p2 Params) bool {
 // "String" -  returns a human readable string representation of the parameters
 func (p Params) String() string {
 	return fmt.Sprintf(`Params:
-  SessionNodeCount:          %d
-  ClaimSubmissionWindow:        %d
+  ClaimSubmissionWindow:     %d
   Supported Blockchains      %v
   ClaimExpiration            %d
   ReplayAttackBurnMultiplier %d
-  BlockByteSize %d
+  BlockByteSize              %d
+  Supported GeoZones         %v
 `,
-		p.SessionNodeCount,
 		p.ClaimSubmissionWindow,
 		p.SupportedBlockchains,
 		p.ClaimExpiration,
 		p.ReplayAttackBurnMultiplier,
-		p.BlockByteSize)
+		p.BlockByteSize,
+		p.SupportedGeoZones)
 }

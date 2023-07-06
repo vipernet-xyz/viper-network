@@ -87,7 +87,6 @@ func newDefaultGenesisState() []byte {
 	rawViper := defaultGenesis[types.ModuleName]
 	var viperGenesis types.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawViper, &viperGenesis)
-	viperGenesis.Params.SessionNodeCount = 1
 	res = Codec().MustMarshalJSON(viperGenesis)
 	defaultGenesis[types.ModuleName] = res
 	// setup pos genesis
@@ -149,6 +148,8 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("provider/MaximumChains", addr)
 	acl.SetOwner("provider/ParticipationRate", addr)
 	acl.SetOwner("provider/StabilityModulation", addr)
+	acl.SetOwner("provider/SupportedGeoZones", addr)
+	acl.SetOwner("provider/MinNumServicers", addr)
 	acl.SetOwner("authentication/MaxMemoCharacters", addr)
 	acl.SetOwner("authentication/TxSigLimit", addr)
 	acl.SetOwner("governance/acl", addr)
@@ -161,8 +162,8 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("pos/ProviderAllocation", addr)
 	acl.SetOwner("vipernet/ClaimSubmissionWindow", addr)
 	acl.SetOwner("vipernet/MinimumNumberOfProofs", addr)
-	acl.SetOwner("vipernet/SessionNodeCount", addr)
 	acl.SetOwner("vipernet/SupportedBlockchains", addr)
+	acl.SetOwner("vipernet/MaxNumServicers", addr)
 	acl.SetOwner("pos/BlocksPerSession", addr)
 	acl.SetOwner("pos/DAOAllocation", addr)
 	acl.SetOwner("pos/ProviderAllocation", addr)

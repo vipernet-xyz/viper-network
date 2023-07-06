@@ -75,7 +75,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, node *v
 			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the claim transaction with app %s not found with evidence %v", evidence.ProviderPubKey, evidence))
 		}
 		// generate the merkle root for this evidence
-		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionCtx)).Int64(), node.EvidenceStore)
+		root := evidence.GenerateMerkleRoot(evidence.SessionHeader.SessionBlockHeight, vc.MaxPossibleRelays(app, int64(app.GetNumServicers())).Int64(), node.EvidenceStore)
 		claimTxTotalTime := float64(time.Since(now).Milliseconds())
 		go func() {
 			vc.GlobalServiceMetric().AddClaimTiming(evidence.SessionHeader.Chain, claimTxTotalTime, &address)
@@ -129,12 +129,12 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 		return vc.NewProviderNotFoundError(vc.ModuleName)
 	}
 	if vc.ModuleCdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.MaxRelayProtKey) {
-		if vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionContext)).LT(sdk.NewInt(claim.TotalProofs)) {
+		if vc.MaxPossibleRelays(app, int64(app.GetNumServicers())).LT(sdk.NewInt(claim.TotalProofs)) {
 			return vc.NewOverServiceError(vc.ModuleName)
 		}
 	}
 	// get the session node count for the time of the session
-	sessionNodeCount := int(k.SessionNodeCount(sessionContext))
+	sessionNodeCount := int(app.GetNumServicers())
 	// check cache
 	session, found := vc.GetSession(claim.SessionHeader, vc.GlobalSessionCache)
 	if !found {
@@ -148,7 +148,7 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 			return sdk.ErrInternal(er.Error())
 		}
 		// create a new session to validate
-		session, err = vc.NewSession(sessionContext, sessionEndCtx, k.posKeeper, claim.SessionHeader, hex.EncodeToString(hash), sessionNodeCount)
+		session, err = vc.NewSession(sessionContext, sessionEndCtx, k.posKeeper, claim.SessionHeader, hex.EncodeToString(hash))
 		if err != nil {
 			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", app.GetPublicKey().RawString(), claim.SessionHeader.Chain).Error())
 			return err

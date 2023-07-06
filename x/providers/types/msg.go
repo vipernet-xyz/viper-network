@@ -25,10 +25,11 @@ const (
 )
 
 type MsgStake struct {
-	PubKey  crypto.PublicKey `json:"pubkey" yaml:"pubkey"`
-	Chains  []string         `json:"chains" yaml:"chains"`
-	Value   sdk.BigInt       `json:"value" yaml:"value"`
-	GeoZone []string         `json:"geo_zone" yaml:"geo_zone"`
+	PubKey       crypto.PublicKey `json:"pubkey" yaml:"pubkey"`
+	Chains       []string         `json:"chains" yaml:"chains"`
+	Value        sdk.BigInt       `json:"value" yaml:"value"`
+	GeoZones     []string         `json:"geo_zone" yaml:"geo_zone"`
+	NumServicers int8             `json:"num_servicers" yaml:"num_servicers"`
 }
 
 // GetSigners return address(es) that must sign over msg.GetSignBytes()
@@ -61,6 +62,17 @@ func (msg MsgStake) ValidateBasic() sdk.Error {
 		if err := ValidateNetworkIdentifier(chain); err != nil {
 			return err
 		}
+	}
+	if len(msg.GeoZones) == 0 {
+		return ErrNoGeoZones(DefaultCodespace)
+	}
+	for _, geoZone := range msg.GeoZones {
+		if err := ValidateGeoZoneIdentifier(geoZone); err != nil {
+			return err
+		}
+	}
+	if msg.NumServicers == 0 {
+		return ErrBadStakeAmount(DefaultCodespace)
 	}
 	return nil
 }
@@ -112,9 +124,11 @@ func (msg *MsgStake) Unmarshal(data []byte) error {
 		return err
 	}
 	*msg = MsgStake{
-		PubKey: pk,
-		Chains: m.Chains,
-		Value:  m.Value,
+		PubKey:       pk,
+		Chains:       m.Chains,
+		Value:        m.Value,
+		GeoZones:     m.GeoZones,
+		NumServicers: m.NumServicers,
 	}
 	return nil
 }
@@ -138,9 +152,11 @@ func (msg MsgStake) ToProto() MsgProtoStake {
 		pkbz = msg.PubKey.RawBytes()
 	}
 	return MsgProtoStake{
-		PubKey: pkbz,
-		Chains: msg.Chains,
-		Value:  msg.Value,
+		PubKey:       pkbz,
+		Chains:       msg.Chains,
+		Value:        msg.Value,
+		GeoZones:     msg.GeoZones,
+		NumServicers: msg.NumServicers,
 	}
 }
 

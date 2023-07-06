@@ -40,7 +40,7 @@ type QueryProvidersWithOpts struct {
 	Limit         int             `json:"per_page"`
 	StakingStatus sdk.StakeStatus `json:"staking_status"`
 	Blockchain    string          `json:"blockchain"`
-	GeoZone       string          `json:"geozone"`
+	GeoZone       string          `json:"geo_zone"`
 }
 
 func (opts QueryProvidersWithOpts) IsValid(provider Provider) bool {

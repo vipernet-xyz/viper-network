@@ -48,6 +48,7 @@ func ValidateServiceURL(u string) sdk.Error {
 
 const (
 	NetworkIdentifierLength = 2
+	GeoZoneLength           = 2
 )
 
 func ValidateNetworkIdentifier(chain string) sdk.Error {
@@ -63,6 +64,23 @@ func ValidateNetworkIdentifier(chain string) sdk.Error {
 	// ensure length
 	if len(h) > NetworkIdentifierLength {
 		return ErrInvalidNetworkIdentifier(ModuleName, fmt.Errorf("net id length is > %d", NetworkIdentifierLength))
+	}
+	return nil
+}
+
+func ValidateGeoZone(geoZone string) sdk.Error {
+	// decode string into bz
+	h, err := hex.DecodeString(geoZone)
+	if err != nil {
+		return ErrInvalidGeoZone(ModuleName, err)
+	}
+	// ensure length isn't 0
+	if len(h) == 0 {
+		return ErrInvalidGeoZone(ModuleName, fmt.Errorf("net id is empty"))
+	}
+	// ensure length
+	if len(h) > GeoZoneLength {
+		return ErrInvalidGeoZone(ModuleName, fmt.Errorf("geozone id length is > %d", GeoZoneLength))
 	}
 	return nil
 }

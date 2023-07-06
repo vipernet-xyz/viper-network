@@ -84,6 +84,18 @@ func (k Keeper) deleteValidatorForChains(ctx sdk.Ctx, validator types.Validator)
 	}
 }
 
+func (k Keeper) deleteValidatorForGeoZone(ctx sdk.Ctx, validator types.Validator) {
+	store := ctx.KVStore(k.storeKey)
+	for _, g := range validator.GeoZone {
+		gBz, err := hex.DecodeString(string(g))
+		if err != nil {
+			ctx.Logger().Error(fmt.Errorf("could not hex decode geozone for validator: %s with geozone: %s, at height %d", validator.Address, g, ctx.BlockHeight()).Error())
+			continue
+		}
+		_ = store.Delete(types.KeyForValidatorByNetworkID(validator.Address, gBz))
+	}
+}
+
 // validatorByChainsIterator - returns an iterator for the current staked validators
 func (k Keeper) validatorByChainsIterator(ctx sdk.Ctx, networkIDBz []byte) (sdk.Iterator, error) {
 	store := ctx.KVStore(k.storeKey)
@@ -186,17 +198,6 @@ func (k Keeper) GetValidatorsByGeoZone(ctx sdk.Ctx, geoZone string) (validators 
 
 	validators = l.([]sdk.Address)
 	return validators, len(validators)
-}
-
-// deleteValidatorFromStakingSet - delete validator from staked set
-func (k Keeper) deleteValidatorFromGeoZones(ctx sdk.Ctx, validator types.Validator) {
-	store := ctx.KVStore(k.storeKey)
-	c := validator.GeoZone
-	cBz, err := hex.DecodeString(c)
-	if err != nil {
-		ctx.Logger().Error(fmt.Errorf("could not hex decode chains for validator: %s with geoZone: %s, at height %d", validator.Address, c, ctx.BlockHeight()).Error())
-	}
-	_ = store.Delete(types.KeyForValidatorByGeoZone(validator.Address, cBz))
 }
 
 // validatorByGeozoneIterator returns an iterator for the current staked validators by geozone

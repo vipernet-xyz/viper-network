@@ -50,6 +50,8 @@ type ViperConfig struct {
 	GenerateTokenOnStart     bool   `json:"generate_token_on_start"`
 	LeanViper                bool   `json:"lean_viper"`
 	LeanViperUserKeyFileName string `json:"lean_viper_user_key_file"`
+	GeoZonesName             string `json:"geo_zones_name"`
+	GeoZonesHotReload        bool   `json:"geo_zones_hot_reload"`
 }
 
 func (c ViperConfig) GetLeanViperUserKeyFilePath() string {
@@ -76,6 +78,7 @@ const (
 	DefaultNKNameLean                  = "node_key_lean.json"
 	DefaultNKName                      = "servicer_key.json"
 	DefaultChainsName                  = "chains.json"
+	DefaultGeoZonesName                = "geozone.json"
 	DefaultGenesisName                 = "genesis.json"
 	DefaultRPCPort                     = "8081"
 	DefaultEvidenceDBName              = "viper_evidence"
@@ -110,6 +113,7 @@ const (
 	AuthFileName                       = "authentication.json"
 	DefaultIavlCacheSize               = 5000000
 	DefaultChainHotReload              = false
+	DefaultGeoZoneHotReload            = false
 	DefaultGenerateTokenOnStart        = true
 	DefaultLeanViper                   = false
 	DefaultLeanViperUserKeyFileName    = "lean_nodes_keys.json"
@@ -122,6 +126,7 @@ func DefaultConfig(dataDir string) Config {
 			DataDir:                  dataDir,
 			GenesisName:              DefaultGenesisName,
 			ChainsName:               DefaultChainsName,
+			GeoZonesName:             DefaultGeoZonesName,
 			EvidenceDBName:           DefaultEvidenceDBName,
 			TendermintURI:            DefaultTMURI,
 			KeybaseName:              DefaultKeybaseName,
@@ -148,6 +153,7 @@ func DefaultConfig(dataDir string) Config {
 			GenerateTokenOnStart:     DefaultGenerateTokenOnStart,
 			LeanViper:                DefaultLeanViper,
 			LeanViperUserKeyFileName: DefaultLeanViperUserKeyFileName,
+			GeoZonesHotReload:        DefaultGeoZoneHotReload,
 		},
 	}
 	c.TendermintConfig.LevelDBOptions = config.DefaultLevelDBOpts()

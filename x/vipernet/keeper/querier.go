@@ -17,6 +17,9 @@ func NewQuerier(k Keeper) sdk.Querier {
 		// query viper supported supported non-native blockchains
 		case types.QuerySupportedBlockchains:
 			return querySupportedBlockchains(ctx, req, k)
+		// query viper supported geozones
+		case types.QuerySupportedGeoZones:
+			return querySupportedGeoZones(ctx, req, k)
 		// query the parameters of the vipernet module
 		case types.QueryParameters:
 			return queryParameters(ctx, k)
@@ -119,6 +122,16 @@ func queryParameters(ctx sdk.Ctx, k Keeper) ([]byte, sdk.Error) {
 func querySupportedBlockchains(ctx sdk.Ctx, _ abci.RequestQuery, k Keeper) ([]byte, sdk.Error) {
 	// marshal supported blockchains into amino-json
 	res, err := codec.MarshalJSONIndent(types.ModuleCdc, k.SupportedBlockchains(ctx))
+	if err != nil {
+		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("failed to JSON marshal result: %s", err.Error()))
+	}
+	return res, nil
+}
+
+// "querySupportedGeopZones" - Is a handler for the supported geozones query
+// Returns the geozones supported on viper network
+func querySupportedGeoZones(ctx sdk.Ctx, _ abci.RequestQuery, k Keeper) ([]byte, sdk.Error) {
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, k.SupportedGeoZones(ctx))
 	if err != nil {
 		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("failed to JSON marshal result: %s", err.Error()))
 	}

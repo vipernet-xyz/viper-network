@@ -296,10 +296,12 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 	currentValidator.Chains = updatedValidator.Chains
 	// update service url
 	currentValidator.ServiceURL = updatedValidator.ServiceURL
+	currentValidator.GeoZone = updatedValidator.GeoZone
 	// delete the validator from the staking set
 	k.deleteValidatorFromStakingSet(ctx, origValForDeletion)
 	// delete the validator from each individual chains set
 	k.deleteValidatorForChains(ctx, origValForDeletion)
+	k.deleteValidatorForGeoZone(ctx, origValForDeletion)
 	// delete in main store
 	k.DeleteValidator(ctx, origValForDeletion.Address)
 	// save in the validator store

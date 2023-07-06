@@ -24,6 +24,7 @@ func TestNewProvider(t *testing.T) {
 		tokensToStake sdk.BigInt
 		chains        []string
 		geoZone       []string
+		numServicers  int8
 		serviceURL    string
 	}
 	var pub crypto.Ed25519PublicKey
@@ -38,7 +39,7 @@ func TestNewProvider(t *testing.T) {
 		args args
 		want Provider
 	}{
-		{"defaultProvider", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, []string{"0001"}, "google.com"},
+		{"defaultProvider", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, []string{"0001"}, 5, "google.com"},
 			Provider{
 				Address:                 sdk.Address(pub.Address()),
 				PublicKey:               pub,
@@ -52,7 +53,7 @@ func TestNewProvider(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewProvider(tt.args.addr, tt.args.pubkey, tt.args.chains, tt.args.tokensToStake, tt.args.geoZone); !reflect.DeepEqual(got, tt.want) {
+			if got := NewProvider(tt.args.addr, tt.args.pubkey, tt.args.chains, tt.args.tokensToStake, tt.args.geoZone, tt.args.numServicers); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewProvider() = %v, want %v", got, tt.want)
 			}
 		})
@@ -1050,6 +1051,7 @@ func TestProvider_GetChains(t *testing.T) {
 		tokensToStake sdk.BigInt
 		chains        []string
 		geoZone       []string
+		numServicers  int8
 		serviceURL    string
 	}
 	var pub crypto.Ed25519PublicKey
@@ -1065,13 +1067,13 @@ func TestProvider_GetChains(t *testing.T) {
 	}{
 		{
 			"defaultProvider",
-			args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, []string{"0001"}, "google.com"},
+			args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, []string{"0001"}, 5, "google.com"},
 			[]string{"0001"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			provider := NewProvider(tt.args.addr, tt.args.pubkey, tt.args.chains, tt.args.tokensToStake, tt.args.geoZone)
+			provider := NewProvider(tt.args.addr, tt.args.pubkey, tt.args.chains, tt.args.tokensToStake, tt.args.geoZone, tt.args.numServicers)
 			if got := provider.GetChains(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetChains() = %v, want %v", got, tt.want)
 			}

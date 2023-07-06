@@ -208,8 +208,16 @@ func (app ViperCoreApp) QueryHostedChains() (res map[string]viperTypes.HostedBlo
 	return app.viperKeeper.GetHostedBlockchains().M, nil
 }
 
+func (app ViperCoreApp) QueryHostedGeoZone() (res map[string]viperTypes.GeoZone, err error) {
+	return app.viperKeeper.GetHostedGeoZone().M, nil
+}
+
 func (app ViperCoreApp) SetHostedChains(req map[string]viperTypes.HostedBlockchain) (res map[string]viperTypes.HostedBlockchain, err error) {
 	return app.viperKeeper.SetHostedBlockchains(req).M, nil
+}
+
+func (app ViperCoreApp) SetHostedGeoZone(req map[string]viperTypes.GeoZone) (res map[string]viperTypes.GeoZone, err error) {
+	return app.viperKeeper.SetHostedGeoZone(req).M, nil
 }
 
 func (app ViperCoreApp) QuerySigningInfo(height int64, addr string) (res servicersTypes.ValidatorSigningInfo, err error) {
@@ -432,12 +440,30 @@ func (app ViperCoreApp) QueryValidatorByChain(height int64, chain string) (amoun
 	return int64(count), nil
 }
 
+func (app ViperCoreApp) QueryValidatorByGeoZone(height int64, geoZone string) (amount int64, err error) {
+	ctx, err := app.NewContext(height)
+	if err != nil {
+		return
+	}
+	_, count := app.servicersKeeper.GetValidatorsByGeoZone(ctx, geoZone)
+	return int64(count), nil
+}
+
 func (app ViperCoreApp) QueryViperSupportedBlockchains(height int64) (res []string, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
 	sb := app.viperKeeper.SupportedBlockchains(ctx)
+	return sb, nil
+}
+
+func (app ViperCoreApp) QueryViperSupportedGeoZones(height int64) (res []string, err error) {
+	ctx, err := app.NewContext(height)
+	if err != nil {
+		return
+	}
+	sb := app.viperKeeper.SupportedGeoZones(ctx)
 	return sb, nil
 }
 

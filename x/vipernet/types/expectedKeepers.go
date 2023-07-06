@@ -33,7 +33,6 @@ type ProvidersKeeper interface {
 }
 
 type ViperKeeper interface {
-	SessionNodeCount(ctx sdk.Ctx) (res int64)
 	Codec() *codec.Codec
 }
 

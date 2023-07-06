@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"reflect"
@@ -20,6 +21,8 @@ const (
 	DefaultStabilityModulation int64 = 0
 	DefaultParticipationRateOn bool  = false
 	DefaultMaxChains           int64 = 15
+	DefaultMinNumServicers           = int64(3)
+	DefaultMaxNumServicers           = int64(100)
 )
 
 // Keys for parameter access
@@ -31,6 +34,8 @@ var (
 	StabilityModulation = []byte("StabilityModulation")
 	ParticipationRate   = []byte("ParticipationRate")
 	KeyMaximumChains    = []byte("MaximumChains")
+	KeyMinNumServicers  = []byte("MinNumServicers")
+	KeyMaxNumServicers  = []byte("MaxNumServicers")
 )
 
 var _ types.ParamSet = (*Params)(nil)
@@ -44,6 +49,8 @@ type Params struct {
 	StabilityModulation int64         `json:"stability_modulation" yaml:"stability_modulation"`     // the stability adjustment from the governance
 	ParticipationRate   bool          `json:"participation_rate_on" yaml:"participation_rate_on"`   // the participation rate affects the amount minted based on staked ratio
 	MaxChains           int64         `json:"maximum_chains" yaml:"maximum_chains"`                 // the maximum number of chains an provider can stake for
+	MinNumServicers     int64         `json:"minimum_number_servicers"`
+	MaxNumServicers     int64         `json:"maximum_number_servicers"`
 }
 
 // Implements params.ParamSet
@@ -56,6 +63,8 @@ func (p *Params) ParamSetPairs() types.ParamSetPairs {
 		{Key: StabilityModulation, Value: &p.StabilityModulation},
 		{Key: ParticipationRate, Value: &p.ParticipationRate},
 		{Key: KeyMaximumChains, Value: &p.MaxChains},
+		{Key: KeyMinNumServicers, Value: p.MinNumServicers},
+		{Key: KeyMaxNumServicers, Value: p.MaxNumServicers},
 	}
 }
 
@@ -69,6 +78,8 @@ func DefaultParams() Params {
 		StabilityModulation: DefaultStabilityModulation,
 		ParticipationRate:   DefaultParticipationRateOn,
 		MaxChains:           DefaultMaxChains,
+		MinNumServicers:     DefaultMinNumServicers,
+		MaxNumServicers:     DefaultMaxNumServicers,
 	}
 }
 
@@ -82,6 +93,13 @@ func (p Params) Validate() error {
 	}
 	if p.BaseRelaysPerVIPR < 0 {
 		return fmt.Errorf("invalid baseline throughput stake rate, must be above 0")
+	}
+	// session count constraints
+	if p.MaxNumServicers > 100 || p.MaxNumServicers < 1 {
+		return errors.New("invalid Max session servicer count")
+	}
+	if p.MinNumServicers > 100 || p.MinNumServicers < 1 {
+		return errors.New("invalid Min session servicer count")
 	}
 	// todo
 	return nil
@@ -101,12 +119,16 @@ func (p Params) String() string {
   BaseRelaysPerVIPR            %d
   Stability Adjustment         %d
   Participation Rate On        %v
-  MaxChains                    %d,`,
+  MaxChains                    %d
+  MinNumServicers              %d
+  MaxNumServicers              %d,`,
 		p.UnstakingTime,
 		p.MaxProviders,
 		p.MinProviderStake,
 		p.BaseRelaysPerVIPR,
 		p.StabilityModulation,
 		p.ParticipationRate,
-		p.MaxChains)
+		p.MaxChains,
+		p.MinNumServicers,
+		p.MaxNumServicers)
 }

@@ -45,7 +45,7 @@ const (
 )
 
 // NewViperCoreApp is a constructor function for ViperCoreApp
-func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient client.Client, hostedChains *viperTypes.HostedBlockchains, logger log.Logger, db dbm.DB, cache bool, iavlCacheSize int64, baseAppOptions ...func(*bam.BaseApp)) *ViperCoreApp {
+func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient client.Client, hostedChains *viperTypes.HostedBlockchains, geoZone *viperTypes.HostedGeoZones, logger log.Logger, db dbm.DB, cache bool, iavlCacheSize int64, baseAppOptions ...func(*bam.BaseApp)) *ViperCoreApp {
 	app := NewViperBaseApp(logger, db, cache, iavlCacheSize, baseAppOptions...)
 	// setup subspaces
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
@@ -97,6 +97,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.servicersKeeper,
 		app.providersKeeper,
 		hostedChains,
+		geoZone,
 		viperSubspace,
 	)
 	// The governance keeper

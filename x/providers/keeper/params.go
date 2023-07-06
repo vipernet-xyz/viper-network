@@ -59,6 +59,16 @@ func (k Keeper) MaxChains(ctx sdk.Ctx) (res int64) {
 	return
 }
 
+func (k Keeper) MinNumServicers(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMinNumServicers, &res)
+	return
+}
+
+func (k Keeper) MaxNumServicers(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMaxNumServicers, &res)
+	return
+}
+
 // Get all parameteras as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -69,6 +79,8 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		ParticipationRate:   k.ParticipationRate(ctx),
 		StabilityModulation: k.StakingAdjustment(ctx),
 		MaxChains:           k.MaxChains(ctx),
+		MinNumServicers:     k.MinNumServicers(ctx),
+		MaxNumServicers:     k.MaxNumServicers(ctx),
 	}
 }
 

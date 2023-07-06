@@ -11,7 +11,6 @@ import (
 func TestInitExportGenesis(t *testing.T) {
 	ctx, _, _, k, _ := createTestInput(t, false)
 	p := types.Params{
-		SessionNodeCount:      10,
 		ClaimSubmissionWindow: 22,
 		SupportedBlockchains:  []string{"eth"},
 		ClaimExpiration:       55,

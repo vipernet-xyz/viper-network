@@ -16,19 +16,20 @@ import (
 
 // Provider represents a viper network decentralized provider. Providers stake in the network for relay throughput.
 type Provider struct {
-	Address                 sdk.Address      `json:"address" yaml:"address"`               // address of the provider; hex encoded in JSON
-	PublicKey               crypto.PublicKey `json:"public_key" yaml:"public_key"`         // the public key of the provider; hex encoded in JSON
-	Jailed                  bool             `json:"jailed" yaml:"jailed"`                 // has the provider been jailed from staked status?
-	Status                  sdk.StakeStatus  `json:"status" yaml:"status"`                 // provider status (staked/unstaking/unstaked)
-	Chains                  []string         `json:"chains" yaml:"chains"`                 // requested chains
-	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`                 // tokens staked in the network
-	MaxRelays               sdk.BigInt       `json:"max_relays" yaml:"max_relays"`         // maximum number of relays allowed
-	GeoZones                []string         `json:"geo_zone" yaml:"geo_zone"`             //geo location
+	Address                 sdk.Address      `json:"address" yaml:"address"`       // address of the provider; hex encoded in JSON
+	PublicKey               crypto.PublicKey `json:"public_key" yaml:"public_key"` // the public key of the provider; hex encoded in JSON
+	Jailed                  bool             `json:"jailed" yaml:"jailed"`         // has the provider been jailed from staked status?
+	Status                  sdk.StakeStatus  `json:"status" yaml:"status"`         // provider status (staked/unstaking/unstaked)
+	Chains                  []string         `json:"chains" yaml:"chains"`         // requested chains
+	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`         // tokens staked in the network
+	MaxRelays               sdk.BigInt       `json:"max_relays" yaml:"max_relays"` // maximum number of relays allowed
+	GeoZones                []string         `json:"geo_zone" yaml:"geo_zone"`     //geo location
+	NumServicers            int8             `json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the provider to complete unstaking
 }
 
 // NewProvider - initialize a new instance of an provider
-func NewProvider(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt, geoZones []string) Provider {
+func NewProvider(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt, geoZones []string, numServicers int8) Provider {
 	return Provider{
 		Address:                 addr,
 		PublicKey:               publicKey,
@@ -36,6 +37,7 @@ func NewProvider(addr sdk.Address, publicKey crypto.PublicKey, chains []string, 
 		Status:                  sdk.Staked,
 		Chains:                  chains,
 		GeoZones:                geoZones,
+		NumServicers:            numServicers,
 		StakedTokens:            tokensToStake,
 		UnstakingCompletionTime: time.Time{}, // zero out because status: staked
 	}
@@ -97,6 +99,7 @@ func (a Provider) GetTokens() sdk.BigInt          { return a.StakedTokens }
 func (a Provider) GetConsensusPower() int64       { return a.ConsensusPower() }
 func (a Provider) GetMaxRelays() sdk.BigInt       { return a.MaxRelays }
 func (a Provider) GetGeoZones() []string          { return a.GeoZones }
+func (a Provider) GetNumServicers() int8          { return a.NumServicers }
 
 var _ codec.ProtoMarshaler = &Provider{}
 
@@ -149,6 +152,7 @@ func (a Provider) ToProto() ProtoProvider {
 		StakedTokens:            a.StakedTokens,
 		MaxRelays:               a.MaxRelays,
 		GeoZones:                a.GeoZones,
+		NumServicers:            a.NumServicers,
 		UnstakingCompletionTime: a.UnstakingCompletionTime,
 	}
 }
@@ -198,6 +202,7 @@ type JSONProvider struct {
 	Status                  sdk.StakeStatus `json:"status" yaml:"status"`               // provider status (staked/unstaking/unstaked)
 	StakedTokens            sdk.BigInt      `json:"staked_tokens" yaml:"staked_tokens"` // how many staked tokens
 	GeoZones                []string        `json:"geo_zones" yaml:"geo_zones"`
+	NumServicers            int8            `json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the provider to complete unstaking
 }
 
@@ -240,6 +245,7 @@ func (a *Provider) UnmarshalJSON(data []byte) error {
 		StakedTokens:            bv.StakedTokens,
 		Status:                  bv.Status,
 		GeoZones:                bv.GeoZones,
+		NumServicers:            bv.NumServicers,
 		UnstakingCompletionTime: bv.UnstakingCompletionTime,
 	}
 	return nil

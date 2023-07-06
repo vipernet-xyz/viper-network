@@ -15,14 +15,6 @@ func TestParamKeyTable(t *testing.T) {
 	assert.Equal(t, ParamKeyTable(), p)
 }
 
-func TestKeeper_SessionNodeCount(t *testing.T) {
-	ctx, _, _, _, keeper, _, _ := createTestInput(t, false)
-	sessNodeCount := keeper.SessionNodeCount(ctx)
-	assert.NotNil(t, sessNodeCount)
-	assert.NotEmpty(t, sessNodeCount)
-	assert.Equal(t, types.DefaultSessionNodeCount, sessNodeCount)
-}
-
 func TestKeeper_ClaimExpiration(t *testing.T) {
 	ctx, _, _, _, keeper, _, _ := createTestInput(t, false)
 	claimExpiration := keeper.ClaimExpiration(ctx)
@@ -64,7 +56,6 @@ func TestKeeper_SupportedBlockchains(t *testing.T) {
 func TestKeeper_GetParams(t *testing.T) {
 	ctx, _, _, _, k, _, _ := createTestInput(t, false)
 	p := types.Params{
-		SessionNodeCount:           k.SessionNodeCount(ctx),
 		ClaimSubmissionWindow:      k.ClaimSubmissionWindow(ctx),
 		SupportedBlockchains:       k.SupportedBlockchains(ctx),
 		ClaimExpiration:            k.ClaimExpiration(ctx),
@@ -78,11 +69,9 @@ func TestKeeper_GetParams(t *testing.T) {
 
 func TestKeeper_SetParams(t *testing.T) {
 	ctx, _, _, _, k, _, _ := createTestInput(t, false)
-	sessionNodeCount := int64(17)
 	pwp := int64(22)
 	sb := []string{"ethereum"}
 	p := types.Params{
-		SessionNodeCount:      sessionNodeCount,
 		ClaimSubmissionWindow: pwp,
 		SupportedBlockchains:  sb,
 	}

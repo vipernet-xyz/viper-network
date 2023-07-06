@@ -579,7 +579,6 @@ func TestQueryViperParams(t *testing.T) {
 			got, err := VCA.QueryViperParams(VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.NotNil(t, got)
-			assert.Equal(t, int64(5), got.SessionNodeCount)
 			assert.Equal(t, int64(3), got.ClaimSubmissionWindow)
 			assert.Equal(t, int64(100), got.ClaimExpiration)
 			assert.Contains(t, got.SupportedBlockchains, sdk.PlaceholderHash)

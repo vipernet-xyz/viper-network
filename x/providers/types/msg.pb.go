@@ -26,9 +26,12 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type MsgProtoStake struct {
-	PubKey []byte                                           `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3" json:"pubkey" yaml:"pubkey"`
-	Chains []string                                         `protobuf:"bytes,2,rep,name=chains,proto3" json:"chains" yaml:"chains"`
-	Value  github_com_viper_network_viper_core_types.BigInt `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
+	PubKey   []byte                                           `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3" json:"pubkey" yaml:"pubkey"`
+	Chains   []string                                         `protobuf:"bytes,2,rep,name=chains,proto3" json:"chains" yaml:"chains"`
+	Value    github_com_viper_network_viper_core_types.BigInt `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
+	GeoZones []string                                         `protobuf:"bytes,4,rep,name=geoZones,proto3" json:"geo_Zones" yaml:"geo_Zones"`
+	NumServicers int8                                         `protobuf:"bytes,5,rep,name=numServicers,proto3" json:"num_servicers" yaml:"num_servicers"` 
+
 }
 
 func (m *MsgProtoStake) Reset()         { *m = MsgProtoStake{} }
@@ -266,7 +269,18 @@ func (this *MsgProtoStake) Equal(that interface{}) bool {
 			return false
 		}
 	}
+	if len(this.GeoZones) != len(that1.GeoZones) {
+		return false
+	}
+	for i := range this.GeoZones {
+		if this.GeoZones[i] != that1.GeoZones[i] {
+			return false
+		}
+	}
 	if !this.Value.Equal(that1.Value) {
+		return false
+	}
+	if this.NumServicers != that1.NumServicers {
 		return false
 	}
 	return true
@@ -358,6 +372,15 @@ func (m *MsgProtoStake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x12
 		}
 	}
+	if len(m.GeoZones) > 0 {
+		for iNdEx := len(m.GeoZones) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.GeoZones[iNdEx])
+			copy(dAtA[i:], m.GeoZones[iNdEx])
+			i = encodeVarintMsg(dAtA, i, uint64(len(m.GeoZones[iNdEx])))
+			i--
+			dAtA[i] = 0x22
+		}
+	}
 	if len(m.PubKey) > 0 {
 		i -= len(m.PubKey)
 		copy(dAtA[i:], m.PubKey)
@@ -365,7 +388,12 @@ func (m *MsgProtoStake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0xa
 	}
+	// Encode NumServicers as int8
+	i = encodeVarintMsg(dAtA, i, uint64(m.NumServicers))
+	i--
+	dAtA[i] = 0x30
 	return len(dAtA) - i, nil
+
 }
 
 func (m *MsgBeginUnstake) Marshal() (dAtA []byte, err error) {
@@ -483,6 +511,14 @@ func (m *MsgProtoStake) Size() (n int) {
 			n += 1 + l + sovMsg(uint64(l))
 		}
 	}
+	if len(m.GeoZones) > 0 {
+		for _, s := range m.GeoZones {
+			l = len(s)
+			n += 1 + l + sovMsg(uint64(l))
+		}
+	}
+	l = int(m.NumServicers)
+	n += 1 + l + sovMsg(uint64(l))
 	l = m.Value.Size()
 	n += 1 + l + sovMsg(uint64(l))
 	return n
@@ -666,6 +702,58 @@ func (m *MsgProtoStake) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZones", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZones = append(m.GeoZones, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumServicers", wireType)
+			}
+			m.NumServicers = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumServicers |= int8(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMsg(dAtA[iNdEx:])

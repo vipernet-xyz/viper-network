@@ -17,6 +17,7 @@ type Keeper struct {
 	providerKeeper    types.ProvidersKeeper
 	TmNode            client.Client
 	hostedBlockchains *types.HostedBlockchains
+	hostedGeoZone     *types.HostedGeoZones
 	Paramstore        sdk.Subspace
 	storeKey          sdk.StoreKey // Unexposed key to access store from sdk.Context
 	Cdc               *codec.Codec // The wire codec for binary encoding/decoding.
@@ -24,12 +25,13 @@ type Keeper struct {
 }
 
 // NewKeeper creates new instances of the vipernet module Keeper
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, authKeeper types.AuthKeeper, posKeeper types.PosKeeper, providerKeeper types.ProvidersKeeper, hostedChains *types.HostedBlockchains, paramstore sdk.Subspace) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, authKeeper types.AuthKeeper, posKeeper types.PosKeeper, providerKeeper types.ProvidersKeeper, hostedChains *types.HostedBlockchains, hostedGeoZone *types.HostedGeoZones, paramstore sdk.Subspace) Keeper {
 	return Keeper{
 		authKeeper:        authKeeper,
 		posKeeper:         posKeeper,
 		providerKeeper:    providerKeeper,
 		hostedBlockchains: hostedChains,
+		hostedGeoZone:     hostedGeoZone,
 		Paramstore:        paramstore.WithKeyTable(ParamKeyTable()),
 		storeKey:          storeKey,
 		Cdc:               cdc,

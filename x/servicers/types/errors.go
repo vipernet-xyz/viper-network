@@ -36,6 +36,7 @@ const (
 	CodeUnequalOutputAddr        CodeType          = 124
 	CodeUnauthorizedSigner       CodeType          = 125
 	CodeNilSigner                CodeType          = 126
+	CodeInvalidGeoZone           CodeType          = 127
 )
 
 func ErrTooManyChains(codespace sdk.CodespaceType) sdk.Error {
@@ -153,4 +154,8 @@ func ErrInvalidNetworkIdentifier(codespace sdk.CodespaceType, err error) sdk.Err
 
 func ErrStateConversion(codespace sdk.CodespaceType, err error) sdk.Error {
 	return sdk.NewError(codespace, CodeStateConvertError, fmt.Sprintf("unable to convert state: "+err.Error()))
+}
+
+func ErrInvalidGeoZone(codespace sdk.CodespaceType, err error) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidGeoZone, fmt.Sprintf("the geozone is not valid: "+err.Error()))
 }

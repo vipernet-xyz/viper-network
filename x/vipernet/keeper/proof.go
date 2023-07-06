@@ -77,7 +77,7 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 			ctx.Logger().Error(fmt.Sprintf("an error occurred creating the proof transaction with app %s not found with evidence %v", evidence.ProviderPubKey, evidence))
 		}
 		// get the merkle proof object for the pseudorandom index
-		mProof, leaf := evidence.GenerateMerkleProof(claim.SessionHeader.SessionBlockHeight, int(index), vc.MaxPossibleRelays(app, k.SessionNodeCount(sessionCtx)).Int64())
+		mProof, leaf := evidence.GenerateMerkleProof(claim.SessionHeader.SessionBlockHeight, int(index), vc.MaxPossibleRelays(app, int64(app.GetNumServicers())).Int64())
 		// if prevalidation on, then pre-validate
 		if vc.GlobalViperConfig.ProofPrevalidation {
 			// validate level count on claim by total relays
@@ -163,7 +163,7 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 		return servicerAddr, claim, vc.NewProviderNotFoundError(vc.ModuleName)
 	}
 	// validate the proof depending on the type of proof it is
-	er := proof.GetLeaf().Validate(provider.GetChains(), int(k.SessionNodeCount(sessionCtx)), claim.SessionHeader.SessionBlockHeight)
+	er := proof.GetLeaf().Validate(provider.GetChains(), int(provider.GetNumServicers()), claim.SessionHeader.SessionBlockHeight)
 	if er != nil {
 		return nil, claim, er
 	}

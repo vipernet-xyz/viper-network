@@ -72,6 +72,7 @@ type LegacyMsgProtoStake struct {
 	Chains     []string                                         `protobuf:"bytes,2,rep,name=Chains,proto3" json:"chains" yaml:"chains"`
 	Value      github_com_viper_network_viper_core_types.BigInt `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
 	ServiceUrl string                                           `protobuf:"bytes,4,opt,name=ServiceUrl,proto3" json:"service_url" yaml:"service_url"`
+	GeoZone    string                                           `protobuf:"bytes,5,opt,name=GeoZone,proto3" json:"geo_zone" yaml:"geo_zone"`
 }
 
 func (m *LegacyMsgProtoStake) Reset()         { *m = LegacyMsgProtoStake{} }
@@ -1412,6 +1413,38 @@ func (m *LegacyMsgProtoStake) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ServiceUrl = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZone = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

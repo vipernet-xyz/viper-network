@@ -20,7 +20,6 @@ func TestAppModule_Name(t *testing.T) {
 
 func TestAppModule_InitExportGenesis(t *testing.T) {
 	p := types.Params{
-		SessionNodeCount:      10,
 		ClaimSubmissionWindow: 22,
 		SupportedBlockchains:  []string{"eth"},
 		ClaimExpiration:       55,
@@ -81,7 +80,6 @@ func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
 	pm := NewAppModule(k)
 	p := types.Params{
-		SessionNodeCount:      10,
 		ClaimSubmissionWindow: 22,
 		SupportedBlockchains:  []string{hex.EncodeToString([]byte{01})},
 		ClaimExpiration:       55,
@@ -91,7 +89,6 @@ func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
 		Claims: []types.MsgClaim(nil),
 	}
 	p2 := types.Params{
-		SessionNodeCount:      -1,
 		ClaimSubmissionWindow: 22,
 		SupportedBlockchains:  []string{"eth"},
 		ClaimExpiration:       55,

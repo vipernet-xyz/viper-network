@@ -266,7 +266,7 @@ func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) 
 	}, nil
 }
 
-func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, geoZones []string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, geoZones []string, numServicers int8, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -296,10 +296,11 @@ func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount s
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
 	msg := providersType.MsgStake{
-		PubKey:  kp.PublicKey,
-		Chains:  chains,
-		Value:   amount,
-		GeoZone: geoZones,
+		PubKey:       kp.PublicKey,
+		Chains:       chains,
+		Value:        amount,
+		GeoZones:     geoZones,
+		NumServicers: numServicers,
 	}
 	err = msg.ValidateBasic()
 	if err != nil {

@@ -28,8 +28,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type SessionHeader struct {
 	ProviderPubKey     string `protobuf:"bytes,1,opt,name=providerPubKey,proto3" json:"provider_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
-	GeoZone            string `protobuf:"bytes,2,opt,name=geo_zone,proto3" json:"geo_zone"`
-	SessionBlockHeight int64  `protobuf:"varint,3,opt,name=sessionBlockHeight,proto3" json:"session_height"`
+	GeoZone            string `protobuf:"bytes,3,opt,name=geo_zone,proto3" json:"geo_zone"`
+	NumServicers       int8   `protobuf:"bytes,4,opt,name=num_servicers,proto3" json:"num_servicers"`
+	SessionBlockHeight int64  `protobuf:"varint,5,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }
 
 func (m *SessionHeader) Reset()         { *m = SessionHeader{} }
@@ -327,6 +328,8 @@ type RelayProof struct {
 	Blockchain         string `protobuf:"bytes,5,opt,name=blockchain,proto3" json:"blockchain"`
 	Token              AAT    `protobuf:"bytes,6,opt,name=token,proto3" json:"aat"`
 	Signature          string `protobuf:"bytes,7,opt,name=signature,proto3" json:"signature"`
+	GeoZone            string `protobuf:"bytes,8,opt,name=geoZone,proto3" json:"geo_zone"`
+	NumServicers       int8   `protobuf:"bytes,9,opt,name=numServicers,proto3" json:"num_servicers"`
 }
 
 func (m *RelayProof) Reset()         { *m = RelayProof{} }
@@ -747,6 +750,18 @@ func (m *SessionHeader) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
+	if len(m.GeoZone) > 0 {
+		i -= len(m.GeoZone)
+		copy(dAtA[i:], m.GeoZone)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.GeoZone)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.NumServicers != 0 {
+		i = encodeVarintViper(dAtA, i, uint64(m.NumServicers))
+		i--
+		dAtA[i] = 0x18
+	}
 	if len(m.ProviderPubKey) > 0 {
 		i -= len(m.ProviderPubKey)
 		copy(dAtA[i:], m.ProviderPubKey)
@@ -1103,6 +1118,18 @@ func (m *RelayProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x2a
 	}
+	if len(m.GeoZone) > 0 {
+		i -= len(m.GeoZone)
+		copy(dAtA[i:], m.GeoZone)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.GeoZone)))
+		i--
+		dAtA[i] = 0x2a
+		}
+	if m.NumServicers != 0 {
+		i = encodeVarintViper(dAtA, i, uint64(m.NumServicers))
+		i--
+		dAtA[i] = 0x18
+	}
 	if len(m.ServicerPubKey) > 0 {
 		i -= len(m.ServicerPubKey)
 		copy(dAtA[i:], m.ServicerPubKey)
@@ -1432,9 +1459,15 @@ func (m *SessionHeader) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
+	l = len(m.GeoZone)
+	if l > 0 {
+		n += 1 + l + sovViper(uint64(l))
+	}
 	if m.SessionBlockHeight != 0 {
 		n += 1 + sovViper(uint64(m.SessionBlockHeight))
 	}
+	l = int(m.NumServicers)
+	n += 1 + l + sovViper(uint64(l))
 	return n
 }
 
@@ -1590,7 +1623,13 @@ func (m *RelayProof) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovViper(uint64(l))
 	}
+	l = len(m.GeoZone)
+	if l > 0 {
+		n += 1 + l + sovViper(uint64(l))
+	}
 	l = m.Token.Size()
+	n += 1 + l + sovViper(uint64(l))
+	l = int(m.NumServicers)
 	n += 1 + l + sovViper(uint64(l))
 	l = len(m.Signature)
 	if l > 0 {
@@ -1814,6 +1853,70 @@ func (m *SessionHeader) Unmarshal(dAtA []byte) error {
 			m.Chain = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZones", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZone = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumServicers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NumServicers = int8(dAtA[iNdEx])
+			iNdEx = postIndex
+		case 5:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SessionBlockHeight", wireType)
 			}
@@ -2902,6 +3005,58 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 			}
 			m.Signature = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZone = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumServicers", wireType)
+			}
+			m.NumServicers = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumServicers |= int8(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		
 		default:
 			iNdEx = preIndex
 			skippy, err := skipViper(dAtA[iNdEx:])

@@ -118,6 +118,11 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, servicersKeeper.Kee
 		}},
 	}
 
+	gz := types.HostedGeoZones{
+		M: map[string]types.GeoZone{"0001": {
+			ID: "0001",
+		}},
+	}
 	accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	servicersSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
 	providerSubspace := sdk.NewSubspace(types.DefaultParamspace)
@@ -125,7 +130,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, servicersKeeper.Kee
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
 	nk := servicersKeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
 	providerk := providersKeeper.NewKeeper(cdc, providersKey, nk, ak, nil, providerSubspace, providersTypes.ModuleName)
-	keeper := keep.NewKeeper(viperKey, cdc, ak, nk, providerk, &hb, viperSubspace)
+	keeper := keep.NewKeeper(viperKey, cdc, ak, nk, providerk, &hb, &gz, viperSubspace)
 	kb := NewTestKeybase()
 	providerk.ViperKeeper = keeper
 	_, err = kb.Create("test")
@@ -240,7 +245,7 @@ func createTestProviders(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak provi
 		privKey := crypto.GenerateEd25519PrivKey()
 		pubKey := privKey.PublicKey()
 		addr := sdk.Address(pubKey.Address())
-		provider := providersTypes.NewProvider(addr, pubKey, []string{ethereum}, valCoins, []string{"0001"})
+		provider := providersTypes.NewProvider(addr, pubKey, []string{ethereum}, valCoins, []string{"0001"}, 5)
 		// set the vals from the data
 		// calculate relays
 		provider.MaxRelays = ak.CalculateProviderRelays(ctx, provider)

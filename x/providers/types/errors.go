@@ -26,12 +26,17 @@ const (
 	CodeInvalidGeoZone        CodeType          = 119
 	CodeMaxProviders          CodeType          = 120
 	CodeMinimumEditStake      CodeType          = 121
+	CodeNoGeoZones            CodeType          = 122
+	CodeNoServicers           CodeType          = 123
+	CodeNumServicers          CodeType          = 124
 )
 
 func ErrTooManyChains(Codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(Codespace, CodeTooManyChains, "provider staking for too many chains")
 }
-
+func ErrNoGeoZones(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeNoGeoZones, "validator must stake with hosted geozones")
+}
 func ErrNoChains(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeNoChains, "validator must stake with hosted blockchains")
 }
@@ -47,6 +52,10 @@ func ErrNoProviderFound(codespace sdk.CodespaceType) sdk.Error {
 
 func ErrBadStakeAmount(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidStakeAmount, "the stake amount is invalid")
+}
+
+func ErrNoServicers(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeNoServicers, "the number of servicers is zero")
 }
 
 func ErrNotEnoughCoins(codespace sdk.CodespaceType) sdk.Error {
@@ -104,4 +113,8 @@ func ErrInvalidGeoZoneIdentifier(codespace sdk.CodespaceType, err error) sdk.Err
 
 func ErrMinimumEditStake(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeMinimumEditStake, "provider must edit stake with a stake greater than or equal to current stake")
+}
+
+func ErrNumServicers(Codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(Codespace, CodeNumServicers, "Number of servicer's out of range")
 }

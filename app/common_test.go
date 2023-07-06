@@ -337,7 +337,10 @@ func GetApp(logger log.Logger, db dbm.DB, traceWriter io.Writer) *ViperCoreApp {
 			ID:  sdk.PlaceholderHash,
 			URL: sdk.PlaceholderURL,
 		}}
-		p := NewViperCoreApp(GenState, getInMemoryKeybase(), getInMemoryTMClient(), &viperTypes.HostedBlockchains{M: m, L: sync.Mutex{}}, logger, db, false, 5000000, bam.SetPruning(store.PruneNothing))
+		m1 := map[string]viperTypes.GeoZone{"0001": {
+			ID: sdk.PlaceholderHash,
+		}}
+		p := NewViperCoreApp(GenState, getInMemoryKeybase(), getInMemoryTMClient(), &viperTypes.HostedBlockchains{M: m, L: sync.Mutex{}}, &viperTypes.HostedGeoZones{M: m1, L: sync.Mutex{}}, logger, db, false, 5000000, bam.SetPruning(store.PruneNothing))
 		return p
 	}
 	return creator(logger, db, traceWriter)
@@ -561,6 +564,8 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("provider/MaximumChains", kp.GetAddress())
 		acl.SetOwner("provider/ParticipationRate", kp.GetAddress())
 		acl.SetOwner("provider/StabilityModulation", kp.GetAddress())
+		acl.SetOwner("provider/MinNumServicers", kp.GetAddress())
+		acl.SetOwner("provider/MaxNumServicers", kp.GetAddress())
 		acl.SetOwner("authentication/MaxMemoCharacters", kp.GetAddress())
 		acl.SetOwner("authentication/TxSigLimit", kp.GetAddress())
 		acl.SetOwner("authentication/FeeMultipliers", kp.GetAddress())
@@ -571,7 +576,6 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("vipernet/ClaimSubmissionWindow", kp.GetAddress())
 		acl.SetOwner("vipernet/MinimumNumberOfProofs", kp.GetAddress())
 		acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", kp.GetAddress())
-		acl.SetOwner("vipernet/SessionNodeCount", kp.GetAddress())
 		acl.SetOwner("vipernet/SupportedBlockchains", kp.GetAddress())
 		acl.SetOwner("pos/BlocksPerSession", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())

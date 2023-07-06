@@ -90,6 +90,11 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 		// hot reload chains
 		HotReloadChains(chains)
 	}
+	geoZone := NewHostedGeoZones(false)
+	if GlobalConfig.ViperConfig.GeoZonesHotReload {
+		// hot reload chains
+		HotReloadGeoZones(geoZone)
+	}
 	// create logger
 	logger := InitLogger()
 	// prestart hook, so users don't have to create their own set-validator prestart script
@@ -120,7 +125,7 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	// log the config and chains
 	logger.Debug(fmt.Sprintf("Viper Config: \n%v", GlobalConfig))
 	// init the tendermint node
-	return InitTendermint(keybase, chains, logger)
+	return InitTendermint(keybase, chains, geoZone, logger)
 }
 
 func InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string) {
@@ -349,7 +354,7 @@ type Config struct {
 	TraceWriter string
 }
 
-func InitTendermint(keybase bool, chains *types.HostedBlockchains, logger log.Logger) *node.Node {
+func InitTendermint(keybase bool, chains *types.HostedBlockchains, geoZone *types.HostedGeoZones, logger log.Logger) *node.Node {
 	logger.Info("Initializing Tendermint")
 	c := Config{
 		TmConfig:    &GlobalConfig.TendermintConfig,
@@ -364,7 +369,7 @@ func InitTendermint(keybase bool, chains *types.HostedBlockchains, logger log.Lo
 		keys = MustGetKeybase()
 	}
 	appCreatorFunc := func(logger log.Logger, db dbm.DB, _ io.Writer) *ViperCoreApp {
-		return NewViperCoreApp(nil, keys, getTMClient(), chains, logger, db, GlobalConfig.ViperConfig.Cache, GlobalConfig.ViperConfig.IavlCacheSize, baseapp.SetPruning(store.PruneNothing))
+		return NewViperCoreApp(nil, keys, getTMClient(), chains, geoZone, logger, db, GlobalConfig.ViperConfig.Cache, GlobalConfig.ViperConfig.IavlCacheSize, baseapp.SetPruning(store.PruneNothing))
 	}
 	tmNode, app, err := NewClient(config(c), appCreatorFunc)
 	if err != nil {
@@ -688,6 +693,7 @@ const (
 	enterIDPrompt     = `Enter the ID of the network identifier:`
 	enterURLPrompt    = `Enter the URL of the network identifier:`
 	addNewChainPrompt = `Would you like to enter another network identifier? (y/n)`
+	enterGZPrompt     = `Enter the geozone of the node:`
 	ReadInError       = `An error occurred reading in the information: `
 )
 
@@ -1185,4 +1191,196 @@ func LoadFilePVKeysFromFileLean(path string) ([]privval.FilePVKey, error) {
 	}
 
 	return pvKey, nil
+}
+
+func HotReloadGeoZones(geoZones *types.HostedGeoZones) {
+	go func() {
+		for {
+			time.Sleep(time.Minute * 1)
+			// create the geoZones path
+			var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZonesName
+			// if file exists open, else create and open
+			var jsonFile *os.File
+			var bz []byte
+			if _, err := os.Stat(geoZonesPath); err != nil && os.IsNotExist(err) {
+				log2.Println(fmt.Sprintf("no geoZones.json found @ %s, defaulting to empty geoZones", geoZonesPath))
+				return
+			}
+			// reopen the file to read into the variable
+			jsonFile, err := os.OpenFile(geoZonesPath, os.O_RDONLY|os.O_CREATE, os.ModePerm)
+			if err != nil {
+				log2.Fatal(NewInvalidGeoZonesError(err))
+			}
+			bz, err = ioutil.ReadAll(jsonFile)
+			if err != nil {
+				log2.Fatal(NewInvalidGeoZonesError(err))
+			}
+			// unmarshal into the structure
+			var hostedGeoZonesSlice []types.GeoZone
+			err = json.Unmarshal(bz, &hostedGeoZonesSlice)
+			if err != nil {
+				log2.Fatal(NewInvalidGeoZonesError(err))
+			}
+			// close the file
+			err = jsonFile.Close()
+			if err != nil {
+				log2.Fatal(NewInvalidGeoZonesError(err))
+			}
+			m := make(map[string]types.GeoZone)
+			for _, geoZone := range hostedGeoZonesSlice {
+				m[geoZone.ID] = geoZone
+			}
+			geoZones.L.Lock()
+			geoZones.M = m
+			geoZones.L.Unlock()
+		}
+	}()
+}
+
+func NewHostedGeoZones(generate bool) *types.HostedGeoZones {
+	// Create the geoZones path
+	var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZonesName
+	// If the file exists, open it; otherwise, create and open a new file
+	var jsonFile *os.File
+	var bz []byte
+	if _, err := os.Stat(geoZonesPath); err != nil && os.IsNotExist(err) {
+		if !generate {
+			log2.Println(fmt.Sprintf("no geoZones.json found @ %s, defaulting to empty geoZones", geoZonesPath))
+			// Added for hot reload compatibility: geoZones.json should exist even if empty
+			createMissingGeoZonesJson(geoZonesPath)
+			return &types.HostedGeoZones{} // Default to empty object
+		}
+		return generateGeoZonesJson(geoZonesPath)
+	}
+	// Reopen the file to read its contents
+	jsonFile, err := os.OpenFile(geoZonesPath, os.O_RDONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	bz, err = ioutil.ReadAll(jsonFile)
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	// Unmarshal the contents into the structure
+	var hostedGeoZonesSlice []types.GeoZone
+	err = json.Unmarshal(bz, &hostedGeoZonesSlice)
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	// Close the file
+	err = jsonFile.Close()
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+
+	// Ensure that only one geozone is present
+	if len(hostedGeoZonesSlice) > 1 {
+		log2.Fatal("More than one geozone is defined. Please ensure that only one geozone is configured.")
+	}
+
+	m := make(map[string]types.GeoZone)
+	if len(hostedGeoZonesSlice) == 1 {
+		geoZone := hostedGeoZonesSlice[0]
+		m[geoZone.ID] = geoZone
+	}
+
+	// Return the hosted geozone
+	return &types.HostedGeoZones{
+		M: m,
+		L: sync.Mutex{},
+	}
+}
+
+func generateGeoZonesJson(geoZonesPath string) *types.HostedGeoZones {
+	var jsonFile *os.File
+	// if does not exist create one
+	jsonFile, err := os.OpenFile(geoZonesPath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return &types.HostedGeoZones{} // default to empty object
+	}
+	// generate hosted geoZones from user input
+	gz := GenerateHostedGeoZones()
+	// create dummy input for the file
+	res, err := json.MarshalIndent(gz, "", "  ")
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	// write to the file
+	_, err = jsonFile.Write(res)
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	// close the file
+	err = jsonFile.Close()
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	m := make(map[string]types.GeoZone)
+	for _, geoZone := range gz {
+		m[geoZone.ID] = geoZone
+	}
+	// return the map
+	return &types.HostedGeoZones{M: m, L: sync.Mutex{}}
+}
+
+func GenerateHostedGeoZones() (geozones []types.GeoZone) {
+	for {
+		var ID string
+		fmt.Println(enterGZPrompt)
+		reader := bufio.NewReader(os.Stdin)
+		ID, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println(ReadInError + err.Error())
+			os.Exit(3)
+		}
+		ID = strings.Trim(strings.TrimSpace(ID), "\n")
+		if err := servicerTypes.ValidateGeoZone(ID); err != nil {
+			fmt.Println(err)
+			fmt.Println("please try again")
+			continue
+		}
+		geozones = append(geozones, types.GeoZone{ID: ID})
+		break
+	}
+
+	return geozones
+}
+
+func DeleteHostedGeoZones() {
+	// create the geoZones path
+	var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZonesName
+	err := os.Remove(geoZonesPath)
+	if err != nil {
+		fmt.Println(fmt.Sprintf("could not delete %s file: ", geoZonesPath) + err.Error())
+		os.Exit(3)
+	}
+}
+
+func createMissingGeoZonesJson(geoZonesPath string) {
+	// reopen the file to read into the variable
+	jsonFile, err := os.OpenFile(geoZonesPath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+
+	var hostedGeoZonesSlice []types.GeoZone
+
+	hostedGeoZonesSlice = append(hostedGeoZonesSlice, types.GeoZone{
+		ID: "0000",
+	})
+
+	// write to the file
+	res, err := json.MarshalIndent(hostedGeoZonesSlice, "", "  ")
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	_, err = jsonFile.Write(res)
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
+	// close the file
+	err = jsonFile.Close()
+	if err != nil {
+		log2.Fatal(NewInvalidGeoZonesError(err))
+	}
 }

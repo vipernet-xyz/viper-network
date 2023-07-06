@@ -18,6 +18,8 @@ func init() {
 	rootCmd.AddCommand(utilCmd)
 	utilCmd.AddCommand(chainsGenCmd)
 	utilCmd.AddCommand(chainsDelCmd)
+	utilCmd.AddCommand(geoZonesGenCmd)
+	utilCmd.AddCommand(geoZonesDelCmd)
 	utilCmd.AddCommand(decodeTxCmd)
 	utilCmd.AddCommand(exportGenesisForReset)
 	utilCmd.AddCommand(convertViperEvidenceDB)
@@ -55,6 +57,32 @@ var chainsDelCmd = &cobra.Command{
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		app.DeleteHostedChains()
 		fmt.Println("Successfully deleted " + app.GlobalConfig.ViperConfig.ChainsName + ".")
+	},
+}
+
+var geoZonesGenCmd = &cobra.Command{
+	Use:   "generate-geozones",
+	Short: "Generates geoZones file",
+	Long:  "Generate the geoZones file for hosted geoZones",
+	Run: func(cmd *cobra.Command, args []string) {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		geoZones := app.GenerateHostedGeoZones()
+		fmt.Println(app.GlobalConfig.ViperConfig.GeoZonesName + " contains:\n")
+		for _, zone := range geoZones {
+			fmt.Println(zone.ID)
+		}
+		fmt.Println("If incorrect, please remove the geozone.json file with the " + geoZonesDelCmd.NameAndAliases() + " command")
+	},
+}
+
+var geoZonesDelCmd = &cobra.Command{
+	Use:   "delete-geozones",
+	Short: "Remove geoZones file",
+	Long:  "Remove the geoZones file for hosted geoZones",
+	Run: func(cmd *cobra.Command, args []string) {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		app.DeleteHostedGeoZones()
+		fmt.Println("Successfully deleted " + app.GlobalConfig.ViperConfig.GeoZonesName + ".")
 	},
 }
 
@@ -122,7 +150,7 @@ var exportGenesisForReset = &cobra.Command{
 			return
 		}
 		loggerFile, _ := os.Open(os.DevNull)
-		a := app.NewViperCoreApp(nil, nil, nil, nil, log.NewTMLogger(loggerFile), db, false, app.GlobalConfig.ViperConfig.IavlCacheSize)
+		a := app.NewViperCoreApp(nil, nil, nil, nil, nil, log.NewTMLogger(loggerFile), db, false, app.GlobalConfig.ViperConfig.IavlCacheSize)
 		// initialize stores
 		blockStore, _, _, _, err := state.BlocksAndStateFromDB(&app.GlobalConfig.TendermintConfig, state.DefaultDBProvider)
 		if err != nil {
