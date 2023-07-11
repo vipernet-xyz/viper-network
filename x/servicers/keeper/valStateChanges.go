@@ -521,15 +521,15 @@ func (k Keeper) ForceValidatorUnstake(ctx sdk.Ctx, validator types.Validator) sd
 func (k Keeper) JailValidator(ctx sdk.Ctx, addr sdk.Address) {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
-		ctx.Logger().Error(fmt.Errorf("cannot find jailed validator: %v at height: %d\n", addr, ctx.BlockHeight()).Error())
+		ctx.Logger().Error(fmt.Errorf("cannot find jailed validator: %v at height: %d", addr, ctx.BlockHeight()).Error())
 		return
 	}
 	if validator.Jailed {
-		ctx.Logger().Debug(fmt.Errorf("cannot jail already jailed validator, validator: %v a height: %d\n", validator, ctx.BlockHeight()).Error())
+		ctx.Logger().Debug(fmt.Errorf("cannot jail already jailed validator, validator: %v a height: %d", validator, ctx.BlockHeight()).Error())
 		return
 	}
 	if validator.IsUnstaked() {
-		ctx.Logger().Info(fmt.Errorf("cannot jail an unstaked validator, likely left in the set to update Tendermint Val Set: %v\n", validator).Error())
+		ctx.Logger().Info(fmt.Errorf("cannot jail an unstaked validator, likely left in the set to update Tendermint Val Set: %v", validator).Error())
 		return
 	}
 	// clear caching for sesssions
@@ -639,7 +639,7 @@ func (k Keeper) ValidateUnjailMessage(ctx sdk.Ctx, msg types.MsgUnjail) (addr sd
 func (k Keeper) UnjailValidator(ctx sdk.Ctx, addr sdk.Address) {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
-		ctx.Logger().Error(fmt.Errorf("cannot unjail validator, validator not found: %v at height %d\n", addr, ctx.BlockHeight()).Error())
+		ctx.Logger().Error(fmt.Errorf("cannot unjail validator, validator not found: %v at height %d", addr, ctx.BlockHeight()).Error())
 		return
 	}
 	if !validator.Jailed {
@@ -656,15 +656,15 @@ func (k Keeper) UnjailValidator(ctx sdk.Ctx, addr sdk.Address) {
 func (k Keeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
-		ctx.Logger().Error(fmt.Errorf("cannot find paused validator: %v at height: %d\n", addr, ctx.BlockHeight()).Error())
+		ctx.Logger().Error(fmt.Errorf("cannot find paused validator: %v at height: %d", addr, ctx.BlockHeight()).Error())
 		return
 	}
 	if validator.Paused {
-		ctx.Logger().Debug(fmt.Errorf("cannot pause already paused validator, validator: %v a height: %d\n", validator, ctx.BlockHeight()).Error())
+		ctx.Logger().Debug(fmt.Errorf("cannot pause already paused validator, validator: %v a height: %d", validator, ctx.BlockHeight()).Error())
 		return
 	}
 	if validator.IsUnstaked() {
-		ctx.Logger().Info(fmt.Errorf("cannot pause an unstaked validator, likely left in the set to update Tendermint Val Set: %v\n", validator).Error())
+		ctx.Logger().Info(fmt.Errorf("cannot pause an unstaked validator, likely left in the set to update Tendermint Val Set: %v", validator).Error())
 		return
 	}
 	// clear caching for sesssions
@@ -687,25 +687,25 @@ func (k Keeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) {
 func (k Keeper) UnpauseNode(ctx sdk.Ctx, addr sdk.Address) {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
-		ctx.Logger().Error(fmt.Errorf("cannot unpause validator, validator not found: %v at height %d\n", addr, ctx.BlockHeight()).Error())
+		ctx.Logger().Error(fmt.Errorf("cannot unpause validator, validator not found: %v at height %d", addr, ctx.BlockHeight()).Error())
 		return
 	}
 	if !validator.Paused {
-		k.Logger(ctx).Error(fmt.Sprintf("cannot unjail already unpaused validator, validator: %v at height %d\n", validator, ctx.BlockHeight()))
+		k.Logger(ctx).Error(fmt.Sprintf("cannot unjail already unpaused validator, validator: %v at height %d", validator, ctx.BlockHeight()))
 		return
 	}
 	info, found := k.GetValidatorSigningInfo(ctx, addr)
 	if !found {
-		k.Logger(ctx).Error((fmt.Sprintf("that address is not associated with any known validator")))
+		k.Logger(ctx).Error("that address is not associated with any known validator")
 		return
 	}
 	if info.PausedUntil.After(time.Now()) {
-		k.Logger(ctx).Error((fmt.Sprintf("validator paused")))
+		k.Logger(ctx).Error("validator paused")
 		return
 	}
 	// cannot be unjailed until out of jail
 	if ctx.BlockHeader().Time.Before(info.PausedUntil) {
-		k.Logger(ctx).Error((fmt.Sprintf("validator paused")))
+		k.Logger(ctx).Error("validator paused")
 		return
 	}
 	validator.Paused = false
