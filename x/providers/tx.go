@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vipernet-xyz/viper-network/codec"
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	"github.com/vipernet-xyz/viper-network/crypto/keys/mintkey"
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -14,12 +15,14 @@ import (
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
-func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, amount sdk.BigInt, kp keys.KeyPair, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
+func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, geozones []string, numServicers int8, amount sdk.BigInt, kp keys.KeyPair, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
 	fromAddr := kp.GetAddress()
 	msg := types.MsgStake{
-		PubKey: kp.PublicKey,
-		Value:  amount,
-		Chains: chains, // non native blockchains
+		PubKey:       kp.PublicKey,
+		Value:        amount,
+		Chains:       chains, // non native blockchains
+		GeoZones:     geozones,
+		NumServicers: numServicers,
 	}
 	txBuilder, cliCtx, err := newTx(cdc, &msg, fromAddr, tmNode, keybase, passphrase)
 	if err != nil {
@@ -34,6 +37,19 @@ func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chain
 
 func UnstakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, address sdk.Address, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
 	msg := types.MsgBeginUnstake{Address: address}
+	txBuilder, cliCtx, err := newTx(cdc, &msg, address, tmNode, keybase, passphrase)
+	if err != nil {
+		return nil, err
+	}
+	err = msg.ValidateBasic()
+	if err != nil {
+		return nil, err
+	}
+	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, legacyCodec)
+}
+
+func StakingKeyTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, address sdk.Address, stakingKey crypto.PublicKey, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
+	msg := types.MsgStakingKey{Address: address, StakingKey: stakingKey}
 	txBuilder, cliCtx, err := newTx(cdc, &msg, address, tmNode, keybase, passphrase)
 	if err != nil {
 		return nil, err

@@ -81,6 +81,11 @@ func (k Keeper) DowntimeJailDuration(ctx sdk.Ctx) (res time.Duration) {
 	return
 }
 
+func (k Keeper) MinPauseTime(ctx sdk.Ctx) (res time.Duration) {
+	k.Paramstore.Get(ctx, types.KeyMinPauseTime, &res)
+	return
+}
+
 // SlashFractionDoubleSign - Retrieve slash fraction for double signature
 func (k Keeper) SlashFractionDoubleSign(ctx sdk.Ctx) (res sdk.BigDec) {
 	k.Paramstore.Get(ctx, types.KeySlashFractionDoubleSign, &res)
@@ -203,6 +208,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		SlashFractionDowntime:   k.SlashFractionDowntime(ctx),
 		ServicerCountLock:       k.ServicerCountLock(ctx),
 		BurnActive:              k.BurnActive(ctx),
+		MinPauseTime:            k.MinPauseTime(ctx),
 	}
 }
 

@@ -35,13 +35,14 @@ type ProtoValidator struct {
 	Address                 github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=Address,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address" yaml:"address"`
 	PublicKey               []byte                                            `protobuf:"bytes,2,opt,name=PublicKey,proto3" json:"public_key" yaml:"public_key"`
 	Jailed                  bool                                              `protobuf:"varint,3,opt,name=jailed,proto3" json:"jailed"`
-	Status                  int32                                             `protobuf:"varint,4,opt,name=status,proto3" json:"status"`
-	Chains                  []string                                          `protobuf:"bytes,5,rep,name=Chains,proto3" json:"chains"`
-	ServiceURL              string                                            `protobuf:"bytes,6,opt,name=ServiceURL,proto3" json:"service_url"`
-	StakedTokens            github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,7,opt,name=StakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens"`
-	GeoZone                 string                                            `protobuf:"bytes,6,opt,name=GeoZone,proto3" json:"geo_zone"`
-	UnstakingCompletionTime time.Time                                         `protobuf:"bytes,8,opt,name=UnstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
-	OutputAddress           github_com_viper_network_viper_core_types.Address `protobuf:"bytes,9,opt,name=OutputAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"output_address,omitempty" yaml:"output_address"`
+	Paused                  bool                                              `protobuf:"varint,4,opt,name=paused,proto3" json:"paused"`
+	Status                  int32                                             `protobuf:"varint,5,opt,name=status,proto3" json:"status"`
+	Chains                  []string                                          `protobuf:"bytes,6,rep,name=Chains,proto3" json:"chains"`
+	ServiceURL              string                                            `protobuf:"bytes,7,opt,name=ServiceURL,proto3" json:"service_url"`
+	StakedTokens            github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,8,opt,name=StakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens"`
+	GeoZone                 string                                            `protobuf:"bytes,9,opt,name=GeoZone,proto3" json:"geo_zone"`
+	UnstakingCompletionTime time.Time                                         `protobuf:"bytes,10,opt,name=UnstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
+	OutputAddress           github_com_viper_network_viper_core_types.Address `protobuf:"bytes,11,opt,name=OutputAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"output_address,omitempty" yaml:"output_address"`
 }
 
 func (m *ProtoValidator) Reset()         { *m = ProtoValidator{} }
@@ -133,12 +134,13 @@ type LegacyProtoValidator struct {
 	Address                 github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=Address,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address" yaml:"address"`
 	PublicKey               []byte                                            `protobuf:"bytes,2,opt,name=PublicKey,proto3" json:"public_key" yaml:"public_key"`
 	Jailed                  bool                                              `protobuf:"varint,3,opt,name=jailed,proto3" json:"jailed"`
-	Status                  int32                                             `protobuf:"varint,4,opt,name=status,proto3" json:"status"`
-	Chains                  []string                                          `protobuf:"bytes,5,rep,name=Chains,proto3" json:"chains"`
-	ServiceURL              string                                            `protobuf:"bytes,6,opt,name=ServiceURL,proto3" json:"service_url"`
-	StakedTokens            github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,7,opt,name=StakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens"`
-	GeoZone                 string                                            `protobuf:"bytes,6,opt,name=GeoZone,proto3" json:"geo_zone"`
-	UnstakingCompletionTime time.Time                                         `protobuf:"bytes,8,opt,name=UnstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
+	Paused                  bool                                              `protobuf:"varint,4,opt,name=paused,proto3" json:"paused"`
+	Status                  int32                                             `protobuf:"varint,5,opt,name=status,proto3" json:"status"`
+	Chains                  []string                                          `protobuf:"bytes,6,rep,name=Chains,proto3" json:"chains"`
+	ServiceURL              string                                            `protobuf:"bytes,7,opt,name=ServiceURL,proto3" json:"service_url"`
+	StakedTokens            github_com_viper_network_viper_core_types.BigInt  `protobuf:"bytes,8,opt,name=StakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens"`
+	GeoZone                 string                                            `protobuf:"bytes,9,opt,name=GeoZone,proto3" json:"geo_zone"`
+	UnstakingCompletionTime time.Time                                         `protobuf:"bytes,10,opt,name=UnstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
 }
 
 func (m *LegacyProtoValidator) Reset()         { *m = LegacyProtoValidator{} }
@@ -186,6 +188,7 @@ type ValidatorSigningInfo struct {
 	// missed blocks counter (to avoid scanning the array every time)
 	MissedBlocksCounter int64 `protobuf:"varint,5,opt,name=missed_blocks_counter,json=missedBlocksCounter,proto3" json:"missed_blocks_counter" yaml:"missed_blocks_counter"`
 	JailedBlocksCounter int64 `protobuf:"varint,6,opt,name=jailed_blocks_counter,json=jailedBlocksCounter,proto3" json:"jailed_blocks_counter" yaml:"jailed_blocks_counter"`
+	PausedUntil  time.Time    `protobuf:"bytes,7,opt,name=paused_until,json=pausedUntil,proto3,stdtime" json:"paused_until" yaml:"paused_until"`
 }
 
 func (m *ValidatorSigningInfo) Reset()      { *m = ValidatorSigningInfo{} }
@@ -244,6 +247,13 @@ func (m *ValidatorSigningInfo) GetIndex() int64 {
 func (m *ValidatorSigningInfo) GetJailedUntil() time.Time {
 	if m != nil {
 		return m.JailedUntil
+	}
+	return time.Time{}
+}
+
+func (m *ValidatorSigningInfo) GetPausedUntil() time.Time {
+	if m != nil {
+		return m.PausedUntil
 	}
 	return time.Time{}
 }
@@ -473,6 +483,9 @@ func (this *ProtoValidator) Equal(that interface{}) bool {
 	if this.Jailed != that1.Jailed {
 		return false
 	}
+	if this.Paused != that1.Paused {
+		return false
+	}
 	if this.Status != that1.Status {
 		return false
 	}
@@ -529,6 +542,9 @@ func (this *LegacyProtoValidator) Equal(that interface{}) bool {
 	if this.Jailed != that1.Jailed {
 		return false
 	}
+	if this.Paused != that1.Paused {
+		return false
+	}
 	if this.Status != that1.Status {
 		return false
 	}
@@ -583,6 +599,9 @@ func (this *ValidatorSigningInfo) Equal(that interface{}) bool {
 		return false
 	}
 	if !this.JailedUntil.Equal(that1.JailedUntil) {
+		return false
+	}
+	if !this.PausedUntil.Equal(that1.PausedUntil) {
 		return false
 	}
 	if this.MissedBlocksCounter != that1.MissedBlocksCounter {
@@ -744,6 +763,16 @@ func (m *ProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x18
 	}
+	if m.Paused {
+		i--
+		if m.Paused {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
+	}
 	if len(m.PublicKey) > 0 {
 		i -= len(m.PublicKey)
 		copy(dAtA[i:], m.PublicKey)
@@ -854,6 +883,16 @@ func (m *LegacyProtoValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x18
 	}
+	if m.Paused {
+		i--
+		if m.Paused {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
+	}
 	if len(m.PublicKey) > 0 {
 		i -= len(m.PublicKey)
 		copy(dAtA[i:], m.PublicKey)
@@ -909,6 +948,14 @@ func (m *ValidatorSigningInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i = encodeVarintServicers(dAtA, i, uint64(n3))
 	i--
 	dAtA[i] = 0x22
+	n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.PausedUntil, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.PausedUntil):])
+	if err4 != nil {
+		return 0, err4
+	}
+	i -= n4
+	i = encodeVarintServicers(dAtA, i, uint64(n4))
+	i--
+	dAtA[i] = 0x22
 	if m.Index != 0 {
 		i = encodeVarintServicers(dAtA, i, uint64(m.Index))
 		i--
@@ -957,6 +1004,9 @@ func (m *ProtoValidator) Size() (n int) {
 	if m.Jailed {
 		n += 2
 	}
+	if m.Paused {
+		n += 2
+	}
 	if m.Status != 0 {
 		n += 1 + sovServicers(uint64(m.Status))
 	}
@@ -1002,6 +1052,9 @@ func (m *LegacyProtoValidator) Size() (n int) {
 	if m.Jailed {
 		n += 2
 	}
+	if m.Paused {
+		n += 2
+	}
 	if m.Status != 0 {
 		n += 1 + sovServicers(uint64(m.Status))
 	}
@@ -1043,6 +1096,8 @@ func (m *ValidatorSigningInfo) Size() (n int) {
 		n += 1 + sovServicers(uint64(m.Index))
 	}
 	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.JailedUntil)
+	n += 1 + l + sovServicers(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.PausedUntil)
 	n += 1 + l + sovServicers(uint64(l))
 	if m.MissedBlocksCounter != 0 {
 		n += 1 + sovServicers(uint64(m.MissedBlocksCounter))
@@ -1178,6 +1233,26 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			m.Jailed = bool(v != 0)
 		case 4:
 			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Paused", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowServicers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Paused = bool(v != 0)
+		case 5:
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
 			}
 			m.Status = 0
@@ -1195,7 +1270,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 5:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Chains", wireType)
 			}
@@ -1227,7 +1302,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			m.Chains = append(m.Chains, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
-		case 6:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ServiceURL", wireType)
 			}
@@ -1259,7 +1334,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			m.ServiceURL = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field StakedTokens", wireType)
 			}
@@ -1293,7 +1368,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 8:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
 			}
@@ -1325,7 +1400,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 			}
 			m.GeoZone = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 9:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UnstakingCompletionTime", wireType)
 			}
@@ -1358,7 +1433,7 @@ func (m *ProtoValidator) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 10:
+		case 11:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field OutputAddress", wireType)
 			}
@@ -2028,6 +2103,39 @@ func (m *ValidatorSigningInfo) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PausedUntil", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowServicers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthServicers
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthServicers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.PausedUntil, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipServicers(dAtA[iNdEx:])

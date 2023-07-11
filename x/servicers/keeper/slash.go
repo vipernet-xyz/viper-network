@@ -209,8 +209,8 @@ func (k Keeper) validateDoubleSign(ctx sdk.Ctx, addr crypto.Address, infractionH
 }
 
 // handleValidatorSignature - Handle a validator signature, must be called once per validator per block
-func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power int64, signed bool, signedBlocksWindow, minSignedPerWindow int64, downtimeJailDuration time.Duration, slashFractionDowtime sdk.BigDec) {
-	_, found := k.GetValidator(ctx, addr)
+func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power int64, signed bool, signedBlocksWindow, minSignedPerWindow int64, downtimeJailDuration time.Duration, MinPauseDuration time.Duration, slashFractionDowtime sdk.BigDec) {
+	validator, found := k.GetValidator(ctx, addr)
 	if !found {
 		ctx.Logger().Info(fmt.Sprintf("in handleValidatorSignature: validator with addr %s not found, "+
 			"this is usually due to the 2 block delay between Tendermint and the baseprovider", addr))
@@ -220,12 +220,7 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 	signInfo, isFound := k.GetValidatorSigningInfo(ctx, addr)
 	if !isFound {
 		ctx.Logger().Error(fmt.Sprintf("error in handleValidatorSignature: signing info for validator with addr %s not found, at height %d", addr, ctx.BlockHeight()))
-		// patch for june 30 fork
-		if ctx.BlockHeight() >= 30040 {
-			// reset signing info
-			k.ResetValidatorSigningInfo(ctx, addr)
-		}
-		return
+		k.ResetValidatorSigningInfo(ctx, addr)
 	}
 	// reset the validator signing info every blocks window
 	if ctx.BlockHeight()%signedBlocksWindow == 0 {
@@ -252,22 +247,28 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 	signInfo.Index++
 	// calculate the max missed blocks
 	maxMissed := signedBlocksWindow - minSignedPerWindow
-	// if we are past the minimum height and the validator has missed too many blocks, punish them
-	if signInfo.MissedBlocksCounter > maxMissed {
-		// Downtime confirmed: slash and jail the validator
-		// ctx.Logger().Info(fmt.Sprintf("Validator %s missed more than the max signed blocks: %d", addr, signedBlocksWindow-minSignedPerWindow))
-		// height where the infraction occured
-		slashHeight := ctx.BlockHeight() - sdk.ValidatorUpdateDelay - 1
-		// slash them based on their power
-		k.slash(ctx, addr, slashHeight, power, slashFractionDowtime)
-		// reset the signing info
-		signInfo.ResetSigningInfo()
-		// clear the validator missed at
-		k.clearValidatorMissed(ctx, addr)
-		// jail the validator to prevent consensus problems
-		k.JailValidator(ctx, addr)
-		// set the jail time duration
-		signInfo.JailedUntil = ctx.BlockHeader().Time.Add(downtimeJailDuration)
+	if !validator.Paused {
+		// if we are past the minimum height and the validator has missed too many blocks, punish them
+		if signInfo.MissedBlocksCounter > maxMissed {
+			// Downtime confirmed: slash and jail the validator
+			// ctx.Logger().Info(fmt.Sprintf("Validator %s missed more than the max signed blocks: %d", addr, signedBlocksWindow-minSignedPerWindow))
+			// height where the infraction occured
+			slashHeight := ctx.BlockHeight() - sdk.ValidatorUpdateDelay - 1
+			// slash them based on their power
+			k.slash(ctx, addr, slashHeight, power, slashFractionDowtime)
+			// reset the signing info
+			signInfo.ResetSigningInfo()
+			// clear the validator missed at
+			k.clearValidatorMissed(ctx, addr)
+			// jail the validator to prevent consensus problems
+			k.JailValidator(ctx, addr)
+			// set the jail time duration
+			signInfo.JailedUntil = ctx.BlockHeader().Time.Add(downtimeJailDuration)
+		}
+	}
+
+	if validator.Paused {
+		signInfo.PausedUntil = ctx.BlockHeader().Time.Add(MinPauseDuration)
 	}
 	// Set the updated signing info
 	k.SetValidatorSigningInfo(ctx, addr, signInfo)

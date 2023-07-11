@@ -30,9 +30,9 @@ func BeginBlocker(ctx sdk.Ctx, req abci.RequestBeginBlock, k Keeper) {
 	minSignedPerWindow := k.MinSignedPerWindow(ctx)
 	downtimeJailDuration := k.DowntimeJailDuration(ctx)
 	slashFractionDowntime := k.SlashFractionDowntime(ctx)
-
+	minPauseTime := k.MinPauseTime(ctx)
 	for _, voteInfo := range req.LastCommitInfo.GetVotes() {
-		k.handleValidatorSignature(ctx, voteInfo.Validator.Address, voteInfo.Validator.Power, voteInfo.SignedLastBlock, signedBlocksWindow, minSignedPerWindow, downtimeJailDuration, slashFractionDowntime)
+		k.handleValidatorSignature(ctx, voteInfo.Validator.Address, voteInfo.Validator.Power, voteInfo.SignedLastBlock, signedBlocksWindow, minSignedPerWindow, downtimeJailDuration, minPauseTime, slashFractionDowntime)
 		// remove those who are part of the tendermint validator set (jailed validators will never be a part of the set)
 	}
 	// Iterate through any newly discovered evidence of infraction

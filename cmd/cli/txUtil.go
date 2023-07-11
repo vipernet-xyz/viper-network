@@ -492,3 +492,68 @@ func stakingKeyTx(fromAddr, toAddr, passphrase string, chainID string, fees int6
 		RawHexBytes: hex.EncodeToString(txBz),
 	}, nil
 }
+
+// PauseNode - Pause servicer
+func PauseNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) (*rpc.SendRawTxParams, error) {
+	fa, err := sdk.AddressFromHex(fromAddr)
+	if err != nil {
+		return nil, err
+	}
+	oa, err := sdk.AddressFromHex(operatorAddr)
+	if err != nil {
+		return nil, err
+	}
+	var msg sdk.ProtoMsg
+	msg = &servicerTypes.MsgPause{
+		ValidatorAddr: oa,
+		Signer:        fa,
+	}
+	kb, err := app.GetKeybase()
+	if err != nil {
+		return nil, err
+	}
+	err = msg.ValidateBasic()
+	if err != nil {
+		return nil, err
+	}
+	txBz, err := newTxBz(app.Codec(), msg, fa, chainID, kb, passphrase, fees, "", false)
+	if err != nil {
+		return nil, err
+	}
+	return &rpc.SendRawTxParams{
+		Addr:        fromAddr,
+		RawHexBytes: hex.EncodeToString(txBz),
+	}, nil
+}
+
+func UnpauseNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) (*rpc.SendRawTxParams, error) {
+	fa, err := sdk.AddressFromHex(fromAddr)
+	if err != nil {
+		return nil, err
+	}
+	oa, err := sdk.AddressFromHex(operatorAddr)
+	if err != nil {
+		return nil, err
+	}
+	var msg sdk.ProtoMsg
+	msg = &servicerTypes.MsgUnpause{
+		ValidatorAddr: oa,
+		Signer:        fa,
+	}
+	kb, err := app.GetKeybase()
+	if err != nil {
+		return nil, err
+	}
+	err = msg.ValidateBasic()
+	if err != nil {
+		return nil, err
+	}
+	txBz, err := newTxBz(app.Codec(), msg, fa, chainID, kb, passphrase, fees, "", false)
+	if err != nil {
+		return nil, err
+	}
+	return &rpc.SendRawTxParams{
+		Addr:        fromAddr,
+		RawHexBytes: hex.EncodeToString(txBz),
+	}, nil
+}

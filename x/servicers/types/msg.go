@@ -14,6 +14,8 @@ var (
 	_ sdk.ProtoMsg = &MsgUnjail{}
 	_ sdk.ProtoMsg = &MsgSend{}
 	_ sdk.ProtoMsg = &MsgStake{}
+	_ sdk.ProtoMsg = &MsgPause{}
+	_ sdk.ProtoMsg = &MsgUnpause{}
 )
 
 const (
@@ -21,6 +23,8 @@ const (
 	MsgUnstakeName = "begin_unstake_validator"
 	MsgUnjailName  = "unjail_validator"
 	MsgSendName    = "send"
+	MsgPauseName   = "pause"
+	MsgUnpauseName = "unpause"
 )
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -297,4 +301,82 @@ func (*MsgBeginUnstake) XXX_MessageName() string {
 
 func (*MsgUnjail) XXX_MessageName() string {
 	return "x.servicers.MsgUnjail8"
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// GetSigners return address(es) that must sign over msg.GetSignBytes()
+func (msg MsgPause) GetSigners() []sdk.Address {
+	return []sdk.Address{msg.Signer, msg.ValidatorAddr}
+}
+
+func (msg MsgPause) GetRecipient() sdk.Address {
+	return nil
+}
+
+// GetSignBytes returns the message bytes to sign over.
+func (msg MsgPause) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic quick validity check, stateless
+func (msg MsgPause) ValidateBasic() sdk.Error {
+	if msg.ValidatorAddr.Empty() {
+		return ErrNoValidatorFound(DefaultCodespace)
+	}
+	if msg.Signer.Empty() {
+		return ErrNilSignerAddr(DefaultCodespace)
+	}
+	return nil
+}
+
+// Route provides router key for msg
+func (msg MsgPause) Route() string { return RouterKey }
+
+// Type provides msg name
+func (msg MsgPause) Type() string { return MsgPauseName }
+
+// GetFee get fee for msg
+func (msg MsgPause) GetFee() sdk.BigInt {
+	return sdk.NewInt(NodeFeeMap[msg.Type()])
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// GetSigners return address(es) that must sign over msg.GetSignBytes()
+func (msg MsgUnpause) GetSigners() []sdk.Address {
+	return []sdk.Address{msg.Signer, msg.ValidatorAddr}
+}
+
+func (msg MsgUnpause) GetRecipient() sdk.Address {
+	return nil
+}
+
+// GetSignBytes returns the message bytes to sign over.
+func (msg MsgUnpause) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic quick validity check, stateless
+func (msg MsgUnpause) ValidateBasic() sdk.Error {
+	if msg.ValidatorAddr.Empty() {
+		return ErrNoValidatorFound(DefaultCodespace)
+	}
+	if msg.Signer.Empty() {
+		return ErrNilSignerAddr(DefaultCodespace)
+	}
+	return nil
+}
+
+// Route provides router key for msg
+func (msg MsgUnpause) Route() string { return RouterKey }
+
+// Type provides msg name
+func (msg MsgUnpause) Type() string { return MsgUnpauseName }
+
+// GetFee get fee for msg
+func (msg MsgUnpause) GetFee() sdk.BigInt {
+	return sdk.NewInt(NodeFeeMap[msg.Type()])
 }

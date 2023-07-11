@@ -18,9 +18,10 @@ import (
 )
 
 type Validator struct {
-	Address                 sdk.Address      `json:"address" yaml:"address"`                         // address of the validator; hex encoded in JSON
-	PublicKey               crypto.PublicKey `json:"public_key" yaml:"public_key"`                   // the consensus public key of the validator; hex encoded in JSON
-	Jailed                  bool             `json:"jailed" yaml:"jailed"`                           // has the validator been jailed from staked status?
+	Address                 sdk.Address      `json:"address" yaml:"address"`       // address of the validator; hex encoded in JSON
+	PublicKey               crypto.PublicKey `json:"public_key" yaml:"public_key"` // the consensus public key of the validator; hex encoded in JSON
+	Jailed                  bool             `json:"jailed" yaml:"jailed"`         // has the validator been jailed from staked status?
+	Paused                  bool             `json:"paused" yaml:"paused"`
 	Status                  sdk.StakeStatus  `json:"status" yaml:"status"`                           // validator status (staked/unstaking/unstaked)
 	Chains                  []string         `json:"chains" yaml:"chains"`                           // validator non native blockchains
 	ServiceURL              string           `json:"service_url" yaml:"service_url"`                 // url where the viper service api is hosted
@@ -36,6 +37,7 @@ func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string
 		Address:                 addr,
 		PublicKey:               consPubKey,
 		Jailed:                  false,
+		Paused:                  false,
 		Status:                  sdk.Staked,
 		Chains:                  chains,
 		ServiceURL:              serviceURL,
@@ -125,6 +127,7 @@ func (v Validator) IsStaked() bool                 { return v.GetStatus().Equal(
 func (v Validator) IsUnstaked() bool               { return v.GetStatus().Equal(sdk.Unstaked) }
 func (v Validator) IsUnstaking() bool              { return v.GetStatus().Equal(sdk.Unstaking) }
 func (v Validator) IsJailed() bool                 { return v.Jailed }
+func (v Validator) IsPaused() bool                 { return v.Paused }
 func (v Validator) GetStatus() sdk.StakeStatus     { return v.Status }
 func (v Validator) GetAddress() sdk.Address        { return v.Address }
 func (v Validator) GetPublicKey() crypto.PublicKey { return v.PublicKey }
@@ -174,10 +177,10 @@ func (v Validator) String() string {
 	if v.OutputAddress != nil {
 		outputPubKeyString = v.OutputAddress.String()
 	}
-	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
+	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\tPaused:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
 		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nGeoZone:\t\t%s\nUnstaking Completion Time:\t\t%v\nOutput Address:\t\t%s"+
 		"\n----\n",
-		v.Address, v.PublicKey.RawString(), v.Jailed, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.GeoZone, v.UnstakingCompletionTime, outputPubKeyString,
+		v.Address, v.PublicKey.RawString(), v.Jailed, v.Paused, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.GeoZone, v.UnstakingCompletionTime, outputPubKeyString,
 	)
 }
 
@@ -189,6 +192,7 @@ func (v Validator) MarshalJSON() ([]byte, error) {
 		Address:                 v.Address,
 		PublicKey:               v.PublicKey.RawString(),
 		Jailed:                  v.Jailed,
+		Paused:                  v.Paused,
 		Status:                  v.Status,
 		ServiceURL:              v.ServiceURL,
 		Chains:                  v.Chains,
@@ -213,6 +217,7 @@ func (v *Validator) UnmarshalJSON(data []byte) error {
 		Address:                 bv.Address,
 		PublicKey:               publicKey,
 		Jailed:                  bv.Jailed,
+		Paused:                  bv.Paused,
 		Chains:                  bv.Chains,
 		ServiceURL:              bv.ServiceURL,
 		StakedTokens:            bv.StakedTokens,
@@ -233,9 +238,11 @@ func (v ProtoValidator) FromProto() (Validator, error) {
 		Address:                 v.Address,
 		PublicKey:               pubkey,
 		Jailed:                  v.Jailed,
+		Paused:                  v.Paused,
 		Status:                  sdk.StakeStatus(v.Status),
 		ServiceURL:              v.ServiceURL,
 		Chains:                  v.Chains,
+		GeoZone:                 v.GeoZone,
 		StakedTokens:            v.StakedTokens,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
@@ -248,6 +255,7 @@ func (v Validator) ToProto() ProtoValidator {
 		Address:                 v.Address,
 		PublicKey:               v.PublicKey.RawBytes(),
 		Jailed:                  v.Jailed,
+		Paused:                  v.Paused,
 		Status:                  int32(v.Status),
 		Chains:                  v.Chains,
 		ServiceURL:              v.ServiceURL,
@@ -259,9 +267,10 @@ func (v Validator) ToProto() ProtoValidator {
 }
 
 type JSONValidator struct {
-	Address                 sdk.Address     `json:"address" yaml:"address"`         // address of the validator; hex encoded in JSON
-	PublicKey               string          `json:"public_key" yaml:"public_key"`   // the consensus public key of the validator; hex encoded in JSON
-	Jailed                  bool            `json:"jailed" yaml:"jailed"`           // has the validator been jailed from staked status?
+	Address                 sdk.Address     `json:"address" yaml:"address"`       // address of the validator; hex encoded in JSON
+	PublicKey               string          `json:"public_key" yaml:"public_key"` // the consensus public key of the validator; hex encoded in JSON
+	Jailed                  bool            `json:"jailed" yaml:"jailed"`         // has the validator been jailed from staked status?
+	Paused                  bool            `json:"paused" yaml:"paused"`
 	Status                  sdk.StakeStatus `json:"status" yaml:"status"`           // validator status (staked/unstaking/unstaked)
 	Chains                  []string        `json:"chains" yaml:"chains"`           // validator non native blockchains
 	ServiceURL              string          `json:"service_url" yaml:"service_url"` // url where the viper service api is hosted

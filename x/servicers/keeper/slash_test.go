@@ -83,7 +83,8 @@ func TestHandleValidatorSignature(t *testing.T) {
 				minSignedPerWindow := keeper.MinSignedPerWindow(context)
 				downtimeJailDuration := keeper.DowntimeJailDuration(context)
 				slashFractionDowntime := keeper.SlashFractionDowntime(context)
-				keeper.handleValidatorSignature(context, sdk.Address(cryptoAddr), test.args.power, test.args.signed, signedBlocksWindow, minSignedPerWindow, downtimeJailDuration, slashFractionDowntime)
+				minPauseTime := keeper.MinPauseTime(context)
+				keeper.handleValidatorSignature(context, sdk.Address(cryptoAddr), test.args.power, test.args.signed, signedBlocksWindow, minSignedPerWindow, downtimeJailDuration, minPauseTime, slashFractionDowntime)
 				signedInfo, found := keeper.GetValidatorSigningInfo(context, sdk.Address(cryptoAddr))
 				if !found {
 					t.FailNow()

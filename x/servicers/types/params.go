@@ -27,6 +27,7 @@ const (
 	DefaultMaxJailedBlocks            = 2000
 	DefaultServicerCountLock    bool  = false
 	DefaultBurnActive           bool  = false
+	DefaultMinPauseTime               = 60 * 10 * time.Second
 )
 
 // - Keys for parameter access
@@ -54,6 +55,7 @@ var (
 	DefaultSlashFractionDowntime   = sdk.NewDec(1).Quo(sdk.NewDec(100))
 	ServicerCountLock              = []byte("ServicerCountLock")
 	BurnActive                     = []byte("BurnActive")
+	KeyMinPauseTime                = []byte("MinPauseTime")
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -79,7 +81,7 @@ type Params struct {
 	SlashFractionDowntime   sdk.BigDec    `json:"slash_fraction_downtime" yaml:"slash_fraction_downtime"`       // the factor of which a servicer is slashed for missing blocks
 	ServicerCountLock       bool          `json:"servicer_count_lock" yaml:"servicer_count_lock"`
 	BurnActive              bool          `json:"burn_active" yaml:"burn_active"`
-	UnbondingTime           time.Duration `protobuf:"bytes,1,opt,name=unbonding_time,json=unbondingTime,proto3,stdduration" json:"unbonding_time"`
+	MinPauseTime            time.Duration `json:"min_pause_time" yaml:"min_pause_time"`
 }
 
 // Implements sdk.ParamSet
@@ -104,6 +106,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyMaxJailedBlocks, Value: &p.MaxJailedBlocks},
 		{Key: ServicerCountLock, Value: &p.ServicerCountLock},
 		{Key: BurnActive, Value: &p.BurnActive},
+		{Key: KeyMinPauseTime, Value: &p.MinPauseTime},
 	}
 }
 
@@ -128,6 +131,7 @@ func DefaultParams() Params {
 		MaximumChains:           DefaultMaxChains,
 		MaxJailedBlocks:         DefaultMaxJailedBlocks,
 		ServicerCountLock:       DefaultServicerCountLock,
+		MinPauseTime:            DefaultMinPauseTime,
 	}
 }
 
@@ -185,7 +189,8 @@ func (p Params) String() string {
   Maximum Chains           %d
   Max Jailed Blocks        %d
   Servicer Count Lock      %v 
-  Burn Active              %v `,
+  Burn Active              %v 
+  MinPauseTime             %s`,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -203,5 +208,6 @@ func (p Params) String() string {
 		p.MaximumChains,
 		p.MaxJailedBlocks,
 		p.ServicerCountLock,
-		p.BurnActive)
+		p.BurnActive,
+		p.MinPauseTime)
 }

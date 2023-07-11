@@ -54,9 +54,10 @@ func TestUnstakeApp(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			var tx *sdk.TxResponse
 			var chains = []string{"0001"}
+			var geozones = []string{"0001"}
 			<-evtChan // Wait for block
 			memCli, _, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -116,10 +117,11 @@ func TestStakeApp(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			var tx *sdk.TxResponse
 			var chains = []string{"0001"}
+			var geozones = []string{"0001"}
 
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -152,6 +154,7 @@ func TestEditStakeApp(t *testing.T) {
 				_ = memCodecMod(tc.upgrades.codecUpgrade.upgradeMod)
 			}
 			var newChains = []string{"2121"}
+			var newGeoZones = []string{"2121"}
 			_, kb, cleanup := tc.memoryNodeFn(t, oneAppTwoNodeGenesis())
 			time.Sleep(1 * time.Second)
 			kp, err := kb.GetCoinbase()
@@ -173,7 +176,7 @@ func TestEditStakeApp(t *testing.T) {
 			n, err := VCA.QueryProvider(kp.GetAddress().String(), VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			var newBalance = balance.Sub(sdk.NewInt(100000)).Add(n.StakedTokens)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, newChains, newBalance, kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = providers.StakeTx(memCodec(), memCli, kb, newChains, newGeoZones, 5, newBalance, kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			<-evtChan // Wait for tx

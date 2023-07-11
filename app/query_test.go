@@ -221,10 +221,11 @@ func TestQueryProviders(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			var tx *sdk.TxResponse
 			var chains = []string{"0001"}
+			var geozones = []string{"0001"}
 
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
@@ -642,9 +643,10 @@ func TestQueryStakedApp(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			var tx *sdk.TxResponse
 			var chains = []string{"0001"}
+			var geozones = []string{"0001"}
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 

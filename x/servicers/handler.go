@@ -28,6 +28,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 				return handleMsgSend(ctx, msg, k)
 			case types.MsgStake:
 				return handleStake(ctx, msg, k, signer)
+			case types.MsgPause:
+				return handleMsgPause(ctx, msg, k)
 			default:
 				errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
 				return sdk.ErrUnknownRequest(errMsg).Result()
@@ -168,6 +170,36 @@ func handleMsgSend(ctx sdk.Ctx, msg types.MsgSend, k keeper.Keeper) sdk.Result {
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+		),
+	)
+	return sdk.Result{Events: ctx.EventManager().Events()}
+}
+
+func handleMsgPause(ctx sdk.Ctx, msg types.MsgPause, k keeper.Keeper) sdk.Result {
+	defer sdk.TimeTrack(time.Now())
+
+	ctx.Logger().Info("Pause Node Message received from " + msg.ValidatorAddr.String())
+	k.PauseNode(ctx, msg.ValidatorAddr)
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorAddr.String()),
+		),
+	)
+	return sdk.Result{Events: ctx.EventManager().Events()}
+}
+
+func handleMsgUnpause(ctx sdk.Ctx, msg types.MsgUnpause, k keeper.Keeper) sdk.Result {
+	defer sdk.TimeTrack(time.Now())
+
+	ctx.Logger().Info("Unpause Node Message received from " + msg.ValidatorAddr.String())
+	k.UnpauseNode(ctx, msg.ValidatorAddr)
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorAddr.String()),
 		),
 	)
 	return sdk.Result{Events: ctx.EventManager().Events()}

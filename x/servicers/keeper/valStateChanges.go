@@ -492,7 +492,7 @@ func (k Keeper) LegacyForceValidatorUnstake(ctx sdk.Ctx, validator types.Validat
 	return nil
 }
 
-// ForceValidatorUnstake - Coerce unstake (called when slashed below the minimum)
+// ForceValidatorUnstake - Force unstake (called when slashed below the minimum)
 func (k Keeper) ForceValidatorUnstake(ctx sdk.Ctx, validator types.Validator) sdk.Error {
 	k.ClearSessionCache()
 	// send validator to jail || if already jailed, do nothing
@@ -650,4 +650,66 @@ func (k Keeper) UnjailValidator(ctx sdk.Ctx, addr sdk.Address) {
 	k.SetValidator(ctx, validator)
 	k.ResetValidatorSigningInfo(ctx, addr)
 	k.Logger(ctx).Info(fmt.Sprintf("validator %s unjailed", addr))
+}
+
+// PauseNode - Pause a node
+func (k Keeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) {
+	validator, found := k.GetValidator(ctx, addr)
+	if !found {
+		ctx.Logger().Error(fmt.Errorf("cannot find paused validator: %v at height: %d\n", addr, ctx.BlockHeight()).Error())
+		return
+	}
+	if validator.Paused {
+		ctx.Logger().Debug(fmt.Errorf("cannot pause already paused validator, validator: %v a height: %d\n", validator, ctx.BlockHeight()).Error())
+		return
+	}
+	if validator.IsUnstaked() {
+		ctx.Logger().Info(fmt.Errorf("cannot pause an unstaked validator, likely left in the set to update Tendermint Val Set: %v\n", validator).Error())
+		return
+	}
+	// clear caching for sesssions
+	k.ClearSessionCache()
+	k.deleteValidatorFromStakingSet(ctx, validator)
+	validator.Paused = true
+	k.SetValidator(ctx, validator)
+	logger := k.Logger(ctx)
+	logger.Debug(fmt.Sprintf("validator %s paused", addr))
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeJail,
+			sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
+			sdk.NewAttribute(types.AttributeKeyReason, types.AttributeValueMissingSignature),
+		),
+	)
+}
+
+// UnpausedNode - Remove a validator from jail
+func (k Keeper) UnpauseNode(ctx sdk.Ctx, addr sdk.Address) {
+	validator, found := k.GetValidator(ctx, addr)
+	if !found {
+		ctx.Logger().Error(fmt.Errorf("cannot unpause validator, validator not found: %v at height %d\n", addr, ctx.BlockHeight()).Error())
+		return
+	}
+	if !validator.Paused {
+		k.Logger(ctx).Error(fmt.Sprintf("cannot unjail already unpaused validator, validator: %v at height %d\n", validator, ctx.BlockHeight()))
+		return
+	}
+	info, found := k.GetValidatorSigningInfo(ctx, addr)
+	if !found {
+		k.Logger(ctx).Error((fmt.Sprintf("that address is not associated with any known validator")))
+		return
+	}
+	if info.PausedUntil.After(time.Now()) {
+		k.Logger(ctx).Error((fmt.Sprintf("validator paused")))
+		return
+	}
+	// cannot be unjailed until out of jail
+	if ctx.BlockHeader().Time.Before(info.PausedUntil) {
+		k.Logger(ctx).Error((fmt.Sprintf("validator paused")))
+		return
+	}
+	validator.Paused = false
+	k.SetValidator(ctx, validator)
+	k.ResetValidatorSigningInfo(ctx, addr)
+	k.Logger(ctx).Info(fmt.Sprintf("validator %s unpaused", addr))
 }

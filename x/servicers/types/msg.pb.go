@@ -314,6 +314,83 @@ func (m *MsgSend) GetToAddress() github_com_viper_network_viper_core_types.Addre
 func (*MsgSend) XXX_MessageName() string {
 	return "x.servicers.MsgSend"
 }
+
+type MsgPause struct {
+	ValidatorAddr github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=ValidatorAddr,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address" yaml:"address"`
+	Signer        github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=Signer,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"signer_address" yaml:"signer_address"`
+}
+
+func (m *MsgPause) Reset()         { *m = MsgPause{} }
+func (m *MsgPause) String() string { return proto.CompactTextString(m) }
+func (*MsgPause) ProtoMessage()    {}
+func (*MsgPause) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0de9b62fa75e413f, []int{4}
+}
+func (m *MsgPause) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgPause) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgPause.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgPause) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgPause.Merge(m, src)
+}
+func (m *MsgPause) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgPause) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgPause.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgPause proto.InternalMessageInfo
+
+type MsgUnpause struct {
+	ValidatorAddr github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=ValidatorAddr,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address" yaml:"address"`
+	Signer        github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=Signer,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"signer_address" yaml:"signer_address"`
+}
+
+func (m *MsgUnpause) Reset()         { *m = MsgUnpause{} }
+func (m *MsgUnpause) String() string { return proto.CompactTextString(m) }
+func (*MsgUnpause) ProtoMessage()    {}
+func (*MsgUnpause) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0de9b62fa75e413f, []int{4}
+}
+func (m *MsgUnpause) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUnpause) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUnpause.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUnpause) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUnpause.Merge(m, src)
+}
+func (m *MsgUnpause) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUnpause) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUnpause.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUnpause proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgProtoStake)(nil), "x.servicers.MsgProtoStake")
 	proto.RegisterType((*LegacyMsgProtoStake)(nil), "x.servicers.LegacyMsgProtoStake")
@@ -322,6 +399,8 @@ func init() {
 	proto.RegisterType((*MsgUnjail)(nil), "x.servicers.MsgUnjail")
 	proto.RegisterType((*LegacyMsgUnjail)(nil), "x.servicers.LegacyMsgUnjail")
 	proto.RegisterType((*MsgSend)(nil), "x.servicers.MsgSend")
+	proto.RegisterType((*MsgPause)(nil), "x.servicers.MsgPause")
+	proto.RegisterType((*MsgUnpause)(nil), "x.servicers.MsgUnpause")
 }
 
 func init() { proto.RegisterFile("x/servicers/msg.proto", fileDescriptor_0de9b62fa75e413f) }
@@ -807,6 +886,50 @@ func (m *MsgUnjail) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgPause) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ValidatorAddr) > 0 {
+		i -= len(m.ValidatorAddr)
+		copy(dAtA[i:], m.ValidatorAddr)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.ValidatorAddr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUnpause) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ValidatorAddr) > 0 {
+		i -= len(m.ValidatorAddr)
+		copy(dAtA[i:], m.ValidatorAddr)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.ValidatorAddr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *LegacyMsgUnjail) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1025,6 +1148,40 @@ func (m *MsgSend) Size() (n int) {
 	}
 	l = m.Amount.Size()
 	n += 1 + l + sovMsg(uint64(l))
+	return n
+}
+
+func (m *MsgPause) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ValidatorAddr)
+	if l > 0 {
+		n += 1 + l + sovMsg(uint64(l))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovMsg(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgUnpause) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ValidatorAddr)
+	if l > 0 {
+		n += 1 + l + sovMsg(uint64(l))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovMsg(uint64(l))
+	}
 	return n
 }
 
@@ -2041,6 +2198,251 @@ func (m *MsgSend) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
+func (m *MsgPause) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMsg
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUnjail: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUnjail: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddr", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorAddr = append(m.ValidatorAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ValidatorAddr == nil {
+				m.ValidatorAddr = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMsg(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+
+func (m *MsgUnpause) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMsg
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUnjail: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUnjail: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddr", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorAddr = append(m.ValidatorAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ValidatorAddr == nil {
+				m.ValidatorAddr = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMsg(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+
 func skipMsg(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

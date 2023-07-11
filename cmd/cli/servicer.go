@@ -14,6 +14,7 @@ func init() {
 	rootCmd.AddCommand(servicersCmd)
 	servicersCmd.AddCommand(servicerUnstakeCmd)
 	servicersCmd.AddCommand(servicerUnjailCmd)
+	servicersCmd.AddCommand(servicerPauseCmd)
 }
 
 var servicersCmd = &cobra.Command{
@@ -76,6 +77,72 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 		}
 		fmt.Println("Enter Password: ")
 		res, err := UnjailNode(args[0], args[1], app.Credentials(pwd), args[2], int64(fee))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		j, err := json.Marshal(res)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		resp, err := QueryRPC(SendRawTxPath, j)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(resp)
+	},
+}
+
+var servicerPauseCmd = &cobra.Command{
+	Use:   "pause <operatorAddr> <fromAddr> <networkID> <fee>",
+	Short: "Pauses a servicer in the network",
+	Long: `Pauses a servicer in the network, temporarily disabling its service.
+Will prompt the user for the <fromAddr> account passphrase.`,
+	Args: cobra.ExactArgs(4),
+	Run: func(cmd *cobra.Command, args []string) {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		fee, err := strconv.Atoi(args[3])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("Enter Password: ")
+		res, err := PauseNode(args[0], args[1], app.Credentials(pwd), args[2], int64(fee))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		j, err := json.Marshal(res)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		resp, err := QueryRPC(SendRawTxPath, j)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(resp)
+	},
+}
+
+var servicerUnpauseCmd = &cobra.Command{
+	Use:   "Unpause <operatorAddr> <fromAddr> <networkID> <fee>",
+	Short: "Unpauses a servicer in the network",
+	Long: `Unpauses a servicer in the network.
+Will prompt the user for the <fromAddr> account passphrase.`,
+	Args: cobra.ExactArgs(4),
+	Run: func(cmd *cobra.Command, args []string) {
+		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
+		fee, err := strconv.Atoi(args[3])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("Enter Password: ")
+		res, err := UnpauseNode(args[0], args[1], app.Credentials(pwd), args[2], int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return
