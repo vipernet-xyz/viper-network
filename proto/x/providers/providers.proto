@@ -45,7 +45,13 @@ message ProtoProvider {
 		(gogoproto.nullable) = false,
 		(gogoproto.jsontag) = "max_relays",
 		(gogoproto.moretags) = "yaml:\"max_relays\""];
-	google.protobuf.Timestamp unstaking_completion_time = 8 [
+	repeated string geo_zones = 8 [
+		(gogoproto.jsontag) = "geo_zones",
+		(gogoproto.moretags) = "yaml:\"geo_zones\""];	
+	int32 num_servicers = 9 [
+		(gogoproto.jsontag) = "num_servicers",
+		(gogoproto.moretags) = "yaml:\"num_servicers\""];
+	google.protobuf.Timestamp unstaking_completion_time = 10 [
 		(gogoproto.nullable) = false,
 		(gogoproto.stdtime) = true,
 		(gogoproto.jsontag) = "unstaking_time",
@@ -60,3 +66,9 @@ message Pool {
 		(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt",
 		(gogoproto.nullable) = false];
 }
+
+message HistoricalInfo {
+	tendermint.types.Header header = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+	repeated ProtoProvider  proset = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  }
+  

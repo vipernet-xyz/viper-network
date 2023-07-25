@@ -18,7 +18,10 @@ message MsgProtoStake {
 		(gogoproto.jsontag) = "value",
 		(gogoproto.moretags) = "yaml:\"value\""];
 	string ServiceUrl = 4 [(gogoproto.moretags) = "yaml:\"service_url\"", (gogoproto.jsontag) = "service_url"];
-	bytes OutputAddress = 5 [
+	string GeoZone = 5 [
+		(gogoproto.jsontag) = "geo_zones",
+		(gogoproto.moretags) = "yaml:\"geo_zones\""];	
+	bytes OutputAddress = 6 [
 		(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address",
 		(gogoproto.jsontag) = "output_address,omitempty",
 		(gogoproto.moretags) = "yaml:\"output_address\""
@@ -38,6 +41,9 @@ message LegacyMsgProtoStake {
 		(gogoproto.jsontag) = "value",
 		(gogoproto.moretags) = "yaml:\"value\""];
 	string ServiceUrl = 4 [(gogoproto.moretags) = "yaml:\"service_url\"", (gogoproto.jsontag) = "service_url"];
+	string GeoZone = 5 [
+		(gogoproto.jsontag) = "geo_zones",
+		(gogoproto.moretags) = "yaml:\"geo_zones\""];	
 }
 
 message MsgBeginUnstake {
@@ -121,3 +127,34 @@ message MsgSend {
 		(gogoproto.moretags) = "yaml:\"amount\""];
 }
 
+message MsgPause {
+	option (gogoproto.equal) = true;
+	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_getters) = false;
+	
+    bytes ValidatorAddr = 1 [
+        (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address",
+        (gogoproto.jsontag) = "address",
+        (gogoproto.moretags) = "yaml:\"address\""];
+
+    bytes Signer = 2 [
+        (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address",
+        (gogoproto.jsontag) = "signer_address",
+        (gogoproto.moretags) = "yaml:\"signer_address\""];
+}
+
+message MsgUnpause {
+	option (gogoproto.equal) = true;
+	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_getters) = false;
+	
+    bytes ValidatorAddr = 1 [
+        (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address",
+        (gogoproto.jsontag) = "address",
+        (gogoproto.moretags) = "yaml:\"address\""];
+
+    bytes Signer = 2 [
+        (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address",
+        (gogoproto.jsontag) = "signer_address",
+        (gogoproto.moretags) = "yaml:\"signer_address\""];
+}

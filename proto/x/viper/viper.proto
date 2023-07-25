@@ -11,7 +11,9 @@ message SessionHeader {
 
 	string applicationPubKey = 1 [(gogoproto.jsontag) = "app_public_key"];
 	string chain = 2 [(gogoproto.jsontag) = "chain"];
-	int64 sessionBlockHeight = 3 [(gogoproto.jsontag) = "session_height"];
+	string geoZone = 3 [(gogoproto.jsontag) = "geo_zone"];
+	int32 numServicers = 4 [(gogoproto.jsontag) = "num_servicers"];
+	int64 sessionBlockHeight = 5 [(gogoproto.jsontag) = "session_height"];
 }
 
 message Session {
@@ -72,6 +74,8 @@ message RelayProof {
 	string blockchain = 5 [(gogoproto.jsontag) = "blockchain"];
 	AAT token = 6 [(gogoproto.jsontag) = "aat", (gogoproto.nullable) = false];
 	string signature = 7 [(gogoproto.jsontag) = "signature"];
+	string geoZone = 8 [(gogoproto.jsontag) = "geo_zone"];
+	int32 numServicers = 9 [(gogoproto.jsontag) = "num_servicers"];
 }
 
 message ChallengeProofInvalidData {

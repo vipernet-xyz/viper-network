@@ -17,12 +17,14 @@ message ProtoValidator {
 	bytes Address = 1 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.moretags) = "yaml:\"address\"", (gogoproto.jsontag) = "address"];
 	bytes PublicKey = 2 [(gogoproto.moretags) = "yaml:\"public_key\"", (gogoproto.jsontag) = "public_key"];
 	bool jailed = 3 [(gogoproto.jsontag) = "jailed"];
-	int32 status = 4 [(gogoproto.jsontag) = "status"];
-	repeated string Chains = 5 [(gogoproto.jsontag) = "chains"];
-	string ServiceURL = 6 [(gogoproto.jsontag) = "service_url"];
-	string StakedTokens = 7 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
-	google.protobuf.Timestamp UnstakingCompletionTime = 8 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
-	bytes OutputAddress = 9 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.jsontag) = "output_address,omitempty", (gogoproto.moretags) = "yaml:\"output_address\""];
+	bool paused = 4 [(gogoproto.jsontag) = "paused"];
+	int32 status = 5 [(gogoproto.jsontag) = "status"];
+	repeated string Chains = 6 [(gogoproto.jsontag) = "chains"];
+	string ServiceURL = 7 [(gogoproto.jsontag) = "service_url"];
+	string StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
+	string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
+	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
+	bytes OutputAddress = 11 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.jsontag) = "output_address,omitempty", (gogoproto.moretags) = "yaml:\"output_address\""];
 }
 
 message LegacyProtoValidator {
@@ -33,11 +35,13 @@ message LegacyProtoValidator {
 	bytes Address = 1 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.moretags) = "yaml:\"address\"", (gogoproto.jsontag) = "address"];
 	bytes PublicKey = 2 [(gogoproto.moretags) = "yaml:\"public_key\"", (gogoproto.jsontag) = "public_key"];
 	bool jailed = 3 [(gogoproto.jsontag) = "jailed"];
-	int32 status = 4 [(gogoproto.jsontag) = "status"];
-	repeated string Chains = 5 [(gogoproto.jsontag) = "chains"];
-	string ServiceURL = 6 [(gogoproto.jsontag) = "service_url"];
-	string StakedTokens = 7 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
-	google.protobuf.Timestamp UnstakingCompletionTime = 8 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
+	bool paused = 4 [(gogoproto.jsontag) = "paused"];
+	int32 status = 5 [(gogoproto.jsontag) = "status"];
+	repeated string Chains = 6 [(gogoproto.jsontag) = "chains"];
+	string ServiceURL = 7 [(gogoproto.jsontag) = "service_url"];
+	string StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
+	string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
+	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
 }
 
 // ValidatorSigningInfo defines the signing info for a validator
@@ -56,4 +60,14 @@ message ValidatorSigningInfo {
 	// missed blocks counter (to avoid scanning the array every time)
 	int64 missed_blocks_counter = 5 [(gogoproto.jsontag) = "missed_blocks_counter", (gogoproto.moretags) = "yaml:\"missed_blocks_counter\""];
 	int64 jailed_blocks_counter = 6 [(gogoproto.jsontag) = "jailed_blocks_counter", (gogoproto.moretags) = "yaml:\"jailed_blocks_counter\""];
+	google.protobuf.Timestamp paused_until = 7 [(gogoproto.jsontag) = "paused_until", (gogoproto.moretags) = "yaml:\"paused_until\"", (gogoproto.stdtime) = true, (gogoproto.nullable) = false];
 }
+
+// HistoricalInfo contains header and validator information for a given block.
+// It is stored as part of staking module's state, which persists the `n` most
+// recent HistoricalInfo
+// (`n` is set by the staking module's `historical_entries` parameter).
+message HistoricalInfo {
+	tendermint.types.Header header = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+	repeated Validator      valset = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  }
