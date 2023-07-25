@@ -9,7 +9,7 @@ package types_test
 	tmstate "github.com/cometbft/cometbft/state"
 	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 	ibcerrors "github.com/vipernet-xyz/viper-network/internal/errors"*/
 
 /*const (

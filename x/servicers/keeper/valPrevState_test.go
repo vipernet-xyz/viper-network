@@ -15,7 +15,7 @@ func TestKeeper_DeletePrevStateValPower(t *testing.T) {
 	}
 
 	type args struct {
-		ctx  sdk.Context
+		ctx  sdk.Ctx
 		addr sdk.Address
 	}
 
@@ -45,7 +45,7 @@ func TestKeeper_IterateAndExecuteOverPrevStateVals(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		fn  func(index int64, validator exported.ValidatorI) (stop bool)
 	}
 
@@ -76,7 +76,7 @@ func TestKeeper_IterateAndExecuteOverPrevStateValsByPower(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx     sdk.Context
+		ctx     sdk.Ctx
 		handler func(address sdk.Address, power int64) (stop bool)
 	}
 	context, _, keeper := createTestInput(t, true)
@@ -106,7 +106,7 @@ func TestKeeper_PrevStateValidatorsPower(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 	}
 
 	context, _, keeper := createTestInput(t, true)
@@ -134,7 +134,7 @@ func TestKeeper_SetPrevStateValPower(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx   sdk.Context
+		ctx   sdk.Ctx
 		addr  sdk.Address
 		power int64
 	}
@@ -165,7 +165,7 @@ func TestKeeper_SetPrevStateValidatorsPower(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx   sdk.Context
+		ctx   sdk.Ctx
 		power sdk.BigInt
 	}
 	context, _, keeper := createTestInput(t, true)
@@ -193,7 +193,7 @@ func TestKeeper_prevStateValidatorsIterator(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 	}
 	context, _, keeper := createTestInput(t, true)
 	it, _ := sdk.KVStorePrefixIterator(context.KVStore(keeper.storeKey), types.PrevStateValidatorsPowerKey)

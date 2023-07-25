@@ -7,11 +7,11 @@ package tendermint_test
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	ibctestingmock "github.com/vipernet-xyz/viper-network/testing/mock"*/
 
 /*func (suite *TendermintTestSuite) TestMisbehaviour() {
 	heightMinus1 := clienttypes.NewHeight(0, height.RevisionHeight-1)

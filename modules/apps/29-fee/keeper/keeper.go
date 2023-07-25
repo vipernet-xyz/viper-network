@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"github.com/cometbft/cometbft/libs/log"
 	abciTypes "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
 	"github.com/vipernet-xyz/viper-network/codec"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -51,13 +51,13 @@ func NewKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger1().With("module", "x/"+ibcexported.ModuleName+"-"+types.ModuleName)
+func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
+	return ctx.Logger().With("module", "x/"+ibcexported.ModuleName+"-"+types.ModuleName)
 }
 
 // BindPort defines a wrapper function for the port Keeper's function in
 // order to expose it to module's InitGenesis function
-func (k Keeper) BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability {
+func (k Keeper) BindPort(ctx sdk.Ctx, portID string) *capabilitytypes.Capability {
 	return k.portKeeper.BindPort(ctx, portID)
 }
 
@@ -82,7 +82,7 @@ func (k Keeper) GetFeeModuleAddress() sdk.Address {
 }
 
 // EscrowAccountHasBalance verifies if the escrow account has the provided fee.
-func (k Keeper) EscrowAccountHasBalance(ctx sdk.Context, coins sdk.Coins) bool {
+func (k Keeper) EscrowAccountHasBalance(ctx sdk.Ctx, coins sdk.Coins) bool {
 	for _, coin := range coins {
 		if !k.bankKeeper.HasBalance(ctx, k.GetFeeModuleAddress(), coin) {
 			return false

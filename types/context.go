@@ -500,13 +500,13 @@ func dropTag(version string) string {
 // ContextKey defines a type alias for a stdlib Context key.
 type ContextKey string
 
-// SdkContextKey is the key in the context.Context which holds the sdk.Context.
+// SdkContextKey is the key in the context.Context which holds the sdk.Ctx.
 const SdkContextKey ContextKey = "sdk-context"
 
-// WrapSDKContext returns a stdlib context.Context with the provided sdk.Context's internal
-// context as a value. It is useful for passing an sdk.Context  through methods that take a
+// WrapSDKContext returns a stdlib context.Context with the provided sdk.Ctx's internal
+// context as a value. It is useful for passing an sdk.Ctx  through methods that take a
 // stdlib context.Context parameter such as generated gRPC methods. To get the original
-// sdk.Context back, call UnwrapSDKContext.
+// sdk.Ctx back, call UnwrapSDKContext.
 func WrapSDKContext(ctx Context) context.Context {
 	return ctx
 }

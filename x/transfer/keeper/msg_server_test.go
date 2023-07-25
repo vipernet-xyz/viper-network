@@ -1,8 +1,8 @@
 package keeper_test
 
 /*
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	banktypes "github.com/vipernet-xyz/viper-network/x/bank/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"*/

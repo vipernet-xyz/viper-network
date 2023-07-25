@@ -2,7 +2,7 @@ package keeper_test
 
 /*
 import (
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {

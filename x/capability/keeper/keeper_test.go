@@ -6,10 +6,10 @@ package keeper_test
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/cosmos-sdk/testutil"
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	"github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	"github.com/cosmos/cosmos-sdk/x/capability/types"
+	"github.com/vipernet-xyz/viper-network/testutil"
+	"github.com/vipernet-xyz/viper-network/x/capability"
+	"github.com/vipernet-xyz/viper-network/x/capability/keeper"
+	"github.com/vipernet-xyz/viper-network/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	moduletestutil "github.com/vipernet-xyz/viper-network/types/module/testutil"*/
 
@@ -21,7 +21,7 @@ package keeper_test
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx    sdk.Context
+	ctx    sdk.Ctx
 	keeper *keeper.Keeper
 }
 

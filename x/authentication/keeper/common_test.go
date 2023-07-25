@@ -19,7 +19,7 @@ import (
 
 type testInput struct {
 	cdc    *codec.Codec
-	ctx    sdk.Context
+	ctx    sdk.Ctx
 	Keeper Keeper
 }
 

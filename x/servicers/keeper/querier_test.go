@@ -15,7 +15,7 @@ import (
 
 func Test_NewQuerier(t *testing.T) {
 	type args struct {
-		ctx  sdk.Context
+		ctx  sdk.Ctx
 		req  abci.RequestQuery
 		path []string
 		k    Keeper
@@ -145,7 +145,7 @@ func Test_NewQuerier(t *testing.T) {
 }
 func Test_queryAccountBalance(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestQuery
 		k   Keeper
 	}
@@ -185,7 +185,7 @@ func Test_queryAccountBalance(t *testing.T) {
 
 func Test_queryParameters(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 
@@ -218,7 +218,7 @@ func Test_queryParameters(t *testing.T) {
 
 func Test_querySigningInfo(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestQuery
 		k   Keeper
 	}
@@ -258,7 +258,7 @@ func Test_querySigningInfo(t *testing.T) {
 
 func Test_querySigningInfos(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestQuery
 		k   Keeper
 	}
@@ -300,7 +300,7 @@ func Test_querySigningInfos(t *testing.T) {
 
 func Test_queryStakedPool(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 
@@ -333,7 +333,7 @@ func Test_queryStakedPool(t *testing.T) {
 
 func Test_queryValidator(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestQuery
 		k   Keeper
 	}
@@ -377,7 +377,7 @@ func Test_queryValidators(t *testing.T) {
 	stakedValidator := getStakedValidator()
 	validators := types.Validators{stakedValidator}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestQuery
 		k   Keeper
 	}

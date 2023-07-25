@@ -11,7 +11,7 @@ import (
 )
 
 // emitChannelOpenInitEvent emits a channel open init event
-func emitChannelOpenInitEvent(ctx sdk.Context, portID string, channelID string, channel types.Channel) {
+func emitChannelOpenInitEvent(ctx sdk.Ctx, portID string, channelID string, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeChannelOpenInit,
@@ -30,7 +30,7 @@ func emitChannelOpenInitEvent(ctx sdk.Context, portID string, channelID string, 
 }
 
 // emitChannelOpenTryEvent emits a channel open try event
-func emitChannelOpenTryEvent(ctx sdk.Context, portID string, channelID string, channel types.Channel) {
+func emitChannelOpenTryEvent(ctx sdk.Ctx, portID string, channelID string, channel types.Channel) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeChannelOpenTry,

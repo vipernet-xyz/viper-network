@@ -94,7 +94,7 @@ func TestAppModule_BeginBlock(t *testing.T) {
 		supplyKeeper   types.AuthKeeper
 	}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestBeginBlock
 	}
 
@@ -133,7 +133,7 @@ func TestAppModule_EndBlock(t *testing.T) {
 		supplyKeeper   types.AuthKeeper
 	}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		in1 abci.RequestEndBlock
 	}
 
@@ -179,7 +179,7 @@ func TestAppModule_ExportGenesis(t *testing.T) {
 
 	k.SetPreviousProposer(context, sdk.GetAddress(getRandomPubKey()))
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 	}
 	tests := []struct {
 		name   string
@@ -213,7 +213,7 @@ func TestAppModule_InitGenesis(t *testing.T) {
 		keeper         keeper.Keeper
 	}
 	type args struct {
-		ctx  sdk.Context
+		ctx  sdk.Ctx
 		data json.RawMessage
 	}
 	tests := []struct {

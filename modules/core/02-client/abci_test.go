@@ -6,14 +6,14 @@ package client_test
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	upgradetypes "github.com/vipernet-xyz/viper-network/x/upgrade/types"
 	"github.com/stretchr/testify/suite"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	client "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	client "github.com/vipernet-xyz/viper-network/modules/core/02-client"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*type ClientTestSuite struct {
 	suite.Suite

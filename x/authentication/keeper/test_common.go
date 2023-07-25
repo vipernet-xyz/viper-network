@@ -41,7 +41,7 @@ func makeTestCodec() *codec.Codec {
 }
 
 // nolint: deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool, initPower int64, nAccs int64) (sdk.Context, Keeper) {
+func createTestInput(t *testing.T, isCheckTx bool, initPower int64, nAccs int64) (sdk.Ctx, Keeper) {
 	keyAcc := sdk.NewKVStoreKey(types.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey

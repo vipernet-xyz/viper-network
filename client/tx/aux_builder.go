@@ -196,7 +196,7 @@ func (b *AuxTxBuilder) GetSignBytes() ([]byte, error) {
 				// Aux signer never signs over fee.
 				// For LEGACY_AMINO_JSON, we use the convention to sign
 				// over empty fees.
-				// ref: https://github.com/cosmos/cosmos-sdk/pull/10348
+				// ref: https://github.com/vipernet-xyz/viper-network/pull/10348
 				legacytx.StdFee{},
 				b.msgs, b.body.Memo, b.auxSignerData.SignDoc.Tip,
 			)

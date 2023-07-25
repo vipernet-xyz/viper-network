@@ -53,7 +53,7 @@ func getRandomValidatorAddress() sdk.Address {
 }
 
 // nolint: deadcode unused
-func createTestKeeperAndContext(t *testing.T, isCheckTx bool) (sdk.Context, Keeper) {
+func createTestKeeperAndContext(t *testing.T, isCheckTx bool) (sdk.Ctx, Keeper) {
 	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)

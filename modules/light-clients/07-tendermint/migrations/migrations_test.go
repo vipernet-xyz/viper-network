@@ -7,12 +7,12 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctmmigrations "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctmmigrations "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint/migrations"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 )
 
 type MigrationsTestSuite struct {

@@ -308,7 +308,7 @@ func GetFromBech32(bech32str, prefix string) ([]byte, error) {
 	return bz, nil
 }
 
-// AccAddressFromBech32 creates an AccAddress from a Bech32 string.
+// AddressFromBech32 creates an AccAddress from a Bech32 string.
 func AccAddressFromBech32(address string) (addr Address, err error) {
 	if len(strings.TrimSpace(address)) == 0 {
 		return Address{}, errors.New("empty address string is not allowed")
@@ -361,7 +361,7 @@ func cacheBech32Addr(prefix string, addr []byte, cache *simplelru.LRU, cacheKey 
 }
 
 // MustAccAddressFromBech32 calls AccAddressFromBech32 and panics on error.
-func MustAccAddressFromBech32(address string) Address {
+func MustAddressFromBech32(address string) Address {
 	addr, err := AccAddressFromBech32(address)
 	if err != nil {
 		panic(err)

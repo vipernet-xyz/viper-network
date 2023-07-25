@@ -7,7 +7,7 @@ package legacybech32
 
 	"github.com/vipernet-xyz/viper-network/crypto/hd"
 	"github.com/vipernet-xyz/viper-network/crypto/ledger"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	"github.com/vipernet-xyz/viper-network/testutil/testdata"
 	sdk "github.com/vipernet-xyz/viper-network/types"*/
 
 /*func TestBeach32ifPbKey(t *testing.T) {

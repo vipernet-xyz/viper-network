@@ -4,17 +4,17 @@ package keeper_test
 	"testing"
 	"time"
 
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	capabilitykeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
+	stakingkeeper "github.com/vipernet-xyz/viper-network/x/staking/keeper"
+	stakingtypes "github.com/vipernet-xyz/viper-network/x/staking/types"
+	upgradekeeper "github.com/vipernet-xyz/viper-network/x/upgrade/keeper"
 	"github.com/stretchr/testify/suite"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibckeeper "github.com/vipernet-xyz/ibc-go/v7/modules/core/keeper"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*type KeeperTestSuite struct {
 	suite.Suite
@@ -46,11 +46,11 @@ type MockStakingKeeper struct {
 	mockField string
 }
 
-func (d MockStakingKeeper) GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool) {
+func (d MockStakingKeeper) GetHistoricalInfo(ctx sdk.Ctx, height int64) (stakingtypes.HistoricalInfo, bool) {
 	return stakingtypes.HistoricalInfo{}, true
 }
 
-func (d MockStakingKeeper) UnbondingTime(ctx sdk.Context) time.Duration {
+func (d MockStakingKeeper) UnbondingTime(ctx sdk.Ctx) time.Duration {
 	return 0
 }
 

@@ -3,9 +3,9 @@ package tendermint_test
 /*
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 // expected export ordering:
 // processed height and processed time per height

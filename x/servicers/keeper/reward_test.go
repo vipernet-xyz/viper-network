@@ -123,7 +123,7 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 	}
 
 	type args struct {
-		ctx              sdk.Context
+		ctx              sdk.Ctx
 		previousProposer sdk.Address
 		provider         sdk.Address
 		Output           sdk.Address
@@ -198,7 +198,7 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx               sdk.Context
+		ctx               sdk.Ctx
 		validator         sdk.Address
 		Output            sdk.Address
 		validatorNoOutput sdk.Address
@@ -257,7 +257,7 @@ func TestKeeper_rewardFromRelaysNoEXP(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx        sdk.Context
+		ctx        sdk.Ctx
 		baseReward sdk.BigInt
 		relays     int64
 		validator1 types.Validator
@@ -321,7 +321,7 @@ func TestKeeper_checkCheckCeiling(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx        sdk.Context
+		ctx        sdk.Ctx
 		baseReward sdk.BigInt
 		relays     int64
 		validator1 types.Validator
@@ -375,7 +375,7 @@ func TestKeeper_rewardFromRelaysEXP(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx        sdk.Context
+		ctx        sdk.Ctx
 		validator1 types.Validator
 		validator2 types.Validator
 		validator3 types.Validator

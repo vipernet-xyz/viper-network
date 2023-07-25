@@ -1,13 +1,13 @@
 package keeper_test
 
 /*
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	govtypes "github.com/vipernet-xyz/viper-network/x/gov/types/v1beta1"
+	upgradetypes "github.com/vipernet-xyz/viper-network/x/upgrade/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*func (suite *KeeperTestSuite) TestClientUpdateProposal() {
 	var (

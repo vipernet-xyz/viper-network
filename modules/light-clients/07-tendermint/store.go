@@ -276,7 +276,7 @@ func GetPreviousConsensusState(clientStore sdk.KVStore, cdc codec.BinaryCodec, h
 // client store. If a consensus state is expired, it is deleted and its metadata
 // is deleted. The number of consensus states pruned is returned.
 func PruneAllExpiredConsensusStates(
-	ctx sdk.Context, clientStore sdk.KVStore,
+	ctx sdk.Ctx, clientStore sdk.KVStore,
 	cdc codec.BinaryCodec, clientState *ClientState,
 ) int {
 	var heights []exported.Height

@@ -1,10 +1,10 @@
 package solomachine_test
 
 /*
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	"github.com/vipernet-xyz/viper-network/types/tx/signing"
 
-	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"*/
+	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"*/
 
 /*func (suite *SoloMachineTestSuite) TestVerifySignature() {
 	cdc := suite.chainA.App.AppCodec()

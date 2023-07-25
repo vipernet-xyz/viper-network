@@ -15,7 +15,7 @@ func TestKeeper_SendCoins(t *testing.T) {
 		Keeper Keeper
 	}
 	type args struct {
-		ctx         sdk.Context
+		ctx         sdk.Ctx
 		fromAddress sdk.Address
 		toAddress   sdk.Address
 		amount      sdk.BigInt

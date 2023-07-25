@@ -5,7 +5,7 @@ package tx_test
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	"github.com/vipernet-xyz/viper-network/testutil/testdata"
 	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 	cryptotypes "github.com/vipernet-xyz/viper-network/crypto/types"
 	"github.com/vipernet-xyz/viper-network/types/tx"

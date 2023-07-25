@@ -6,19 +6,19 @@ import (
 	"testing"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/stretchr/testify/suite"
 
-	ibc "github.com/vipernet-xyz/ibc-go/v7/modules/core"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/types"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"
+	ibc "github.com/vipernet-xyz/viper-network/modules/core"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	"github.com/vipernet-xyz/viper-network/modules/core/types"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	"github.com/vipernet-xyz/viper-network/testing/simapp"
 )
 
 const (

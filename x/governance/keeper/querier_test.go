@@ -14,7 +14,7 @@ import (
 
 func Test_queryDAO(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 	context, keeper := createTestKeeperAndContext(t, false)
@@ -45,7 +45,7 @@ func Test_queryDAO(t *testing.T) {
 
 func Test_queryACL(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 	ctx, k := createTestKeeperAndContext(t, false)
@@ -81,7 +81,7 @@ func Test_queryACL(t *testing.T) {
 
 func Test_queryUpgrade(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 	ctx, k := createTestKeeperAndContext(t, false)

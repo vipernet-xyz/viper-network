@@ -234,7 +234,7 @@ func (k Keeper) HasClientConsensusState(ctx sdk.Ctx, clientID string, height exp
 }
 
 // GetLatestClientConsensusState gets the latest ConsensusState stored for a given client
-func (k Keeper) GetLatestClientConsensusState(ctx sdk.Context, clientID string) (exported.ConsensusState, bool) {
+func (k Keeper) GetLatestClientConsensusState(ctx sdk.Ctx, clientID string) (exported.ConsensusState, bool) {
 	clientState, ok := k.GetClientState(ctx, clientID)
 	if !ok {
 		return nil, false
@@ -391,7 +391,7 @@ func (k Keeper) IterateClientStates(ctx sdk.Ctx, prefix []byte, cb func(clientID
 }
 
 // GetAllClients returns all stored light client State objects.
-func (k Keeper) GetAllClients(ctx sdk.Context) []exported.ClientState {
+func (k Keeper) GetAllClients(ctx sdk.Ctx) []exported.ClientState {
 	var states []exported.ClientState
 	k.IterateClientStates(ctx, nil, func(_ string, state exported.ClientState) bool {
 		states = append(states, state)

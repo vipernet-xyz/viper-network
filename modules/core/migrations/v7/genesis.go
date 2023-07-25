@@ -2,7 +2,7 @@ package v7
 
 /*
 import (
-	//genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	//genutiltypes "github.com/vipernet-xyz/viper-network/x/genutil/types"
 	"github.com/vipernet-xyz/viper-network/codec"
 
 	clientv7 "github.com/vipernet-xyz/viper-network/modules/core/02-client/migrations/v7"

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"time"
@@ -9,10 +10,8 @@ import (
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	tmCrypto "github.com/tendermint/tendermint/crypto"
-	cryptoKeys "github.com/vipernet-xyz/viper-network/crypto/keys"
 	"gopkg.in/yaml.v2"
 
-	proto "github.com/cosmos/gogoproto/proto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 )
@@ -481,37 +480,27 @@ func (m *ProtoModuleAccount) FromProto() (ModuleAccount, error) {
 	}, nil
 }
 
-// AccountI is an interface used to store coins at a given address within state.
-// It presumes a notion of sequence numbers for replay protection,
-// a notion of account numbers for replay protection for previously pruned accounts,
-// and a pubkey for authentication purposes.
-//
-// Many complex conditions can be used in the concrete struct which implements AccountI.
-type AccountI interface {
-	proto.Message
+// GenesisAccount defines a genesis account that embeds an AccountI with validation capabilities.
+type GenesisAccount interface {
+	exported.Account
 
-	GetAddress() sdk.Addresses
-	SetAddress(sdk.Addresses) error // errors if already set.
-
-	GetPubKey() cryptoKeys.PubKey // can return nil.
-	SetPubKey(cryptoKeys.PubKey) error
-
-	GetAccountNumber() uint64
-	SetAccountNumber(uint64) error
-
-	GetSequence() uint64
-	SetSequence(uint64) error
-
-	// Ensure that account implements stringer
-	String() string
+	Validate() error
 }
 
-// ModuleAccountI defines an account interface for modules that hold tokens in
-// an escrow.
-type ModuleAccountI interface {
-	AccountI
+// Validate checks for errors on the account fields
+func (acc BaseAccount) Validate() error {
+	if string(acc.Address) == "" || acc.PubKey == nil {
+		return nil
+	}
 
-	GetName() string
-	GetPermissions() []string
-	HasPermission(string) bool
+	accAddr, err := sdk.AccAddressFromBech32(string(acc.Address))
+	if err != nil {
+		return err
+	}
+
+	if !bytes.Equal(acc.GetPubKey().Address().Bytes(), accAddr.Bytes()) {
+		return errors.New("account address and pubkey address do not match")
+	}
+
+	return nil
 }

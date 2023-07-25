@@ -4,22 +4,22 @@ package solomachine_test
 	"testing"
 	"time"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
+	"github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+	"github.com/vipernet-xyz/viper-network/testutil/testdata"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
+	transfertypes "github.com/vipernet-xyz/viper-network/modules/apps/transfer/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	"github.com/vipernet-xyz/viper-network/testing/mock"*/
 
 /*var (
 	channelIDSolomachine = "channel-on-solomachine" // channelID generated on solo machine side

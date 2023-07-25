@@ -34,7 +34,7 @@ func TestNewHandler(t *testing.T) {
 
 func Test_handleMsgBeginUnstake(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		msg types.MsgBeginUnstake
 		k   keeper.Keeper
 	}
@@ -56,7 +56,7 @@ func Test_handleMsgBeginUnstake(t *testing.T) {
 
 func Test_handleMsgSend(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		msg types.MsgSend
 		k   keeper.Keeper
 	}
@@ -78,7 +78,7 @@ func Test_handleMsgSend(t *testing.T) {
 
 func Test_handleMsgUnjail(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		msg types.MsgUnjail
 		k   keeper.Keeper
 	}
@@ -100,7 +100,7 @@ func Test_handleMsgUnjail(t *testing.T) {
 
 func TestKeeper_ValidateBeginUnstakeSigner(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   keeper.Keeper
 		v   types.Validator
 		msg types.MsgBeginUnstake

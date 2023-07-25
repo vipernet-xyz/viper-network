@@ -284,7 +284,7 @@ func (sh SessionHeader) Bytes() []byte {
 }
 
 // "BlockHash" - Returns the merkleHash from the ctx block header
-func BlockHash(ctx sdk.Context) string {
+func BlockHash(ctx sdk.Ctx) string {
 	return hex.EncodeToString(ctx.BlockHeader().LastBlockId.Hash)
 }
 

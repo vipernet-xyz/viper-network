@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 )
 
 func (suite *TypesTestSuite) TestMarshalConsensusStateWithHeight() {

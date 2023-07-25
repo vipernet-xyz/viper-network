@@ -118,7 +118,7 @@ func TestCreateHDPath(t *testing.T) {
 // the extended keys specification. If the index belongs to that of a hardened key,
 // its 0x80000000 bit will be set, so we can still accept values in [0, max(int32)] and then
 // increase its value as deriveKeyPath already augments.
-// See issue https://github.com/cosmos/cosmos-sdk/issues/7627.
+// See issue https://github.com/vipernet-xyz/viper-network/issues/7627.
 func TestDeriveHDPathRange(t *testing.T) {
 	seed := mnemonicToSeed("I am become Death, the destroyer of worlds!")
 
@@ -281,7 +281,7 @@ func ExampleSomeBIP32TestVecs() { //nolint:govet
 }
 
 // Ensuring that we don't crash if values have trailing slashes
-// See issue https://github.com/cosmos/cosmos-sdk/issues/8557.
+// See issue https://github.com/vipernet-xyz/viper-network/issues/8557.
 func TestDerivePrivateKeyForPathDoNotCrash(t *testing.T) {
 	paths := []string{
 		"m/5/",

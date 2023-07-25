@@ -333,6 +333,7 @@ type Result struct {
 	// Events contains a slice of Event objects that were emitted during message or
 	// handler execution.
 	Events Events `protobuf:"bytes,7,rep,name=events,proto3,castrepeated=Events" json:"events"`
+	MsgResponses []*types.Any `protobuf:"bytes,8,rep,name=msg_responses,json=msgResponses,proto3" json:"msg_responses,omitempty"`
 }
 
 func (m *Result) Reset()      { *m = Result{} }
@@ -469,6 +470,7 @@ func (m *MsgData) GetData() []byte {
 // each message.
 type TxMsgData struct {
 	Data []*MsgData `protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty"`
+	MsgResponses []*types.Any `protobuf:"bytes,2,rep,name=msg_responses,json=msgResponses,proto3" json:"msg_responses,omitempty"`
 }
 
 func (m *TxMsgData) Reset()      { *m = TxMsgData{} }
@@ -506,6 +508,13 @@ var xxx_messageInfo_TxMsgData proto.InternalMessageInfo
 func (m *TxMsgData) GetData() []*MsgData {
 	if m != nil {
 		return m.Data
+	}
+	return nil
+}
+
+func (m *TxMsgData) GetMsgResponses() []*types.Any {
+	if m != nil {
+		return m.MsgResponses
 	}
 	return nil
 }
@@ -886,6 +895,20 @@ func (m *Result) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.MsgResponses) > 0 {
+		for iNdEx := len(m.MsgResponses) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.MsgResponses[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAbci(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
 	if len(m.Events) > 0 {
 		for iNdEx := len(m.Events) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -1041,6 +1064,20 @@ func (m *TxMsgData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.MsgResponses) > 0 {
+		for iNdEx := len(m.MsgResponses) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.MsgResponses[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAbci(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
 	if len(m.Data) > 0 {
 		for iNdEx := len(m.Data) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -1233,6 +1270,12 @@ func (m *Result) Size() (n int) {
 			n += 1 + l + sovAbci(uint64(l))
 		}
 	}
+	if len(m.MsgResponses) > 0 {
+		for _, e := range m.MsgResponses {
+			l = e.Size()
+			n += 1 + l + sovAbci(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -1276,6 +1319,12 @@ func (m *TxMsgData) Size() (n int) {
 	_ = l
 	if len(m.Data) > 0 {
 		for _, e := range m.Data {
+			l = e.Size()
+			n += 1 + l + sovAbci(uint64(l))
+		}
+	}
+	if len(m.MsgResponses) > 0 {
+		for _, e := range m.MsgResponses {
 			l = e.Size()
 			n += 1 + l + sovAbci(uint64(l))
 		}
@@ -1343,6 +1392,7 @@ func (this *Result) String() string {
 		repeatedStringForEvents += fmt.Sprintf("%v", f) + ","
 	}
 	repeatedStringForEvents += "}"
+	repeatedStringForMsgResponses := "[]*Any{"
 	s := strings.Join([]string{`&Result{`,
 		`Code:` + fmt.Sprintf("%v", this.Code) + `,`,
 		`Codespace:` + fmt.Sprintf("%v", this.Codespace) + `,`,
@@ -1351,6 +1401,7 @@ func (this *Result) String() string {
 		`GasWanted:` + fmt.Sprintf("%v", this.GasWanted) + `,`,
 		`GasUsed:` + fmt.Sprintf("%v", this.GasUsed) + `,`,
 		`Events:` + repeatedStringForEvents + `,`,
+		`MsgResponses:` + repeatedStringForMsgResponses + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1386,8 +1437,10 @@ func (this *TxMsgData) String() string {
 		repeatedStringForData += strings.Replace(f.String(), "MsgData", "MsgData", 1) + ","
 	}
 	repeatedStringForData += "}"
+	repeatedStringForMsgResponses := "[]*Any{"
 	s := strings.Join([]string{`&TxMsgData{`,
 		`Data:` + repeatedStringForData + `,`,
+		`MsgResponses:` + repeatedStringForMsgResponses + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2494,6 +2547,40 @@ func (m *Result) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgResponses", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAbci
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAbci
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAbci
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MsgResponses = append(m.MsgResponses, &types.Any{})
+			if err := m.MsgResponses[len(m.MsgResponses)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipAbci(dAtA[iNdEx:])
@@ -2819,6 +2906,40 @@ func (m *TxMsgData) Unmarshal(dAtA []byte) error {
 			}
 			m.Data = append(m.Data, &MsgData{})
 			if err := m.Data[len(m.Data)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgResponses", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAbci
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAbci
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAbci
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MsgResponses = append(m.MsgResponses, &types.Any{})
+			if err := m.MsgResponses[len(m.MsgResponses)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

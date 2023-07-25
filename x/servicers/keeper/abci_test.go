@@ -12,7 +12,7 @@ import (
 
 func TestBeginBlocker(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestBeginBlock
 		k   Keeper
 	}
@@ -78,7 +78,7 @@ func TestKeeper_ConvertValidatorsState(t *testing.T) {
 
 func TestEndBlocker(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 	context, _, keeper := createTestInput(t, true)

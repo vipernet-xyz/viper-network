@@ -93,7 +93,7 @@ generateKeyForCheckingConsistency was used to create test vectors that matches c
 Here are the specific versions used to generate the vectors.
 
 github.com/cosmos/btcutil v1.0.5
-github.com/cosmos/cosmos-sdk v0.46.8
+github.com/vipernet-xyz/viper-network v0.46.8
 */
 var _ = func() keyData {
 	priv := secp256k1.GenPrivKey()

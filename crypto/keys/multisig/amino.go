@@ -25,7 +25,7 @@ import (
 // Amino binary marshaling, as that _might_ introduce breaking changes in the
 // keyring, where multisigs are amino-binary-encoded.
 //
-// ref: https://github.com/cosmos/cosmos-sdk/issues/8776
+// ref: https://github.com/vipernet-xyz/viper-network/issues/8776
 type tmMultisig struct {
 	K       uint                 `json:"threshold"`
 	PubKeys []cryptotypes.PubKey `json:"pubkeys"`

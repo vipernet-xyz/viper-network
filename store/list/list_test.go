@@ -22,7 +22,7 @@ type TestStruct struct {
 	B bool
 }
 
-func defaultComponents(key sdk.StoreKey) (sdk.Context, *codec.Codec) {
+func defaultComponents(key sdk.StoreKey) (sdk.Ctx, *codec.Codec) {
 	db := dbm.NewMemDB()
 	cms := rootmulti.NewStore(db, false, 5000000)
 	cms.MountStoreWithDB(key, sdk.StoreTypeIAVL, db)

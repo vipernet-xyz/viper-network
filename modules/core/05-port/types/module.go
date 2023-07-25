@@ -42,7 +42,7 @@ type IBCModule interface {
 	// must select the final version string and return it to core IBC.
 	// OnChanOpenTry may also perform custom initialization logic
 	OnChanOpenTry(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		order channeltypes.Order,
 		connectionHops []string,
 		portID,
@@ -55,7 +55,7 @@ type IBCModule interface {
 	// OnChanOpenAck will error if the counterparty selected version string
 	// is invalid to abort the handshake. It may also perform custom ACK logic.
 	OnChanOpenAck(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		portID,
 		channelID string,
 		counterpartyChannelID string,
@@ -64,19 +64,19 @@ type IBCModule interface {
 
 	// OnChanOpenConfirm will perform custom CONFIRM logic and may error to abort the handshake.
 	OnChanOpenConfirm(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		portID,
 		channelID string,
 	) error
 
 	OnChanCloseInit(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		portID,
 		channelID string,
 	) error
 
 	OnChanCloseConfirm(
-		ctx sdk.Context,
+		ctx sdk.Ctx,
 		portID,
 		channelID string,
 	) error

@@ -3,12 +3,12 @@ package keeper_test
 /*
 	"fmt"
 
-	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
+	banktestutil "github.com/vipernet-xyz/viper-network/x/bank/testutil"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"*/
 
 // test sending from chainA to chainB using both coin that orignate on

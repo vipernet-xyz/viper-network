@@ -6,14 +6,14 @@ import (
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	client "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
+	client "github.com/vipernet-xyz/viper-network/modules/core/02-client"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	ibctestingmock "github.com/vipernet-xyz/viper-network/testing/mock"
 )
 
 const (

@@ -67,7 +67,7 @@ func (k Keeper) GenerateChannelIdentifier(ctx sdk.Ctx) string {
 }
 
 // HasChannel true if the channel with the given identifiers exists in state.
-func (k Keeper) HasChannel(ctx sdk.Context, portID, channelID string) bool {
+func (k Keeper) HasChannel(ctx sdk.Ctx, portID, channelID string) bool {
 	store := ctx.KVStore(k.storeKey)
 	b, _ := store.Has(host.ChannelKey(portID, channelID))
 	return b
@@ -200,7 +200,7 @@ func (k Keeper) GetPacketCommitment(ctx sdk.Ctx, portID, channelID string, seque
 }
 
 // HasPacketCommitment returns true if the packet commitment exists
-func (k Keeper) HasPacketCommitment(ctx sdk.Context, portID, channelID string, sequence uint64) bool {
+func (k Keeper) HasPacketCommitment(ctx sdk.Ctx, portID, channelID string, sequence uint64) bool {
 	store := ctx.KVStore(k.storeKey)
 	b, _ := store.Has(host.PacketCommitmentKey(portID, channelID, sequence))
 	return b
@@ -224,7 +224,7 @@ func (k Keeper) SetPacketAcknowledgement(ctx sdk.Ctx, portID, channelID string, 
 }
 
 // GetPacketAcknowledgement gets the packet ack hash from the store
-func (k Keeper) GetPacketAcknowledgement(ctx sdk.Context, portID, channelID string, sequence uint64) ([]byte, bool) {
+func (k Keeper) GetPacketAcknowledgement(ctx sdk.Ctx, portID, channelID string, sequence uint64) ([]byte, bool) {
 	store := ctx.KVStore(k.storeKey)
 	bz, _ := store.Get(host.PacketAcknowledgementKey(portID, channelID, sequence))
 	if len(bz) == 0 {
@@ -318,7 +318,7 @@ func (k Keeper) GetAllPacketCommitments(ctx sdk.Ctx) (commitments []types.Packet
 // IteratePacketCommitmentAtChannel provides an iterator over all PacketCommmitment objects
 // at a specified channel. For each packet commitment, cb will be called. If the cb returns
 // true, the iterator will close and stop.
-func (k Keeper) IteratePacketCommitmentAtChannel(ctx sdk.Context, portID, channelID string, cb func(_, _ string, sequence uint64, hash []byte) bool) {
+func (k Keeper) IteratePacketCommitmentAtChannel(ctx sdk.Ctx, portID, channelID string, cb func(_, _ string, sequence uint64, hash []byte) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, []byte(host.PacketCommitmentPrefixPath(portID, channelID)))
 	k.iterateHashes(ctx, iterator, cb)
@@ -326,7 +326,7 @@ func (k Keeper) IteratePacketCommitmentAtChannel(ctx sdk.Context, portID, channe
 
 // GetAllPacketCommitmentsAtChannel returns all stored PacketCommitments objects for a specified
 // port ID and channel ID.
-func (k Keeper) GetAllPacketCommitmentsAtChannel(ctx sdk.Context, portID, channelID string) (commitments []types.PacketState) {
+func (k Keeper) GetAllPacketCommitmentsAtChannel(ctx sdk.Ctx, portID, channelID string) (commitments []types.PacketState) {
 	k.IteratePacketCommitmentAtChannel(ctx, portID, channelID, func(_, _ string, sequence uint64, hash []byte) bool {
 		pc := types.NewPacketState(portID, channelID, sequence, hash)
 		commitments = append(commitments, pc)
@@ -394,7 +394,7 @@ func (k Keeper) IterateChannels(ctx sdk.Ctx, cb func(types.IdentifiedChannel) bo
 
 // GetAllChannelsWithPortPrefix returns all channels with the specified port prefix. If an empty prefix is provided
 // all channels will be returned.
-func (k Keeper) GetAllChannelsWithPortPrefix(ctx sdk.Context, portPrefix string) []types.IdentifiedChannel {
+func (k Keeper) GetAllChannelsWithPortPrefix(ctx sdk.Ctx, portPrefix string) []types.IdentifiedChannel {
 	if strings.TrimSpace(portPrefix) == "" {
 		return k.GetAllChannels(ctx)
 	}
@@ -424,7 +424,7 @@ func (k Keeper) GetAllChannels(ctx sdk.Ctx) (channels []types.IdentifiedChannel)
 }
 
 // GetChannelClientState returns the associated client state with its ID, from a port and channel identifier.
-func (k Keeper) GetChannelClientState(ctx sdk.Context, portID, channelID string) (string, exported.ClientState, error) {
+func (k Keeper) GetChannelClientState(ctx sdk.Ctx, portID, channelID string) (string, exported.ClientState, error) {
 	channel, found := k.GetChannel(ctx, portID, channelID)
 	if !found {
 		return "", nil, errorsmod.Wrapf(types.ErrChannelNotFound, "port-id: %s, channel-id: %s", portID, channelID)

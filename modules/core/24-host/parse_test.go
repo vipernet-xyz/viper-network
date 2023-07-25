@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 )
 
 func TestParseIdentifier(t *testing.T) {

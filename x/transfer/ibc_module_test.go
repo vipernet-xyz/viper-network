@@ -3,12 +3,12 @@ package transfer_test
 /*
 	"math"
 
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	"github.com/vipernet-xyz/viper-network/modules/apps/transfer"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"*/
 
 /*

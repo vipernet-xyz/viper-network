@@ -10,7 +10,7 @@ package client_test
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	"github.com/vipernet-xyz/viper-network/testutil/testdata"
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/client/flags"
 	"github.com/vipernet-xyz/viper-network/codec"

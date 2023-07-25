@@ -5,14 +5,14 @@ package keeper_test
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	connectiontypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	connectiontypes "github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 // TestTimeoutPacket test the TimeoutPacket call on chainA by ensuring the timeout has passed
 // on chainB, but that no ack has been written yet. Test cases expected to reach proof

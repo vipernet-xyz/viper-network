@@ -5,10 +5,10 @@ package types_test
 
 	"github.com/stretchr/testify/require"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*var (
 	chainID             = "gaiamainnet"

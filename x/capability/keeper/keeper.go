@@ -148,7 +148,7 @@ func (k *Keeper) InitMemStore(ctx sdk.Ctx) {
 }
 
 // IsInitialized returns true if the keeper is properly initialized, and false otherwise.
-func (k *Keeper) IsInitialized(ctx sdk.Context) bool {
+func (k *Keeper) IsInitialized(ctx sdk.Ctx) bool {
 	memStore := ctx.KVStore(k.memKey)
 	a, _ := memStore.Get(types.KeyMemInitialized)
 	return a != nil
@@ -330,7 +330,7 @@ func (sk ScopedKeeper) ClaimCapability(ctx sdk.Ctx, cap *types.Capability, name 
 // ReleaseCapability allows a scoped module to release a capability which it had
 // previously claimed or created. After releasing the capability, if no more
 // owners exist, the capability will be globally removed.
-func (sk ScopedKeeper) ReleaseCapability(ctx sdk.Context, cap *types.Capability) error {
+func (sk ScopedKeeper) ReleaseCapability(ctx sdk.Ctx, cap *types.Capability) error {
 	if cap == nil {
 		return sdkerrors.Wrap(types.ErrNilCapability, "cannot release nil capability")
 	}
@@ -388,7 +388,7 @@ func (sk ScopedKeeper) GetCapability(ctx sdk.Ctx, name string) (*types.Capabilit
 		// go map do not automatically get reverted on tx failure,
 		// so we delete here to remove unnecessary values in map
 		// TODO: Delete index correctly from capMap by storing some reverse lookup
-		// in-memory map. Issue: https://github.com/cosmos/cosmos-sdk/issues/7805
+		// in-memory map. Issue: https://github.com/vipernet-xyz/viper-network/issues/7805
 
 		return nil, false
 	}

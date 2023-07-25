@@ -60,7 +60,7 @@ func GetTestTendermintClient() client.Client {
 }
 
 // : deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authentication.Account, keeper.Keeper) {
+func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Account, keeper.Keeper) {
 	initPower := int64(100000000000)
 	nAccs := int64(4)
 

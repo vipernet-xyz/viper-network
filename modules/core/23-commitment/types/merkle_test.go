@@ -7,7 +7,7 @@ package types_test
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"*/
 
 /*func (suite *MerkleTestSuite) TestVerifyMembership() {
 	suite.iavlStore.Set([]byte("MYKEY"), []byte("MYVALUE"))

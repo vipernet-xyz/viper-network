@@ -19,7 +19,7 @@ type Keeper struct {
 	hostedBlockchains *types.HostedBlockchains
 	hostedGeoZone     *types.HostedGeoZones
 	Paramstore        sdk.Subspace
-	storeKey          sdk.StoreKey // Unexposed key to access store from sdk.Context
+	storeKey          sdk.StoreKey // Unexposed key to access store from sdk.Ctx
 	Cdc               *codec.Codec // The wire codec for binary encoding/decoding.
 	Bcdc              codec.BinaryCodec
 }

@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"strings"
 
+	proto "github.com/gogo/protobuf/proto"
 	"github.com/vipernet-xyz/viper-network/codec/types"
 
 	"github.com/vipernet-xyz/viper-network/codec"
 
+	abci "github.com/tendermint/tendermint/abci/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
@@ -287,4 +289,45 @@ func (r TxResponse) Empty() bool {
 func ParseABCILogs(logs string) (res ABCIMessageLogs, err error) {
 	err = json.Unmarshal([]byte(logs), &res)
 	return res, err
+}
+
+// WrapServiceResult wraps a result from a protobuf RPC service method call (res proto.Message, err error)
+// in a Result object or error. This method takes care of marshaling the res param to
+// protobuf and attaching any events on the ctx.EventManager() to the Result.
+func WrapServiceResult(ctx Context, res proto.Message, err error) (*Result, error) {
+	if err != nil {
+		return nil, err
+	}
+
+	any, err := types.NewAnyWithValue(res)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []byte
+	if res != nil {
+		data, err = proto.Marshal(res)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var events []abci.Event
+	if evtMgr := ctx.EventManager(); evtMgr != nil {
+		events = evtMgr.ABCIEvents()
+	}
+
+	return &Result{
+		Data:         data,
+		Events:       events,
+		MsgResponses: []*types.Any{any},
+	}, nil
+}
+
+func (r Result) GetEvents() Events {
+	events := make(Events, len(r.Events))
+	for i, e := range r.Events {
+		events[i] = abci.Event(e)
+	}
+	return events
 }

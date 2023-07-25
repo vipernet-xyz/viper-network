@@ -4,15 +4,15 @@ package v7_test
 import (
 	"encoding/json"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 
-	ibcclient "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client"
-	v7 "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/migrations/v7"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibcclient "github.com/vipernet-xyz/viper-network/modules/core/02-client"
+	v7 "github.com/vipernet-xyz/viper-network/modules/core/02-client/migrations/v7"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 )
 
 func (suite *MigrationsV7TestSuite) TestMigrateGenesisSolomachine() {

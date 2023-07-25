@@ -14,7 +14,7 @@ import (
 
 func TestExportGenesis(t *testing.T) {
 	type args struct {
-		ctx    sdk.Context
+		ctx    sdk.Ctx
 		keeper keeper.Keeper
 	}
 
@@ -41,7 +41,7 @@ func TestExportGenesis(t *testing.T) {
 
 func TestInitGenesis(t *testing.T) {
 	type args struct {
-		ctx          sdk.Context
+		ctx          sdk.Ctx
 		keeper       keeper.Keeper
 		supplyKeeper types.AuthKeeper
 		data         types.GenesisState

@@ -5,7 +5,7 @@ package types_test
 
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	"github.com/stretchr/testify/suite"
 	"github.com/vipernet-xyz/viper-network/store/iavl"
 	"github.com/vipernet-xyz/viper-network/store/rootmulti"*/

@@ -12,7 +12,7 @@ import (
 
 // NewClientProposalHandler defines the 02-client proposal handler
 func NewClientProposalHandler(k keeper.Keeper) govtypes.Handler {
-	return func(ctx sdk.Context, content govtypes.Content) error {
+	return func(ctx sdk.Ctx, content govtypes.Content) error {
 		switch c := content.(type) {
 		case *types.ClientUpdateProposal:
 			return k.ClientUpdateProposal(ctx, c)

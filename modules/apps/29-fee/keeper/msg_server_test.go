@@ -1,15 +1,15 @@
 package keeper_test
 
 /*
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	banktypes "github.com/vipernet-xyz/viper-network/x/bank/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	transfertypes "github.com/vipernet-xyz/viper-network/modules/apps/transfer/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	ibcmock "github.com/vipernet-xyz/viper-network/testing/mock"*/
 
 /*func (suite *KeeperTestSuite) TestRegisterPayee() {
 	var msg *types.MsgRegisterPayee

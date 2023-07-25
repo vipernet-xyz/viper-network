@@ -5,14 +5,14 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/stretchr/testify/suite"
 
-	v7 "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/migrations/v7"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	v7 "github.com/vipernet-xyz/viper-network/modules/core/02-client/migrations/v7"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 )
 
 // numCreations is the number of clients/consensus states created for

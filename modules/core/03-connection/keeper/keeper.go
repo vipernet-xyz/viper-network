@@ -53,7 +53,7 @@ func (k Keeper) GetCommitmentPrefix() exported.Prefix {
 }
 
 // GenerateConnectionIdentifier returns the next connection identifier.
-func (k Keeper) GenerateConnectionIdentifier(ctx sdk.Context) string {
+func (k Keeper) GenerateConnectionIdentifier(ctx sdk.Ctx) string {
 	nextConnSeq := k.GetNextConnectionSequence(ctx)
 	connectionID := types.FormatConnectionIdentifier(nextConnSeq)
 
@@ -78,7 +78,7 @@ func (k Keeper) GetConnection(ctx sdk.Ctx, connectionID string) (types.Connectio
 
 // HasConnection returns a true if the connection with the given identifier
 // exists in the store.
-func (k Keeper) HasConnection(ctx sdk.Context, connectionID string) bool {
+func (k Keeper) HasConnection(ctx sdk.Ctx, connectionID string) bool {
 	store := ctx.KVStore(k.storeKey)
 	b, _ := store.Has(host.ConnectionKey(connectionID))
 	return b
@@ -199,7 +199,7 @@ func (k Keeper) GetAllConnections(ctx sdk.Ctx) (connections []types.IdentifiedCo
 
 // addConnectionToClient is used to add a connection identifier to the set of
 // connections associated with a client.
-func (k Keeper) addConnectionToClient(ctx sdk.Context, clientID, connectionID string) error {
+func (k Keeper) addConnectionToClient(ctx sdk.Ctx, clientID, connectionID string) error {
 	_, found := k.clientKeeper.GetClientState(ctx, clientID)
 	if !found {
 		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)

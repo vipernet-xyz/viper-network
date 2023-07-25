@@ -7,12 +7,12 @@ package tendermint_test
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	ibctestingmock "github.com/vipernet-xyz/viper-network/testing/mock"*/
 
 /*func (suite *TendermintTestSuite) TestVerifyMisbehaviour() {
 	// Setup different validators and signers for testing different types of updates

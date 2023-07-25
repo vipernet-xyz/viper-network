@@ -69,4 +69,4 @@ type Content interface {
 
 // Handler defines a function that handles a proposal after it has passed the
 // governance process.
-type Handler func(ctx sdk.Context, content Content) error
+type Handler func(ctx sdk.Ctx, content Content) error

@@ -5,9 +5,9 @@ package types_test
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/03-connection/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*func TestValidateGenesis(t *testing.T) {
 	testCases := []struct {

@@ -1,17 +1,17 @@
 package fee_test
 
 /*
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	banktypes "github.com/vipernet-xyz/viper-network/x/bank/types"
+	stakingtypes "github.com/vipernet-xyz/viper-network/x/staking/types"
 	"github.com/cosmos/gogoproto/proto"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	icahosttypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/27-interchain-accounts/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	icahosttypes "github.com/vipernet-xyz/viper-network/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/vipernet-xyz/viper-network/modules/apps/27-interchain-accounts/types"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*var (
 	// defaultOwnerAddress defines a reusable bech32 address for testing purposes

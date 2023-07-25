@@ -8,22 +8,22 @@ package keeper_test
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/codec"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
+	stakingtypes "github.com/vipernet-xyz/viper-network/x/staking/types"
 	"github.com/stretchr/testify/suite"
 	"github.com/vipernet-xyz/viper-network/baseapp"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	commitmenttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/23-commitment/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	ibctestingmock "github.com/vipernet-xyz/viper-network/testing/mock"
+	"github.com/vipernet-xyz/viper-network/testing/simapp"*/
 
 /*const (
 	testChainID          = "gaiahub-0"
@@ -54,7 +54,7 @@ type KeeperTestSuite struct {
 	chainB *ibctesting.TestChain
 
 	cdc            codec.Codec
-	ctx            sdk.Context
+	ctx            sdk.Ctx
 	keeper         *keeper.Keeper
 	consensusState *ibctm.ConsensusState
 	header         *ibctm.Header

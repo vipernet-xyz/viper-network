@@ -13,9 +13,9 @@ import (
 	secp "github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	csecp256k1 "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	"github.com/vipernet-xyz/viper-network/crypto/hd"
+	csecp256k1 "github.com/vipernet-xyz/viper-network/crypto/keys/secp256k1"
+	"github.com/vipernet-xyz/viper-network/testutil/testdata"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 

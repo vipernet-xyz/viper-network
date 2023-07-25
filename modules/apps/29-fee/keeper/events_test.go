@@ -4,12 +4,12 @@ package keeper_test
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	transfertypes "github.com/vipernet-xyz/viper-network/modules/apps/transfer/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*func (suite *KeeperTestSuite) TestIncentivizePacketEvent() {
 	var (

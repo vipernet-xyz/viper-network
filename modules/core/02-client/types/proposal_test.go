@@ -4,14 +4,14 @@ package types_test
 import (
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	govtypes "github.com/vipernet-xyz/viper-network/x/gov/types/v1beta1"
+	upgradetypes "github.com/vipernet-xyz/viper-network/x/upgrade/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 )
 
 func (suite *TypesTestSuite) TestValidateBasic() {

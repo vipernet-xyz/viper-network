@@ -5,8 +5,8 @@ package legacytx_test
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	txtestutil "github.com/cosmos/cosmos-sdk/x/auth/tx/testutil"
+	"github.com/vipernet-xyz/viper-network/testutil/testdata"
+	txtestutil "github.com/vipernet-xyz/viper-network/x/auth/tx/testutil"
 	"github.com/vipernet-xyz/viper-network/codec"
 	cryptoAmino "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"

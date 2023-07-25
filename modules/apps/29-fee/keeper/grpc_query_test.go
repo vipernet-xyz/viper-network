@@ -1,16 +1,15 @@
 package keeper_test
 
-import ( /*
+/*
 	"fmt"
 
 	"github.com/cometbft/cometbft/crypto/secp256k1"
 	"github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
-)
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*func (suite *KeeperTestSuite) TestQueryIncentivizedPackets() {
 	var (

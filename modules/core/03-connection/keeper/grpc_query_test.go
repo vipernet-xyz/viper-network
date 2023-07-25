@@ -6,7 +6,7 @@ package keeper_test
 	query "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	"github.com/vipernet-xyz/viper-network/modules/core/03-connection/types"
 	"github.com/vipernet-xyz/viper-network/modules/core/exported"*/

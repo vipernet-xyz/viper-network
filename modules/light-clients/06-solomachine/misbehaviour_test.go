@@ -1,9 +1,9 @@
 package solomachine_test
 
 /*
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	solomachine "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*func (suite *SoloMachineTestSuite) TestMisbehaviour() {
 	misbehaviour := suite.solomachine.CreateMisbehaviour()

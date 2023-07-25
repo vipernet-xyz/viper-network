@@ -13,7 +13,7 @@ import (
 
 func Test_queryProviders(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestQuery
 		k   Keeper
 	}
@@ -52,7 +52,7 @@ func Test_queryProviders(t *testing.T) {
 
 func Test_queryProvider(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestQuery
 		k   Keeper
 	}
@@ -89,7 +89,7 @@ func Test_queryProvider(t *testing.T) {
 
 func Test_queryParameters(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 	context, _, keeper := createTestInput(t, true)
@@ -120,7 +120,7 @@ func Test_queryParameters(t *testing.T) {
 
 func Test_queryStakedPool(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 	}
 	context, _, keeper := createTestInput(t, true)
@@ -151,7 +151,7 @@ func Test_queryStakedPool(t *testing.T) {
 
 func Test_NewQuerier(t *testing.T) {
 	type args struct {
-		ctx  sdk.Context
+		ctx  sdk.Ctx
 		req  abci.RequestQuery
 		path []string
 		k    Keeper

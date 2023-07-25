@@ -4,7 +4,7 @@ package keeper_test
 	"github.com/cometbft/cometbft/crypto/secp256k1"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/testing/mock"
+	"github.com/vipernet-xyz/viper-network/testing/mock"
 	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 	transfertypes "github.com/vipernet-xyz/viper-network/x/transfer/types"*/

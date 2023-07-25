@@ -72,7 +72,7 @@ func (k Keeper) ClientUpdateProposal(ctx sdk.Ctx, p *types.ClientUpdateProposal)
 // an IBC client state and consensus state if a previous plan was set. Then  it
 // will schedule an upgrade and finally set the upgraded client state in upgrade
 // store.
-func (k Keeper) HandleUpgradeProposal(ctx sdk.Context, p *types.UpgradeProposal) error {
+func (k Keeper) HandleUpgradeProposal(ctx sdk.Ctx, p *types.UpgradeProposal) error {
 	clientState, err := types.UnpackClientState(p.UpgradedClientState)
 	if err != nil {
 		return errorsmod.Wrap(err, "could not unpack UpgradedClientState")

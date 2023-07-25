@@ -4,19 +4,19 @@ package v7_test
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/vipernet-xyz/viper-network/codec"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
+	genutiltypes "github.com/vipernet-xyz/viper-network/x/genutil/types"
 	"github.com/stretchr/testify/suite"
 
-	ibcclient "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client"
-	clientv7 "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/migrations/v7"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	ibcexported "github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	v7 "github.com/vipernet-xyz/ibc-go/v7/modules/core/migrations/v7"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibcclient "github.com/vipernet-xyz/viper-network/modules/core/02-client"
+	clientv7 "github.com/vipernet-xyz/viper-network/modules/core/02-client/migrations/v7"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
+	v7 "github.com/vipernet-xyz/viper-network/modules/core/migrations/v7"
+	"github.com/vipernet-xyz/viper-network/modules/core/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 )
 
 type MigrationsV7TestSuite struct {

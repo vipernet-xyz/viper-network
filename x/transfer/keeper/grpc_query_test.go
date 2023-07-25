@@ -6,8 +6,8 @@ package keeper_test
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/query"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	"github.com/vipernet-xyz/viper-network/modules/apps/transfer/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*func (suite *KeeperTestSuite) TestQueryDenomTrace() {
 	var (

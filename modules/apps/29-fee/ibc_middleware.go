@@ -86,7 +86,7 @@ func (im IBCMiddleware) OnChanOpenInit(
 // If the channel is not fee enabled the underlying application version will be returned
 // If the channel is fee enabled we merge the underlying application version with the ics29 version
 func (im IBCMiddleware) OnChanOpenTry(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID,
@@ -126,7 +126,7 @@ func (im IBCMiddleware) OnChanOpenTry(
 
 // OnChanOpenAck implements the IBCMiddleware interface
 func (im IBCMiddleware) OnChanOpenAck(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 	counterpartyChannelID string,
@@ -154,7 +154,7 @@ func (im IBCMiddleware) OnChanOpenAck(
 
 // OnChanOpenConfirm implements the IBCMiddleware interface
 func (im IBCMiddleware) OnChanOpenConfirm(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 ) error {
@@ -164,7 +164,7 @@ func (im IBCMiddleware) OnChanOpenConfirm(
 
 // OnChanCloseInit implements the IBCMiddleware interface
 func (im IBCMiddleware) OnChanCloseInit(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 ) error {
@@ -189,7 +189,7 @@ func (im IBCMiddleware) OnChanCloseInit(
 
 // OnChanCloseConfirm implements the IBCMiddleware interface
 func (im IBCMiddleware) OnChanCloseConfirm(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 ) error {

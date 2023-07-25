@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
 	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
 )

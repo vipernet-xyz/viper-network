@@ -8,7 +8,7 @@ import (
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/stretchr/testify/suite"
 
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	commitmenttypes "github.com/vipernet-xyz/viper-network/modules/core/23-commitment/types"
 	solomachine "github.com/vipernet-xyz/viper-network/modules/light-clients/06-solomachine"

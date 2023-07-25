@@ -41,7 +41,7 @@ func ValidateTransferChannelParams(
 	channelID string,
 ) error {
 	// NOTE: for escrow address security only 2^32 channels are allowed to be created
-	// Issue: https://github.com/cosmos/cosmos-sdk/issues/7737
+	// Issue: https://github.com/vipernet-xyz/viper-network/issues/7737
 	channelSequence, err := channeltypes.ParseChannelSequence(channelID)
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func (im IBCModule) OnChanOpenInit(
 
 // OnChanOpenTry implements the IBCModule interface.
 func (im IBCModule) OnChanOpenTry(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID,
@@ -122,7 +122,7 @@ func (im IBCModule) OnChanOpenTry(
 
 // OnChanOpenAck implements the IBCModule interface
 func (im IBCModule) OnChanOpenAck(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 	_ string,
@@ -136,7 +136,7 @@ func (im IBCModule) OnChanOpenAck(
 
 // OnChanOpenConfirm implements the IBCModule interface
 func (im IBCModule) OnChanOpenConfirm(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 ) error {
@@ -145,7 +145,7 @@ func (im IBCModule) OnChanOpenConfirm(
 
 // OnChanCloseInit implements the IBCModule interface
 func (im IBCModule) OnChanCloseInit(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 ) error {
@@ -155,7 +155,7 @@ func (im IBCModule) OnChanCloseInit(
 
 // OnChanCloseConfirm implements the IBCModule interface
 func (im IBCModule) OnChanCloseConfirm(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 ) error {

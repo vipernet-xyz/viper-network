@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/testutil"
+	"github.com/vipernet-xyz/viper-network/testutil"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
 	"github.com/vipernet-xyz/viper-network/client"

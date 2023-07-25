@@ -5,7 +5,7 @@ package ledger
 
 "github.com/stretchr/testify/require"
 
-"github.com/cosmos/cosmos-sdk/testutil/testdata"
+"github.com/vipernet-xyz/viper-network/testutil/testdata"
 "github.com/vipernet-xyz/viper-network/codec/legacy"
 "github.com/vipernet-xyz/viper-network/crypto/hd"
 "github.com/vipernet-xyz/viper-network/crypto/types"

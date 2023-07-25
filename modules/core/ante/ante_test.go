@@ -7,12 +7,12 @@ package ante_test
 	"github.com/stretchr/testify/suite"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/ante"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/ante"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*type AnteTestSuite struct {
 	suite.Suite
@@ -436,7 +436,7 @@ func (suite *AnteTestSuite) TestAnteDecorator() {
 				k := suite.chainB.App.GetIBCKeeper()
 				decorator := ante.NewRedundantRelayDecorator(k)
 				checkCtx := suite.chainB.GetContext().WithIsCheckTx(true)
-				next := func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) { return ctx, nil }
+				next := func(ctx sdk.Ctx, tx sdk.Tx, simulate bool) (newCtx sdk.Ctx, err error) { return ctx, nil }
 				txBuilder := suite.chainB.TxConfig.NewTxBuilder()
 				err := txBuilder.SetMsgs([]sdk.Msg{msg}...)
 				suite.Require().NoError(err)
@@ -472,7 +472,7 @@ func (suite *AnteTestSuite) TestAnteDecorator() {
 			suite.Require().NoError(err)
 			tx := txBuilder.GetTx()
 
-			next := func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) { return ctx, nil }
+			next := func(ctx sdk.Ctx, tx sdk.Tx, simulate bool) (newCtx sdk.Ctx, err error) { return ctx, nil }
 
 			_, err = decorator.AnteHandle(deliverCtx, tx, false, next)
 			suite.Require().NoError(err, "antedecorator should not error on DeliverTx")

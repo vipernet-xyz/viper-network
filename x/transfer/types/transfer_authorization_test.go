@@ -2,11 +2,11 @@ package types_test
 
 /*
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
+	"github.com/vipernet-xyz/viper-network/x/authz"
 	sdk1 "github.com/vipernet-xyz/viper-network/types"
 
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/mock"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	"github.com/vipernet-xyz/viper-network/testing/mock"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"*/
 
 /*func (suite *TypesTestSuite) TestTransferAuthorizationAccept() {

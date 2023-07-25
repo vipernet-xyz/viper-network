@@ -68,7 +68,7 @@ func (k Keeper) ChanOpenInit(
 // The channel is set in state and all the associated Send and Recv sequences are set to 1.
 // An event is emitted for the handshake step.
 func (k Keeper) WriteOpenInitChannel(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 	order types.Order,
@@ -180,7 +180,7 @@ func (k Keeper) ChanOpenTry(
 // The channel is set in state. If a previous channel state did not exist, all the Send and Recv
 // sequences are set to 1. An event is emitted for the handshake step.
 func (k Keeper) WriteOpenTryChannel(
-	ctx sdk.Context,
+	ctx sdk.Ctx,
 	portID,
 	channelID string,
 	order types.Order,

@@ -16,7 +16,7 @@ func TestKeeper_GetValidators(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx         sdk.Context
+		ctx         sdk.Ctx
 		maxRetrieve uint16
 	}
 
@@ -46,7 +46,7 @@ func TestKeeper_GetValidators(t *testing.T) {
 
 func TestKeeper_GetValidatorOutputAddress(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 		v   types.Validator
 	}

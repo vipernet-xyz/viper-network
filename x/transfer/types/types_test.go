@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	"github.com/vipernet-xyz/viper-network/x/transfer/types"
 )
 

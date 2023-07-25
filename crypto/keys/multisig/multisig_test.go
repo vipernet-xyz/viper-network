@@ -7,9 +7,9 @@ package multisig_test
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/depinject"
-	"github.com/cosmos/cosmos-sdk/codec/types"
-	_ "github.com/cosmos/cosmos-sdk/runtime"
-	"github.com/cosmos/cosmos-sdk/testutil/configurator"
+	"github.com/vipernet-xyz/viper-network/codec/types"
+	_ "github.com/vipernet-xyz/viper-network/runtime"
+	"github.com/vipernet-xyz/viper-network/testutil/configurator"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/codec/legacy"
 	cryptocodec "github.com/vipernet-xyz/viper-network/crypto/codec"
@@ -393,7 +393,7 @@ func TestAminoUnmarshalJSON(t *testing.T) {
 	// v0.39, hence the `threshold` field as a string.
 	// We are testing that when unmarshaling this JSON into a LegacyAminoPubKey
 	// with amino, there's no error.
-	// ref: https://github.com/cosmos/cosmos-sdk/issues/8776
+	// ref: https://github.com/vipernet-xyz/viper-network/issues/8776
 	pkJSON := `{
 	"type": "tendermint/PubKeyMultisigThreshold",
 	"value": {

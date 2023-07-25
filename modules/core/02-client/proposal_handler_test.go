@@ -1,11 +1,11 @@
 package client_test
 
 /*
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	distributiontypes "github.com/vipernet-xyz/viper-network/x/distribution/types"
+	govtypes "github.com/vipernet-xyz/viper-network/x/gov/types/v1beta1"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
 	client "github.com/vipernet-xyz/viper-network/modules/core/02-client"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
 	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"*/

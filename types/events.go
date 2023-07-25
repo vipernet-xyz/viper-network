@@ -55,6 +55,9 @@ type (
 
 	// Events defines a slice of Event objects
 	Events []abci.Event
+
+	// Event is a type alias for an ABCI Event
+	Event abci.Event
 )
 
 // NewEvent creates a new Event object with a given type and slice of one or more

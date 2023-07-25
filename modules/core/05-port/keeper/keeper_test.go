@@ -8,8 +8,8 @@ package keeper_test
 	"github.com/stretchr/testify/suite"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/05-port/keeper"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/05-port/keeper"
+	"github.com/vipernet-xyz/viper-network/testing/simapp"*/
 
 /*var (
 	validPort   = "validportid"
@@ -19,7 +19,7 @@ package keeper_test
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx    sdk.Context
+	ctx    sdk.Ctx
 	keeper *keeper.Keeper
 }
 

@@ -96,7 +96,7 @@ func emitUpdateClientProposalEvent(ctx sdk.Ctx, clientID, clientType string) {
 }
 
 // emitUpgradeClientProposalEvent emits an upgrade client proposal event
-func emitUpgradeClientProposalEvent(ctx sdk.Context, title string, height int64) {
+func emitUpgradeClientProposalEvent(ctx sdk.Ctx, title string, height int64) {
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeUpgradeClientProposal,

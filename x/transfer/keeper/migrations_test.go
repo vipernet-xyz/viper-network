@@ -3,8 +3,8 @@ package keeper_test
 /*
 	"fmt"
 
-	transferkeeper "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/keeper"
-	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"*/
+	transferkeeper "github.com/vipernet-xyz/viper-network/modules/apps/transfer/keeper"
+	transfertypes "github.com/vipernet-xyz/viper-network/modules/apps/transfer/types"*/
 
 /*func (suite *KeeperTestSuite) TestMigratorMigrateTraces() {
 	testCases := []struct {

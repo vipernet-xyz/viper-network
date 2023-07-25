@@ -7,15 +7,15 @@ package tendermint_test
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/stretchr/testify/suite"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibctestingmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"
-	"github.com/vipernet-xyz/ibc-go/v7/testing/simapp"*/
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	ibctestingmock "github.com/vipernet-xyz/viper-network/testing/mock"
+	"github.com/vipernet-xyz/viper-network/testing/simapp"*/
 
 /*const (
 	chainID                        = "gaia"
@@ -43,7 +43,7 @@ type TendermintTestSuite struct {
 	chainB *ibctesting.TestChain
 
 	// TODO: deprecate usage in favor of testing package
-	ctx        sdk.Context
+	ctx        sdk.Ctx
 	cdc        codec.Codec
 	privVal    tmtypes.PrivValidator
 	valSet     *tmtypes.ValidatorSet

@@ -19,7 +19,7 @@ func TestKeeper_FinishUnstakingValidator(t *testing.T) {
 	}
 
 	type args struct {
-		ctx       sdk.Context
+		ctx       sdk.Ctx
 		validator types.Validator
 	}
 
@@ -355,7 +355,7 @@ func TestKeeper_JailValidator(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx  sdk.Context
+		ctx  sdk.Ctx
 		addr sdk.Address
 	}
 
@@ -386,7 +386,7 @@ func TestKeeper_ReleaseWaitingValidators(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 	}
 
 	validator := getUnstakingValidator()
@@ -413,7 +413,7 @@ func TestKeeper_StakeValidator(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx       sdk.Context
+		ctx       sdk.Ctx
 		validator types.Validator
 		amount    sdk.BigInt
 	}
@@ -448,7 +448,7 @@ func TestKeeper_UnjailValidator(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx  sdk.Context
+		ctx  sdk.Ctx
 		addr sdk.Address
 	}
 	validator := getStakedValidator()
@@ -479,7 +479,7 @@ func TestKeeper_UpdateTendermintValidators(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 	}
 
 	//validator := getStakedValidator()
@@ -509,7 +509,7 @@ func TestKeeper_ValidateValidatorBeginUnstaking(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx       sdk.Context
+		ctx       sdk.Ctx
 		validator types.Validator
 	}
 
@@ -542,7 +542,7 @@ func TestKeeper_ValidateValidatorFinishUnstaking(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx       sdk.Context
+		ctx       sdk.Ctx
 		validator types.Validator
 	}
 
@@ -575,7 +575,7 @@ func TestKeeper_ValidateValidatorStaking(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx       sdk.Context
+		ctx       sdk.Ctx
 		validator types.Validator
 		amount    sdk.BigInt
 	}
@@ -611,7 +611,7 @@ func TestKeeper_WaitToBeginUnstakingValidator(t *testing.T) {
 		keeper Keeper
 	}
 	type args struct {
-		ctx       sdk.Context
+		ctx       sdk.Ctx
 		validator types.Validator
 	}
 
@@ -641,7 +641,7 @@ func TestKeeper_WaitToBeginUnstakingValidator(t *testing.T) {
 
 func TestKeeper_ValidateUnjailMessage(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		k   Keeper
 		v   types.Validator
 		msg types.MsgUnjail

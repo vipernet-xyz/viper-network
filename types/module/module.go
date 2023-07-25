@@ -337,7 +337,7 @@ func (m *Manager) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) abci.ResponseE
 }
 
 // MigrationHandler is the migration function that each module registers.
-type MigrationHandler func(sdk.Context) error
+type MigrationHandler func(sdk.Ctx) error
 
 // DONTCOVER
 

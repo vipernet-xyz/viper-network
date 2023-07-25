@@ -10,7 +10,7 @@ import (
 
 func TestBeginBlocker(t *testing.T) {
 	type args struct {
-		ctx sdk.Context
+		ctx sdk.Ctx
 		req abci.RequestBeginBlock
 		k   Keeper
 	}
@@ -45,7 +45,7 @@ func TestBeginBlocker(t *testing.T) {
 
 //func TestEndBlocker(t *testing.T) {
 //	type args struct {
-//		ctx  sdk.Context
+//		ctx  sdk.Ctx
 //		k    Keeper
 //		providers []types.Provider
 //	}

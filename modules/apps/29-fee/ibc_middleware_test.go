@@ -3,17 +3,17 @@ package fee_test
 /*
 	"fmt"
 
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	capabilitytypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	fee "github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/vipernet-xyz/ibc-go/v7/modules/core/24-host"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"
-	ibcmock "github.com/vipernet-xyz/ibc-go/v7/testing/mock"*/
+	fee "github.com/vipernet-xyz/viper-network/modules/apps/29-fee"
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	transfertypes "github.com/vipernet-xyz/viper-network/modules/apps/transfer/types"
+	channeltypes "github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"
+	host "github.com/vipernet-xyz/viper-network/modules/core/24-host"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"
+	ibcmock "github.com/vipernet-xyz/viper-network/testing/mock"*/
 
 /*var (
 	defaultRecvFee    = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(100)}}
@@ -77,7 +77,7 @@ func (suite *FeeTestSuite) TestOnChanOpenInit() {
 			suite.coordinator.SetupConnections(suite.path)
 
 			// setup mock callback
-			suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnChanOpenInit = func(ctx sdk.Context, order channeltypes.Order, connectionHops []string,
+			suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnChanOpenInit = func(ctx sdk.Ctx, order channeltypes.Order, connectionHops []string,
 				portID, channelID string, chanCap *capabilitytypes.Capability,
 				counterparty channeltypes.Counterparty, version string,
 			) (string, error) {
@@ -175,7 +175,7 @@ func (suite *FeeTestSuite) TestOnChanOpenTry() {
 			suite.Require().NoError(err)
 
 			// setup mock callback
-			suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnChanOpenTry = func(ctx sdk.Context, order channeltypes.Order, connectionHops []string,
+			suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnChanOpenTry = func(ctx sdk.Ctx, order channeltypes.Order, connectionHops []string,
 				portID, channelID string, chanCap *capabilitytypes.Capability,
 				counterparty channeltypes.Counterparty, counterpartyVersion string,
 			) (string, error) {
@@ -274,7 +274,7 @@ func (suite *FeeTestSuite) TestOnChanOpenAck() {
 
 			// setup mock callback
 			suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnChanOpenAck = func(
-				ctx sdk.Context, portID, channelID string, counterpartyChannelID string, counterpartyVersion string,
+				ctx sdk.Ctx, portID, channelID string, counterpartyChannelID string, counterpartyVersion string,
 			) error {
 				if counterpartyVersion != ibcmock.Version {
 					return fmt.Errorf("incorrect mock version")
@@ -323,7 +323,7 @@ func (suite *FeeTestSuite) TestOnChanCloseInit() {
 		{
 			"application callback fails", func() {
 				suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnChanCloseInit = func(
-					ctx sdk.Context, portID, channelID string,
+					ctx sdk.Ctx, portID, channelID string,
 				) error {
 					return fmt.Errorf("application callback fails")
 				}
@@ -412,7 +412,7 @@ func (suite *FeeTestSuite) TestOnChanCloseConfirm() {
 		{
 			"application callback fails", func() {
 				suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnChanCloseConfirm = func(
-					ctx sdk.Context, portID, channelID string,
+					ctx sdk.Ctx, portID, channelID string,
 				) error {
 					return fmt.Errorf("application callback fails")
 				}
@@ -503,7 +503,7 @@ func (suite *FeeTestSuite) TestOnRecvPacket() {
 			func() {
 				// setup mock callback
 				suite.chainB.GetSimApp().FeeMockModule.IBCApp.OnRecvPacket = func(
-					ctx sdk.Context,
+					ctx sdk.Ctx,
 					packet channeltypes.Packet,
 					relayer sdk.AccAddress,
 				) exported.Acknowledgement {
@@ -769,7 +769,7 @@ func (suite *FeeTestSuite) TestOnAcknowledgementPacket() {
 		{
 			"application callback fails",
 			func() {
-				suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnAcknowledgementPacket = func(_ sdk.Context, _ channeltypes.Packet, _ []byte, _ sdk.AccAddress) error {
+				suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnAcknowledgementPacket = func(_ sdk.Ctx, _ channeltypes.Packet, _ []byte, _ sdk.AccAddress) error {
 					return fmt.Errorf("mock fee app callback fails")
 				}
 			},
@@ -955,7 +955,7 @@ func (suite *FeeTestSuite) TestOnTimeoutPacket() {
 		{
 			"application callback fails",
 			func() {
-				suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnTimeoutPacket = func(_ sdk.Context, _ channeltypes.Packet, _ sdk.AccAddress) error {
+				suite.chainA.GetSimApp().FeeMockModule.IBCApp.OnTimeoutPacket = func(_ sdk.Ctx, _ channeltypes.Packet, _ sdk.AccAddress) error {
 					return fmt.Errorf("mock fee app callback fails")
 				}
 			},

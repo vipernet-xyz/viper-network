@@ -404,7 +404,7 @@ func (f Factory) BuildSimTx(msgs ...sdk.Msg1) ([]byte, error) {
 // Note, we should only check for keys in the keybase if we are in simulate and execute mode,
 // e.g. when using --gas=auto.
 // When using --dry-run, we are is simulation mode only and should not check the keybase.
-// Ref: https://github.com/cosmos/cosmos-sdk/issues/11283
+// Ref: https://github.com/vipernet-xyz/viper-network/issues/11283
 func (f Factory) getSimPK() (cryptotypes.PubKey, error) {
 	var (
 		ok bool

@@ -5,7 +5,7 @@ package types_test
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/04-channel/types"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/04-channel/types"*/
 
 /*func TestChannelValidateBasic(t *testing.T) {
 	counterparty := types.Counterparty{"portidone", "channelidone"}

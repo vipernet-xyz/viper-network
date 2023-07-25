@@ -3,16 +3,16 @@ package keeper_test
 /*
 	"fmt"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/vipernet-xyz/viper-network/codec/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	grpctypes "github.com/vipernet-xyz/viper-network/types/grpc"
 	"github.com/vipernet-xyz/viper-network/types/query"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	"github.com/vipernet-xyz/ibc-go/v7/modules/core/exported"
-	ibctm "github.com/vipernet-xyz/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	"github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	"github.com/vipernet-xyz/viper-network/modules/core/exported"
+	ibctm "github.com/vipernet-xyz/viper-network/modules/light-clients/07-tendermint"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 /*func (suite *KeeperTestSuite) TestQueryClientState() {
 	var (

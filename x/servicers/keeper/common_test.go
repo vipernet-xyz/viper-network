@@ -52,7 +52,7 @@ func (m MockViperKeeper) ClearSessionCache() {
 var _ types.ViperKeeper = MockViperKeeper{}
 
 // : deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool) (sdk.Context, []authentication.Account, Keeper) {
+func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Account, Keeper) {
 	initPower := int64(100000000000)
 	nAccs := int64(4)
 

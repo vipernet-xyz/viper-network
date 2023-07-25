@@ -3,10 +3,10 @@ package fee_test
 /*
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
-	"github.com/vipernet-xyz/ibc-go/v7/modules/apps/29-fee/types"
-	transfertypes "github.com/vipernet-xyz/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/vipernet-xyz/ibc-go/v7/modules/core/02-client/types"
-	ibctesting "github.com/vipernet-xyz/ibc-go/v7/testing"*/
+	"github.com/vipernet-xyz/viper-network/modules/apps/29-fee/types"
+	transfertypes "github.com/vipernet-xyz/viper-network/modules/apps/transfer/types"
+	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
+	ibctesting "github.com/vipernet-xyz/viper-network/testing"*/
 
 // Integration test to ensure ics29 works with ics20
 /*func (suite *FeeTestSuite) TestFeeTransfer() {

@@ -72,7 +72,7 @@ func TestKeeper_IterateAndExecuteOverMissedArray(t *testing.T) {
 		Keeper Keeper
 	}
 	type args struct {
-		ctx     sdk.Context
+		ctx     sdk.Ctx
 		address sdk.Address
 		handler func(index int64, missed bool) (stop bool)
 	}
