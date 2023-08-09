@@ -44,10 +44,15 @@ func (k Keeper) HandleDispatch(ctx sdk.Ctx, header types.SessionHeader) (*types.
 	for i, addr := range session.SessionServicers {
 		actualServicers[i], _ = k.GetNode(sessionCtx, addr)
 	}
+	actualFishermen := make([]exported.ValidatorI, len(session.SessionFishermen))
+	for i, addr := range session.SessionFishermen {
+		actualFishermen[i], _ = k.GetNode(sessionCtx, addr)
+	}
 	return &types.DispatchResponse{Session: types.DispatchSession{
 		SessionHeader:    session.SessionHeader,
 		SessionKey:       session.SessionKey,
 		SessionServicers: actualServicers,
+		SessionFishermen: actualFishermen,
 	}, BlockHeight: ctx.BlockHeight()}, nil
 }
 
@@ -66,7 +71,7 @@ func (k Keeper) GetLatestSessionBlockHeight(ctx sdk.Ctx) (sessionBlockHeight int
 	if blockHeight%blocksPerSession == 0 {
 		sessionBlockHeight = blockHeight - k.posKeeper.BlocksPerSession(ctx) + 1
 	} else {
-		// calculate the latest session block height by diving the current block height by the blocksPerSession
+		// calculate the latest session block height by dividing the current block height by the blocksPerSession
 		sessionBlockHeight = (blockHeight/blocksPerSession)*blocksPerSession + 1
 	}
 	return

@@ -16,7 +16,6 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 	// get the latest session block height because this relay will correspond with the latest session
 	sessionBlockHeight := k.GetLatestSessionBlockHeight(ctx)
 	var node *vc.ViperNode
-	// There is reference to node address so that way we don't have to recreate address twice for pre-leanvipr
 	var nodeAddress sdk.Address
 
 	if vc.GlobalViperConfig.LeanViper {

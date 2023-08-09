@@ -114,6 +114,8 @@ func (p Params) String() string {
   ReplayAttackBurnMultiplier %d
   BlockByteSize              %d
   Supported GeoZones         %v
+  Max Fishermen              %d
+  Fishermen Count            %d
 `,
 		p.ClaimSubmissionWindow,
 		p.SupportedBlockchains,

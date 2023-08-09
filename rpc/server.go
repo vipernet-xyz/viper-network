@@ -40,6 +40,7 @@ func StartRPC(port string, timeout int64, simulation, debug, allBlockTxs, hotRel
 		routes = append(routes, Route{Name: "MemStats", Method: "GET", Path: "/debug/memstats", HandlerFunc: MemStats})
 		routes = append(routes, Route{Name: "QuerySecondUpgrade", Method: "POST", Path: "/debug/second", HandlerFunc: SecondUpgrade})
 		routes = append(routes, Route{Name: "QueryValidatorByChain", Method: "POST", Path: "/debug/vbc", HandlerFunc: QueryValidatorsByChain})
+		routes = append(routes, Route{Name: "QueryValidatorByGeoZone", Method: "POST", Path: "/debug/vbc", HandlerFunc: QueryValidatorsByGeoZone})
 	}
 
 	if allBlockTxs {
@@ -123,6 +124,7 @@ func GetRoutes() Routes {
 		Route{Name: "QueryUpgrade", Method: "POST", Path: "/v1/query/upgrade", HandlerFunc: Upgrade},
 		Route{Name: "QuerySigningInfo", Method: "POST", Path: "/v1/query/signinginfo", HandlerFunc: SigningInfo},
 		Route{Name: "QueryChains", Method: "POST", Path: "/v1/private/chains", HandlerFunc: Chains},
+		Route{Name: "QueryGeoZone", Method: "POST", Path: "/v1/private/geozones", HandlerFunc: GeoZone},
 	}
 	return routes
 }

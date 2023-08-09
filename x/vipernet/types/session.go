@@ -36,11 +36,17 @@ func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader Session
 	if err != nil {
 		return Session{}, err
 	}
+	sessionFishermenCount := keeper.FishermenCount(ctx)
+	sessionFishermen, err := NewSessionFishermen(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionHeader.GeoZone, sessionKey, sessionFishermenCount)
+	if err != nil {
+		return Session{}, err
+	}
 	// then populate the structure and return
 	return Session{
 		SessionKey:       sessionKey,
 		SessionHeader:    sessionHeader,
 		SessionServicers: sessionServicers,
+		SessionFishermen: sessionFishermen,
 	}, nil
 }
 
@@ -103,6 +109,8 @@ func (s Session) Key() ([]byte, error) {
 
 // "SessionServicers" - Service servicers in a session
 type SessionServicers []sdk.Address
+
+type SessionFishermen []sdk.Address
 
 // NewSessionServicers - Generates servicers for the session based on both chain and geo zone
 func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZone string, sessionKey SessionKey, sessionServicersCount int8) (sessionServicers SessionServicers, err sdk.Error) {
@@ -198,6 +206,22 @@ func (sn SessionServicers) Contains(addr sdk.Address) bool {
 			continue
 		}
 		if servicer.Equals(addr) {
+			return true
+		}
+	}
+	return false
+}
+
+func (sf SessionFishermen) Contains(addr sdk.Address) bool {
+	// if nil return
+	if addr == nil {
+		return false
+	}
+	for _, fisherman := range sf {
+		if fisherman == nil {
+			continue
+		}
+		if fisherman.Equals(addr) {
 			return true
 		}
 	}
@@ -331,6 +355,78 @@ func (sn SessionNodes) Contains(addr sdk.Address) bool {
 			continue
 		}
 		if node.Equals(addr) {
+			return true
+		}
+	}
+	return false
+}
+
+func NewSessionFishermen(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, geoZone string, sessionKey SessionKey, sessionFishermenCount int64) (sessionFishermen SessionFishermen, err sdk.Error) {
+	MaxFishermen := keeper.MaxFishermen(ctx)
+	// Get all validators
+	validators := keeper.GetStakedValidatorsLimit(sessionCtx, MaxFishermen)
+
+	// Filter validators by chain and geo zone
+	validatorsInBoth := make([]sdk.Address, 0)
+	for _, validator := range validators {
+		if NodeHasChain(chain, validator) && NodeHasGeoZone(geoZone, validator) {
+			validatorsInBoth = append(validatorsInBoth, validator.GetAddress())
+		}
+	}
+
+	// Validate that the number of fishermen is sufficient
+	if len(validatorsInBoth) < int(sessionFishermenCount) {
+		return nil, NewInsufficientServicersError(ModuleName) // You may want to rename this error to be more general
+	}
+
+	sessionFishermen = make(SessionFishermen, sessionFishermenCount)
+	var fisherman exported.ValidatorI
+
+	// Unique address map to avoid re-checking a pseudorandomly selected fisherman
+	m := make(map[string]struct{})
+	// Only select the fishermen if not jailed and serve the chain
+	for i, numOfFishermen := 0, 0; ; i++ {
+		// If this is true we already checked all validators we got on GetValidators
+		if len(m) >= len(validatorsInBoth) {
+			return nil, NewInsufficientServicersError(ModuleName)
+		}
+
+		// Generate the random index
+		index := PseudorandomSelection(sdk.NewInt(int64(len(validatorsInBoth))), sessionKey)
+		// MerkleHash the session key to provide new entropy
+		sessionKey = Hash(sessionKey)
+		// Get the fisherman from the array
+		n := validatorsInBoth[index.Int64()]
+		// If we already have seen this address we continue as it's either on the list or discarded
+		if _, ok := m[n.String()]; ok {
+			continue
+		}
+		// Add the fisherman address to the map
+		m[n.String()] = struct{}{}
+
+		// Cross check the fisherman from the `new` or `end` world state
+		fisherman = keeper.Validator(ctx, n)
+		// If not found or jailed, don't add to session and continue
+		if fisherman == nil || fisherman.IsJailed() || !NodeHasChain(chain, fisherman) || !NodeHasGeoZone(geoZone, fisherman) || sessionFishermen.Contains(fisherman.GetAddress()) || FishermanInList(fisherman.GetAddress(), sessionFishermen) {
+			continue
+		}
+		// Else add the fisherman to the session
+		sessionFishermen[numOfFishermen] = n
+		// Increment the number of fishermen in the sessionFishermen slice
+		numOfFishermen++
+		// If maxing out the session count, end the loop
+		if numOfFishermen == int(sessionFishermenCount) {
+			break
+		}
+	}
+
+	// Return the fishermen
+	return sessionFishermen, nil
+}
+
+func FishermanInList(fisherman sdk.Address, sessionFishermen SessionFishermen) bool {
+	for _, v := range sessionFishermen {
+		if v.Equals(fisherman) {
 			return true
 		}
 	}

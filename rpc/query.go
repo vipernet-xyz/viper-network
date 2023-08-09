@@ -528,6 +528,25 @@ func Chains(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
 
+func GeoZone(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	value := r.URL.Query().Get("authtoken")
+	if value == app.AuthToken.Value {
+		res, err := app.VCA.QueryHostedGeoZone()
+		if err != nil {
+			WriteErrorResponse(w, 400, err.Error())
+			return
+		}
+		j, err := app.Codec().MarshalJSON(res)
+		if err != nil {
+			WriteErrorResponse(w, 400, err.Error())
+			return
+		}
+		WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
+	} else {
+		WriteErrorResponse(w, 401, "wrong authtoken "+value)
+	}
+}
+
 func NodeParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var params = HeightParams{Height: 0}
 	if err := PopModel(w, r, ps, &params); err != nil {
@@ -552,6 +571,31 @@ func QueryValidatorsByChain(w http.ResponseWriter, r *http.Request, ps httproute
 		Height: 0,
 		Opts: servicerTypes.QueryValidatorsParams{
 			Blockchain: "0001",
+		},
+	}
+	if err := PopModel(w, r, ps, &params); err != nil {
+		WriteErrorResponse(w, 400, err.Error())
+		return
+	}
+	res, err := app.VCA.QueryValidatorByChain(params.Height, params.Opts.Blockchain)
+	if err != nil {
+		WriteErrorResponse(w, 400, err.Error())
+		return
+	}
+
+	j, _ := json.Marshal(struct {
+		Chain string `json:"chain"`
+		Count string `json:"count"`
+	}{Chain: params.Opts.Blockchain, Count: strconv.FormatInt(res, 10)})
+
+	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
+}
+
+func QueryValidatorsByGeoZone(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	var params = HeightAndValidatorOptsParams{
+		Height: 0,
+		Opts: servicerTypes.QueryValidatorsParams{
+			GeoZone: "0001",
 		},
 	}
 	if err := PopModel(w, r, ps, &params); err != nil {

@@ -186,6 +186,16 @@ func (k Keeper) BurnActive(ctx sdk.Ctx) (isOn bool) {
 	return
 }
 
+func (k Keeper) MaxFishermen(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMaxFishermen, &res)
+	return
+}
+
+func (k Keeper) FishermenCount(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyFishermenCount, &res)
+	return
+}
+
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -209,6 +219,8 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		ServicerCountLock:       k.ServicerCountLock(ctx),
 		BurnActive:              k.BurnActive(ctx),
 		MinPauseTime:            k.MinPauseTime(ctx),
+		MaxFishermen:            k.MaxFishermen(ctx),
+		FishermenCount:          k.FishermenCount(ctx),
 	}
 }
 

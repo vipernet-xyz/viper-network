@@ -417,6 +417,18 @@ func (m MockPosKeeper) StakeDenom(ctx sdk.Ctx) (res string) {
 	panic("implement me")
 }
 
+func (m MockPosKeeper) GetStakedValidatorsLimit(ctx sdk.Ctx, maxRetrieve int64) (validators []exported.ValidatorI) {
+	panic("implement me")
+}
+
+func (m MockPosKeeper) MaxFishermen(ctx sdk.Ctx) (res int64) {
+	panic("implement me")
+}
+
+func (m MockPosKeeper) FishermenCount(ctx sdk.Ctx) (res int64) {
+	panic("implement me")
+}
+
 func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)

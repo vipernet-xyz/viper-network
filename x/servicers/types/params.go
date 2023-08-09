@@ -28,6 +28,8 @@ const (
 	DefaultServicerCountLock    bool  = false
 	DefaultBurnActive           bool  = false
 	DefaultMinPauseTime               = 60 * 10 * time.Second
+	DefaultMaxFishermen               = int64(200)
+	DefaultFishermenCount             = int64(1)
 )
 
 // - Keys for parameter access
@@ -56,6 +58,8 @@ var (
 	ServicerCountLock              = []byte("ServicerCountLock")
 	BurnActive                     = []byte("BurnActive")
 	KeyMinPauseTime                = []byte("MinPauseTime")
+	KeyMaxFishermen                = []byte("MaxFishermen")
+	KeyFishermenCount              = []byte("FishermenCount")
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -82,6 +86,8 @@ type Params struct {
 	ServicerCountLock       bool          `json:"servicer_count_lock" yaml:"servicer_count_lock"`
 	BurnActive              bool          `json:"burn_active" yaml:"burn_active"`
 	MinPauseTime            time.Duration `json:"min_pause_time" yaml:"min_pause_time"`
+	MaxFishermen            int64         `json:"max_fishermen"`
+	FishermenCount          int64         `json:"fishermen_count"`
 }
 
 // Implements sdk.ParamSet
@@ -107,6 +113,8 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: ServicerCountLock, Value: &p.ServicerCountLock},
 		{Key: BurnActive, Value: &p.BurnActive},
 		{Key: KeyMinPauseTime, Value: &p.MinPauseTime},
+		{Key: KeyMaxFishermen, Value: p.MaxFishermen},
+		{Key: KeyFishermenCount, Value: p.FishermenCount},
 	}
 }
 
@@ -132,6 +140,8 @@ func DefaultParams() Params {
 		MaxJailedBlocks:         DefaultMaxJailedBlocks,
 		ServicerCountLock:       DefaultServicerCountLock,
 		MinPauseTime:            DefaultMinPauseTime,
+		MaxFishermen:            DefaultMaxFishermen,
+		FishermenCount:          DefaultFishermenCount,
 	}
 }
 
@@ -160,6 +170,12 @@ func (p Params) Validate() error {
 	}
 	if p.ProposerAllocation+p.DAOAllocation+p.ProviderAllocation > 100 {
 		return fmt.Errorf("the combo of proposer allocation, dao allocation and provider allocation must not be greater than 100")
+	}
+	if p.MaxFishermen < 1 {
+		return fmt.Errorf("max fishermen must be greater than 1")
+	}
+	if p.FishermenCount < 1 {
+		return fmt.Errorf("fishermen count must be greater than 1")
 	}
 	return nil
 }
@@ -190,7 +206,9 @@ func (p Params) String() string {
   Max Jailed Blocks        %d
   Servicer Count Lock      %v 
   Burn Active              %v 
-  MinPauseTime             %s`,
+  MinPauseTime             %s
+  Max Fishermen            %d
+  Fishermen Count          %d`,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -209,5 +227,7 @@ func (p Params) String() string {
 		p.MaxJailedBlocks,
 		p.ServicerCountLock,
 		p.BurnActive,
-		p.MinPauseTime)
+		p.MinPauseTime,
+		p.MaxFishermen,
+		p.FishermenCount)
 }

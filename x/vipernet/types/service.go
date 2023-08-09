@@ -288,6 +288,7 @@ type DispatchSession struct {
 	SessionHeader    `json:"header"`
 	SessionKey       `json:"key"`
 	SessionServicers []exported.ValidatorI `json:"servicers"`
+	SessionFishermen []exported.ValidatorI `json:"fishermen"`
 }
 
 // "executeHTTPRequest" takes in the raw JSON string and forwards it to the RPC endpoint

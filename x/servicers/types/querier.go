@@ -32,6 +32,7 @@ type QueryValidatorsParams struct {
 	StakingStatus sdk.StakeStatus `json:"staking_status"`
 	JailedStatus  int             `json:"jailed_status"`
 	Blockchain    string          `json:"blockchain"`
+	GeoZone       string          `json:"geo_zone"`
 	Page          int             `json:"page"`
 	Limit         int             `json:"per_page"`
 }
@@ -59,6 +60,18 @@ func (opts QueryValidatorsParams) IsValid(val Validator) bool {
 		var contains bool
 		for _, chain := range val.Chains {
 			if chain == opts.Blockchain {
+				contains = true
+				break
+			}
+		}
+		if !contains {
+			return false
+		}
+	}
+	if opts.GeoZone != "" {
+		var contains bool
+		for _, geoZone := range val.GeoZone {
+			if string(geoZone) == opts.GeoZone {
 				contains = true
 				break
 			}

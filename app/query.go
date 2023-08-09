@@ -640,3 +640,29 @@ func (p Page) JSON() (out []byte, err error) {
 func (p Page) String() string {
 	return fmt.Sprintf("Total:\t\t%d\nPage:\t\t%d\nResult:\t\t\n====\n%v\n====\n", p.Total, p.Page, p.Result)
 }
+
+func (app ViperCoreApp) HandleFishermanTrigger(r viperTypes.Relay) (res *viperTypes.RelayResponse, dispatch *viperTypes.DispatchResponse, err error) {
+	ctx, err := app.NewContext(app.LastBlockHeight())
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	status, sErr := app.viperKeeper.TmNode.ConsensusReactorStatus()
+	if sErr != nil {
+		return nil, nil, fmt.Errorf("viper node is unable to retrieve synced status from tendermint node, cannot service in this state")
+	}
+
+	if status.IsCatchingUp {
+		return nil, nil, fmt.Errorf("viper node is currently syncing to the blockchain, cannot service in this state")
+	}
+	res, err = app.viperKeeper.HandleFishermanTrigger(ctx, r)
+	var err1 error
+	if err != nil && viperTypes.ErrorWarrantsDispatch(err) {
+		dispatch, err1 = app.HandleDispatch(r.Proof.SessionHeader())
+		if err1 != nil {
+			return
+		}
+	}
+	return
+}

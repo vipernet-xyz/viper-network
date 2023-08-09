@@ -205,3 +205,24 @@ func (k Keeper) validatorByGeozoneIterator(ctx sdk.Ctx, geoZoneBz []byte) (sdk.I
 	store := ctx.KVStore(k.storeKey)
 	return sdk.KVStorePrefixIterator(store, types.KeyForValidatorsByGeoZone(geoZoneBz))
 }
+
+func (k Keeper) GetStakedValidatorsLimit(ctx sdk.Ctx, maxRetrieve int64) (validators []exported.ValidatorI) {
+	store := ctx.KVStore(k.storeKey)
+	validators = make([]exported.ValidatorI, 0, maxRetrieve)
+	iterator, _ := sdk.KVStorePrefixIterator(store, types.StakedValidatorsKey)
+	defer iterator.Close()
+
+	i := 0
+	for ; iterator.Valid() && i < int(maxRetrieve); iterator.Next() {
+		validator, found := k.GetValidator(ctx, iterator.Value())
+		if !found {
+			ctx.Logger().Error(fmt.Errorf("cannot find validator from staking set: %v, at height %d\n", iterator.Value(), ctx.BlockHeight()).Error())
+			continue
+		}
+		if validator.IsStaked() {
+			validators = append(validators, validator)
+			i++
+		}
+	}
+	return validators
+}

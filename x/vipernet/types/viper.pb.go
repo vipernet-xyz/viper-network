@@ -70,6 +70,7 @@ type Session struct {
 	SessionHeader SessionHeader `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
 	SessionKey    SessionKey    `protobuf:"bytes,2,opt,name=sessionKey,proto3,casttype=SessionKey" json:"key"`
 	SessionServicers  SessionServicers  `protobuf:"bytes,3,rep,name=sessionServicers,proto3,castrepeated=SessionServicers" json:"servicers"`
+	SessionFishermen  SessionFishermen  `protobuf:"bytes,4,rep,name=sessionFishermen,proto3,castrepeated=SessionFishermen" json:"fishermen"`
 }
 
 func (m *Session) Reset()         { *m = Session{} }
@@ -801,6 +802,15 @@ func (m *Session) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x1a
 		}
 	}
+	if len(m.SessionFishermen) > 0 {
+		for iNdEx := len(m.SessionFishermen) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.SessionFishermen[iNdEx])
+			copy(dAtA[i:], m.SessionFishermen[iNdEx])
+			i = encodeVarintViper(dAtA, i, uint64(len(m.SessionFishermen[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
 	if len(m.SessionKey) > 0 {
 		i -= len(m.SessionKey)
 		copy(dAtA[i:], m.SessionKey)
@@ -1489,6 +1499,12 @@ func (m *Session) Size() (n int) {
 			n += 1 + l + sovViper(uint64(l))
 		}
 	}
+	if len(m.SessionFishermen) > 0 {
+		for _, b := range m.SessionFishermen {
+			l = len(b)
+			n += 1 + l + sovViper(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -2086,6 +2102,38 @@ func (m *Session) Unmarshal(dAtA []byte) error {
 			}
 			m.SessionServicers = append(m.SessionServicers, make([]byte, postIndex-iNdEx))
 			copy(m.SessionServicers[len(m.SessionServicers)-1], dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SessionFishermen", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SessionFishermen = append(m.SessionFishermen, make([]byte, postIndex-iNdEx))
+			copy(m.SessionFishermen[len(m.SessionFishermen)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
