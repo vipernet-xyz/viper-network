@@ -50,7 +50,8 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 	p := k.providerKeeper.Provider(ctx, provider.Address)
 	p1 := p.(providersTypes.Provider)
 	coins1 := relays.Quo((sdk.NewInt(k.providerKeeper.BaselineThroughputStakeRate(ctx)).Quo(sdk.NewInt(100))))
-	if k.BurnActive(ctx) {
+	fiveThousand := sdk.NewInt(5000)
+	if k.BurnActive(ctx) && relays.GT(fiveThousand) {
 		k.burn(ctx, coins1, p1)
 	}
 	return sdk.BigInt{}

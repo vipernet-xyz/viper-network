@@ -145,6 +145,10 @@ func (k Keeper) IterateAndExecuteOverProviders(
 }
 
 func (k Keeper) CalculateProviderRelays(ctx sdk.Ctx, provider types.Provider) sdk.BigInt {
+	// If the stake is 0, return max relays from MaxFreeTierRelaysPerSession()
+	if provider.StakedTokens.IsZero() {
+		return sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
+	}
 	stakingAdjustment := sdk.NewDec(k.StakingAdjustment(ctx))
 	participationRate := sdk.NewDec(1)
 	baseRate := sdk.NewInt(k.BaselineThroughputStakeRate(ctx))

@@ -69,18 +69,24 @@ func (k Keeper) MaxNumServicers(ctx sdk.Ctx) (res int64) {
 	return
 }
 
+func (k Keeper) MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMaxFreeTierRelaysPerSession, &res)
+	return
+}
+
 // Get all parameteras as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
-		UnstakingTime:       k.UnStakingTime(ctx),
-		MaxProviders:        k.MaxProviders(ctx),
-		MinProviderStake:    k.MinimumStake(ctx),
-		BaseRelaysPerVIPR:   k.BaselineThroughputStakeRate(ctx),
-		ParticipationRate:   k.ParticipationRate(ctx),
-		StabilityModulation: k.StakingAdjustment(ctx),
-		MaxChains:           k.MaxChains(ctx),
-		MinNumServicers:     k.MinNumServicers(ctx),
-		MaxNumServicers:     k.MaxNumServicers(ctx),
+		UnstakingTime:               k.UnStakingTime(ctx),
+		MaxProviders:                k.MaxProviders(ctx),
+		MinProviderStake:            k.MinimumStake(ctx),
+		BaseRelaysPerVIPR:           k.BaselineThroughputStakeRate(ctx),
+		ParticipationRate:           k.ParticipationRate(ctx),
+		StabilityModulation:         k.StakingAdjustment(ctx),
+		MaxChains:                   k.MaxChains(ctx),
+		MinNumServicers:             k.MinNumServicers(ctx),
+		MaxNumServicers:             k.MaxNumServicers(ctx),
+		MaxFreeTierRelaysPerSession: k.MaxFreeTierRelaysPerSession(ctx),
 	}
 }
 
