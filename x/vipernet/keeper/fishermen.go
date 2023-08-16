@@ -39,6 +39,7 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayRe
 	return resp, nil
 }
 
+// Rewrite the func, according to the specs
 func (k Keeper) HandleFishermanRelay(ctx sdk.Ctx, relay vc.Relay) sdk.Error {
 	// Get session information from the relay
 	sessionHeader := vc.SessionHeader{
@@ -87,7 +88,7 @@ func (k Keeper) HandleFishermanRelay(ctx sdk.Ctx, relay vc.Relay) sdk.Error {
 			startTime := time.Now()
 			// write the sendRelay function
 			//
-			resp, err := sendRelay(node, relay)
+			resp, err := sendRelay(node, SampleRelay)
 
 			latency := time.Since(startTime)
 
