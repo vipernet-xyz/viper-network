@@ -19,7 +19,18 @@ type Evidence struct {
 	EvidenceType  EvidenceType             `json:"evidence_type"`
 }
 
+type Result struct {
+	SessionHeader    `json:"evidence_header"`
+	NumOfTestResults int64        `json:"num_of_test_results"`
+	TestResults      Tests        `json:"tests"`
+	EvidenceType     EvidenceType `json:"evidence_type"`
+}
+
 func (e Evidence) IsSealable() bool {
+	return true
+}
+
+func (r Result) IsSealable() bool {
 	return true
 }
 
@@ -47,6 +58,13 @@ func (e *Evidence) AddProof(p Proof) {
 	e.NumOfProofs = e.NumOfProofs + 1
 	// add proof to bloom filter
 	e.Bloom.Add(p.Hash())
+}
+
+func (r *Result) AddTestResult(t Test) {
+	// add proof to GOBEvidence
+	r.TestResults = append(r.TestResults, t)
+	// increment total proof count
+	r.NumOfTestResults = r.NumOfTestResults + 1
 }
 
 // "GenerateMerkleProof" - Generates the merkle Proof for an GOBEvidence
@@ -138,6 +156,14 @@ func (e *Evidence) MarshalTo(data []byte) (n int, err error) {
 	return pe.MarshalTo(data)
 }
 
+func (r *Result) MarshalTo(data []byte) (n int, err error) {
+	pr, err := r.ToProto()
+	if err != nil {
+		return 0, err
+	}
+	return pr.MarshalTo(data)
+}
+
 func (e *Evidence) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	pe, err := e.ToProto()
 	if err != nil {
@@ -178,6 +204,15 @@ func (e *Evidence) ToProto() (*ProtoEvidence, error) {
 	}, nil
 }
 
+func (r *Result) ToProto() (*ProtoResult, error) {
+	return &ProtoResult{
+		SessionHeader:    &r.SessionHeader,
+		NumOfTestResults: r.NumOfTestResults,
+		TestResults:      r.TestResults.ToTestI(),
+		EvidenceType:     r.EvidenceType,
+	}, nil
+}
+
 func (pe *ProtoEvidence) FromProto() (Evidence, error) {
 	bloomFilter := bloom.BloomFilter{}
 	err := bloomFilter.GobDecode(pe.BloomBytes)
@@ -192,12 +227,28 @@ func (pe *ProtoEvidence) FromProto() (Evidence, error) {
 		EvidenceType:  pe.EvidenceType}, nil
 }
 
+func (pr *ProtoResult) FromProto() (Result, error) {
+	return Result{
+		SessionHeader:    *pr.SessionHeader,
+		NumOfTestResults: pr.NumOfTestResults,
+		TestResults:      pr.TestResults.FromTestI(),
+		EvidenceType:     pr.EvidenceType}, nil
+}
+
 func (e Evidence) MarshalObject() ([]byte, error) {
 	pe, err := e.ToProto()
 	if err != nil {
 		return nil, err
 	}
 	return ModuleCdc.ProtoMarshalBinaryBare(pe)
+}
+
+func (r Result) MarshalObject() ([]byte, error) {
+	pr, err := r.ToProto()
+	if err != nil {
+		return nil, err
+	}
+	return ModuleCdc.ProtoMarshalBinaryBare(pr)
 }
 
 func (e Evidence) UnmarshalObject(b []byte) (CacheObject, error) {
@@ -209,8 +260,21 @@ func (e Evidence) UnmarshalObject(b []byte) (CacheObject, error) {
 	return pe.FromProto()
 }
 
+func (r Result) UnmarshalObject(b []byte) (CacheObject, error) {
+	pr := ProtoResult{}
+	err := ModuleCdc.ProtoUnmarshalBinaryBare(b, &pr)
+	if err != nil {
+		return Result{}, fmt.Errorf("could not unmarshal into ProtoResult from cache, moduleCdc unmarshal binary bare: %s", err.Error())
+	}
+	return pr.FromProto()
+}
+
 func (e Evidence) Key() ([]byte, error) {
 	return KeyForEvidence(e.SessionHeader, e.EvidenceType)
+}
+
+func (r Result) Key() ([]byte, error) {
+	return KeyForEvidence(r.SessionHeader, r.EvidenceType)
 }
 
 // "EvidenceType" type to distinguish the types of GOBEvidence (relay/challenge)
@@ -219,6 +283,7 @@ type EvidenceType int
 const (
 	RelayEvidence EvidenceType = iota + 1 // essentially an enum for GOBEvidence types
 	ChallengeEvidence
+	FishermanTestEvidence
 )
 
 // "Convert GOBEvidence type to bytes
@@ -228,6 +293,8 @@ func (et EvidenceType) Byte() (byte, error) {
 		return 0, nil
 	case ChallengeEvidence:
 		return 1, nil
+	case FishermanTestEvidence:
+		return 2, nil
 	default:
 		return 0, fmt.Errorf("unrecognized GOBEvidence type")
 	}
@@ -239,6 +306,8 @@ func EvidenceTypeFromString(evidenceType string) (et EvidenceType, err types.Err
 		et = RelayEvidence
 	case "challenge":
 		et = ChallengeEvidence
+	case "test":
+		et = FishermanTestEvidence
 	default:
 		err = types.ErrInternal("type in the receipt query is not recognized: (relay or challenge)")
 	}

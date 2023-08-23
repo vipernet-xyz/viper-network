@@ -356,6 +356,15 @@ func SetEvidence(evidence Evidence, evidenceStore *CacheStorage) {
 	evidenceStore.Set(key, evidence)
 }
 
+func SetResult(result Result, testStore *CacheStorage) {
+	// generate the key for the evidence
+	key, err := result.Key()
+	if err != nil {
+		return
+	}
+	testStore.Set(key, result)
+}
+
 // "DeleteEvidence" - Remove the GOBEvidence from the store
 func DeleteEvidence(header SessionHeader, evidenceType EvidenceType, evidenceStore *CacheStorage) error {
 	// generate key for GOBEvidence
@@ -392,6 +401,10 @@ type EvidenceIt struct {
 	db.Iterator
 }
 
+type TestResultIt struct {
+	db.Iterator
+}
+
 // "Value" - Returns the GOBEvidence object value of the iterator
 func (ei *EvidenceIt) Value() (evidence Evidence) {
 	// unmarshal the value (bz) into an GOBEvidence object
@@ -406,10 +419,30 @@ func (ei *EvidenceIt) Value() (evidence Evidence) {
 	return
 }
 
+func (ti *TestResultIt) Value() (result Result) {
+	// unmarshal the value (bz) into an GOBEvidence object
+	r, err := result.UnmarshalObject(ti.Iterator.Value())
+	if err != nil {
+		log.Fatal(fmt.Errorf("can't unmarshal GOBEvidence iterator value into GOBEvidence: %s", err.Error()))
+	}
+	result, ok := r.(Result)
+	if !ok {
+		log.Fatal("can't unmarshal GOBEvidence iterator value into GOBEvidence: cache object is not GOBEvidence")
+	}
+	return
+}
+
 // "EvidenceIterator" - Returns a GlobalEvidenceCache iterator instance
 func EvidenceIterator(evidenceStore *CacheStorage) EvidenceIt {
 	it, _ := evidenceStore.Iterator()
 	return EvidenceIt{
+		Iterator: it,
+	}
+}
+
+func TestResultIterator(testStore *CacheStorage) TestResultIt {
+	it, _ := testStore.Iterator()
+	return TestResultIt{
 		Iterator: it,
 	}
 }
@@ -456,4 +489,29 @@ func GetTotalProofs(h SessionHeader, et EvidenceType, maxPossibleRelays sdk.BigI
 
 func IsUniqueProof(p Proof, evidence Evidence) bool {
 	return !evidence.Bloom.Test(p.Hash())
+}
+
+func GetTestResult(header SessionHeader, evidenceType EvidenceType, storage *CacheStorage) (result Result, err error) {
+	key, err := KeyForTestResult(header, evidenceType)
+	if err != nil {
+		return
+	}
+	// get the bytes from the storage
+	val, found := storage.Get(key, result)
+	if !found {
+		return Result{
+			SessionHeader:    header,
+			NumOfTestResults: 0,
+			TestResults:      make([]Test, 0),
+		}, nil
+	}
+	result, ok := val.(Result)
+	if !ok {
+		err = fmt.Errorf("could not unmarshal into evidence from cache with header %v", header)
+		return
+	}
+	if storage.IsSealed(result) {
+		return result, nil
+	}
+	return
 }

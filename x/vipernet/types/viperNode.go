@@ -22,6 +22,7 @@ type ViperNode struct {
 	PrivateKey      crypto.PrivateKey
 	EvidenceStore   *CacheStorage
 	SessionStore    *CacheStorage
+	TestStore       *CacheStorage
 	DoCacheInitOnce sync.Once
 }
 

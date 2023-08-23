@@ -264,11 +264,11 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth types.BasicAut
 }
 
 func FishermanTrigger(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var relay = types.Relay{}
+	var trigger = types.FishermenTrigger{}
 	if cors(&w, r) {
 		return
 	}
-	if err := PopModel(w, r, ps, &relay); err != nil {
+	if err := PopModel(w, r, ps, &trigger); err != nil {
 		response := RPCRelayErrorResponse{
 			Error: err,
 		}
@@ -276,7 +276,7 @@ func FishermanTrigger(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		WriteJSONResponseWithCode(w, string(j), r.URL.Path, r.Host, 400)
 		return
 	}
-	res, dispatch, err := app.VCA.HandleFishermanTrigger(relay)
+	res, dispatch, err := app.VCA.HandleFishermanTrigger(trigger)
 	if err != nil {
 		response := RPCRelayErrorResponse{
 			Error:    err,

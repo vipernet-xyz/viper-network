@@ -190,6 +190,9 @@ var (
 	InvalidExpirationHeightErr         = errors.New("the expiration height included in the claim message is invalid (should not be set)")
 	InvalidMerkleRangeError            = errors.New("the merkle hash range is invalid")
 	SealedEvidenceError                = errors.New("the evidence is sealed, either max relays reached or claim already submitted")
+	InvalidNumServicersError           = errors.New("the NumServicers included in the relay request is invalid")
+	ZeroTimeError                      = errors.New("Timestamp cannot be zero")
+	NegativeLatency                    = errors.New("Latency should be a positive duration")
 )
 
 func NewSealedEvidenceError(codespace sdk.CodespaceType) sdk.Error {
@@ -237,6 +240,14 @@ func NewClaimNotFoundError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewEmptyAddressError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeEmptyAddressError, EmptyAddressError.Error())
+}
+
+func NewZeroTimeError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeEmptyAddressError, ZeroTimeError.Error())
+}
+
+func NewNegativeLatency(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeEmptyAddressError, NegativeLatency.Error())
 }
 
 func NewCousinLeafEquivalentError(codespace sdk.CodespaceType) sdk.Error {
@@ -486,4 +497,8 @@ func NewInvalidTokenError(codespace sdk.CodespaceType, err error) sdk.Error {
 
 func NewInvalidPKError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidPkFileErr, InvalidPkFileErr.Error())
+}
+
+func NewInvalidNumServicersError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidEntropyError, InvalidEntropyError.Error())
 }

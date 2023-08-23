@@ -12,14 +12,17 @@ import (
 var _ codec.ProtoMarshaler = &LegacyValidator{}
 
 type LegacyValidator struct {
-	Address                 sdk.Address      `json:"address" yaml:"address"`               // address of the validator; hex encoded in JSON
-	PublicKey               crypto.PublicKey `json:"public_key" yaml:"public_key"`         // the consensus public key of the validator; hex encoded in JSON
-	Jailed                  bool             `json:"jailed" yaml:"jailed"`                 // has the validator been jailed from staked status?
-	Status                  sdk.StakeStatus  `json:"status" yaml:"status"`                 // validator status (staked/unstaking/unstaked)
-	Chains                  []string         `json:"chains" yaml:"chains"`                 // validator non native blockchains
-	ServiceURL              string           `json:"service_url" yaml:"service_url"`       // url where the viper service api is hosted
-	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`                 // tokens staked in the network
+	Address                 sdk.Address      `json:"address" yaml:"address"`       // address of the validator; hex encoded in JSON
+	PublicKey               crypto.PublicKey `json:"public_key" yaml:"public_key"` // the consensus public key of the validator; hex encoded in JSON
+	Jailed                  bool             `json:"jailed" yaml:"jailed"`         // has the validator been jailed from staked status?
+	Paused                  bool             `json:"paused" yaml:"paused"`
+	Status                  sdk.StakeStatus  `json:"status" yaml:"status"`           // validator status (staked/unstaking/unstaked)
+	Chains                  []string         `json:"chains" yaml:"chains"`           // validator non native blockchains
+	ServiceURL              string           `json:"service_url" yaml:"service_url"` // url where the viper service api is hosted
+	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`           // tokens staked in the network
+	GeoZone                 string           `json:"geo_zone" yaml:"geo_zone"`
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the validator to complete unstaking
+
 }
 
 func (v *LegacyValidator) Marshal() ([]byte, error) {
@@ -72,6 +75,11 @@ func (v *LegacyValidator) IsJailed() bool {
 	return val.IsJailed()
 }
 
+func (v *LegacyValidator) IsPaused() bool {
+	val := v.ToValidator()
+	return val.IsPaused()
+}
+
 func (v *LegacyValidator) GetStatus() sdk.StakeStatus {
 	val := v.ToValidator()
 	return val.GetStatus()
@@ -102,15 +110,25 @@ func (v *LegacyValidator) GetChains() []string {
 	return val.GetChains()
 }
 
+func (v *LegacyValidator) GetGeoZone() string {
+	val := v.ToValidator()
+	return val.GetGeoZone()
+}
+
+func (v *LegacyValidator) GetServiceURL() string {
+	val := v.ToValidator()
+	return val.GetServiceURL()
+}
+
 func (v *LegacyValidator) Reset() {
 	*v = LegacyValidator{}
 }
 
 func (v LegacyValidator) String() string {
-	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
-		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nUnstaking Completion Time:\t\t%v\n"+
+	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nPaused:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
+		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nUnstaking Completion Time:\t\t%v\nGeoZone:\t\t%s\n"+
 		"\n----\n",
-		v.Address, v.PublicKey.RawString(), v.Jailed, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.UnstakingCompletionTime,
+		v.Address, v.PublicKey.RawString(), v.Jailed, v.Paused, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.UnstakingCompletionTime, v.GeoZone,
 	)
 }
 
@@ -124,11 +142,13 @@ func (v LegacyValidator) ToValidator() Validator {
 		Address:                 v.Address,
 		PublicKey:               v.PublicKey,
 		Jailed:                  v.Jailed,
+		Paused:                  v.Paused,
 		Status:                  v.Status,
 		Chains:                  v.Chains,
 		ServiceURL:              v.ServiceURL,
 		StakedTokens:            v.StakedTokens,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
+		GeoZone:                 v.GeoZone,
 		OutputAddress:           nil,
 	}
 }
@@ -138,11 +158,13 @@ func (v Validator) ToLegacy() LegacyValidator {
 		Address:                 v.Address,
 		PublicKey:               v.PublicKey,
 		Jailed:                  v.Jailed,
+		Paused:                  v.Paused,
 		Status:                  v.Status,
 		Chains:                  v.Chains,
 		ServiceURL:              v.ServiceURL,
 		StakedTokens:            v.StakedTokens,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
+		GeoZone:                 v.GeoZone,
 	}
 }
 
@@ -156,11 +178,13 @@ func (v LegacyProtoValidator) FromProto() (LegacyValidator, error) {
 		Address:                 v.Address,
 		PublicKey:               pubkey,
 		Jailed:                  v.Jailed,
+		Paused:                  v.Paused,
 		Status:                  sdk.StakeStatus(v.Status),
 		ServiceURL:              v.ServiceURL,
 		Chains:                  v.Chains,
 		StakedTokens:            v.StakedTokens,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
+		GeoZone:                 v.GeoZone,
 	}, nil
 }
 
@@ -170,10 +194,12 @@ func (v LegacyValidator) ToProto() LegacyProtoValidator {
 		Address:                 v.Address,
 		PublicKey:               v.PublicKey.RawBytes(),
 		Jailed:                  v.Jailed,
+		Paused:                  v.Paused,
 		Status:                  int32(v.Status),
 		Chains:                  v.Chains,
 		ServiceURL:              v.ServiceURL,
 		StakedTokens:            v.StakedTokens,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
+		GeoZone:                 v.GeoZone,
 	}
 }

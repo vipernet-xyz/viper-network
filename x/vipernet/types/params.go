@@ -17,6 +17,7 @@ const (
 	DefaultReplayAttackBurnMultiplier = int64(3)       // default replay attack burn multiplier
 	DefaultMinimumNumberOfProofs      = int64(1000)    // default minimum number of proofs
 	DefaultBlockByteSize              = int64(8000000) // default block size in bytes
+	DefaultMinimumSampleRelays        = int64(100)
 )
 
 var (
@@ -28,6 +29,7 @@ var (
 	KeyMinimumNumberOfProofs      = []byte("MinimumNumberOfProofs")
 	KeyBlockByteSize              = []byte("BlockByteSize")
 	KeySupportedGeoZones          = []byte("SupportedGeoZones")
+	KeyMinimumSampleRelays        = []byte("MinimumSampleRelays")
 )
 
 var _ types.ParamSet = (*Params)(nil)
@@ -41,6 +43,7 @@ type Params struct {
 	MinimumNumberOfProofs      int64    `json:"minimum_number_of_proofs"`
 	BlockByteSize              int64    `json:"block_byte_size,omitempty"`
 	SupportedGeoZones          []string `json:"supported_geo_zones"`
+	MinimumSampleRelays        int64    `json:"minimum_sample_relays"`
 }
 
 // "ParamSetPairs" - returns an kv params object
@@ -54,6 +57,7 @@ func (p *Params) ParamSetPairs() types.ParamSetPairs {
 		{Key: KeyMinimumNumberOfProofs, Value: p.MinimumNumberOfProofs},
 		{Key: KeyBlockByteSize, Value: p.BlockByteSize},
 		{Key: KeySupportedGeoZones, Value: p.SupportedGeoZones},
+		{Key: KeyMinimumSampleRelays, Value: p.MinimumSampleRelays},
 	}
 }
 
@@ -65,6 +69,7 @@ func DefaultParams() Params {
 		ClaimExpiration:            DefaultClaimExpiration,
 		ReplayAttackBurnMultiplier: DefaultReplayAttackBurnMultiplier,
 		MinimumNumberOfProofs:      DefaultMinimumNumberOfProofs,
+		MinimumSampleRelays:        DefaultMinimumSampleRelays,
 	}
 }
 
@@ -114,8 +119,6 @@ func (p Params) String() string {
   ReplayAttackBurnMultiplier %d
   BlockByteSize              %d
   Supported GeoZones         %v
-  Max Fishermen              %d
-  Fishermen Count            %d
 `,
 		p.ClaimSubmissionWindow,
 		p.SupportedBlockchains,

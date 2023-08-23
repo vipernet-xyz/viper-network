@@ -50,7 +50,7 @@ type ProtoProvider struct {
 	StakedTokens            github_com_viper_network_viper_core_types.BigInt      `protobuf:"bytes,6,opt,name=staked_tokens,json=stakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens" yaml:"tokens"`
 	MaxRelays               github_com_viper_network_viper_core_types.BigInt      `protobuf:"bytes,7,opt,name=max_relays,json=maxRelays,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"max_relays" yaml:"max_relays"`
 	GeoZones                []string                                              `protobuf:"bytes,8,rep,name=geo_zones,proto3" json:"geo_zones" yaml:"geo_zones"`
-	NumServicers            int8                                                  `protobuf:"bytes,9,rep,name=num_servicers,proto3" json:"num_servicers" yaml:"num_servicers"`
+	NumServicers            int8                                                  `protobuf:"varint,9,rep,name=num_servicers,proto3" json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time                                             `protobuf:"bytes,10,opt,name=unstaking_completion_time,json=unstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
 }
 

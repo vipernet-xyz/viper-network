@@ -401,6 +401,10 @@ func (m MockPosKeeper) JailValidator(ctx sdk.Ctx, addr sdk.Address) {
 	panic("implement me")
 }
 
+func (m MockPosKeeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) {
+	panic("implement me")
+}
+
 func (m MockPosKeeper) AllValidators(ctx sdk.Ctx) (validators []exported.ValidatorI) {
 	return m.Validators
 }

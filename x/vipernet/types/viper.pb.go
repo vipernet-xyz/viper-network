@@ -5,12 +5,15 @@ package types
 
 import (
 	fmt "fmt"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
+	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	github_com_viper_network_viper_core_types "github.com/vipernet-xyz/viper-network/types"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	"time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -29,7 +32,7 @@ type SessionHeader struct {
 	ProviderPubKey     string `protobuf:"bytes,1,opt,name=providerPubKey,proto3" json:"provider_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
 	GeoZone            string `protobuf:"bytes,3,opt,name=geo_zone,proto3" json:"geo_zone"`
-	NumServicers       int8   `protobuf:"bytes,4,opt,name=num_servicers,proto3" json:"num_servicers"`
+	NumServicers       int8   `protobuf:"varint,4,opt,name=num_servicers,proto3" json:"num_servicers"`
 	SessionBlockHeight int64  `protobuf:"varint,5,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }
 
@@ -67,10 +70,10 @@ func (m *SessionHeader) XXX_DiscardUnknown() {
 var xxx_messageInfo_SessionHeader proto.InternalMessageInfo
 
 type Session struct {
-	SessionHeader SessionHeader `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
-	SessionKey    SessionKey    `protobuf:"bytes,2,opt,name=sessionKey,proto3,casttype=SessionKey" json:"key"`
-	SessionServicers  SessionServicers  `protobuf:"bytes,3,rep,name=sessionServicers,proto3,castrepeated=SessionServicers" json:"servicers"`
-	SessionFishermen  SessionFishermen  `protobuf:"bytes,4,rep,name=sessionFishermen,proto3,castrepeated=SessionFishermen" json:"fishermen"`
+	SessionHeader    SessionHeader    `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
+	SessionKey       SessionKey       `protobuf:"bytes,2,opt,name=sessionKey,proto3,casttype=SessionKey" json:"key"`
+	SessionServicers SessionServicers `protobuf:"bytes,3,rep,name=sessionServicers,proto3,castrepeated=SessionServicers" json:"servicers"`
+	SessionFishermen SessionFishermen `protobuf:"bytes,4,rep,name=sessionFishermen,proto3,castrepeated=SessionFishermen" json:"fishermen"`
 }
 
 func (m *Session) Reset()         { *m = Session{} }
@@ -321,6 +324,129 @@ func (m *ProtoEvidence) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ProtoEvidence proto.InternalMessageInfo
 
+type TestI struct {
+	// Types that are valid to be assigned to Proof:
+	//	*ProofI_RelayProof
+	//	*ProofI_ChallengeProof
+	Test isTestI_Test `protobuf_oneof:"test"`
+}
+
+func (m *TestI) Reset()         { *m = TestI{} }
+func (m *TestI) String() string { return proto.CompactTextString(m) }
+func (*TestI) ProtoMessage()    {}
+func (*TestI) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fd7cbfa14fd73888, []int{4}
+}
+func (m *TestI) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *TestI) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_TestI.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *TestI) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TestI.Merge(m, src)
+}
+func (m *TestI) XXX_Size() int {
+	return m.Size()
+}
+func (m *TestI) XXX_DiscardUnknown() {
+	xxx_messageInfo_TestI.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TestI proto.InternalMessageInfo
+
+type isTestI_Test interface {
+	isTestI_Test()
+	MarshalTo([]byte) (int, error)
+	Size() int
+}
+
+type TestI_TestResult struct {
+	TestResult *TestResult `protobuf:"bytes,1,opt,name=testresult,proto3,oneof" json:"testResult,omitempty"`
+}
+
+func (*TestI_TestResult) isTestI_Test() {}
+
+func (m *TestI) GetTest() isTestI_Test {
+	if m != nil {
+		return m.Test
+	}
+	return nil
+}
+
+func (m *TestI) GetTestResult() *TestResult {
+	if x, ok := m.GetTest().(*TestI_TestResult); ok {
+		return x.TestResult
+	}
+	return nil
+}
+
+// XXX_OneofWrproviderers is for the internal use of the proto package.
+func (*TestI) XXX_OneofWrproviderers() []interface{} {
+	return []interface{}{
+		(*TestI_TestResult)(nil),
+	}
+}
+
+type ProtoResult struct {
+	SessionHeader    *SessionHeader `protobuf:"bytes,2,opt,name=sessionHeader,proto3" json:"evidence_header"`
+	NumOfTestResults int64          `protobuf:"varint,3,opt,name=numOfTestResults,proto3" json:"num_of_test_results"`
+	TestResults      TestIs        `protobuf:"bytes,4,rep,name=testResults,proto3,castrepeated=TestIs" json:"test_results"`
+	EvidenceType     EvidenceType   `protobuf:"varint,5,opt,name=evidenceType,proto3,casttype=EvidenceType" json:"evidence_type"`
+}
+
+// Marshal implements codec.ProtoMarshaler.
+func (*ProtoResult) Marshal() ([]byte, error) {
+	panic("unimplemented")
+}
+
+// MarshalTo implements codec.ProtoMarshaler.
+func (*ProtoResult) MarshalTo(data []byte) (n int, err error) {
+	panic("unimplemented")
+}
+
+func (m *ProtoResult) Reset()         { *m = ProtoResult{} }
+func (m *ProtoResult) String() string { return proto.CompactTextString(m) }
+func (*ProtoResult) ProtoMessage()    {}
+func (*ProtoResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fd7cbfa14fd73888, []int{5}
+}
+func (m *ProtoResult) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ProtoResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ProtoResult.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ProtoResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProtoResult.Merge(m, src)
+}
+func (m *ProtoResult) XXX_Size() int {
+	return m.Size()
+}
+func (m *ProtoResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProtoResult.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProtoResult proto.InternalMessageInfo
+
 type RelayProof struct {
 	RequestHash        string `protobuf:"bytes,1,opt,name=requestHash,proto3" json:"request_hash"`
 	Entropy            int64  `protobuf:"varint,2,opt,name=entropy,proto3" json:"entropy"`
@@ -330,7 +456,7 @@ type RelayProof struct {
 	Token              AAT    `protobuf:"bytes,6,opt,name=token,proto3" json:"aat"`
 	Signature          string `protobuf:"bytes,7,opt,name=signature,proto3" json:"signature"`
 	GeoZone            string `protobuf:"bytes,8,opt,name=geoZone,proto3" json:"geo_zone"`
-	NumServicers       int8   `protobuf:"bytes,9,opt,name=numServicers,proto3" json:"num_servicers"`
+	NumServicers       int8   `protobuf:"varint,9,opt,name=numServicers,proto3" json:"num_servicers"`
 }
 
 func (m *RelayProof) Reset()         { *m = RelayProof{} }
@@ -365,6 +491,46 @@ func (m *RelayProof) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_RelayProof proto.InternalMessageInfo
+
+type TestResult struct {
+	ServicerAddress github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=servicerAddress,proto3" json:"servicer_address"`
+	Timestamp       time.Time                                         `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp"`
+	Latency         time.Duration                                     `protobuf:"bytes,3,opt,name=latency,proto3" json:"latency"`
+	IsAvailable     bool                                              `protobuf:"varint,4,opt,name=isAvailable,proto3" json:"is_available"`
+}
+
+func (m *TestResult) Reset()         { *m = TestResult{} }
+func (m *TestResult) String() string { return proto.CompactTextString(m) }
+func (*TestResult) ProtoMessage()    {}
+func (*TestResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fd7cbfa14fd73888, []int{6}
+}
+func (m *TestResult) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *TestResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_TestResult.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *TestResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TestResult.Merge(m, src)
+}
+func (m *TestResult) XXX_Size() int {
+	return m.Size()
+}
+func (m *TestResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_TestResult.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TestResult proto.InternalMessageInfo
 
 type ChallengeProofInvalidData struct {
 	MajorityResponses []RelayResponse                                   `protobuf:"bytes,1,rep,name=majorityResponses,proto3" json:"majority_responses"`
@@ -445,9 +611,9 @@ func (m *RelayResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_RelayResponse proto.InternalMessageInfo
 
 type AAT struct {
-	Version              string `protobuf:"bytes,1,opt,name=version,proto3" json:"version"`
+	Version           string `protobuf:"bytes,1,opt,name=version,proto3" json:"version"`
 	ProviderPublicKey string `protobuf:"bytes,2,opt,name=providerPublicKey,proto3" json:"provider_pub_key"`
-	ClientPublicKey      string `protobuf:"bytes,3,opt,name=clientPublicKey,proto3" json:"client_pub_key"`
+	ClientPublicKey   string `protobuf:"bytes,3,opt,name=clientPublicKey,proto3" json:"client_pub_key"`
 	ProviderSignature string `protobuf:"bytes,4,opt,name=providerSignature,proto3" json:"signature"`
 }
 
@@ -976,7 +1142,29 @@ func (m *ProofI) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *TestI) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Test != nil {
+		{
+			size := m.Test.Size()
+			i -= size
+			if _, err := m.Test.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *ProofI_RelayProof) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TestI_TestResult) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
@@ -986,6 +1174,22 @@ func (m *ProofI_RelayProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.RelayProof != nil {
 		{
 			size, err := m.RelayProof.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintViper(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+func (m *TestI_TestResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.TestResult != nil {
+		{
+			size, err := m.TestResult.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -1084,6 +1288,92 @@ func (m *ProtoEvidence) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *ProtoResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.EvidenceType != 0 {
+		i = encodeVarintViper(dAtA, i, uint64(m.EvidenceType))
+		i--
+		dAtA[i] = 0x28
+	}
+	if len(m.TestResults) > 0 {
+		for iNdEx := len(m.TestResults) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TestResults[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintViper(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if m.NumOfTestResults != 0 {
+		i = encodeVarintViper(dAtA, i, uint64(m.NumOfTestResults))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.SessionHeader != nil {
+		{
+			size, err := m.SessionHeader.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintViper(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *TestResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.Timestamp, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.Timestamp):])
+	if err1 != nil {
+		return 0, err1
+	}
+	i -= n1
+	i = encodeVarintViper(dAtA, i, uint64(n1))
+	i--
+	dAtA[i] = 0x32
+	n3, err3 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.Latency, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.Latency):])
+	if err3 != nil {
+		return 0, err3
+	}
+	i -= n3
+	i = encodeVarintViper(dAtA, i, uint64(n3))
+	i--
+	if len(m.ServicerAddress) > 0 {
+		i -= len(m.ServicerAddress)
+		copy(dAtA[i:], m.ServicerAddress)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.ServicerAddress)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.IsAvailable {
+		i--
+		if m.IsAvailable {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func (m *RelayProof) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1134,7 +1424,7 @@ func (m *RelayProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintViper(dAtA, i, uint64(len(m.GeoZone)))
 		i--
 		dAtA[i] = 0x2a
-		}
+	}
 	if m.NumServicers != 0 {
 		i = encodeVarintViper(dAtA, i, uint64(m.NumServicers))
 		i--
@@ -1534,6 +1824,26 @@ func (m *MsgClaim) Size() (n int) {
 	return n
 }
 
+func (m *TestResult) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ServicerAddress)
+	if l > 0 {
+		n += 1 + l + sovViper(uint64(l))
+	}
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.Timestamp)
+	n += 1 + l + sovViper(uint64(l))
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.Latency)
+	n += 1 + l + sovViper(uint64(l))
+	if m.IsAvailable {
+		n += 2
+	}
+	return n
+}
+
 func (m *MsgProtoProof) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1562,6 +1872,18 @@ func (m *ProofI) Size() (n int) {
 	return n
 }
 
+func (m *TestI) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Test != nil {
+		n += m.Test.Size()
+	}
+	return n
+}
+
 func (m *ProofI_RelayProof) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1570,6 +1892,18 @@ func (m *ProofI_RelayProof) Size() (n int) {
 	_ = l
 	if m.RelayProof != nil {
 		l = m.RelayProof.Size()
+		n += 1 + l + sovViper(uint64(l))
+	}
+	return n
+}
+func (m *TestI_TestResult) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TestResult != nil {
+		l = m.TestResult.Size()
 		n += 1 + l + sovViper(uint64(l))
 	}
 	return n
@@ -1605,6 +1939,31 @@ func (m *ProtoEvidence) Size() (n int) {
 	}
 	if len(m.Proofs) > 0 {
 		for _, e := range m.Proofs {
+			l = e.Size()
+			n += 1 + l + sovViper(uint64(l))
+		}
+	}
+	if m.EvidenceType != 0 {
+		n += 1 + sovViper(uint64(m.EvidenceType))
+	}
+	return n
+}
+
+func (m *ProtoResult) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.SessionHeader != nil {
+		l = m.SessionHeader.Size()
+		n += 1 + l + sovViper(uint64(l))
+	}
+	if m.NumOfTestResults != 0 {
+		n += 1 + sovViper(uint64(m.NumOfTestResults))
+	}
+	if len(m.TestResults) > 0 {
+		for _, e := range m.TestResults {
 			l = e.Size()
 			n += 1 + l + sovViper(uint64(l))
 		}
@@ -2825,6 +3184,430 @@ func (m *ProtoEvidence) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *TestI) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowViper
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: TestI: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: TestI: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TestResult", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &TestResult{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Test = &TestI_TestResult{v}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipViper(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthViper
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthViper
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ProtoResult) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowViper
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProtoEvidence: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProtoEvidence: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SessionHeader", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.SessionHeader == nil {
+				m.SessionHeader = &SessionHeader{}
+			}
+			if err := m.SessionHeader.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumOfTestResults", wireType)
+			}
+			m.NumOfTestResults = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumOfTestResults |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TestResults", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TestResults = append(m.TestResults, TestI{})
+			if err := m.TestResults[len(m.TestResults)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EvidenceType", wireType)
+			}
+			m.EvidenceType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EvidenceType |= EvidenceType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipViper(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthViper
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthViper
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+
+func (m *TestResult) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowViper
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgClaim: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgClaim: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Servicer Address", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ServicerAddress = append(m.ServicerAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.ServicerAddress == nil {
+				m.ServicerAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Timestamps", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.Timestamp, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TrustingPeriod", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.Latency, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field isAvailable", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.IsAvailable = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipViper(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthViper
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthViper
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+
 func (m *RelayProof) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3104,7 +3887,7 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		
+
 		default:
 			iNdEx = preIndex
 			skippy, err := skipViper(dAtA[iNdEx:])

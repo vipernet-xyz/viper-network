@@ -59,3 +59,16 @@ func KeyForEvidence(header SessionHeader, evidenceType EvidenceType) ([]byte, er
 	}
 	return append(header.Hash(), et), nil
 }
+
+// "KeyForTestEvidence" - Generates the key for GOBEvidence
+func KeyForTestResult(header SessionHeader, evidenceType EvidenceType) ([]byte, error) {
+	// validate the GOBEvidence type
+	if evidenceType != FishermanTestEvidence {
+		return nil, NewInvalidEvidenceErr(ModuleName)
+	}
+	et, err := evidenceType.Byte()
+	if err != nil {
+		return nil, err
+	}
+	return append(header.Hash(), et), nil
+}

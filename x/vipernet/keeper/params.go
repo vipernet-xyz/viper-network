@@ -64,6 +64,11 @@ func (k Keeper) BlockByteSize(ctx sdk.Ctx) (res int64) {
 	return
 }
 
+func (k Keeper) MinimumSampleRelays(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMinimumSampleRelays, &res)
+	return
+}
+
 // "GetParams" - Returns all module parameters in a `Params` struct
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -74,6 +79,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		MinimumNumberOfProofs:      k.MinimumNumberOfProofs(ctx),
 		BlockByteSize:              k.BlockByteSize(ctx),
 		SupportedGeoZones:          k.SupportedGeoZones(ctx),
+		MinimumSampleRelays:        k.MinimumSampleRelays(ctx),
 	}
 }
 
