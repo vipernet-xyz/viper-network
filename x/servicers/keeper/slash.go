@@ -20,6 +20,29 @@ func (k Keeper) BurnForChallenge(ctx sdk.Ctx, challenges sdk.BigInt, address sdk
 	k.simpleSlash(ctx, address, coins)
 }
 
+func (k Keeper) BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address) {
+	// Assuming the address provided is the validator's delegator address. If it's a ConsensusAddr, you might need to convert it first.
+	validator, found := k.GetValidator(ctx, addr)
+	if !found {
+		ctx.Logger().Error("Validator not found: " + addr.String() + fmt.Sprintf(" at height: %d", ctx.BlockHeight()))
+		return
+	}
+	// Calculate the amount to slash
+	fraction := k.SlashFractionNoActivity(ctx)
+
+	// Slash the validator for inactivity
+	k.slash(ctx, validator.GetAddress(), ctx.BlockHeight(), validator.GetConsensusPower(), fraction)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSlash,
+			sdk.NewAttribute(types.AttributeKeyAddress, validator.GetAddress().String()),
+			sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", validator.GetConsensusPower())),
+			sdk.NewAttribute(types.AttributeKeyReason, "NoActivity"),
+		),
+	)
+}
+
 // simpleSlash - Slash validator for an infraction committed at a known height
 // Find the contributing stake at that height and burn the specified slashFactor
 func (k Keeper) simpleSlash(ctx sdk.Ctx, addr sdk.Address, amount sdk.BigInt) {
@@ -154,7 +177,7 @@ func (k Keeper) validateSlash(ctx sdk.Ctx, addr sdk.Address, infractionHeight in
 }
 
 // handleDoubleSign - Handle a validator signing two blocks at the same height
-// power: power of the double-signing validator at the height of infractionn
+// power: power of the double-signing validator at the height of infraction
 func (k Keeper) handleDoubleSign(ctx sdk.Ctx, addr crypto.Address, infractionHeight int64, timestamp time.Time, power int64) {
 	address, _, _, err := k.validateDoubleSign(ctx, addr, infractionHeight, timestamp)
 	if err != nil {

@@ -3,7 +3,6 @@ package types
 import (
 	rand1 "crypto/rand"
 	"fmt"
-	"log"
 	math "math"
 	"math/big"
 	"math/rand"
@@ -111,21 +110,6 @@ type ServicerResults struct {
 	Timestamps      []time.Time
 	Latencies       []time.Duration
 	Availabilities  []bool
-}
-
-// "Store" - Handles the test result object by adding it to the cache
-func (tr TestResult) Store(sessionHeader SessionHeader, testStore *CacheStorage) {
-	// add the result to the global (in memory) collection of results
-	SetTestResult(sessionHeader, FishermanTestEvidence, tr, testStore)
-}
-
-func SetTestResult(header SessionHeader, evidenceType EvidenceType, tr TestResult, testStore *CacheStorage) {
-	test, err := GetTestResult(header, evidenceType, testStore)
-	if err != nil {
-		log.Fatalf("could not set test result object: %s", err.Error())
-	}
-	test.AddTestResult(tr)
-	SetResult(test, testStore)
 }
 
 type RelayHeaders map[string]string

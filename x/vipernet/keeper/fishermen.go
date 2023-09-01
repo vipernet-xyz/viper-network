@@ -87,7 +87,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 
 	sampleRelayCount := 0
 	go func() {
-		ticker := time.NewTicker(time.Duration(10+rand.Intn(50)) * time.Second)
+		ticker := time.NewTicker(time.Duration(10+rand.Intn(25)) * time.Second)
 		defer ticker.Stop() // Ensure to stop the ticker once done
 
 		for {
@@ -95,7 +95,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 			case <-ticker.C: // On each tick
 
 				// Check end conditions
-				if sampleRelayCount >= int(k.MinimumSampleRelays(ctx)) || (ctx.BlockHeight()+int64(fishermanAddress[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
+				if (ctx.BlockHeight()+int64(fishermanAddress[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
 					return
 				}
 
@@ -116,6 +116,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 
 					// If the last 5 results show the servicer missed signing 5 times consecutively, pause the node.
 					if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
+						k.posKeeper.BurnforNoActivity(ctx, servicer.GetAddress())
 						k.posKeeper.PauseNode(ctx, servicer.GetAddress())
 					}
 

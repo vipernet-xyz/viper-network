@@ -22,7 +22,7 @@ const (
 	DefaultParticipationRateOn         bool  = false
 	DefaultMaxChains                   int64 = 15
 	DefaultMinNumServicers                   = int64(3)
-	DefaultMaxNumServicers                   = int64(100)
+	DefaultMaxNumServicers                   = int64(25)
 	DefaultMaxFreeTierRelaysPerSession       = int64(5000)
 )
 

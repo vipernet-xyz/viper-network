@@ -98,6 +98,12 @@ func (k Keeper) SlashFractionDowntime(ctx sdk.Ctx) (res sdk.BigDec) {
 	return
 }
 
+// SlashFractionDowntime - Retrieve slash fraction time
+func (k Keeper) SlashFractionNoActivity(ctx sdk.Ctx) (res sdk.BigDec) {
+	k.Paramstore.Get(ctx, types.KeySlashFractionNoActivity, &res)
+	return
+}
+
 // TokenRewardFactor - Retrieve relay token multipler
 func (k Keeper) TokenRewardFactor(ctx sdk.Ctx) sdk.BigInt {
 	var multiplier int64
@@ -221,6 +227,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		MinPauseTime:            k.MinPauseTime(ctx),
 		MaxFishermen:            k.MaxFishermen(ctx),
 		FishermenCount:          k.FishermenCount(ctx),
+		SlashFractionNoActivity: k.SlashFractionNoActivity(ctx),
 	}
 }
 

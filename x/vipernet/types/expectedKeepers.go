@@ -26,6 +26,7 @@ type PosKeeper interface {
 	MaxFishermen(ctx sdk.Ctx) (res int64)
 	FishermenCount(ctx sdk.Ctx) (res int64)
 	PauseNode(ctx sdk.Ctx, addr sdk.Address)
+	BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address)
 }
 
 type ProvidersKeeper interface {

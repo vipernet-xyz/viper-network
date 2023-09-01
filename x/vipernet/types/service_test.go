@@ -433,6 +433,10 @@ func (m MockPosKeeper) FishermenCount(ctx sdk.Ctx) (res int64) {
 	panic("implement me")
 }
 
+func (m MockPosKeeper) BurnforNoActivity(ctx sdk.Ctx, address sdk.Address) {
+	panic("implement me")
+}
+
 func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)

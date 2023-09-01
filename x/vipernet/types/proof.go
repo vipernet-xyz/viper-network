@@ -23,33 +23,13 @@ type Proof interface {
 	ToProto() ProofI                                                                                          // convert to protobuf
 }
 
-type Test interface {
-	Hash() []byte                                             // returns cryptographic hash of bz
-	Bytes() []byte                                            // returns bytes representation
-	HashString() string                                       // returns the hex string representation of the merkleHash
-	ValidateBasic() sdk.Error                                 // storeless validation check for the object
-	GetSigner() sdk.Address                                   // returns the main signer(s) for the proof (used in messages)
-	Store(sessionHeader SessionHeader, storage *CacheStorage) // handle the proof after validation
-	ToProto() TestI                                           // convert to protobuf
-}
 type Proofs []Proof
 
 type ProofIs []ProofI
 
-type Tests []Test
-
-type TestIs []TestI
-
 func (ps Proofs) ToProofI() (res []ProofI) {
 	for _, proof := range ps {
 		res = append(res, proof.ToProto())
-	}
-	return
-}
-
-func (ts Tests) ToTestI() (res []TestI) {
-	for _, test := range ts {
-		res = append(res, test.ToProto())
 	}
 	return
 }
@@ -66,26 +46,9 @@ func (pi ProofI) FromProto() Proof {
 	}
 }
 
-func (ti TestI) FromProto() Test {
-	switch x := ti.Test.(type) {
-	case *TestI_TestResult:
-		return x.TestResult
-	default:
-		fmt.Println(fmt.Sprintf("invalid type assertion of testI: %T", x))
-		return TestResult{}
-	}
-}
-
 func (ps ProofIs) FromProofI() (res Proofs) {
 	for _, proof := range ps {
 		res = append(res, proof.FromProto())
-	}
-	return
-}
-
-func (ts TestIs) FromTestI() (res Tests) {
-	for _, test := range ts {
-		res = append(res, test.FromProto())
 	}
 	return
 }
@@ -176,25 +139,6 @@ func (rp RelayProof) ValidateBasic() sdk.Error {
 	return nil
 }
 
-func (tr TestResult) ValidateBasic() sdk.Error {
-	// Validate the ServicerAddress
-	if tr.ServicerAddress.String() == "" {
-		return NewEmptyAddressError(ModuleName)
-	}
-
-	// Validate the Timestamp. You can decide the range of acceptable timestamps if needed.
-	if tr.Timestamp.IsZero() {
-		return NewZeroTimeError(ModuleName)
-	}
-
-	// If the minimum latency is a non-zero duration, validate that the Latency is positive and within acceptable range.
-	if tr.Latency <= 0 {
-		return NewNegativeLatency(ModuleName)
-	}
-
-	return nil
-}
-
 // "SessionHeader" - Returns the session header corresponding with the proof
 func (rp RelayProof) SessionHeader() SessionHeader {
 	return SessionHeader{
@@ -208,10 +152,6 @@ func (rp RelayProof) SessionHeader() SessionHeader {
 
 func (rp RelayProof) ToProto() ProofI {
 	return ProofI{Proof: &ProofI_RelayProof{RelayProof: &rp}}
-}
-
-func (tr TestResult) ToProto() TestI {
-	return TestI{Test: &TestI_TestResult{TestResult: &tr}}
 }
 
 // "relayProof" - A structure used to json marshal the RelayProof
@@ -246,19 +186,6 @@ func (rp RelayProof) Bytes() []byte {
 	return res
 }
 
-func (tr TestResult) Bytes() []byte {
-	res, err := json.Marshal(TestResult{
-		ServicerAddress: tr.ServicerAddress,
-		Timestamp:       tr.Timestamp,
-		Latency:         tr.Latency,
-		IsAvailable:     tr.IsAvailable,
-	})
-	if err != nil {
-		log.Fatal(fmt.Errorf("an error occured converting the test result to bytes:\n%v", err).Error())
-	}
-	return res
-}
-
 // "BytesWithSignature" - Convert the RelayProof to bytes
 func (rp RelayProof) BytesWithSignature() []byte {
 	res, err := json.Marshal(relayProof{
@@ -284,20 +211,9 @@ func (rp RelayProof) Hash() []byte {
 	return Hash(res)
 }
 
-// "Hash" - Returns the cryptographic merkleHash of the rp bytes
-func (tr TestResult) Hash() []byte {
-	res := tr.Bytes()
-	return Hash(res)
-}
-
 // "HashString" - Returns the hex encoded string of the rp merkleHash
 func (rp RelayProof) HashString() string {
 	return hex.EncodeToString(rp.Hash())
-}
-
-// "HashString" - Returns the hex encoded string of the rp merkleHash
-func (tr TestResult) HashString() string {
-	return hex.EncodeToString(tr.Hash())
 }
 
 // "HashWithSignature" - Returns the cryptographic merkleHash of the rp bytes (with signature field)
@@ -323,10 +239,6 @@ func (rp RelayProof) GetSigner() sdk.Address {
 		return nil
 	}
 	return sdk.Address(pk.Address())
-}
-
-func (tr TestResult) GetSigner() sdk.Address {
-	return tr.ServicerAddress
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -560,4 +472,112 @@ func (c ChallengeProofInvalidData) Store(maxChallenges sdk.BigInt, evidenceStore
 
 func (c ChallengeProofInvalidData) ToProto() ProofI {
 	return ProofI{Proof: &ProofI_ChallengeProof{ChallengeProof: &c}}
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+// "Store" - Handles the test result object by adding it to the cache
+func (tr TestResult) Store(sessionHeader SessionHeader, testStore *CacheStorage) {
+	// add the result to the global (in memory) collection of results
+	SetTestResult(sessionHeader, FishermanTestEvidence, tr, testStore)
+}
+
+func SetTestResult(header SessionHeader, evidenceType EvidenceType, tr TestResult, testStore *CacheStorage) {
+	test, err := GetTestResult(header, evidenceType, testStore)
+	if err != nil {
+		log.Fatalf("could not set test result object: %s", err.Error())
+	}
+	test.AddTestResult(tr)
+	SetResult(test, testStore)
+}
+
+type Test interface {
+	Hash() []byte                                             // returns cryptographic hash of bz
+	Bytes() []byte                                            // returns bytes representation
+	HashString() string                                       // returns the hex string representation of the merkleHash
+	ValidateBasic() sdk.Error                                 // storeless validation check for the object
+	GetSigner() sdk.Address                                   // returns the main signer(s) for the proof (used in messages)
+	Store(sessionHeader SessionHeader, storage *CacheStorage) // handle the proof after validation
+	ToProto() TestI                                           // convert to protobuf
+}
+
+type Tests []Test
+
+type TestIs []TestI
+
+func (ts Tests) ToTestI() (res []TestI) {
+	for _, test := range ts {
+		res = append(res, test.ToProto())
+	}
+	return
+}
+
+func (ti TestI) FromProto() Test {
+	switch x := ti.Test.(type) {
+	case *TestI_TestResult:
+		return x.TestResult
+	default:
+		fmt.Println(fmt.Sprintf("invalid type assertion of testI: %T", x))
+		return TestResult{}
+	}
+}
+
+func (ts TestIs) FromTestI() (res Tests) {
+	for _, test := range ts {
+		res = append(res, test.FromProto())
+	}
+	return
+}
+
+var _ Test = TestResult{}
+
+func (tr TestResult) ValidateBasic() sdk.Error {
+	// Validate the ServicerAddress
+	if tr.ServicerAddress.String() == "" {
+		return NewEmptyAddressError(ModuleName)
+	}
+
+	// Validate the Timestamp. You can decide the range of acceptable timestamps if needed.
+	if tr.Timestamp.IsZero() {
+		return NewZeroTimeError(ModuleName)
+	}
+
+	// If the minimum latency is a non-zero duration, validate that the Latency is positive and within acceptable range.
+	if tr.Latency <= 0 {
+		return NewNegativeLatency(ModuleName)
+	}
+
+	return nil
+}
+
+func (tr TestResult) ToProto() TestI {
+	return TestI{Test: &TestI_TestResult{TestResult: &tr}}
+}
+
+func (tr TestResult) Bytes() []byte {
+	res, err := json.Marshal(TestResult{
+		ServicerAddress: tr.ServicerAddress,
+		Timestamp:       tr.Timestamp,
+		Latency:         tr.Latency,
+		IsAvailable:     tr.IsAvailable,
+	})
+	if err != nil {
+		log.Fatal(fmt.Errorf("an error occured converting the test result to bytes:\n%v", err).Error())
+	}
+	return res
+}
+
+// "Hash" - Returns the cryptographic merkleHash of the rp bytes
+func (tr TestResult) Hash() []byte {
+	res := tr.Bytes()
+	return Hash(res)
+}
+
+// "HashString" - Returns the hex encoded string of the rp merkleHash
+func (tr TestResult) HashString() string {
+	return hex.EncodeToString(tr.Hash())
+}
+
+func (tr TestResult) GetSigner() sdk.Address {
+	return tr.ServicerAddress
 }

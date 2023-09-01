@@ -28,7 +28,7 @@ const (
 	DefaultServicerCountLock    bool  = false
 	DefaultBurnActive           bool  = false
 	DefaultMinPauseTime               = 60 * 10 * time.Second
-	DefaultMaxFishermen               = int64(200)
+	DefaultMaxFishermen               = int64(50)
 	DefaultFishermenCount             = int64(1)
 )
 
@@ -53,13 +53,15 @@ var (
 	KeyMaxJailedBlocks             = []byte("MaxJailedBlocks")
 	DoubleSignJailEndTime          = time.Unix(253402300799, 0) // forever
 	DefaultMinSignedPerWindow      = sdk.NewDecWithPrec(5, 1)
-	DefaultSlashFractionDoubleSign = sdk.NewDec(1).Quo(sdk.NewDec(20))
-	DefaultSlashFractionDowntime   = sdk.NewDec(1).Quo(sdk.NewDec(100))
+	DefaultSlashFractionDoubleSign = sdk.NewDec(1).Quo(sdk.NewDec(1000000))
+	DefaultSlashFractionDowntime   = sdk.NewDec(1).Quo(sdk.NewDec(1000000))
 	ServicerCountLock              = []byte("ServicerCountLock")
 	BurnActive                     = []byte("BurnActive")
 	KeyMinPauseTime                = []byte("MinPauseTime")
 	KeyMaxFishermen                = []byte("MaxFishermen")
 	KeyFishermenCount              = []byte("FishermenCount")
+	KeySlashFractionNoActivity     = []byte("SlashFractionNoActivity")
+	DefaultSlashFractionNoActivity = sdk.NewDec(1).Quo(sdk.NewDec(1000000))
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -88,6 +90,7 @@ type Params struct {
 	MinPauseTime            time.Duration `json:"min_pause_time" yaml:"min_pause_time"`
 	MaxFishermen            int64         `json:"max_fishermen"`
 	FishermenCount          int64         `json:"fishermen_count"`
+	SlashFractionNoActivity sdk.BigDec    `json:"slash_fraction_noactivity" yaml:"slash_fraction_noactivity"`
 }
 
 // Implements sdk.ParamSet
@@ -115,6 +118,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyMinPauseTime, Value: &p.MinPauseTime},
 		{Key: KeyMaxFishermen, Value: p.MaxFishermen},
 		{Key: KeyFishermenCount, Value: p.FishermenCount},
+		{Key: KeySlashFractionNoActivity, Value: &p.SlashFractionNoActivity},
 	}
 }
 
@@ -142,6 +146,7 @@ func DefaultParams() Params {
 		MinPauseTime:            DefaultMinPauseTime,
 		MaxFishermen:            DefaultMaxFishermen,
 		FishermenCount:          DefaultFishermenCount,
+		SlashFractionNoActivity: DefaultSlashFractionNoActivity,
 	}
 }
 
@@ -208,7 +213,8 @@ func (p Params) String() string {
   Burn Active              %v 
   MinPauseTime             %s
   Max Fishermen            %d
-  Fishermen Count          %d`,
+  Fishermen Count          %d
+  SlashFractionNoActivity: %s`,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -229,5 +235,6 @@ func (p Params) String() string {
 		p.BurnActive,
 		p.MinPauseTime,
 		p.MaxFishermen,
-		p.FishermenCount)
+		p.FishermenCount,
+		p.SlashFractionNoActivity)
 }
