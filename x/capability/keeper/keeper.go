@@ -174,6 +174,9 @@ func (k Keeper) InitializeIndex(ctx sdk.Ctx, index uint64) error {
 
 // GetLatestIndex returns the latest index of the CapabilityKeeper
 func (k Keeper) GetLatestIndex(ctx sdk.Ctx) uint64 {
+	fmt.Println("Context:", ctx)
+	fmt.Println("Store Key:", k.storeKey)
+
 	store := ctx.KVStore(k.storeKey)
 	a, _ := store.Get(types.KeyIndex)
 	return types.IndexFromKey(a)

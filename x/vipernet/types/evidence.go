@@ -6,6 +6,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/willf/bloom"
 )
@@ -21,6 +22,7 @@ type Evidence struct {
 
 type Result struct {
 	SessionHeader    `json:"evidence_header"`
+	ServicerAddr     sdk.Address  `json:"servicer_addr"`
 	NumOfTestResults int64        `json:"num_of_test_results"`
 	TestResults      Tests        `json:"tests"`
 	EvidenceType     EvidenceType `json:"evidence_type"`
@@ -47,6 +49,18 @@ func (e *Evidence) GenerateMerkleRoot(height int64, maxRelays int64, storage *Ca
 	}
 	// generate the root object
 	root, _ = GenerateRoot(height, ev.Proofs)
+	return
+}
+
+// "GenerateMerkleRoot" - Generates the merkle root for an GOBEvidence object
+func (r *Result) GenerateSampleMerkleRoot(height int64, storage *CacheStorage) (root HashRange) {
+	// seal the evidence in cache/db
+	ev, ok := SealResult(*r, storage)
+	if !ok {
+		return HashRange{}
+	}
+	// generate the root object
+	root, _ = GenerateSampleRoot(height, ev.TestResults)
 	return
 }
 
@@ -207,6 +221,7 @@ func (e *Evidence) ToProto() (*ProtoEvidence, error) {
 func (r *Result) ToProto() (*ProtoResult, error) {
 	return &ProtoResult{
 		SessionHeader:    &r.SessionHeader,
+		ServicerAddr:     r.ServicerAddr,
 		NumOfTestResults: r.NumOfTestResults,
 		TestResults:      r.TestResults.ToTestI(),
 		EvidenceType:     r.EvidenceType,
@@ -230,6 +245,7 @@ func (pe *ProtoEvidence) FromProto() (Evidence, error) {
 func (pr *ProtoResult) FromProto() (Result, error) {
 	return Result{
 		SessionHeader:    *pr.SessionHeader,
+		ServicerAddr:     pr.ServicerAddr,
 		NumOfTestResults: pr.NumOfTestResults,
 		TestResults:      pr.TestResults.FromTestI(),
 		EvidenceType:     pr.EvidenceType}, nil
@@ -274,7 +290,7 @@ func (e Evidence) Key() ([]byte, error) {
 }
 
 func (r Result) Key() ([]byte, error) {
-	return KeyForEvidence(r.SessionHeader, r.EvidenceType)
+	return KeyForTestResult(r.SessionHeader, r.EvidenceType, r.ServicerAddr)
 }
 
 // "EvidenceType" type to distinguish the types of GOBEvidence (relay/challenge)

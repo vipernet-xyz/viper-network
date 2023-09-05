@@ -478,12 +478,11 @@ func (c ChallengeProofInvalidData) ToProto() ProofI {
 
 // "Store" - Handles the test result object by adding it to the cache
 func (tr TestResult) Store(sessionHeader SessionHeader, testStore *CacheStorage) {
-	// add the result to the global (in memory) collection of results
-	SetTestResult(sessionHeader, FishermanTestEvidence, tr, testStore)
+	SetTestResult(sessionHeader, FishermanTestEvidence, tr, tr.ServicerAddress, testStore)
 }
 
-func SetTestResult(header SessionHeader, evidenceType EvidenceType, tr TestResult, testStore *CacheStorage) {
-	test, err := GetTestResult(header, evidenceType, testStore)
+func SetTestResult(header SessionHeader, evidenceType EvidenceType, tr TestResult, servicerAddr sdk.Address, testStore *CacheStorage) {
+	test, err := GetTestResult(header, evidenceType, servicerAddr, testStore)
 	if err != nil {
 		log.Fatalf("could not set test result object: %s", err.Error())
 	}

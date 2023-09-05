@@ -565,6 +565,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("provider/ParticipationRate", kp.GetAddress())
 		acl.SetOwner("provider/StabilityModulation", kp.GetAddress())
 		acl.SetOwner("provider/MinNumServicers", kp.GetAddress())
+		acl.SetOwner("providers/MaxFreeTierRelaysPerSession", kp.GetAddress())
 		acl.SetOwner("provider/MaxNumServicers", kp.GetAddress())
 		acl.SetOwner("authentication/MaxMemoCharacters", kp.GetAddress())
 		acl.SetOwner("authentication/TxSigLimit", kp.GetAddress())
@@ -593,6 +594,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/SlashFractionDowntime", kp.GetAddress())
 		acl.SetOwner("pos/StakeDenom", kp.GetAddress())
 		acl.SetOwner("pos/StakeMinimum", kp.GetAddress())
+		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
 		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
 		testACL = acl
 	}

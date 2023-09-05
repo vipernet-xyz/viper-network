@@ -54,6 +54,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	transferSubspace := sdk.NewSubspace(transferTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	ibcSubspace := sdk.NewSubspace(ibctypes.DefaultParamspace)
+	capabilitySubspace := sdk.NewSubspace(capabilityTypes.DefaultParamspace)
 
 	app.CapabilityKeeper = capabilityKeeper.NewKeeper(
 		app.Bcdc,
@@ -107,7 +108,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.Tkeys[viperTypes.StoreKey],
 		governanceTypes.DefaultCodespace,
 		app.accountKeeper,
-		authSubspace, servicersSubspace, providersSubspace, viperSubspace,
+		authSubspace, servicersSubspace, providersSubspace, viperSubspace, transferSubspace, capabilitySubspace,
 	)
 
 	app.UpgradeKeeper = upgradeKeeper.NewKeeper(
@@ -161,8 +162,8 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		transferModule,
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName)
-	app.mm.SetOrderEndBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName)
+	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, capabilityTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, capabilityTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		capabilityTypes.ModuleName,

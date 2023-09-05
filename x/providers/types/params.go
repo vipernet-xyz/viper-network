@@ -53,7 +53,7 @@ type Params struct {
 	MaxChains                   int64         `json:"maximum_chains" yaml:"maximum_chains"`                 // the maximum number of chains an provider can stake for
 	MinNumServicers             int64         `json:"minimum_number_servicers"`
 	MaxNumServicers             int64         `json:"maximum_number_servicers"`
-	MaxFreeTierRelaysPerSession int64         `json: "maximum_free_tier_relays_per_session`
+	MaxFreeTierRelaysPerSession int64         `json:"maximum_free_tier_relays_per_session"`
 }
 
 // Implements params.ParamSet

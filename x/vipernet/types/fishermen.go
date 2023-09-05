@@ -46,7 +46,11 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 
 	rpcURL := fishermanValidator.GetServiceURL()
 	sender := NewSender(rpcURL)
-	relayer := NewRelayer(nil, *sender)
+	signer, err := NewSigner(fishermanValidator)
+	if err != nil {
+		return nil, err
+	}
+	relayer := NewRelayer(*signer, *sender)
 	// Assuming a function like getSignedProofBytes exists in the current scope
 	signedProofBytes, err := relayer.getSignedProofBytes(&RelayProof{
 		RequestHash:        reqHash,
@@ -165,4 +169,88 @@ type RelayInput struct {
 	Payload *RelayPayload `json:"payload"`
 	Meta    *RelayMeta    `json:"meta"`
 	Proof   *RelayProof   `json:"proof"`
+}
+
+func Shuffle(proofs []Test, rng *rand.Rand) {
+	n := len(proofs)
+	for i := n - 1; i > 0; i-- {
+		j := rng.Intn(i + 1)
+		proofs[i], proofs[j] = proofs[j], proofs[i]
+	}
+}
+
+type ViperQoSReport struct {
+	FirstSampleTimestamp time.Time  `json:"first_sample_timestamp"`
+	BlockHeight          int64      `json:"block_height"`
+	LatencyScore         sdk.BigDec `json:"latency_score"`
+	AvailabilityScore    sdk.BigDec `json:"availability_score"`
+	SampleRoot           HashRange  `json:"sample_root"`
+	Nonce                int64      `json:"nonce"`
+	Signature            string     `json:"signature"`
+}
+
+func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*ViperQoSReport, error) {
+	expectedLatency := CalculateExpectedLatency(globalRPCTimeout)
+
+	firstSampleTimestamp := time.Time{}
+	if len(result.Timestamps) > 0 {
+		firstSampleTimestamp = result.Timestamps[0]
+	}
+
+	// Calculate availability score
+	_, scaledAvailabilityScore := CalculateAvailabilityScore(len(result.Timestamps), countTrue(result.Availabilities))
+	latencyScore := sdk.BigDec{}
+	if len(result.Latencies) > 0 {
+		/*
+			Let's say result.Latencies has three values: 10ms, 20ms, 30ms. Thus, the total latency is 60ms and the average latency is 20ms.
+			If the expected latency is 15ms, then the latency score would be 15/20 = 0.75
+		*/
+		totalLatency := sumDurations(result.Latencies)
+		averageLatency := totalLatency / time.Duration(len(result.Latencies))
+		latencyScore = sdk.MinDec(sdk.OneDec(), sdk.NewDecFromInt(sdk.NewInt(int64(expectedLatency))).Quo(sdk.NewDecFromInt(sdk.NewInt(int64(averageLatency)))))
+	}
+
+	report := &ViperQoSReport{
+		FirstSampleTimestamp: firstSampleTimestamp,
+		BlockHeight:          blockHeight,
+		LatencyScore:         latencyScore,
+		AvailabilityScore:    scaledAvailabilityScore,
+	}
+
+	return report, nil
+}
+
+func countTrue(bools []bool) int {
+	count := 0
+	for _, b := range bools {
+		if b {
+			count++
+		}
+	}
+	return count
+}
+
+func CalculateAvailabilityScore(totalRelays, answeredRelays int) (downtimePercentage sdk.BigDec, scaledAvailabilityScore sdk.BigDec) {
+	/*
+		If there are 100 total relays and only 80 are answered, then:
+		- downtimePercentage = (100 - 80) / 100 = 0.20 (or 20%)
+		- scaledAvailabilityScore = 1 - 0.20 = 0.80 (or 80%)
+	*/
+	downtimePercentage = sdk.NewDecWithPrec(int64(totalRelays-answeredRelays), 0).Quo(sdk.NewDecWithPrec(int64(totalRelays), 0))
+	scaledAvailabilityScore = sdk.MaxDec(sdk.ZeroDec(), sdk.OneDec().Sub(downtimePercentage))
+	return downtimePercentage, scaledAvailabilityScore
+}
+
+// returns the expected latency to a threshold.
+func CalculateExpectedLatency(timeoutGivenToRelay time.Duration) time.Duration {
+	expectedLatency := (timeoutGivenToRelay / 2)
+	return expectedLatency
+}
+
+func sumDurations(durations []time.Duration) time.Duration {
+	sum := time.Duration(0)
+	for _, d := range durations {
+		sum += d
+	}
+	return sum
 }

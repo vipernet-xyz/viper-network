@@ -21,6 +21,7 @@ func (r Range) Bytes() []byte {
 type proofAndRanges struct {
 	hr []HashRange
 	p  []Proof
+	r  []Test
 }
 type SortByProof proofAndRanges
 
@@ -28,6 +29,7 @@ func (a SortByProof) Len() int { return len(a.hr) }
 func (a SortByProof) Swap(i, j int) {
 	a.hr[i], a.hr[j] = a.hr[j], a.hr[i]
 	a.p[i], a.p[j] = a.p[j], a.p[i]
+	a.r[i], a.r[j] = a.r[j], a.r[i]
 }
 func (a SortByProof) Less(i, j int) bool { return a.hr[i].Range.Upper < a.hr[j].Range.Upper }
 
@@ -147,6 +149,25 @@ func GenerateProofs(height int64, p []Proof, index int) (mProof MerkleProof, lea
 	return
 }
 
+// "GenerateProofs" - Generates the merkle Proof object from the leaf servicer data and the index
+func GenerateTRProofs(height int64, r []Test, index int) (mProof MerkleProof, leaf Test) {
+	data, proofs := sortAndStructureResult(r) // TODO proofs are already sorted
+	// make a copy of the data because the merkle proof function will manipulate the slice
+	dataCopy := make([]HashRange, len(data))
+	// Copy from the original map to the target map
+	copy(dataCopy, data)
+	// generate Proof for leaf
+	mProof = merkleProof(height, data, index, &MerkleProof{})
+	// reset leaf index
+	mProof.TargetIndex = int64(index)
+	// get the leaf
+	leaf = proofs[index]
+	// get the targetHashRange
+	mProof.Target = dataCopy[index]
+	// return merkleProofs object
+	return
+}
+
 // "merkleProof" - recursive Proof function that generates the Proof object one level at a time
 func merkleProof(height int64, data []HashRange, index int, p *MerkleProof) MerkleProof {
 	if index%2 == 1 { // odd index so sibling to the left
@@ -182,6 +203,14 @@ func GenerateRoot(height int64, data []Proof) (r HashRange, sortedData []Proof) 
 	adjacentHashRanges, sortedProofs := sortAndStructure(data)
 	// call the root function and return
 	return root(height, adjacentHashRanges), sortedProofs
+}
+
+// "GenerateRoot" - generates the merkle root from leaf servicer data
+func GenerateSampleRoot(height int64, data []Test) (r HashRange, sortedData []Test) {
+	// structure the leafs
+	adjacentHashRanges, sortedResults := sortAndStructureResult(data)
+	// call the root function and return
+	return root(height, adjacentHashRanges), sortedResults
 }
 
 // "root" - Generates the root (highest level) from the merkleHash range data recursively
@@ -233,7 +262,7 @@ func sortAndStructure(proofs []Proof) (d []HashRange, sortedProofs []Proof) { //
 			hashRanges[i].Range.Upper = sumFromHash(hashRanges[i].Hash)
 		}
 	}
-	sortedRangesAndProofs := proofAndRanges{hashRanges, proofs}
+	sortedRangesAndProofs := proofAndRanges{hashRanges, proofs, nil}
 	sort.Sort(SortByProof(sortedRangesAndProofs))
 	hashRanges, proofs = sortedRangesAndProofs.hr, sortedRangesAndProofs.p
 	// keep track of previous upper (next values lower)
@@ -307,4 +336,87 @@ func MultiProviderend(dest []byte, s ...[]byte) []byte {
 		i += copy(dest[i:], v)
 	}
 	return dest
+}
+
+func sortAndStructureResult(results []Test) (d []HashRange, sortedResults []Test) { // TODO code duplication between sortAndStructure and structure
+	// get the # of proofs
+	numberOfResults := len(results)
+	// initialize the hashRange
+	hashRanges := make([]HashRange, numberOfResults)
+
+	// sort the slice based on the numerical value of the upper value (just the decimal representation of the merkleHash)
+	if hashRanges[0].Range.Upper == 0 {
+		for i := range hashRanges {
+			// save the merkleHash and sum of the Results in the new tree slice
+			hashRanges[i].Hash = merkleHash(results[i].Bytes())
+			// get the inital sum (just the dec val of the merkleHash)
+			hashRanges[i].Range.Upper = sumFromHash(hashRanges[i].Hash)
+		}
+	}
+	sortedRangesAndProofs := proofAndRanges{hashRanges, nil, results}
+	sort.Sort(SortByProof(sortedRangesAndProofs))
+	hashRanges, results = sortedRangesAndProofs.hr, sortedRangesAndProofs.r
+	// keep track of previous upper (next values lower)
+	lower := uint64(0)
+	// set the lower values of each
+	for i := range results {
+		// the range is the previous
+		hashRanges[i].Range.Lower = lower
+		// update the lower
+		lower = hashRanges[i].Range.Upper
+	}
+	// calculate the proper length of the merkle tree
+	properLength := nextPowerOfTwo(uint(numberOfResults))
+	// generate padding to make it a proper merkle tree
+	padding := make([]HashRange, int(properLength)-numberOfResults)
+	// add it to the merkleHash rangeds
+	hashRanges = append(hashRanges, padding...)
+	// add padding to the end of the hashRange
+	for i := numberOfResults; i < int(properLength); i++ {
+		hashRanges[i] = HashRange{
+			Hash:  merkleHash([]byte(strconv.Itoa(i))),
+			Range: Range{Lower: lower, Upper: lower + 1},
+		}
+		lower = hashRanges[i].Range.Upper
+	}
+	return hashRanges, results
+}
+
+// "structureProofs" - structure hash ranges when proofs are already sorted
+func structureResults(results []Test) (d []HashRange, sortedResults []Test) {
+	// get the # of proofs
+	numberOfResults := len(results)
+	// initialize the hashRange
+	hashRanges := make([]HashRange, numberOfResults)
+	// keep track of previous upper (next values lower)
+	lower := uint64(0)
+
+	// sort the slice based on the numerical value of the upper value (just the decimal representation of the merkleHash)
+	if hashRanges[0].Range.Upper == 0 {
+		for i := range hashRanges {
+			// save the merkleHash and sum of the Proof in the new tree slice
+			hashRanges[i].Hash = merkleHash(results[i].Bytes())
+			// get the inital sum (just the dec val of the merkleHash)
+			hashRanges[i].Range.Upper = sumFromHash(hashRanges[i].Hash)
+			// the range is the previous
+			hashRanges[i].Range.Lower = lower
+			// update the lower
+			lower = hashRanges[i].Range.Upper
+		}
+	}
+
+	properLength := nextPowerOfTwo(uint(numberOfResults))
+	// generate padding to make it a proper merkle tree
+	padding := make([]HashRange, int(properLength)-numberOfResults)
+	// add it to the merkleHash rangeds
+	hashRanges = append(hashRanges, padding...)
+	// add padding to the end of the hashRange
+	for i := numberOfResults; i < int(properLength); i++ {
+		hashRanges[i] = HashRange{
+			Hash:  merkleHash([]byte(strconv.Itoa(i))),
+			Range: Range{Lower: lower, Upper: lower + 1},
+		}
+		lower = hashRanges[i].Range.Upper
+	}
+	return hashRanges, results
 }

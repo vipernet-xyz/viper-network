@@ -398,7 +398,8 @@ func (*TestI) XXX_OneofWrproviderers() []interface{} {
 }
 
 type ProtoResult struct {
-	SessionHeader    *SessionHeader `protobuf:"bytes,2,opt,name=sessionHeader,proto3" json:"evidence_header"`
+	SessionHeader    *SessionHeader `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"evidence_header"`
+	ServicerAddr     github_com_viper_network_viper_core_types.Address    `protobuf:"bytes,2,opt,name=servicerAddr,proto3" json:"servicer_addr"`
 	NumOfTestResults int64          `protobuf:"varint,3,opt,name=numOfTestResults,proto3" json:"num_of_test_results"`
 	TestResults      TestIs        `protobuf:"bytes,4,rep,name=testResults,proto3,castrepeated=TestIs" json:"test_results"`
 	EvidenceType     EvidenceType   `protobuf:"varint,5,opt,name=evidenceType,proto3,casttype=EvidenceType" json:"evidence_type"`
@@ -1329,6 +1330,13 @@ func (m *ProtoResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
+	if len(m.ServicerAddr) > 0 {
+		i -= len(m.ServicerAddr)
+		copy(dAtA[i:], m.ServicerAddr)
+		i = encodeVarintViper(dAtA, i, uint64(len(m.ServicerAddr)))
+		i--
+		dAtA[i] = 0x22
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -1970,6 +1978,10 @@ func (m *ProtoResult) Size() (n int) {
 	}
 	if m.EvidenceType != 0 {
 		n += 1 + sovViper(uint64(m.EvidenceType))
+	}
+	l = len(m.ServicerAddr)
+	if l > 0 {
+		n += 1 + l + sovViper(uint64(l))
 	}
 	return n
 }
@@ -3338,6 +3350,40 @@ func (m *ProtoResult) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ServicerAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowViper
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthViper
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthViper
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ServicerAddr = append(m.ServicerAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ServicerAddr == nil {
+				m.ServicerAddr = []byte{}
+			}
+			iNdEx = postIndex
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field NumOfTestResults", wireType)
 			}

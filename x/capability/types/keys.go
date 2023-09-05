@@ -21,6 +21,9 @@ const (
 
 	// RouterKey is the message route for IBC transfer
 	RouterKey = ModuleName
+
+	// TStoreKey is the string transient store representation
+	TStoreKey = "transient_" + ModuleName
 )
 
 var (

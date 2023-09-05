@@ -15,6 +15,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	authkeeper "github.com/vipernet-xyz/viper-network/x/authentication/keeper"
 	capabilityKeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
+	capabilityTypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
@@ -22,7 +23,6 @@ import (
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 
-	//stakingKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
@@ -76,9 +76,9 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, viperTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, viperTypes.StoreKey, capabilityTypes.StoreKey)
 	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey, capabilityTypes.TStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -223,6 +223,7 @@ var (
 		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Minter, authentication.Staking},
 		servicersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
 		providersTypes.ModuleName:       nil,
+		capabilityTypes.ModuleName:      nil,
 		transferTypes.ModuleName:        {authentication.Burner, authentication.Minter},
 	}
 )

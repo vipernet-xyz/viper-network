@@ -25,11 +25,6 @@ var (
 	ErrNodeNotInSession = errors.New("node not in session")
 )
 
-// Signer interface representing signer functions necessary for Relayer Package
-type Signer interface {
-	Sign(payload []byte) (string, error)
-}
-
 // Relayer implementation of relayer interface
 type Relayer struct {
 	signer Signer
@@ -45,7 +40,7 @@ func NewRelayer(signer Signer, sender Sender) *Relayer {
 }
 
 func (r *Relayer) validateRelayRequest(input *Input) error {
-	if r.signer == nil {
+	if (r.signer == Signer{}) {
 		return ErrNoSigner
 	}
 

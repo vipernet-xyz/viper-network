@@ -1,8 +1,13 @@
 package keeper
 
 import (
+	"bytes"
+	rand1 "crypto/rand"
+	"encoding/gob"
 	"encoding/hex"
 	"fmt"
+	"math"
+	"math/big"
 	"math/rand"
 	"time"
 
@@ -31,7 +36,7 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	// Attach the signature in hex to the response.
 	resp.Signature = hex.EncodeToString(sig)
 
-	// If everything has gone well so far, call HandleFishermanRelay.
+	// If everything has gone well so far, call StartServicersSampling.
 	err := k.StartServicersSampling(ctx, trigger)
 	if err != nil {
 		return nil, err
@@ -40,7 +45,6 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	return resp, nil
 }
 
-// Rewrite the func, according to the specs
 func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger) sdk.Error {
 	// Get session information from the relay
 	sessionHeader := vc.SessionHeader{
@@ -84,8 +88,6 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 		servicerAddrStr := servicer.GetAddress().String()
 		results[servicerAddrStr] = &vc.ServicerResults{}
 	}
-
-	sampleRelayCount := 0
 	go func() {
 		ticker := time.NewTicker(time.Duration(10+rand.Intn(25)) * time.Second)
 		defer ticker.Stop() // Ensure to stop the ticker once done
@@ -96,6 +98,60 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 
 				// Check end conditions
 				if (ctx.BlockHeight()+int64(fishermanAddress[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
+					// Calculate and send QoS for each servicer after breaking the loop
+					for _, servicer := range actualServicers {
+						servicerResult := results[servicer.GetAddress().String()]
+
+						// Get proofs for the current servicer
+						proofs, err := k.GetProofsForServicer(ctx, sessionHeader, servicer.GetAddress(), fisherman.TestStore)
+						if err != nil {
+							fmt.Errorf("Sample Relay Proofs could not be fetched for %s", servicer)
+						}
+
+						// Use time and block height as seed for random selection
+						seed := time.Now().UnixNano() + int64(ctx.BlockHeight())
+						rng := rand.New(rand.NewSource(seed))
+						subsetSize := int(float64(len(proofs)) * 0.20) // Take 20% of total relays
+
+						if len(proofs) > int(subsetSize) {
+							vc.Shuffle(proofs, rng)
+							proofs = proofs[:subsetSize]
+						}
+						// Convert proofs into a Result structure for Merkle Root generation
+						resultForMerkle := &vc.Result{
+							SessionHeader:    sessionHeader,
+							ServicerAddr:     servicer.GetAddress(),
+							NumOfTestResults: int64(len(proofs)),
+							TestResults:      proofs,
+							EvidenceType:     vc.FishermanTestEvidence, // You'll need to define the specific type
+						}
+
+						// Generate Merkle Root using the Result structure
+						merkleRoot := resultForMerkle.GenerateSampleMerkleRoot(sessionHeader.SessionBlockHeight, fisherman.TestStore)
+
+						// Assuming your QoS report has a field for the Merkle Root
+						qos, err := vc.CalculateQoSForServicer(servicerResult, sessionHeader.SessionBlockHeight)
+						qos.SampleRoot = merkleRoot
+						if err != nil {
+							fmt.Errorf("QoS Report could not be created for %s", servicer)
+						}
+						//Generate nonce
+						nonce, err := rand1.Int(rand1.Reader, big.NewInt(math.MaxInt64))
+						if err != nil {
+							return
+						}
+						qos.Nonce = nonce.Int64()
+						signer, _ := vc.NewSigner(fishermanValidator)
+						// Sign the QoS report
+						qos.Signature, err = k.SignQoSReport(signer, qos)
+						if err != nil {
+							fmt.Errorf("QoS Report could not be signed")
+						}
+
+						// Send the QoS to the servicer.
+						k.sendQoSToServicer(ctx, servicer, qos)
+					}
+
 					return
 				}
 
@@ -130,9 +186,6 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 
 					testResult.Store(sessionHeader, fisherman.TestStore)
 				}
-
-				sampleRelayCount++
-
 			}
 		}
 	}()
@@ -148,4 +201,51 @@ func anyTrue(booleans []bool) bool {
 		}
 	}
 	return false
+}
+
+func (k Keeper) GetProofsForServicer(ctx sdk.Ctx, header vc.SessionHeader, servicerAddr sdk.Address, testStore *vc.CacheStorage) ([]vc.Test, error) {
+	var proofs []vc.Test
+	keyPrefix, err := vc.KeyForTestResult(header, vc.FishermanTestEvidence, servicerAddr)
+	if err != nil {
+		return nil, err
+	}
+	const maxResultSize = 1024
+	iterator, _ := testStore.Iterator()
+	for ; iterator.Valid(); iterator.Next() {
+		// Check if key starts with keyPrefix
+		if bytes.HasPrefix(iterator.Key(), keyPrefix) {
+			var result vc.Result
+			err := vc.ModuleCdc.UnmarshalBinaryBare(iterator.Value(), &result, maxResultSize)
+			if err == nil {
+				proofs = append(proofs, result.TestResults...)
+			}
+		}
+	}
+	return proofs, nil
+}
+
+func (k Keeper) sendQoSToServicer(ctx sdk.Ctx, servicer exported.ValidatorI, qos *vc.ViperQoSReport) error {
+	// Logic to send QoS to the servicer. This will be chain specific.
+	// For now, a placeholder. You would replace this with actual logic.
+	return nil
+}
+
+func init() {
+	gob.Register(vc.ViperQoSReport{})
+}
+
+func (k Keeper) SignQoSReport(signer *vc.Signer, report *vc.ViperQoSReport) (string, error) {
+
+	// Create a bytes.Buffer to hold our encoded data
+	var buf bytes.Buffer
+	// Create a new GOB encoder that writes to the buffer
+	enc := gob.NewEncoder(&buf)
+
+	// Encode the report
+	err := enc.Encode(report)
+	if err != nil {
+		return "", err
+	}
+
+	return signer.Sign(buf.Bytes())
 }
