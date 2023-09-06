@@ -26,8 +26,7 @@ type Keeper struct {
 	// codespace
 	codespace sdk.CodespaceType
 	// Cache
-	ProviderCache      *sdk.Cache
-	stakingKeyStoreKey sdk.StoreKey
+	ProviderCache *sdk.Cache
 }
 
 // NewKeeper creates a new staking Keeper instance

@@ -153,6 +153,70 @@ func (*MsgDAOTransfer) XXX_MessageName() string {
 	return "x.governance.MsgDAOTransfer"
 }
 
+type MsgGenerateDiscountKey struct {
+	FromAddress github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=fromAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"from_address"`
+	ToAddress   github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=toAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"to_address"`
+	DiscountKey string                                            `protobuf:"bytes,3,opt,name=discountKey,proto3" json:"discount_key"`
+}
+
+func (m *MsgGenerateDiscountKey) Reset()         { *m = MsgGenerateDiscountKey{} }
+func (m *MsgGenerateDiscountKey) String() string { return proto.CompactTextString(m) }
+func (*MsgGenerateDiscountKey) ProtoMessage()    {}
+func (*MsgGenerateDiscountKey) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8366cfab811ef854, []int{1}
+}
+func (m *MsgGenerateDiscountKey) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgGenerateDiscountKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgGenerateDiscountKey.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgGenerateDiscountKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgGenerateDiscountKey.Merge(m, src)
+}
+func (m *MsgGenerateDiscountKey) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgGenerateDiscountKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgGenerateDiscountKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgGenerateDiscountKey proto.InternalMessageInfo
+
+func (m *MsgGenerateDiscountKey) GetFromAddress() github_com_viper_network_viper_core_types.Address {
+	if m != nil {
+		return m.FromAddress
+	}
+	return nil
+}
+
+func (m *MsgGenerateDiscountKey) GetToAddress() github_com_viper_network_viper_core_types.Address {
+	if m != nil {
+		return m.ToAddress
+	}
+	return nil
+}
+
+func (m *MsgGenerateDiscountKey) GeDiscountKey() string {
+	if m != nil {
+		return m.DiscountKey
+	}
+	return ""
+}
+
+func (*MsgGenerateDiscountKey) XXX_MessageName() string {
+	return "x.governance.MsgGenerateDiscountKey"
+}
+
 type MsgUpgrade struct {
 	Address github_com_viper_network_viper_core_types.Address `protobuf:"bytes,1,opt,name=address,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"address"`
 	Upgrade Upgrade                                           `protobuf:"bytes,2,opt,name=upgrade,proto3" json:"upgrade"`
@@ -335,6 +399,7 @@ func init() {
 	proto.RegisterType((*MsgUpgrade)(nil), "x.governance.MsgUpgrade")
 	proto.RegisterType((*Upgrade)(nil), "x.governance.Upgrade")
 	proto.RegisterType((*ACLPair)(nil), "x.governance.ACLPair")
+	proto.RegisterType((*MsgGenerateDiscountKey)(nil), "x.governance.MsgGenerateDiscountKey")
 }
 
 func init() { proto.RegisterFile("x/governance/governance.proto", fileDescriptor_8366cfab811ef854) }
@@ -460,6 +525,35 @@ func (m *MsgDAOTransfer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x1a
+	if len(m.ToAddress) > 0 {
+		i -= len(m.ToAddress)
+		copy(dAtA[i:], m.ToAddress)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.ToAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.FromAddress) > 0 {
+		i -= len(m.FromAddress)
+		copy(dAtA[i:], m.FromAddress)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.FromAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgGenerateDiscountKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.DiscountKey) > 0 {
+		i -= len(m.DiscountKey)
+		copy(dAtA[i:], m.DiscountKey)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.DiscountKey)))
+		i--
+		dAtA[i] = 0x22
+	}
 	if len(m.ToAddress) > 0 {
 		i -= len(m.ToAddress)
 		copy(dAtA[i:], m.ToAddress)
@@ -642,6 +736,27 @@ func (m *MsgDAOTransfer) Size() (n int) {
 	l = m.Amount.Size()
 	n += 1 + l + sovGov(uint64(l))
 	l = len(m.Action)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgGenerateDiscountKey) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FromAddress)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	l = len(m.ToAddress)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	l = len(m.DiscountKey)
 	if l > 0 {
 		n += 1 + l + sovGov(uint64(l))
 	}
@@ -1026,6 +1141,159 @@ func (m *MsgDAOTransfer) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Action = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGov(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthGov
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthGov
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgGenerateDiscountKey) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGov
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgGenerateDiscountKey: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgGenerateDiscountKey: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FromAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FromAddress = append(m.FromAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.FromAddress == nil {
+				m.FromAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ToAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ToAddress = append(m.ToAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.ToAddress == nil {
+				m.ToAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Discount Key", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DiscountKey = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

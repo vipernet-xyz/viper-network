@@ -16,14 +16,15 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterStructure(LegacyMsgUnjail{}, "pos/MsgUnjail")
 	cdc.RegisterStructure(MsgSend{}, "pos/Send")
 	cdc.RegisterStructure(LegacyMsgStake{}, "pos/MsgStake")
-	cdc.RegisterStructure(MsgUnjail{}, "pos/8.0MsgUnjail")
-	cdc.RegisterStructure(MsgBeginUnstake{}, "pos/8.0MsgBeginUnstake")
-	cdc.RegisterStructure(MsgProtoStake{}, "pos/8.0MsgProtoStake")
-	cdc.RegisterStructure(MsgStake{}, "pos/8.0MsgStake")
+	cdc.RegisterStructure(MsgUnjail{}, "pos/MsgUnjail")
+	cdc.RegisterStructure(MsgBeginUnstake{}, "pos/MsgBeginUnstake")
+	cdc.RegisterStructure(MsgProtoStake{}, "pos/MsgProtoStake")
+	cdc.RegisterStructure(MsgStake{}, "pos/MsgStake")
+	cdc.RegisterStructure(MsgPause{}, "pos/MsgPause")
 	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgUnjail{}, &MsgBeginUnstake{}, &MsgSend{}, &MsgStake{},
-		&LegacyMsgUnjail{}, &LegacyMsgBeginUnstake{}, &LegacyMsgStake{})
+		&LegacyMsgUnjail{}, &LegacyMsgBeginUnstake{}, &LegacyMsgStake{}, &MsgPause{}, &MsgUnpause{})
 	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgUnjail{}, &MsgBeginUnstake{}, &MsgSend{}, &MsgStake{},
-		&LegacyMsgUnjail{}, &LegacyMsgBeginUnstake{}, &LegacyMsgStake{})
+		&LegacyMsgUnjail{}, &LegacyMsgBeginUnstake{}, &LegacyMsgStake{}, &MsgPause{}, &MsgUnpause{})
 	cdc.RegisterInterface("servicers/validatorI", (*exported.ValidatorI)(nil), &Validator{}, &LegacyValidator{})
 	ModuleCdc = cdc
 }

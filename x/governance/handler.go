@@ -54,6 +54,24 @@ func handleMsgUpgrade(ctx sdk.Ctx, msg types.MsgUpgrade, k keeper.Keeper) sdk.Re
 	return k.HandleUpgrade(ctx, types.NewACLKey(ModuleName, string(types.UpgradeKey)), msg.Upgrade, msg.Address)
 }
 
+// HandleMsgGenerateDiscountKey processes MsgGenerateDiscountKey
+func HandleMsgGenerateDiscountKey(ctx sdk.Context, k keeper.Keeper, msg types.MsgGenerateDiscountKey) (*sdk.Result, error) {
+	// Check if a discount key already exists for the given address
+	if k.HasDiscountKey(ctx, msg.ToAddress) {
+		return nil, sdk.ErrInternal(fmt.Sprintf("Discount Key already exists for address %s", msg.ToAddress))
+	}
+
+	// Store the generated discount key in the state using the keeper
+	err := k.SetDiscountKey(ctx, msg.ToAddress, msg.DiscountKey)
+	if err != nil {
+		return nil, sdk.ErrInternal(fmt.Sprintf("Failed to set discount key: %s", err.Error()))
+	}
+
+	return &sdk.Result{
+		Events: ctx.EventManager().ABCIEvents(),
+	}, nil
+}
+
 // Content defines an interface that a proposal must implement. It contains
 // information such as the title and description along with the type and routing
 // information for the appropriate handler to process the proposal. Content can

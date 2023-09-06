@@ -43,7 +43,7 @@ func setupTestInput() testInput {
 	ak := NewKeeper(
 		cdc, authCapKey, akSubspace, nil,
 	)
-	governanceKeeper.NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, governanceTypes.DefaultCodespace, ak, akSubspace)
+	governanceKeeper.NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, sdk.ParamsKey, governanceTypes.DefaultCodespace, ak, akSubspace)
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 	ak.SetParams(ctx, authTypes.DefaultParams())
 	return testInput{Keeper: ak, cdc: cdc, ctx: ctx}

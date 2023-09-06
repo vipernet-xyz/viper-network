@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	"github.com/vipernet-xyz/viper-network/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 
@@ -22,7 +21,7 @@ func init() {
 	governanceCmd.AddCommand(governanceChangeParam)
 	governanceCmd.AddCommand(governanceUpgrade)
 	governanceCmd.AddCommand(governanceFeatureEnable)
-	governanceCmd.AddCommand(governanceGenerateStakingKey)
+	governanceCmd.AddCommand(governanceGenDiscountKey)
 }
 
 var governanceCmd = &cobra.Command{
@@ -253,50 +252,41 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 	},
 }
 
-var governanceGenerateStakingKey = &cobra.Command{
-	Use:   "genstakingkey <fromAddr> <toAddr> <networkID> <fees>",
-	Short: "generate staking key",
-	Long: `If authorized, generate the staking key for the client.
-Will prompt the user for the <fromAddr> account passphrase and <toAddr>.`,
-	Args: cobra.ExactArgs(4),
-	Run: func(cmd *cobra.Command, args []string) {
+var governanceGenDiscountKey = &cobra.Command{
+	Use:   "gendiscountkey <fromAddr> <toAddr> <chainID> <fees>",
+	Short: "DAO generates a discount key for a provider",
+	Long:  `Only the DAO owner can use this to generate a unique discount key for a specific provider for network usage discounts.`,
+	Args:  cobra.ExactArgs(4),
+	RunE: func(cmd *cobra.Command, args []string) error {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
-		var toAddr string
-		if len(args) == 3 {
-			toAddr = args[1]
-		}
+
 		fromAddr := args[0]
+		toAddr := args[1]
+		chainID := args[2]
 		fees, err := strconv.Atoi(args[3])
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
-		fmt.Println("Enter Password: ")
-		pass := app.Credentials(pwd)
-		kb := keys.New(app.GlobalConfig.ViperConfig.KeybaseName, app.GlobalConfig.ViperConfig.DataDir)
-		input := fromAddr + toAddr + pass
-		kp, err := kb.Create(input)
+
+		fmt.Println("Enter DAO Owner's Password: ")
+		passphrase := app.Credentials(pwd)
+
+		// Generate and broadcast the discount key message
+		key, res, err := GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID, int64(fees), false)
 		if err != nil {
-			fmt.Printf("StakingKey generation Failed, %s", err)
-			return
+			return err
 		}
-		res, err := stakingKeyTx(string(kp.GetAddress()), toAddr, pass, args[2], int64(fees), false)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Printf("StakingKey generated successfully:\nStakingKey: %s\n", kp.PublicKey)
+
 		j, err := json.Marshal(res)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 		resp, err := QueryRPC(SendRawTxPath, j)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
-		fmt.Println(resp)
-		fmt.Printf("StakingKey generated successfully:\nStakingKey: %s\n", kp.PublicKey)
+		fmt.Println("Broadcast result:", resp)
+		fmt.Println("Generated Discount Key:", key)
+		return nil
 	},
 }

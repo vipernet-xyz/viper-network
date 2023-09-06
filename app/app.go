@@ -106,6 +106,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.cdc,
 		app.Keys[viperTypes.StoreKey],
 		app.Tkeys[viperTypes.StoreKey],
+		app.Keys[viperTypes.StoreKey],
 		governanceTypes.DefaultCodespace,
 		app.accountKeeper,
 		authSubspace, servicersSubspace, providersSubspace, viperSubspace, transferSubspace, capabilitySubspace,

@@ -1,12 +1,10 @@
 package keeper
 
 import (
-	"fmt"
 	"math"
 	"math/big"
 	"os"
 
-	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
@@ -172,23 +170,3 @@ func (k Keeper) CalculateProviderRelays(ctx sdk.Ctx, provider types.Provider) sd
 }
 
 // RelaysPerStakedVIPR = VIPR price(30 day avg.) / (USD relay target * Sessions/Day * Average days per month * ROI target)
-
-// SetStakingKey sets the staking key for the given address in the module's state.
-func (k Keeper) SetStakingKey(ctx sdk.Ctx, address sdk.Address, stakingKey crypto.PublicKey) {
-	store := ctx.KVStore(k.stakingKeyStoreKey)
-	key := []byte(address.String())
-
-	// Store the staking key in the state
-	store.Set(key, []byte(stakingKey.String()))
-}
-
-func (k Keeper) GetStakingKey(ctx sdk.Ctx, address sdk.Address) (string, error) {
-	store := ctx.KVStore(k.stakingKeyStoreKey)
-	key := []byte(address.String())
-	res, _ := store.Has(key)
-	if !res {
-		return "", fmt.Errorf("staking key not found for address: %s", address.String())
-	}
-	value, _ := store.Get(key)
-	return string(value), nil
-}

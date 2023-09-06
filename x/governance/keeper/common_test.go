@@ -84,7 +84,7 @@ func createTestKeeperAndContext(t *testing.T, isCheckTx bool) (sdk.Ctx, Keeper) 
 	akSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	ak := keeper.NewKeeper(cdc, keyAcc, akSubspace, maccPerms)
 	ak.GetModuleAccount(ctx, "FAKE")
-	pk := NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, governanceTypes.DefaultParamspace, ak, akSubspace)
+	pk := NewKeeper(cdc, sdk.ParamsKey, sdk.ParamsTKey, sdk.ParamsKey, governanceTypes.DefaultParamspace, ak, akSubspace)
 	moduleManager := module.NewManager(
 		authentication.NewAppModule(ak),
 	)

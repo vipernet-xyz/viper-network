@@ -1,10 +1,13 @@
 package cli
 
 import (
+	rand1 "crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/codec"
@@ -457,42 +460,6 @@ func newTxBz(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, chainID s
 	return authentication.DefaultTxEncoder(cdc)(tx, -1)
 }
 
-func stakingKeyTx(fromAddr, toAddr, passphrase string, chainID string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
-	fa, err := sdk.AddressFromHex(fromAddr)
-	if err != nil {
-		return nil, err
-	}
-	ta, err := sdk.AddressFromHex(toAddr)
-	if err != nil {
-		return nil, err
-	}
-	kb, err := app.GetKeybase()
-	if err != nil {
-		return nil, err
-	}
-	kp, err := kb.Get(fa)
-	if err != nil {
-		return nil, err
-	}
-	sk := kp.PublicKey
-	msg := providersType.MsgStakingKey{
-		Address:    ta,
-		StakingKey: sk,
-	}
-	err = msg.ValidateBasic()
-	if err != nil {
-		return nil, err
-	}
-	txBz, err := newTxBz(app.Codec(), &msg, fa, chainID, kb, passphrase, fees, "", legacyCodec)
-	if err != nil {
-		return nil, err
-	}
-	return &rpc.SendRawTxParams{
-		Addr:        fromAddr,
-		RawHexBytes: hex.EncodeToString(txBz),
-	}, nil
-}
-
 // PauseNode - Pause servicer
 func PauseNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
@@ -556,4 +523,73 @@ func UnpauseNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64)
 		Addr:        fromAddr,
 		RawHexBytes: hex.EncodeToString(txBz),
 	}, nil
+}
+
+func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fees int64, legacyCodec bool) (string, *rpc.SendRawTxParams, error) {
+	fa, err := sdk.AddressFromHex(fromAddr)
+	if err != nil {
+		return "", nil, err
+	}
+	ta, err := sdk.AddressFromHex(toAddr)
+	if err != nil {
+		return "", nil, err
+	}
+	kb, err := app.GetKeybase()
+	if err != nil {
+		return "", nil, err
+	}
+
+	// Generating a unique DiscountKey
+	discountKey := generateUniqueDiscountKey(toAddr)
+
+	msg := governanceTypes.MsgGenerateDiscountKey{
+		FromAddress: fa,
+		ToAddress:   ta,
+		DiscountKey: discountKey,
+	}
+
+	err = msg.ValidateBasic()
+	if err != nil {
+		return "", nil, err
+	}
+
+	txBz, err := newTxBz(app.Codec(), &msg, fa, chainID, kb, passphrase, fees, "", legacyCodec)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return discountKey, &rpc.SendRawTxParams{
+		Addr:        fromAddr,
+		RawHexBytes: hex.EncodeToString(txBz),
+	}, nil
+}
+
+// This function would generate a unique key for discounts.
+func generateUniqueDiscountKey(providerAddr string) string {
+	// Concatenate provider address and current time
+	baseString := fmt.Sprintf("%s-%d", providerAddr, time.Now().UnixNano())
+
+	// Add a nonce for additional randomness
+	nonce := generateNonce(16) // 16 bytes random data
+
+	// Concatenate the nonce to the base string
+	finalString := baseString + nonce
+
+	// Hash the final string
+	hashed := sha256.Sum256([]byte(finalString))
+
+	// Return the hex representation of the hash
+	return hex.EncodeToString(hashed[:])
+}
+
+// generateNonce creates a random string of the given length.
+func generateNonce(length int) string {
+	nonce := make([]byte, length)
+	_, err := rand1.Read(nonce)
+	if err != nil {
+		// Handle the error. Here we're just returning a fixed string, but
+		// you might want to handle it differently in production code.
+		return "ErrorGeneratingNonce"
+	}
+	return hex.EncodeToString(nonce)
 }

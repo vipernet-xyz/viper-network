@@ -12,9 +12,10 @@ var (
 )
 
 const (
-	MsgDAOTransferName = "dao_tranfer"
-	MsgChangeParamName = "change_param"
-	MsgUpgradeName     = "upgrade"
+	MsgDAOTransferName         = "dao_tranfer"
+	MsgChangeParamName         = "change_param"
+	MsgUpgradeName             = "upgrade"
+	MsgGenerateDiscountKeyName = "generate_discount_key"
 )
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -117,6 +118,57 @@ func (msg MsgDAOTransfer) ValidateBasic() sdk.Error {
 	}
 	if daoAction == DAOTransfer && msg.ToAddress == nil {
 		return sdk.ErrInvalidAddress("nil to address")
+	}
+	return nil
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// MsgGenerateDiscountKey structure for generating a discount key for a provider
+//type MsgGenerateDiscountKey struct {
+//	FromAddress sdk.Address `json:"from_address"`
+//	ToAddress   sdk.Address `json:"to_address"`
+//	DiscountKey string      `json:"discount_key"`
+//}
+
+// Route provides router key for msg
+func (msg MsgGenerateDiscountKey) Route() string { return RouterKey }
+
+// Type provides msg name
+func (msg MsgGenerateDiscountKey) Type() string { return MsgGenerateDiscountKeyName }
+
+// GetFee get fee for msg
+// This assumes you have a similar GovFeeMap mechanism for determining fees
+func (msg MsgGenerateDiscountKey) GetFee() sdk.BigInt {
+	return sdk.NewInt(GovFeeMap[msg.Type()])
+}
+
+// GetSigners return address(es) that must sign over msg.GetSignBytes()
+func (msg MsgGenerateDiscountKey) GetSigners() []sdk.Address {
+	return []sdk.Address{msg.FromAddress}
+}
+
+// GetSignBytes returns the message bytes to sign over.
+func (msg MsgGenerateDiscountKey) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetSigners return address(es) that must sign over msg.GetSignBytes()
+func (msg MsgGenerateDiscountKey) GetRecipient() sdk.Address {
+	return nil
+}
+
+// ValidateBasic quick validity check
+func (msg MsgGenerateDiscountKey) ValidateBasic() sdk.Error {
+	if msg.FromAddress == nil {
+		return sdk.ErrInvalidAddress("nil from address")
+	}
+	if msg.ToAddress == nil {
+		return sdk.ErrInvalidAddress("nil to address")
+	}
+	if len(msg.DiscountKey) == 0 {
+		return sdk.ErrUnknownRequest("Discount Key cannot be empty")
 	}
 	return nil
 }

@@ -153,58 +153,10 @@ func (*MsgUnjail) XXX_MessageName() string {
 	return "x.providers.MsgUnjail"
 }
 
-type MsgProtoStakingKey struct{
-	Address   github_com_viper_network_viper_core_types.Address `protobuf:"bytes,2,opt,name=toAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"to_address"`
-	PubKey    []byte                                            `protobuf:"bytes,3,opt,name=pub_key,json=pubKey,proto3" json:"pubkey" yaml:"pubkey"`
-}
-func (m *MsgProtoStakingKey) Reset()         { *m = MsgProtoStakingKey{} }
-func (m *MsgProtoStakingKey) String() string { return proto.CompactTextString(m) }
-func (*MsgProtoStakingKey) ProtoMessage()    {}
-func (*MsgProtoStakingKey) Descriptor() ([]byte, []int) {
-	return fileDescriptor_fd58e5eb64f87460, []int{1}
-}
-func (m *MsgProtoStakingKey) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgProtoStakingKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgProtoStakingKey.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgProtoStakingKey) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgProtoStakingKey.Merge(m, src)
-}
-func (m *MsgProtoStakingKey) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgProtoStakingKey) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgProtoStakingKey.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgProtoStakingKey proto.InternalMessageInfo
-
-func (m *MsgProtoStakingKey) GetAddress() github_com_viper_network_viper_core_types.Address {
-	if m != nil {
-		return m.Address
-	}
-	return nil
-}
-
-func (*MsgProtoStakingKey) XXX_MessageName() string {
-	return "x.providers.MsgProtoStakingKey"
-}
 func init() {
 	proto.RegisterType((*MsgProtoStake)(nil), "x.providers.MsgProtoStake")
 	proto.RegisterType((*MsgBeginUnstake)(nil), "x.providers.MsgBeginUnstake")
 	proto.RegisterType((*MsgUnjail)(nil), "x.providers.MsgUnjail")
-	proto.RegisterType((*MsgProtoStakingKey)(nil), "x.providers.MsgProtoStakingKey")
 }
 
 func init() { proto.RegisterFile("x/providers/msg.proto", fileDescriptor_fd58e5eb64f87460) }
@@ -455,35 +407,6 @@ func (m *MsgUnjail) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	return len(dAtA) - i, nil
 }
-
-func (m *MsgProtoStakingKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.PubKey) > 0 {
-		i -= len(m.PubKey)
-		copy(dAtA[i:], m.PubKey)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.PubKey)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.PubKey) > 0 {
-		i -= len(m.PubKey)
-		copy(dAtA[i:], m.PubKey)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.PubKey)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintMsg(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
 func encodeVarintMsg(dAtA []byte, offset int, v uint64) int {
 	offset -= sovMsg(v)
 	base := offset
@@ -544,23 +467,6 @@ func (m *MsgUnjail) Size() (n int) {
 	var l int
 	_ = l
 	l = len(m.ProviderAddr)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgProtoStakingKey) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovMsg(uint64(l))
-	}
-	l = len(m.PubKey)
 	if l > 0 {
 		n += 1 + l + sovMsg(uint64(l))
 	}
@@ -931,127 +837,6 @@ func (m *MsgUnjail) Unmarshal(dAtA []byte) error {
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMsg(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthMsg
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgProtoStakingKey) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowMsg
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgChangeParam: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgChangeParam: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FromAddress", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrIntOverflowMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrIntOverflowMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = append(m.Address[:0], dAtA[iNdEx:postIndex]...)
-			if m.Address == nil {
-				m.Address = []byte{}
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ParamVal", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrIntOverflowMsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrIntOverflowMsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.PubKey = append(m.PubKey[:0], dAtA[iNdEx:postIndex]...)
-			if m.PubKey == nil {
-				m.PubKey = []byte{}
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipProviders(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
