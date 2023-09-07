@@ -7,7 +7,7 @@ option go_package = "github.com/vipernet-xyz/viper-network/x/servicers/types";
 
 message MsgProtoStake {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes Publickey = 1 [(gogoproto.moretags) = "yaml:\"public_key\"", (gogoproto.jsontag) = "public_key"];
@@ -19,8 +19,8 @@ message MsgProtoStake {
 		(gogoproto.moretags) = "yaml:\"value\""];
 	string ServiceUrl = 4 [(gogoproto.moretags) = "yaml:\"service_url\"", (gogoproto.jsontag) = "service_url"];
 	string GeoZone = 5 [
-		(gogoproto.jsontag) = "geo_zones",
-		(gogoproto.moretags) = "yaml:\"geo_zones\""];	
+		(gogoproto.jsontag) = "geo_zone",
+		(gogoproto.moretags) = "yaml:\"geo_zone\""];	
 	bytes OutputAddress = 6 [
 		(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address",
 		(gogoproto.jsontag) = "output_address,omitempty",
@@ -30,7 +30,7 @@ message MsgProtoStake {
 
 message LegacyMsgProtoStake {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes Publickey = 1 [(gogoproto.moretags) = "yaml:\"public_key\"", (gogoproto.jsontag) = "public_key"];
@@ -42,13 +42,13 @@ message LegacyMsgProtoStake {
 		(gogoproto.moretags) = "yaml:\"value\""];
 	string ServiceUrl = 4 [(gogoproto.moretags) = "yaml:\"service_url\"", (gogoproto.jsontag) = "service_url"];
 	string GeoZone = 5 [
-		(gogoproto.jsontag) = "geo_zones",
-		(gogoproto.moretags) = "yaml:\"geo_zones\""];	
+		(gogoproto.jsontag) = "geo_zone",
+		(gogoproto.moretags) = "yaml:\"geo_zone\""];	
 }
 
 message MsgBeginUnstake {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes Address = 1 [
@@ -65,7 +65,7 @@ message MsgBeginUnstake {
 
 message LegacyMsgBeginUnstake {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes Address = 1 [
@@ -77,7 +77,7 @@ message LegacyMsgBeginUnstake {
 
 message MsgUnjail {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes ValidatorAddr = 1 [
@@ -94,7 +94,7 @@ message MsgUnjail {
 
 message LegacyMsgUnjail {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes ValidatorAddr = 1 [
@@ -107,7 +107,7 @@ message LegacyMsgUnjail {
 message MsgSend {
 	option (gogoproto.messagename) = true;
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 
 
 	bytes FromAddress = 1 [
@@ -129,7 +129,7 @@ message MsgSend {
 
 message MsgPause {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 	
     bytes ValidatorAddr = 1 [
@@ -145,7 +145,7 @@ message MsgPause {
 
 message MsgUnpause {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 	
     bytes ValidatorAddr = 1 [

@@ -2,6 +2,8 @@ syntax = "proto3";
 package x.vipernet;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
 
 option go_package = "github.com/vipernet-xyz/viper-network/x/vipernet/types";
 
@@ -9,7 +11,7 @@ option go_package = "github.com/vipernet-xyz/viper-network/x/vipernet/types";
 message SessionHeader {
 	option (gogoproto.goproto_getters) = false;
 
-	string applicationPubKey = 1 [(gogoproto.jsontag) = "app_public_key"];
+	string providerPubKey = 1 [(gogoproto.jsontag) = "provider_public_key"];
 	string chain = 2 [(gogoproto.jsontag) = "chain"];
 	string geoZone = 3 [(gogoproto.jsontag) = "geo_zone"];
 	int32 numServicers = 4 [(gogoproto.jsontag) = "num_servicers"];
@@ -22,6 +24,7 @@ message Session {
 	SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "header", (gogoproto.nullable) = false];
 	bytes sessionKey = 2 [(gogoproto.jsontag) = "key", (gogoproto.casttype) = "SessionKey"];
 	repeated bytes sessionServicers = 3 [(gogoproto.jsontag) = "servicers", (gogoproto.castrepeated) = "SessionServicers"];
+	repeated bytes sessionFishermen = 4 [(gogoproto.jsontag) = "fishermen", (gogoproto.castrepeated) = "SessionFishermen"];
 }
 
 message MsgClaim {
@@ -42,7 +45,7 @@ message MsgProtoProof {
 
 	MerkleProof merkleProof = 1 [(gogoproto.jsontag) = "merkle_proofs", (gogoproto.nullable) = false];
 	ProofI leaf = 2 [(gogoproto.jsontag) = "leaf", (gogoproto.nullable) = false];
-	int32 evidenceType = 3 [(gogoproto.jsontag) = "evidence_type", (gogoproto.casttype) = "EvidenceType"];
+    int32 evidenceType = 3 [(gogoproto.jsontag) = "evidence_type", (gogoproto.casttype) = "EvidenceType"];
 }
 
 message ProofI {
@@ -97,9 +100,9 @@ message RelayResponse {
 message AAT {
 	option (gogoproto.goproto_getters) = false;
 	string version = 1 [(gogoproto.jsontag) = "version"];
-	string applicationPublicKey = 2 [(gogoproto.jsontag) = "app_pub_key"];
+	string providerPublicKey = 2 [(gogoproto.jsontag) = "provider_pub_key"];
 	string clientPublicKey = 3 [(gogoproto.jsontag) = "client_pub_key"];
-	string applicationSignature = 4 [(gogoproto.jsontag) = "signature"];
+	string providerSignature = 4 [(gogoproto.jsontag) = "signature"];
 }
 
 message MerkleProof {
@@ -121,4 +124,58 @@ message Range {
 message HashRange {
 	bytes hash = 1 [(gogoproto.jsontag) = "merkleHash"];
 	Range range = 2 [(gogoproto.jsontag) = "range", (gogoproto.nullable) = false];
+}
+
+message TestResult {
+    option (gogoproto.messagename) = true;
+    option (gogoproto.goproto_getters) = false;
+
+    bytes servicerAddress = 1 [(gogoproto.jsontag) = "servicer_address", 
+                               (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
+    google.protobuf.Timestamp timestamp = 2 [(gogoproto.jsontag) = "timestamp",
+                                            (gogoproto.stdtime) = true,
+                                            (gogoproto.nullable) = false];
+    google.protobuf.Duration latency = 3 [(gogoproto.jsontag) = "latency",
+                                          (gogoproto.stdduration) = true,
+                                          (gogoproto.nullable) = false];
+    bool isAvailable = 4 [(gogoproto.jsontag) = "is_available"];
+}
+
+message TestI {
+    option (gogoproto.goproto_getters) = false;
+
+    oneof test {
+        TestResult testResult = 1;
+    }
+}
+
+message ProtoResult {
+    option (gogoproto.goproto_getters) = false;
+
+    SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "evidence_header", (gogoproto.nullable) = true];
+    bytes servicerAddr = 2 [(gogoproto.jsontag) = "servicer_addr", 
+                            (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
+    int64 numOfTestResults = 3 [(gogoproto.jsontag) = "num_of_test_results"];
+    repeated TestI testResults = 4 [(gogoproto.jsontag) = "test_results", (gogoproto.castrepeated) = "TestIs"];
+    int32 evidenceType = 5 [(gogoproto.jsontag) = "evidence_type", (gogoproto.casttype) = "EvidenceType"];
+}
+
+message ViperQoSReport {
+    option (gogoproto.messagename) = true;
+    option (gogoproto.goproto_getters) = false;
+
+    google.protobuf.Timestamp FirstSampleTimestamp = 1 [(gogoproto.jsontag) = "first_sample_timestamp",
+                                                       (gogoproto.stdtime) = true,
+                                                       (gogoproto.nullable) = false];
+    int64 BlockHeight = 2 [(gogoproto.jsontag) = "block_height"];
+    string LatencyScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+                             (gogoproto.jsontag) = "latency_score", 
+                             (gogoproto.nullable) = false];
+    string AvailabilityScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+                                  (gogoproto.jsontag) = "availability_score", 
+                                  (gogoproto.nullable) = false];
+    HashRange SampleRoot = 5 [(gogoproto.jsontag) = "sample_root", 
+                              (gogoproto.nullable) = false];
+    int64 Nonce = 6 [(gogoproto.jsontag) = "nonce"];
+    string Signature = 7 [(gogoproto.jsontag) = "signature"];
 }

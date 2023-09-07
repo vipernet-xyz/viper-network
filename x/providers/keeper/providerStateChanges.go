@@ -18,7 +18,7 @@ func (k Keeper) ValidateProviderStaking(ctx sdk.Ctx, provider types.Provider, am
 	if int64(len(provider.Chains)) > k.MaxChains(ctx) {
 		return types.ErrTooManyChains(types.ModuleName)
 	}
-	if provider.NumServicers < int8(k.MinNumServicers(ctx)) || provider.NumServicers > int8(k.MaxNumServicers(ctx)) {
+	if provider.NumServicers < int32(k.MinNumServicers(ctx)) || provider.NumServicers > int32(k.MaxNumServicers(ctx)) {
 		return types.ErrNumServicers(types.ModuleName)
 	}
 	// attempt to get the provider from the world state

@@ -179,16 +179,6 @@ func Shuffle(proofs []Test, rng *rand.Rand) {
 	}
 }
 
-type ViperQoSReport struct {
-	FirstSampleTimestamp time.Time  `json:"first_sample_timestamp"`
-	BlockHeight          int64      `json:"block_height"`
-	LatencyScore         sdk.BigDec `json:"latency_score"`
-	AvailabilityScore    sdk.BigDec `json:"availability_score"`
-	SampleRoot           HashRange  `json:"sample_root"`
-	Nonce                int64      `json:"nonce"`
-	Signature            string     `json:"signature"`
-}
-
 func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*ViperQoSReport, error) {
 	expectedLatency := CalculateExpectedLatency(globalRPCTimeout)
 

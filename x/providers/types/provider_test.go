@@ -24,7 +24,7 @@ func TestNewProvider(t *testing.T) {
 		tokensToStake sdk.BigInt
 		chains        []string
 		geoZone       []string
-		numServicers  int8
+		numServicers  int32
 		serviceURL    string
 	}
 	var pub crypto.Ed25519PublicKey
@@ -1051,7 +1051,7 @@ func TestProvider_GetChains(t *testing.T) {
 		tokensToStake sdk.BigInt
 		chains        []string
 		geoZone       []string
-		numServicers  int8
+		numServicers  int32
 		serviceURL    string
 	}
 	var pub crypto.Ed25519PublicKey

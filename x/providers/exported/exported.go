@@ -17,5 +17,5 @@ type ProviderI interface {
 	GetPublicKey() crypto.PublicKey // validation consensus pubkey
 	GetTokens() sdk.BigInt          // validation tokens
 	GetMaxRelays() sdk.BigInt       // maximum relays
-	GetNumServicers() int8
+	GetNumServicers() int32
 }

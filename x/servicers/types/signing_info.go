@@ -1,9 +1,5 @@
 package types
 
-import (
-	"fmt"
-)
-
 // Signing information of the validator is needed for tracking bad acting within the block signing process
 //type ValidatorSigningInfo struct {
 //	Address             sdk.Address `json:"address" yaml:"address"`                             // validators address
@@ -18,16 +14,4 @@ func (i *ValidatorSigningInfo) ResetSigningInfo() {
 	i.JailedBlocksCounter = 0
 	i.MissedBlocksCounter = 0
 	i.Index = 0
-}
-
-// Return human readable signing info
-func (i ValidatorSigningInfo) String() string {
-	return fmt.Sprintf(`Validator Signing Info:
-  Address:               %s
-  Start Height:          %d
-  Entropy Offset:        %d
-  Jailed Until:          %v
-  Missed Blocks Counter: %d
-  Jailed Blocks Counter: %d`,
-		i.Address, i.StartHeight, i.Index, i.JailedUntil, i.MissedBlocksCounter, i.JailedBlocksCounter)
 }

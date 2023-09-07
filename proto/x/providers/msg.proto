@@ -7,7 +7,7 @@ option go_package = "github.com/vipernet-xyz/viper-network/x/providers/types";
 
 message MsgProtoStake {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 	option (gogoproto.messagename) = true;
 
@@ -18,9 +18,10 @@ message MsgProtoStake {
 	int32 num_servicers = 5 [(gogoproto.jsontag) = "num_servicers", (gogoproto.moretags) = "yaml:\"num_servicers\""];
 }
 
+
 message MsgBeginUnstake {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 	option (gogoproto.messagename) = true;
 
@@ -29,24 +30,10 @@ message MsgBeginUnstake {
 
 message MsgUnjail {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 	option (gogoproto.messagename) = true;
 
 	bytes AppAddr = 1 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.jsontag) = "address", (gogoproto.moretags) = "yaml:\"address\""];
 }
 
-message MsgProtoStakingKey {
-	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
-	option (gogoproto.goproto_getters) = false;
-	option (gogoproto.messagename) = true;
-    bytes address = 1 [
-        (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address",
-        (gogoproto.jsontag) = "to_address",
-        (gogoproto.moretags) = "yaml:\"to_address\""];
-
-    bytes pub_key = 2 [
-        (gogoproto.jsontag) = "pubkey",
-        (gogoproto.moretags) = "yaml:\"pubkey\""];
-}

@@ -66,9 +66,3 @@ message Pool {
 		(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt",
 		(gogoproto.nullable) = false];
 }
-
-message HistoricalInfo {
-	tendermint.types.Header header = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
-	repeated ProtoProvider  proset = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
-  }
-  

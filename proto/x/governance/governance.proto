@@ -37,3 +37,19 @@ message ACLPair {
 	string key = 1 [(gogoproto.jsontag) = "acl_key"];
 	bytes addr = 2 [(gogoproto.jsontag) = "address", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
 }
+
+message MsgGenerateDiscountKey {
+	option (gogoproto.messagename) = true;
+
+	bytes fromAddress = 1 [
+	    (gogoproto.jsontag) = "from_address",
+	    (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"
+	];
+	
+	bytes toAddress = 2 [
+	    (gogoproto.jsontag) = "to_address",
+	    (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"
+	];
+	
+	string discountKey = 3 [(gogoproto.jsontag) = "discount_key"];
+}

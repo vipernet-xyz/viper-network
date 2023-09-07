@@ -3,15 +3,14 @@ package x.servicers;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/duration.proto";
-import "tendermint/types/types.proto";
-import "tendermint/abci/types.proto";
+
+
 
 option go_package = "github.com/vipernet-xyz/viper-network/x/servicers/types";
 
 message ProtoValidator {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes Address = 1 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.moretags) = "yaml:\"address\"", (gogoproto.jsontag) = "address"];
@@ -29,7 +28,7 @@ message ProtoValidator {
 
 message LegacyProtoValidator {
 	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = true;
+	option (gogoproto.goproto_stringer) = false;
 	option (gogoproto.goproto_getters) = false;
 
 	bytes Address = 1 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.moretags) = "yaml:\"address\"", (gogoproto.jsontag) = "address"];
@@ -63,11 +62,8 @@ message ValidatorSigningInfo {
 	google.protobuf.Timestamp paused_until = 7 [(gogoproto.jsontag) = "paused_until", (gogoproto.moretags) = "yaml:\"paused_until\"", (gogoproto.stdtime) = true, (gogoproto.nullable) = false];
 }
 
-// HistoricalInfo contains header and validator information for a given block.
-// It is stored as part of staking module's state, which persists the `n` most
-// recent HistoricalInfo
-// (`n` is set by the staking module's `historical_entries` parameter).
-message HistoricalInfo {
-	tendermint.types.Header header = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
-	repeated Validator      valset = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
-  }
+message ReportCard {
+    int64 TotalSessions = 1 [(gogoproto.jsontag) = "total_sessions"];
+    string TotalLatencyScore = 2 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_latency_score", (gogoproto.nullable) = false];
+    string TotalAvailabilityScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_availability_score", (gogoproto.nullable) = false];
+}

@@ -164,7 +164,7 @@ type relayProof struct {
 	Token              string `json:"token"`
 	RequestHash        string `json:"request_hash"`
 	GeoZone            string `json:"geo_zone"`
-	NumServicers       int8   `json:"num_servicers"`
+	NumServicers       int32  `json:"num_servicers"`
 }
 
 // "Bytes" - Converts the RelayProof to bytes

@@ -24,12 +24,12 @@ type Provider struct {
 	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`         // tokens staked in the network
 	MaxRelays               sdk.BigInt       `json:"max_relays" yaml:"max_relays"` // maximum number of relays allowed
 	GeoZones                []string         `json:"geo_zone" yaml:"geo_zone"`     //geo location
-	NumServicers            int8             `json:"num_servicers" yaml:"num_servicers"`
+	NumServicers            int32            `json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the provider to complete unstaking
 }
 
 // NewProvider - initialize a new instance of an provider
-func NewProvider(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt, geoZones []string, numServicers int8) Provider {
+func NewProvider(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt, geoZones []string, numServicers int32) Provider {
 	return Provider{
 		Address:                 addr,
 		PublicKey:               publicKey,
@@ -99,7 +99,7 @@ func (a Provider) GetTokens() sdk.BigInt          { return a.StakedTokens }
 func (a Provider) GetConsensusPower() int64       { return a.ConsensusPower() }
 func (a Provider) GetMaxRelays() sdk.BigInt       { return a.MaxRelays }
 func (a Provider) GetGeoZones() []string          { return a.GeoZones }
-func (a Provider) GetNumServicers() int8          { return a.NumServicers }
+func (a Provider) GetNumServicers() int32         { return a.NumServicers }
 
 var _ codec.ProtoMarshaler = &Provider{}
 
@@ -202,7 +202,7 @@ type JSONProvider struct {
 	Status                  sdk.StakeStatus `json:"status" yaml:"status"`               // provider status (staked/unstaking/unstaked)
 	StakedTokens            sdk.BigInt      `json:"staked_tokens" yaml:"staked_tokens"` // how many staked tokens
 	GeoZones                []string        `json:"geo_zones" yaml:"geo_zones"`
-	NumServicers            int8            `json:"num_servicers" yaml:"num_servicers"`
+	NumServicers            int32           `json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the provider to complete unstaking
 }
 

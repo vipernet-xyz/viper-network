@@ -71,7 +71,7 @@ If no changes are desired for the parameter, just enter the current param value 
 		rawGeoZones := reg.ReplaceAllString(args[4], "")
 		geoZones := strings.Split(rawGeoZones, ",")
 		fmt.Println("Enter passphrase: ")
-		res, err := StakeClient(chains, fromAddr, app.Credentials(pwd), args[3], types.NewInt(int64(amount)), geoZones, int8(numServicers), int64(fee), false)
+		res, err := StakeClient(chains, fromAddr, app.Credentials(pwd), args[3], types.NewInt(int64(amount)), geoZones, int32(numServicers), int64(fee), false)
 		if err != nil {
 			fmt.Println(err)
 			return
