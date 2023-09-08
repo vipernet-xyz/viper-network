@@ -168,10 +168,10 @@ message ViperQoSReport {
                                                        (gogoproto.stdtime) = true,
                                                        (gogoproto.nullable) = false];
     int64 BlockHeight = 2 [(gogoproto.jsontag) = "block_height"];
-    string LatencyScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+    bytes LatencyScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
                              (gogoproto.jsontag) = "latency_score", 
                              (gogoproto.nullable) = false];
-    string AvailabilityScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+    bytes AvailabilityScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
                                   (gogoproto.jsontag) = "availability_score", 
                                   (gogoproto.nullable) = false];
     HashRange SampleRoot = 5 [(gogoproto.jsontag) = "sample_root", 

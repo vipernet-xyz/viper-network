@@ -100,7 +100,6 @@ func (k Keeper) GetValidatorOutputAddress(ctx sdk.Ctx, operatorAddress sdk.Addre
 	return val.OutputAddress, found
 }
 
-// SetValidator - Store validator in the main store
 func (k Keeper) DeleteValidator(ctx sdk.Ctx, addr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
 	_ = store.Delete(types.KeyForValByAllVals(addr))
@@ -305,4 +304,78 @@ func (k Keeper) mustGetValidator(ctx sdk.Ctx, addr sdk.Address) types.Validator 
 	}
 
 	return validator
+}
+
+func (k Keeper) InitializeReportCardForValidator(ctx sdk.Ctx, validator *types.Validator) {
+	validator.ReportCard = types.ReportCard{
+		TotalSessions:          0,
+		TotalLatencyScore:      sdk.BigDec{},
+		TotalAvailabilityScore: sdk.BigDec{},
+	}
+}
+
+func (k Keeper) SetValidatorReportCard(ctx sdk.Ctx, validator types.Validator) {
+	store := ctx.KVStore(k.storeKey)
+	bz, err := k.MarshalValidator(ctx, validator) // If MarshalValidator includes the ReportCard field
+	if err != nil {
+		ctx.Logger().Error("could not marshal validator report card: " + err.Error())
+	}
+	err = store.Set(types.KeyForValidatorInReportCardSet(validator), bz)
+	if err != nil {
+		ctx.Logger().Error("could not set validator report card: " + err.Error())
+	}
+}
+
+func (k Keeper) GetValidatorReportCard(ctx sdk.Ctx, validator types.Validator) (reportCard types.ReportCard, found bool) {
+	store := ctx.KVStore(k.storeKey)
+	value, _ := store.Get(types.KeyForValidatorInReportCardSet(validator))
+	if value == nil {
+		return reportCard, false
+	}
+	validator, err := k.UnmarshalValidator(ctx, value) // If UnmarshalValidator includes the ReportCard field
+	if err != nil {
+		ctx.Logger().Error("can't get validator report card: " + err.Error())
+		return reportCard, false
+	}
+	return validator.ReportCard, true
+}
+
+func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, sessionReport types.ReportCard) {
+	validator, found := k.GetValidator(ctx, addr)
+	if !found {
+		ctx.Logger().Error(fmt.Sprintf("validator not found for address: %X\n", addr))
+		return
+	}
+
+	// Increase the total sessions count
+	validator.ReportCard.TotalSessions += sessionReport.TotalSessions
+
+	newLatencyScore := validator.ReportCard.TotalLatencyScore.Add(sessionReport.TotalLatencyScore).Quo(sdk.NewDec(int64(validator.ReportCard.TotalSessions)))
+	if newLatencyScore.GT(sdk.NewDec(1)) {
+		newLatencyScore = sdk.NewDec(1)
+	}
+	validator.ReportCard.TotalLatencyScore = newLatencyScore
+
+	newAvailabilityScore := validator.ReportCard.TotalAvailabilityScore.Add(sessionReport.TotalAvailabilityScore).Quo(sdk.NewDec(int64(validator.ReportCard.TotalSessions)))
+	if newAvailabilityScore.GT(sdk.NewDec(1)) {
+		newAvailabilityScore = sdk.NewDec(1)
+	}
+	validator.ReportCard.TotalAvailabilityScore = newAvailabilityScore
+
+	// Save the updated validator data
+	k.SetValidator(ctx, validator)
+
+	// Set the new report card
+	k.SetValidatorReportCard(ctx, validator)
+
+}
+
+// DeleteReportCard deletes the report card of a servicer when they are unstaked
+func (k Keeper) deleteValidatorReportCard(ctx sdk.Ctx, validator types.Validator) error {
+	store := ctx.KVStore(k.storeKey)
+
+	// Delete the report card from the store
+	store.Delete(types.KeyForValidatorInReportCardSet(validator))
+
+	return nil
 }

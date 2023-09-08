@@ -258,7 +258,8 @@ func (k Keeper) StakeValidator(ctx sdk.Ctx, validator types.Validator, amount sd
 	// save in the validator store
 	k.SetValidator(ctx, validator)
 	k.SetStakedValidatorByChains(ctx, validator)
-	k.SetStakedValidatorByGeoZones(ctx, validator)
+	k.SetStakedValidatorByGeoZone(ctx, validator)
+	k.SetValidatorReportCard(ctx, validator)
 	// ensure there's a signing info entry for the validator (used in slashing)
 	_, found := k.GetValidatorSigningInfo(ctx, validator.GetAddress())
 	if !found {
@@ -302,14 +303,16 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 	// delete the validator from each individual chains set
 	k.deleteValidatorForChains(ctx, origValForDeletion)
 	k.deleteValidatorForGeoZone(ctx, origValForDeletion)
+	k.deleteValidatorReportCard(ctx, origValForDeletion)
 	// delete in main store
 	k.DeleteValidator(ctx, origValForDeletion.Address)
 	// save in the validator store
 	k.SetValidator(ctx, currentValidator)
 	// save the validator by chains
 	k.SetStakedValidatorByChains(ctx, currentValidator)
-	//save the validato by geozones
-	k.SetStakedValidatorByGeoZones(ctx, currentValidator)
+	//save the validato by geozone
+	k.SetStakedValidatorByGeoZone(ctx, currentValidator)
+	k.SetValidatorReportCard(ctx, currentValidator)
 	if ctx.BlockHeight() >= 30040 {
 		// reset signing info
 		k.ResetValidatorSigningInfo(ctx, currentValidator.Address)
@@ -378,6 +381,8 @@ func (k Keeper) BeginUnstakingValidator(ctx sdk.Ctx, validator types.Validator) 
 	k.deleteValidatorFromStakingSet(ctx, validator)
 	// delete the validator from each individual chains set
 	k.deleteValidatorForChains(ctx, validator)
+	k.deleteValidatorForGeoZone(ctx, validator)
+	k.deleteValidatorReportCard(ctx, validator)
 	// set the status
 	validator = validator.UpdateStatus(sdk.Unstaking)
 	// set the unstaking completion time and completion height appropriately
@@ -451,6 +456,8 @@ func (k Keeper) LegacyForceValidatorUnstake(ctx sdk.Ctx, validator types.Validat
 	case sdk.Staked:
 		k.deleteValidatorFromStakingSet(ctx, validator)
 		k.deleteValidatorForChains(ctx, validator)
+		k.deleteValidatorForGeoZone(ctx, validator)
+		k.deleteValidatorReportCard(ctx, validator)
 		// don't delete validator to allow for previous power to be properly updated
 	case sdk.Unstaking:
 		k.deleteUnstakingValidator(ctx, validator)

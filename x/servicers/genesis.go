@@ -35,7 +35,8 @@ func InitGenesis(ctx sdk.Ctx, keeper keeper.Keeper, supplyKeeper types.AuthKeepe
 		// set the validators from the data
 		keeper.SetValidator(ctx, validator)
 		keeper.SetStakedValidatorByChains(ctx, validator)
-		keeper.SetStakedValidatorByGeoZones(ctx, validator)
+		keeper.SetStakedValidatorByGeoZone(ctx, validator)
+		keeper.SetValidatorReportCard(ctx, validator)
 		// ensure there's a signing info entry for the validator (used in slashing)
 		_, found := keeper.GetValidatorSigningInfo(ctx, validator.GetAddress())
 		if !found {
@@ -220,6 +221,22 @@ func validateGenesisStateValidators(validators []types.Validator, minimumStake s
 			if err != nil {
 				return err
 			}
+		}
+		if err := types.ValidateGeoZone(val.GeoZone); err != nil {
+			return err
+		}
+		report := val.ReportCard
+
+		if report.TotalLatencyScore.LT(sdk.NewDec(0)) || report.TotalLatencyScore.GT(sdk.NewDec(1)) {
+			return fmt.Errorf("invalid TotalLatencyScore for validator %v: expected value between 0 and 1, got %v", val.Address, report.TotalLatencyScore)
+		}
+
+		if report.TotalAvailabilityScore.LT(sdk.NewDec(0)) || report.TotalAvailabilityScore.GT(sdk.NewDec(1)) {
+			return fmt.Errorf("invalid TotalAvailabilityScore for validator %v: expected value between 0 and 1, got %v", val.Address, report.TotalAvailabilityScore)
+		}
+
+		if report.TotalSessions < 0 {
+			return fmt.Errorf("invalid TotalSessions for validator %v: cannot be negative, got %v", val.Address, report.TotalSessions)
 		}
 	}
 	return

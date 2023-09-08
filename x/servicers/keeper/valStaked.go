@@ -32,7 +32,7 @@ func (k Keeper) SetStakedValidatorByChains(ctx sdk.Ctx, validator types.Validato
 }
 
 // SetStakedValidatorByGeoZone - Store staked validator using geoZone
-func (k Keeper) SetStakedValidatorByGeoZones(ctx sdk.Ctx, validator types.Validator) {
+func (k Keeper) SetStakedValidatorByGeoZone(ctx sdk.Ctx, validator types.Validator) {
 	store := ctx.KVStore(k.storeKey)
 	c := validator.GeoZone
 	cBz, err := hex.DecodeString(c)
@@ -159,7 +159,7 @@ func (k Keeper) IterateAndExecuteOverStakedVals(
 			continue
 		}
 		if validator.IsStaked() {
-			stop := fn(i, validator) // XXX is this safe will the validator unexposed fields be able to get written to?
+			stop := fn(i, validator)
 			if stop {
 				break
 			}

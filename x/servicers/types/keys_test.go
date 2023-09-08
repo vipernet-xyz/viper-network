@@ -236,7 +236,7 @@ func TestKeyForValidatorInStakingSet(t *testing.T) {
 		args args
 		want []byte
 	}{
-		{"NewValidator", args{validator: NewValidator(types.Address(pub.Address()), pub, []string{"0001"}, "https://www.google.com:443", types.ZeroInt(), geozone, types.Address(pub.Address()))}, append([]byte{0x23, 0, 0, 0, 0, 0, 0, 0, 0}, operAddrInvr...)},
+		{"NewValidator", args{validator: NewValidator(types.Address(pub.Address()), pub, []string{"0001"}, "https://www.google.com:443", types.ZeroInt(), geozone, types.Address(pub.Address()), ReportCard{})}, append([]byte{0x23, 0, 0, 0, 0, 0, 0, 0, 0}, operAddrInvr...)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -288,7 +288,7 @@ func Test_getStakedValPowerRankKey(t *testing.T) {
 		args args
 		want []byte
 	}{
-		{"NewValidator", args{validator: NewValidator(types.Address(pub.Address()), pub, []string{"0001"}, "https://www.google.com:443", types.ZeroInt(), geozone, types.Address(pub.Address()))}, append([]byte{0x23, 0, 0, 0, 0, 0, 0, 0, 0}, operAddrInvr...)},
+		{"NewValidator", args{validator: NewValidator(types.Address(pub.Address()), pub, []string{"0001"}, "https://www.google.com:443", types.ZeroInt(), geozone, types.Address(pub.Address()), ReportCard{})}, append([]byte{0x23, 0, 0, 0, 0, 0, 0, 0, 0}, operAddrInvr...)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -29,10 +29,11 @@ type Validator struct {
 	GeoZone                 string           `json:"geo_zone" yaml:"geo_zone"`                       //geo-zone of the node
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"`           // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address      `json:"output_address,omitempty" yaml:"output_address"` // the custodial output address of the validator
+	ReportCard              ReportCard       `jsom:"report_card" yaml:"report_card"`
 }
 
 // NewValidator - initialize a new validator
-func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string, serviceURL string, tokensToStake sdk.BigInt, geozone string, outputAddress sdk.Address) Validator {
+func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string, serviceURL string, tokensToStake sdk.BigInt, geozone string, outputAddress sdk.Address, reportCard ReportCard) Validator {
 	return Validator{
 		Address:                 addr,
 		PublicKey:               consPubKey,
@@ -45,6 +46,7 @@ func NewValidator(addr sdk.Address, consPubKey crypto.PublicKey, chains []string
 		GeoZone:                 geozone,
 		UnstakingCompletionTime: time.Time{},
 		OutputAddress:           outputAddress,
+		ReportCard:              reportCard,
 	}
 }
 
@@ -134,6 +136,7 @@ func (v Validator) GetPublicKey() crypto.PublicKey { return v.PublicKey }
 func (v Validator) GetTokens() sdk.BigInt          { return v.StakedTokens }
 func (v Validator) GetConsensusPower() int64       { return v.ConsensusPower() }
 func (v Validator) GetGeoZone() string             { return v.GeoZone }
+func (v Validator) GetReportCard() ReportCard      { return v.ReportCard }
 func (v *Validator) Reset()                        { *v = Validator{} }
 
 func (v Validator) ProtoMessage() {
@@ -178,10 +181,12 @@ func (v Validator) String() string {
 		outputPubKeyString = v.OutputAddress.String()
 	}
 	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t%v\nPaused:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
-		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nGeoZone:\t\t%s\nUnstaking Completion Time:\t\t%v\nOutput Address:\t\t%s"+
-		"\n----\n",
+		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nGeoZone:\t\t%s\nUnstaking Completion Time:\t\t%v\nOutput Address:\t\t%s\n"+
+		"Total Sessions:\t\t%d\nTotal Latency Score:\t\t%f\nTotal Availability Score:\t\t%f\n----\n",
 		v.Address, v.PublicKey.RawString(), v.Jailed, v.Paused, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.GeoZone, v.UnstakingCompletionTime, outputPubKeyString,
+		v.ReportCard.TotalSessions, v.ReportCard.TotalLatencyScore, v.ReportCard.TotalAvailabilityScore,
 	)
+
 }
 
 var _ codec.ProtoMarshaler = &Validator{}
@@ -200,6 +205,7 @@ func (v Validator) MarshalJSON() ([]byte, error) {
 		GeoZone:                 v.GeoZone,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
+		ReportCard:              v.ReportCard,
 	})
 }
 
@@ -224,6 +230,7 @@ func (v *Validator) UnmarshalJSON(data []byte) error {
 		Status:                  bv.Status,
 		UnstakingCompletionTime: bv.UnstakingCompletionTime,
 		OutputAddress:           bv.OutputAddress,
+		ReportCard:              bv.ReportCard,
 	}
 	return nil
 }
@@ -246,6 +253,7 @@ func (v ProtoValidator) FromProto() (Validator, error) {
 		StakedTokens:            v.StakedTokens,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
+		ReportCard:              *v.ReportCard,
 	}, nil
 }
 
@@ -263,6 +271,7 @@ func (v Validator) ToProto() ProtoValidator {
 		GeoZone:                 v.GeoZone,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
+		ReportCard:              &v.ReportCard,
 	}
 }
 
@@ -278,6 +287,7 @@ type JSONValidator struct {
 	GeoZone                 string          `json:"geo_zone" yaml:"service_url"`
 	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"geo_zone"`       // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address     `json:"output_address" yaml:"output_address"` // custodial output address of tokens
+	ReportCard              ReportCard      `jsom:"report_card" yaml:"report_card"`
 }
 
 // Validators is a collection of Validator

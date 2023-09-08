@@ -24,6 +24,8 @@ message ProtoValidator {
 	string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
 	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
 	bytes OutputAddress = 11 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.jsontag) = "output_address,omitempty", (gogoproto.moretags) = "yaml:\"output_address\""];
+	ReportCard reportCard = 12 [(gogoproto.jsontag) = "report_card"];
+
 }
 
 message LegacyProtoValidator {
@@ -40,6 +42,7 @@ message LegacyProtoValidator {
 	string ServiceURL = 7 [(gogoproto.jsontag) = "service_url"];
 	string StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
 	string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
+	ReportCard reportCard = 12 [(gogoproto.jsontag) = "report_card"];
 	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
 }
 
@@ -64,6 +67,6 @@ message ValidatorSigningInfo {
 
 message ReportCard {
     int64 TotalSessions = 1 [(gogoproto.jsontag) = "total_sessions"];
-    string TotalLatencyScore = 2 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_latency_score", (gogoproto.nullable) = false];
-    string TotalAvailabilityScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_availability_score", (gogoproto.nullable) = false];
+    bytes TotalLatencyScore = 2 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_latency_score", (gogoproto.nullable) = false];
+    bytes TotalAvailabilityScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_availability_score", (gogoproto.nullable) = false];
 }

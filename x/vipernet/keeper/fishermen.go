@@ -123,7 +123,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 							ServicerAddr:     servicer.GetAddress(),
 							NumOfTestResults: int64(len(proofs)),
 							TestResults:      proofs,
-							EvidenceType:     vc.FishermanTestEvidence, // You'll need to define the specific type
+							EvidenceType:     vc.FishermanTestEvidence,
 						}
 
 						// Generate Merkle Root using the Result structure

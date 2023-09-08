@@ -33,6 +33,7 @@ var ( // Keys for store prefixes
 	HistoricalInfoKey               = []byte{0x50} // prefix for the historical info
 	LastValidatorPowerKey           = []byte{0x11} // prefix for each key to a validator index, for bonded validators
 	StakedValidatorsByGeoZoneKey    = []byte{0x24}
+	ReportCardKey                   = []byte{0x60}
 )
 
 func KeyForValidatorByNetworkID(addr sdk.Address, networkID []byte) []byte {
@@ -162,4 +163,52 @@ func GetHistoricalInfoKey(height int64) []byte {
 func AddressFromLastValidatorPowerKey(key []byte) []byte {
 	kv.AssertKeyAtLeastLength(key, 3)
 	return key[2:] // remove prefix bytes and address length
+}
+
+// ScoresToPower - convert report card scores to potential consensus-engine power
+func ScoresToPower(reportCard ReportCard) int64 {
+	// Convert total sessions to BigDec for computation
+	totalSessionsDec := sdk.NewDec(reportCard.TotalSessions)
+
+	// Calculate average latency and availability scores
+	avgLatencyScore := reportCard.TotalLatencyScore.Quo(totalSessionsDec)
+	avgAvailabilityScore := reportCard.TotalAvailabilityScore.Quo(totalSessionsDec)
+
+	// Weighted average, adjust weights based on your requirements
+	totalScore := avgLatencyScore.Mul(sdk.NewDecWithPrec(5, 1)).Add(avgAvailabilityScore.Mul(sdk.NewDecWithPrec(5, 1)))
+
+	powerReductionDec := sdk.NewDecFromInt(sdk.PowerReduction)
+
+	// Convert the result of the division to BigInt and then to int64
+	reducedPower := totalScore.Quo(powerReductionDec).BigInt().Int64()
+
+	return reducedPower
+}
+
+// generates the key for a validator in the report card set
+func KeyForValidatorInReportCardSet(validator Validator) []byte {
+	return getReportCardPowerRankKey(validator)
+}
+
+// get the power ranking key of a validator based on the report card score
+func getReportCardPowerRankKey(validator Validator) []byte {
+	reportPower := ScoresToPower(validator.ReportCard)
+	reportPowerBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(reportPowerBytes, uint64(reportPower))
+
+	powerBytes := reportPowerBytes
+	powerBytesLen := len(powerBytes) // 8
+
+	// key is of format prefix || powerbytes || addrBytes
+	key := make([]byte, 1+powerBytesLen+sdk.AddrLen)
+
+	key[0] = ReportCardKey[0] // Make sure you have a unique prefix for the report card set
+	copy(key[1:powerBytesLen+1], powerBytes)
+	operAddrInvr := sdk.CopyBytes(validator.Address)
+	for i, b := range operAddrInvr {
+		operAddrInvr[i] = ^b
+	}
+	copy(key[powerBytesLen+1:], operAddrInvr)
+
+	return key
 }
