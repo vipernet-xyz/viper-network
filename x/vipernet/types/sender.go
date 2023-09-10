@@ -132,6 +132,28 @@ func (p *Sender) Relay(rpcURL string, input *RelayInput) (*RelayOutput, error) {
 	return parseRelaySuccesfulOutput(bodyBytes)
 }
 
+// Relay does request to be relayed to a target blockchain
+func (p *Sender) localRelay(rpcURL string, input *RelayInput) (*RelayOutput, error) {
+	rawOutput, reqErr := p.doPostRequest(rpcURL, input, LocalRelayRoute)
+
+	defer closeOrLog(rawOutput)
+
+	if reqErr != nil && !errors.Is(reqErr, errOnRelayRequest) {
+		return nil, reqErr
+	}
+
+	bodyBytes, err := ioutil.ReadAll(rawOutput.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if errors.Is(reqErr, errOnRelayRequest) {
+		return nil, parseRelayErrorOutput(bodyBytes, input.Proof.ServicerPubKey)
+	}
+
+	return parseRelaySuccesfulOutput(bodyBytes)
+}
+
 func parseRelaySuccesfulOutput(bodyBytes []byte) (*RelayOutput, error) {
 	output := RelayOutput{}
 

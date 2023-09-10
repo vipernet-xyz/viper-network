@@ -225,6 +225,7 @@ type ReportCard struct {
 	TotalSessions          int64                                              `protobuf:"varint,1,opt,name=TotalSessions,proto3" json:"total_sessions"`
 	TotalLatencyScore      github_com_vipernet_xyz_viper_network_types.BigDec `protobuf:"bytes,2,opt,name=TotalLatencyScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"total_latency_score"`
 	TotalAvailabilityScore github_com_vipernet_xyz_viper_network_types.BigDec `protobuf:"bytes,3,opt,name=TotalAvailabilityScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"total_availability_score"`
+	TotalReliabilityScore  github_com_vipernet_xyz_viper_network_types.BigDec `protobuf:"bytes,4,opt,name=TotalReliabilityScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"total_reliability_score"`
 }
 
 func (m *ReportCard) Reset()      { *m = ReportCard{} }
@@ -586,6 +587,9 @@ func (this *ReportCard) Equal(that interface{}) bool {
 	if !this.TotalAvailabilityScore.Equal(that1.TotalAvailabilityScore) {
 		return false
 	}
+	if !this.TotalReliabilityScore.Equal(that1.TotalReliabilityScore) {
+		return false
+	}
 	return true
 }
 func (this *ProtoValidator) GoString() string {
@@ -658,6 +662,7 @@ func (this *ReportCard) GoString() string {
 	s = append(s, "TotalSessions: "+fmt.Sprintf("%#v", this.TotalSessions)+",\n")
 	s = append(s, "TotalLatencyScore: "+fmt.Sprintf("%#v", this.TotalLatencyScore)+",\n")
 	s = append(s, "TotalAvailabilityScore: "+fmt.Sprintf("%#v", this.TotalAvailabilityScore)+",\n")
+	s = append(s, "TotalReliabilityScore: "+fmt.Sprintf("%#v", this.TotalReliabilityScore)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -997,6 +1002,16 @@ func (m *ReportCard) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	{
+		size := m.TotalReliabilityScore.Size()
+		i -= size
+		if _, err := m.TotalReliabilityScore.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintServicers(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	{
 		size := m.TotalAvailabilityScore.Size()
 		i -= size
 		if _, err := m.TotalAvailabilityScore.MarshalTo(dAtA[i:]); err != nil {
@@ -1224,6 +1239,8 @@ func (m *ReportCard) Size() (n int) {
 	n += 1 + l + sovServicers(uint64(l))
 	l = m.TotalAvailabilityScore.Size()
 	n += 1 + l + sovServicers(uint64(l))
+	l = m.TotalReliabilityScore.Size()
+	n += 1 + l + sovServicers(uint64(l))
 	return n
 }
 
@@ -1315,6 +1332,7 @@ func (this *ReportCard) String() string {
 		`TotalSessions:` + fmt.Sprintf("%v", this.TotalSessions) + `,`,
 		`TotalLatencyScore:` + fmt.Sprintf("%v", this.TotalLatencyScore) + `,`,
 		`TotalAvailabilityScore:` + fmt.Sprintf("%v", this.TotalAvailabilityScore) + `,`,
+		`TotalReliabilityScore:` + fmt.Sprintf("%v", this.TotalReliabilityScore) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2450,6 +2468,39 @@ func (m *ReportCard) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.TotalAvailabilityScore.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalReliabilityScore", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowServicers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthServicers
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthServicers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalReliabilityScore.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

@@ -161,14 +161,15 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 					Blockchain := trigger.Proof.Blockchain
 					resp, err := vc.SendSampleRelay(Blockchain, trigger, servicer, fishermanValidator)
 
-					latency := time.Since(startTime)
-
+					latency := resp.Latency
 					isAvailable := err == nil && resp.Proof.Signature != ""
+					isReliable := resp.Reliability
 
 					servicerResult := results[servicer.GetAddress().String()]
 					servicerResult.Timestamps = append(servicerResult.Timestamps, startTime)
 					servicerResult.Latencies = append(servicerResult.Latencies, latency)
 					servicerResult.Availabilities = append(servicerResult.Availabilities, isAvailable)
+					servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
 
 					// If the last 5 results show the servicer missed signing 5 times consecutively, pause the node.
 					if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
@@ -182,6 +183,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 						Timestamp:       startTime,
 						Latency:         latency,
 						IsAvailable:     isAvailable,
+						IsReliable:      isReliable,
 					}
 
 					testResult.Store(sessionHeader, fisherman.TestStore)

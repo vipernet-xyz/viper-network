@@ -362,12 +362,18 @@ func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, session
 	}
 	validator.ReportCard.TotalAvailabilityScore = newAvailabilityScore
 
+	// Update the reliability score similar to the above scores
+	newReliabilityScore := validator.ReportCard.TotalReliabilityScore.Add(sessionReport.TotalReliabilityScore).Quo(sdk.NewDec(int64(validator.ReportCard.TotalSessions)))
+	if newReliabilityScore.GT(sdk.NewDec(1)) {
+		newReliabilityScore = sdk.NewDec(1)
+	}
+	validator.ReportCard.TotalReliabilityScore = newReliabilityScore
+
 	// Save the updated validator data
 	k.SetValidator(ctx, validator)
 
 	// Set the new report card
 	k.SetValidatorReportCard(ctx, validator)
-
 }
 
 // DeleteReportCard deletes the report card of a servicer when they are unstaked

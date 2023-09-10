@@ -182,9 +182,9 @@ func (v Validator) String() string {
 	}
 	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t%v\nPaused:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
 		"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nGeoZone:\t\t%s\nUnstaking Completion Time:\t\t%v\nOutput Address:\t\t%s\n"+
-		"Total Sessions:\t\t%d\nTotal Latency Score:\t\t%f\nTotal Availability Score:\t\t%f\n----\n",
+		"Total Sessions:\t\t%d\nTotal Latency Score:\t\t%f\nTotal Availability Score:\t\t%f\nTotal Availability Score:\t\t%f----\n",
 		v.Address, v.PublicKey.RawString(), v.Jailed, v.Paused, v.Status, v.StakedTokens, v.ServiceURL, v.Chains, v.GeoZone, v.UnstakingCompletionTime, outputPubKeyString,
-		v.ReportCard.TotalSessions, v.ReportCard.TotalLatencyScore, v.ReportCard.TotalAvailabilityScore,
+		v.ReportCard.TotalSessions, v.ReportCard.TotalLatencyScore, v.ReportCard.TotalAvailabilityScore, v.ReportCard.TotalReliabilityScore,
 	)
 
 }

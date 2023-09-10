@@ -139,6 +139,7 @@ message TestResult {
                                           (gogoproto.stdduration) = true,
                                           (gogoproto.nullable) = false];
     bool isAvailable = 4 [(gogoproto.jsontag) = "is_available"];
+	bool isReliable  = 5 [(gogoproto.jsontag) = "is_reliable"];
 }
 
 message TestI {
@@ -174,8 +175,11 @@ message ViperQoSReport {
     bytes AvailabilityScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
                                   (gogoproto.jsontag) = "availability_score", 
                                   (gogoproto.nullable) = false];
-    HashRange SampleRoot = 5 [(gogoproto.jsontag) = "sample_root", 
+	bytes ReliabilityScore = 5 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+                                  (gogoproto.jsontag) = "reliability_score", 
+                                  (gogoproto.nullable) = false];							  
+    HashRange SampleRoot = 6 [(gogoproto.jsontag) = "sample_root", 
                               (gogoproto.nullable) = false];
-    int64 Nonce = 6 [(gogoproto.jsontag) = "nonce"];
-    string Signature = 7 [(gogoproto.jsontag) = "signature"];
+    int64 Nonce = 7 [(gogoproto.jsontag) = "nonce"];
+    string Signature = 8 [(gogoproto.jsontag) = "signature"];
 }

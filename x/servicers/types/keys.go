@@ -170,12 +170,15 @@ func ScoresToPower(reportCard ReportCard) int64 {
 	// Convert total sessions to BigDec for computation
 	totalSessionsDec := sdk.NewDec(reportCard.TotalSessions)
 
-	// Calculate average latency and availability scores
+	// Calculate average latency, availability, and reliability scores
 	avgLatencyScore := reportCard.TotalLatencyScore.Quo(totalSessionsDec)
 	avgAvailabilityScore := reportCard.TotalAvailabilityScore.Quo(totalSessionsDec)
+	avgReliabilityScore := reportCard.TotalReliabilityScore.Quo(totalSessionsDec) // Assuming you have this field in your ReportCard struct
 
-	// Weighted average, adjust weights based on your requirements
-	totalScore := avgLatencyScore.Mul(sdk.NewDecWithPrec(5, 1)).Add(avgAvailabilityScore.Mul(sdk.NewDecWithPrec(5, 1)))
+	// Weighted average based on your requirements: 50% to latency, 30% to reliability, and 20% to availability.
+	totalScore := avgLatencyScore.Mul(sdk.NewDecWithPrec(5, 1)).Add(
+		avgAvailabilityScore.Mul(sdk.NewDecWithPrec(2, 1)).Add(
+			avgReliabilityScore.Mul(sdk.NewDecWithPrec(3, 1))))
 
 	powerReductionDec := sdk.NewDecFromInt(sdk.PowerReduction)
 

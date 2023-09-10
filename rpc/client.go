@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -225,18 +226,33 @@ func SimRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 }
 
 func executeHTTPRequest(payload, url, userAgent string, basicAuth types.BasicAuth, method string, headers map[string]string) (string, error) {
-	// generate an http request
+	// Check if the payload is compressed
+	isCompressed := isPayloadCompressed(payload)
+
+	// Decompress the payload if it is compressed
+	if isCompressed {
+		decodedPayload, err := decompressPayload(payload)
+		if err != nil {
+			return "", err
+		}
+		payload = decodedPayload
+	}
+
+	// Generate an HTTP request
 	req, err := http.NewRequest(method, url, bytes.NewBuffer([]byte(payload)))
 	if err != nil {
 		return "", err
 	}
+
 	if basicAuth.Username != "" {
 		req.SetBasicAuth(basicAuth.Username, basicAuth.Password)
 	}
-	if userAgent == "" {
+
+	if userAgent != "" {
 		req.Header.Set("User-Agent", userAgent)
 	}
-	// add headers if needed
+
+	// Add headers if needed
 	if len(headers) == 0 {
 		req.Header.Set("Content-Type", "provider/json")
 	} else {
@@ -244,23 +260,93 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth types.BasicAut
 			req.Header.Set(k, v)
 		}
 	}
-	// execute the request
+
+	// Set the "Accept-Encoding" header to indicate compressed response is expected
+	req.Header.Set("Accept-Encoding", "gzip")
+
+	// Execute the request
 	resp, err := (&http.Client{Timeout: types.GetRPCTimeout() * time.Millisecond}).Do(req)
 	if err != nil {
 		return payload, err
 	}
-	// ensure code is 200
-	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("Expected Code 200 from Request got %v", resp.StatusCode)
-	}
-	// read all bz
+
+	defer resp.Body.Close()
+
+	// Check if the response is compressed
+	isResponseCompressed := strings.Contains(resp.Header.Get("Content-Encoding"), "gzip")
+
+	// Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
-	// return
+
+	// Compress the response body if the payload was not already compressed
+	if isCompressed && !isResponseCompressed {
+		body, err = compressResponse(string(body))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// Return the response
 	return string(body), nil
+}
+
+// Check if the payload is compressed
+func isPayloadCompressed(payload string) bool {
+	// Check if the payload starts with the gzip magic number
+	return strings.HasPrefix(payload, "\x1f\x8b")
+}
+
+// Decompresses a gzip-encoded payload
+func decompressPayload(payload string) (string, error) {
+	reader, err := gzip.NewReader(strings.NewReader(payload))
+	if err != nil {
+		return "", err
+	}
+
+	defer reader.Close()
+
+	decoded, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+
+	return string(decoded), nil
+}
+
+// Compresses a response using gzip
+func compressResponse(response string) ([]byte, error) {
+	var buf bytes.Buffer
+	writer := gzip.NewWriter(&buf)
+
+	_, err := writer.Write([]byte(response))
+	if err != nil {
+		return nil, err
+	}
+
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+// "sortJSONResponse" - sorts json from a relay response
+func sortJSONResponse(response string) string {
+	var rawJSON map[string]interface{}
+	// unmarshal into json
+	if err := json.Unmarshal([]byte(response), &rawJSON); err != nil {
+		return response
+	}
+	// marshal into json
+	bz, err := json.Marshal(rawJSON)
+	if err != nil {
+		return response
+	}
+	return string(bz)
 }
 
 func FishermanTrigger(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -277,6 +363,41 @@ func FishermanTrigger(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		return
 	}
 	res, dispatch, err := app.VCA.HandleFishermanTrigger(trigger)
+	if err != nil {
+		response := RPCRelayErrorResponse{
+			Error:    err,
+			Dispatch: dispatch,
+		}
+		j, _ := json.Marshal(response)
+		WriteJSONResponseWithCode(w, string(j), r.URL.Path, r.Host, 400)
+		return
+	}
+	response := RPCRelayResponse{
+		Signature: res.Signature,
+		Response:  res.Response,
+	}
+	j, er := json.Marshal(response)
+	if er != nil {
+		WriteErrorResponse(w, 400, er.Error())
+		return
+	}
+	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
+}
+
+func LocalRelay(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	var relay = types.Relay{}
+	if cors(&w, r) {
+		return
+	}
+	if err := PopModel(w, r, ps, &relay); err != nil {
+		response := RPCRelayErrorResponse{
+			Error: err,
+		}
+		j, _ := json.Marshal(response)
+		WriteJSONResponseWithCode(w, string(j), r.URL.Path, r.Host, 400)
+		return
+	}
+	res, dispatch, err := app.VCA.HandleLocalRelay(relay)
 	if err != nil {
 		response := RPCRelayErrorResponse{
 			Error:    err,

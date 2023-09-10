@@ -14,6 +14,8 @@ import (
 )
 
 func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI) (*Output, error) {
+
+	start := time.Now()
 	//Get the appropriate relay pool for the blockchain
 	relayPool, exists := SampleRelayPools[Blockchain]
 	if !exists {
@@ -59,6 +61,8 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 		ServicerPubKey:     servicer.GetAddress().String(),
 		Blockchain:         Blockchain,
 		Token:              trigger.Proof.Token,
+		GeoZone:            trigger.Proof.GeoZone,
+		NumServicers:       trigger.Proof.NumServicers,
 	})
 	if err != nil {
 		return nil, err
@@ -74,18 +78,39 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 			SessionBlockHeight: relayMeta.BlockHeight,
 			ServicerPubKey:     servicer.GetAddress().String(),
 			Blockchain:         Blockchain,
+			Token:              trigger.Proof.Token,
 			Signature:          signedProofBytes,
+			GeoZone:            trigger.Proof.GeoZone,
+			NumServicers:       trigger.Proof.NumServicers,
 		},
 	}
-	//Send the relay using your Relay function
+	// Send the relay to the servicer and measure its latency
 	relayOutput, err := sender.Relay(servicer.GetServiceURL(), relay)
+	servicerLatency := time.Since(start)
 	if err != nil {
 		return nil, err
 	}
 
+	// Now, execute the same relay within the fisherman itself to verify the servicer's response
+	localResp, err := sender.localRelay(fishermanValidator.GetServiceURL(), relay)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to execute relay internally within fisherman: %s", err.Error())
+	}
+
+	servicerReliablility := true
+
+	// Compare the response from the servicer with the local response
+	if relayOutput.Response != localResp.Response {
+		// This is a discrepancy. Handle accordingly.
+		servicerReliablility = false // set reliability to false if there's a mismatch
+	}
+
 	return &Output{
 		RelayOutput: relayOutput,
+		LocalResp:   localResp,
 		Proof:       relay.Proof,
+		Latency:     servicerLatency,
+		Reliability: servicerReliablility,
 	}, nil
 }
 
@@ -97,6 +122,7 @@ type V1RPCRoute string
 
 const (
 	ClientRelayRoute V1RPCRoute = "/v1/client/relay"
+	LocalRelayRoute  V1RPCRoute = "/v1/client/localrelay"
 )
 
 // "SessionHeader" - Returns the session header corresponding with the proof
@@ -114,6 +140,7 @@ type ServicerResults struct {
 	Timestamps      []time.Time
 	Latencies       []time.Duration
 	Availabilities  []bool
+	Reliabilities   []bool
 }
 
 type RelayHeaders map[string]string
@@ -145,7 +172,10 @@ type RequestHash struct {
 // Output struct for data needed as output for relay request
 type Output struct {
 	RelayOutput *RelayOutput
+	LocalResp   *RelayOutput
 	Proof       *RelayProof
+	Latency     time.Duration
+	Reliability bool
 }
 
 type RelayOutput struct {
@@ -188,7 +218,7 @@ func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*Viper
 	}
 
 	// Calculate availability score
-	_, scaledAvailabilityScore := CalculateAvailabilityScore(len(result.Timestamps), countTrue(result.Availabilities))
+	_, scaledAvailabilityScore := CalculateAvailabilityScore(len(result.Availabilities), countTrue(result.Availabilities))
 	latencyScore := sdk.BigDec{}
 	if len(result.Latencies) > 0 {
 		/*
@@ -200,11 +230,15 @@ func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*Viper
 		latencyScore = sdk.MinDec(sdk.OneDec(), sdk.NewDecFromInt(sdk.NewInt(int64(expectedLatency))).Quo(sdk.NewDecFromInt(sdk.NewInt(int64(averageLatency)))))
 	}
 
+	// Calculate reliability score
+	reliabilityScore := CalculateReliabilityScore(len(result.Reliabilities), countTrue(result.Reliabilities))
+
 	report := &ViperQoSReport{
 		FirstSampleTimestamp: firstSampleTimestamp,
 		BlockHeight:          blockHeight,
 		LatencyScore:         latencyScore,
 		AvailabilityScore:    scaledAvailabilityScore,
+		ReliabilityScore:     reliabilityScore,
 	}
 
 	return report, nil
@@ -229,6 +263,13 @@ func CalculateAvailabilityScore(totalRelays, answeredRelays int) (downtimePercen
 	downtimePercentage = sdk.NewDecWithPrec(int64(totalRelays-answeredRelays), 0).Quo(sdk.NewDecWithPrec(int64(totalRelays), 0))
 	scaledAvailabilityScore = sdk.MaxDec(sdk.ZeroDec(), sdk.OneDec().Sub(downtimePercentage))
 	return downtimePercentage, scaledAvailabilityScore
+}
+
+func CalculateReliabilityScore(totalSamples int, matchedSamples int) sdk.BigDec {
+	if totalSamples == 0 {
+		return sdk.ZeroDec()
+	}
+	return sdk.NewDec(int64(matchedSamples)).Quo(sdk.NewDec(int64(totalSamples)))
 }
 
 // returns the expected latency to a threshold.

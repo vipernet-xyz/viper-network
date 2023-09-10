@@ -574,6 +574,25 @@ func (app ViperCoreApp) HandleRelay(r viperTypes.Relay) (res *viperTypes.RelayRe
 	return
 }
 
+func (app ViperCoreApp) HandleLocalRelay(r viperTypes.Relay) (res *viperTypes.RelayResponse, dispatch *viperTypes.DispatchResponse, err error) {
+	ctx, err := app.NewContext(app.LastBlockHeight())
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	status, sErr := app.viperKeeper.TmNode.ConsensusReactorStatus()
+	if sErr != nil {
+		return nil, nil, fmt.Errorf("viper node is unable to retrieve synced status from tendermint node, cannot service in this state")
+	}
+
+	if status.IsCatchingUp {
+		return nil, nil, fmt.Errorf("viper node is currently syncing to the blockchain, cannot service in this state")
+	}
+	res, err = app.viperKeeper.HandleLocalRelay(ctx, r)
+	return
+}
+
 func checkPagination(page, limit int) (int, int) {
 	if page <= 0 {
 		page = 1

@@ -69,4 +69,5 @@ message ReportCard {
     int64 TotalSessions = 1 [(gogoproto.jsontag) = "total_sessions"];
     bytes TotalLatencyScore = 2 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_latency_score", (gogoproto.nullable) = false];
     bytes TotalAvailabilityScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_availability_score", (gogoproto.nullable) = false];
+	bytes TotalReliabilityScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", (gogoproto.jsontag) = "total_reliability_score", (gogoproto.nullable) = false];
 }
