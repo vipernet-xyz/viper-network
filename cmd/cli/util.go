@@ -61,14 +61,14 @@ var chainsDelCmd = &cobra.Command{
 }
 
 var geoZonesGenCmd = &cobra.Command{
-	Use:   "generate-geozones",
-	Short: "Generates geoZones file",
-	Long:  "Generate the geoZones file for hosted geoZones",
+	Use:   "generate-geozone",
+	Short: "Generates geoZone file",
+	Long:  "Generate the geoZone file for hosted geoZone",
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
-		geoZones := app.GenerateHostedGeoZones()
-		fmt.Println(app.GlobalConfig.ViperConfig.GeoZonesName + " contains:\n")
-		for _, zone := range geoZones {
+		geoZones := app.NewHostedGeoZones(true)
+		fmt.Println(app.GlobalConfig.ViperConfig.GeoZoneName + " contains:\n")
+		for _, zone := range geoZones.M {
 			fmt.Println(zone.ID)
 		}
 		fmt.Println("If incorrect, please remove the geozone.json file with the " + geoZonesDelCmd.NameAndAliases() + " command")
@@ -81,8 +81,8 @@ var geoZonesDelCmd = &cobra.Command{
 	Long:  "Remove the geoZones file for hosted geoZones",
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
-		app.DeleteHostedGeoZones()
-		fmt.Println("Successfully deleted " + app.GlobalConfig.ViperConfig.GeoZonesName + ".")
+		app.DeleteHostedGeoZone()
+		fmt.Println("Successfully deleted " + app.GlobalConfig.ViperConfig.GeoZoneName + ".")
 	},
 }
 

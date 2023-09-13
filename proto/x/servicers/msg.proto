@@ -12,13 +12,13 @@ message MsgProtoStake {
 
 	bytes Publickey = 1 [(gogoproto.moretags) = "yaml:\"public_key\"", (gogoproto.jsontag) = "public_key"];
 	repeated string Chains = 2 [(gogoproto.moretags) = "yaml:\"chains\"", (gogoproto.jsontag) = "chains"];
-	string value = 3 [
+	bytes value = 3 [
 		(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt",
 		(gogoproto.nullable) = false,
 		(gogoproto.jsontag) = "value",
 		(gogoproto.moretags) = "yaml:\"value\""];
 	string ServiceUrl = 4 [(gogoproto.moretags) = "yaml:\"service_url\"", (gogoproto.jsontag) = "service_url"];
-	string GeoZone = 5 [
+	repeated string GeoZone = 5 [
 		(gogoproto.jsontag) = "geo_zone",
 		(gogoproto.moretags) = "yaml:\"geo_zone\""];	
 	bytes OutputAddress = 6 [
@@ -41,7 +41,7 @@ message LegacyMsgProtoStake {
 		(gogoproto.jsontag) = "value",
 		(gogoproto.moretags) = "yaml:\"value\""];
 	string ServiceUrl = 4 [(gogoproto.moretags) = "yaml:\"service_url\"", (gogoproto.jsontag) = "service_url"];
-	string GeoZone = 5 [
+	repeated string GeoZone = 5 [
 		(gogoproto.jsontag) = "geo_zone",
 		(gogoproto.moretags) = "yaml:\"geo_zone\""];	
 }
@@ -120,7 +120,7 @@ message MsgSend {
 		(gogoproto.jsontag) = "to_address",
 		(gogoproto.moretags) = "yaml:\"to_address\""
 	];
-	string amount = 3 [
+	bytes amount = 3 [
 		(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt",
 		(gogoproto.nullable) = false,
 		(gogoproto.jsontag) = "amount",

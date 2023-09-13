@@ -22,12 +22,12 @@ type Keeper struct {
 
 	storeKey     storetypes.StoreKey
 	paramSpace   paramtypes.Subspace
-	cdc          codec.BinaryCodec
+	cdc          *codec.Codec
 	clientKeeper types.ClientKeeper
 }
 
 // NewKeeper creates a new IBC connection Keeper instance
-func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace, ck types.ClientKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramSpace paramtypes.Subspace, ck types.ClientKeeper) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
 		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())

@@ -24,7 +24,7 @@ var (
 // Keeper defines the IBC fungible transfer keeper
 type Keeper struct {
 	storeKey storetypes.StoreKey
-	cdc      codec.BinaryCodec
+	cdc      *codec.Codec
 
 	authKeeper    types.AccountKeeper
 	ics4Wrapper   porttypes.ICS4Wrapper
@@ -35,7 +35,7 @@ type Keeper struct {
 
 // NewKeeper creates a new 29-fee Keeper instance
 func NewKeeper(
-	cdc codec.BinaryCodec, key storetypes.StoreKey,
+	cdc *codec.Codec, key storetypes.StoreKey,
 	ics4Wrapper porttypes.ICS4Wrapper, channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper, authKeeper types.AccountKeeper, bankKeeper types.BankKeeper,
 ) Keeper {

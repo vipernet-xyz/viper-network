@@ -30,7 +30,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 }
 
-func UnmarshalSignatureData(cdc codec.BinaryCodec, data []byte) (signing.SignatureData, error) {
+func UnmarshalSignatureData(cdc *codec.Codec, data []byte) (signing.SignatureData, error) {
 	protoSigData := &signing.SignatureDescriptor_Data{}
 	if err := cdc.Unmarshal(data, protoSigData); err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to unmarshal proof into type %T", protoSigData)

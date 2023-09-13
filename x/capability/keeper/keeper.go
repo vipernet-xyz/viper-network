@@ -10,7 +10,6 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/store/prefix"
 	storetypes "github.com/vipernet-xyz/viper-network/store/types"
-	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 	"github.com/vipernet-xyz/viper-network/x/capability/types"
@@ -30,13 +29,12 @@ type (
 	// The keeper allows the ability to create scoped sub-keepers which are tied to
 	// a single specific module.
 	Keeper struct {
-		cdc           codec.BinaryCodec
-		storeKey      storetypes.StoreKey
-		memKey        storetypes.StoreKey
+		cdc           *codec.Codec
+		storeKey      sdk.StoreKey
+		memKey        sdk.StoreKey
 		capMap        map[uint64]*types.Capability
 		scopedModules map[string]struct{}
 		sealed        bool
-		paramSpace    paramtypes.Subspace
 	}
 
 	// ScopedKeeper defines a scoped sub-keeper which is tied to a single specific
@@ -46,9 +44,9 @@ type (
 	// by name, in addition to creating new capabilities & authenticating capabilities
 	// passed by other modules.
 	ScopedKeeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
+		cdc      *codec.Codec
+		storeKey sdk.StoreKey
+		memKey   sdk.StoreKey
 		capMap   map[uint64]*types.Capability
 		module   string
 	}
@@ -56,7 +54,7 @@ type (
 
 // NewKeeper constructs a new CapabilityKeeper instance and initializes maps
 // for capability map and scopedModules map.
-func NewKeeper(cdc codec.BinaryCodec, storeKey, memKey storetypes.StoreKey) *Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, memKey sdk.StoreKey) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
@@ -174,9 +172,6 @@ func (k Keeper) InitializeIndex(ctx sdk.Ctx, index uint64) error {
 
 // GetLatestIndex returns the latest index of the CapabilityKeeper
 func (k Keeper) GetLatestIndex(ctx sdk.Ctx) uint64 {
-	fmt.Println("Context:", ctx)
-	fmt.Println("Store Key:", k.storeKey)
-
 	store := ctx.KVStore(k.storeKey)
 	a, _ := store.Get(types.KeyIndex)
 	return types.IndexFromKey(a)
@@ -476,7 +471,6 @@ func (sk ScopedKeeper) addOwner(ctx sdk.Ctx, cap *types.Capability, name string)
 	if err := capOwners.Set(types.NewOwner(sk.module, name)); err != nil {
 		return err
 	}
-
 	// update capability owner set
 	prefixStore.Set(indexKey, sk.cdc.MustMarshal(capOwners))
 
@@ -492,7 +486,6 @@ func (sk ScopedKeeper) getOwners(ctx sdk.Ctx, cap *types.Capability) *types.Capa
 	if len(bz) == 0 {
 		return types.NewCapabilityOwners()
 	}
-
 	var capOwners types.CapabilityOwners
 	sk.cdc.MustUnmarshal(bz, &capOwners)
 	return &capOwners

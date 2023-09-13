@@ -17,6 +17,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/store/dbadapter"
 	"github.com/vipernet-xyz/viper-network/store/errors"
 	"github.com/vipernet-xyz/viper-network/store/iavl"
+	"github.com/vipernet-xyz/viper-network/store/mem"
 	"github.com/vipernet-xyz/viper-network/store/rootmulti/heightcache"
 	"github.com/vipernet-xyz/viper-network/store/tracekv"
 	"github.com/vipernet-xyz/viper-network/store/transient"
@@ -559,8 +560,12 @@ func (rs *Store) loadCommitStoreFromParams(key types.StoreKey, id types.CommitID
 		if !ok {
 			return store, fmt.Errorf("invalid storeKey for StoreTypeTransient: %s", key.String())
 		}
-
 		return transient.NewStore(), nil
+	case types.StoreTypeMemory:
+		if _, ok := key.(*types.MemoryStoreKey); !ok {
+			return nil, fmt.Errorf("unexpected key type for a MemoryStoreKey; got: %s", key.String())
+		}
+		return mem.NewStore(), nil
 
 	default:
 		panic(fmt.Sprintf("unrecognized store type %v", params.typ))
@@ -680,7 +685,7 @@ func commitStores(version int64, storeMap map[types.StoreKey]types.CommitStore) 
 		// Commit
 		commitID := store.Commit()
 
-		if store.GetStoreType() == types.StoreTypeTransient {
+		if store.GetStoreType() == types.StoreTypeTransient || store.GetStoreType() == types.StoreTypeMemory {
 			continue
 		}
 

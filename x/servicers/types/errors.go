@@ -37,6 +37,7 @@ const (
 	CodeUnauthorizedSigner       CodeType          = 125
 	CodeNilSigner                CodeType          = 126
 	CodeInvalidGeoZone           CodeType          = 127
+	CodeNoGeoZone                CodeType          = 128
 )
 
 func ErrTooManyChains(codespace sdk.CodespaceType) sdk.Error {
@@ -52,6 +53,9 @@ func ErrNoServiceURL(codespace sdk.CodespaceType) sdk.Error {
 }
 func ErrNoChains(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeNoChains, "validator must stake with hosted blockchains")
+}
+func ErrNoGeoZone(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeNoGeoZone, "validator must stake with hosted GeoZone")
 }
 func ErrNilValidatorAddr(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidInput, "validator address is nil")

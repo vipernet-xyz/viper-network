@@ -307,6 +307,12 @@ type MemoryStoreKey struct {
 	name string
 }
 
+func NewMemoryStoreKey(name string) *MemoryStoreKey {
+	return &MemoryStoreKey{
+		name: name,
+	}
+}
+
 // Name returns the name of the MemoryStoreKey.
 func (key *MemoryStoreKey) Name() string {
 	return key.name

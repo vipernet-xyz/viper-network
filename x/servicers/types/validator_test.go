@@ -24,7 +24,7 @@ func TestNewValidator(t *testing.T) {
 		tokensToStake sdk.BigInt
 		chains        []string
 		serviceURL    string
-		geozone       string
+		geozone       []string
 		reportcard    ReportCard
 	}
 	var pub crypto.Ed25519PublicKey
@@ -38,7 +38,7 @@ func TestNewValidator(t *testing.T) {
 		args args
 		want Validator
 	}{
-		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443", "0001", ReportCard{TotalSessions: 1, TotalLatencyScore: sdk.NewDec(8 / 100), TotalAvailabilityScore: sdk.NewDec(8 / 100)}},
+		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443", []string{"0001"}, ReportCard{TotalSessions: 1, TotalLatencyScore: sdk.NewDec(8 / 100), TotalAvailabilityScore: sdk.NewDec(8 / 100)}},
 			Validator{
 				Address:                 sdk.Address(pub.Address()),
 				PublicKey:               pub,

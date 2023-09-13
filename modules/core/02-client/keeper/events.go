@@ -30,7 +30,7 @@ func emitCreateClientEvent(ctx sdk.Ctx, clientID string, clientState exported.Cl
 }
 
 // emitUpdateClientEvent emits an update client event
-func emitUpdateClientEvent(ctx sdk.Ctx, clientID string, clientType string, consensusHeights []exported.Height, cdc codec.BinaryCodec, clientMsg exported.ClientMessage) {
+func emitUpdateClientEvent(ctx sdk.Ctx, clientID string, clientType string, consensusHeights []exported.Height, cdc *codec.Codec, clientMsg exported.ClientMessage) {
 	// Marshal the ClientMessage as an Any and encode the resulting bytes to hex.
 	// This prevents the event value from containing invalid UTF-8 characters
 	// which may cause data to be lost when JSON encoding/decoding.

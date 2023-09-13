@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"reflect"
 	"runtime/debug"
 	"sort"
 	"strings"
@@ -223,11 +222,15 @@ func (app *BaseApp) MountStores(keys ...sdk.StoreKey) {
 				// retain history, but it's useful for faster simulation.
 				app.MountStore(key, sdk.StoreTypeDB)
 			}
+
 		case *sdk.TransientStoreKey:
 			app.MountStore(key, sdk.StoreTypeTransient)
+
+		case *sdk.MemoryStoreKey:
+			app.MountStore(key, sdk.StoreTypeMemory)
+
 		default:
-			fmt.Println("Unrecognized store key type " + reflect.TypeOf(key).Name())
-			os.Exit(1)
+			panic(fmt.Sprintf("Unrecognized store key type :%T", key))
 		}
 	}
 }
@@ -253,6 +256,15 @@ func (app *BaseApp) MountTransientStores(keys map[string]*sdk.TransientStoreKey)
 	keys[sdk.ParamsTKey.Name()] = sdk.ParamsTKey
 	for _, key := range keys {
 		app.MountStore(key, sdk.StoreTypeTransient)
+	}
+}
+
+// MountMemoryStores mounts all in-memory KVStores with the BaseApp's internal
+// commit multi-store.
+func (app *BaseApp) MountMemoryStores(keys map[string]*sdk.MemoryStoreKey) {
+	keys[sdk.ParamsmemKey.Name()] = sdk.ParamsmemKey
+	for _, key := range keys {
+		app.MountStore(key, sdk.StoreTypeMemory)
 	}
 }
 

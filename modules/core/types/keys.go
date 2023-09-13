@@ -13,6 +13,9 @@ const (
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
 
+	// TStoreKey is the string transient store representation
+	TStoreKey = "transient_" + ModuleName
+
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "memory:capability"
 

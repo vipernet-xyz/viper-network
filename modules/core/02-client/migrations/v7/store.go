@@ -29,7 +29,7 @@ const Localhost string = "09-localhost"
 // - Pruning all solo machine consensus states
 // - Removing the localhost client
 // - Asserting existing tendermint clients are properly registered on the chain codec
-func MigrateStore(ctx sdk.Ctx, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, clientKeeper ClientKeeper) error {
+func MigrateStore(ctx sdk.Ctx, storeKey storetypes.StoreKey, cdc *codec.Codec, clientKeeper ClientKeeper) error {
 	store := ctx.KVStore(storeKey)
 
 	if err := handleSolomachineMigration(ctx, store, cdc, clientKeeper); err != nil {
@@ -49,7 +49,7 @@ func MigrateStore(ctx sdk.Ctx, storeKey storetypes.StoreKey, cdc codec.BinaryCod
 
 // handleSolomachineMigration iterates over the solo machine clients and migrates client state from
 // protobuf definition v2 to v3. All consensus states stored outside of the client state are pruned.
-func handleSolomachineMigration(ctx sdk.Ctx, store sdk.KVStore, cdc codec.BinaryCodec, clientKeeper ClientKeeper) error {
+func handleSolomachineMigration(ctx sdk.Ctx, store sdk.KVStore, cdc *codec.Codec, clientKeeper ClientKeeper) error {
 	clients, err := collectClients(ctx, store, exported.Solomachine)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func handleSolomachineMigration(ctx sdk.Ctx, store sdk.KVStore, cdc codec.Binary
 
 // handlerTendermintMigration asserts that the tendermint client in state can be decoded properly.
 // This ensures the upgrading chain properly registered the tendermint client types on the chain codec.
-func handleTendermintMigration(ctx sdk.Ctx, store sdk.KVStore, cdc codec.BinaryCodec, clientKeeper ClientKeeper) error {
+func handleTendermintMigration(ctx sdk.Ctx, store sdk.KVStore, cdc *codec.Codec, clientKeeper ClientKeeper) error {
 	clients, err := collectClients(ctx, store, exported.Tendermint)
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func handleTendermintMigration(ctx sdk.Ctx, store sdk.KVStore, cdc codec.BinaryC
 }
 
 // handleLocalhostMigration removes all client and consensus states associated with the localhost client type.
-func handleLocalhostMigration(ctx sdk.Ctx, store sdk.KVStore, cdc codec.BinaryCodec, clientKeeper ClientKeeper) error {
+func handleLocalhostMigration(ctx sdk.Ctx, store sdk.KVStore, cdc *codec.Codec, clientKeeper ClientKeeper) error {
 	clients, err := collectClients(ctx, store, Localhost)
 	if err != nil {
 		return err

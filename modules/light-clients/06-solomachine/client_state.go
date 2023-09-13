@@ -43,7 +43,7 @@ func (cs ClientState) GetLatestHeight() exported.Height {
 func (cs ClientState) GetTimestampAtHeight(
 	_ sdk.Ctx,
 	clientStore sdk.KVStore,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	height exported.Height,
 ) (uint64, error) {
 	return cs.ConsensusState.Timestamp, nil
@@ -53,7 +53,7 @@ func (cs ClientState) GetTimestampAtHeight(
 // The client may be:
 // - Active: if frozen sequence is 0
 // - Frozen: otherwise solo machine is frozen
-func (cs ClientState) Status(_ sdk.Ctx, _ sdk.KVStore, _ codec.BinaryCodec) exported.Status {
+func (cs ClientState) Status(_ sdk.Ctx, _ sdk.KVStore, _ *codec.Codec) exported.Status {
 	if cs.IsFrozen {
 		return exported.Frozen
 	}
@@ -79,7 +79,7 @@ func (cs ClientState) ZeroCustomFields() exported.ClientState {
 
 // Initialize checks that the initial consensus state is equal to the latest consensus state of the initial client and
 // sets the client state in the provided client store.
-func (cs ClientState) Initialize(_ sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
+func (cs ClientState) Initialize(_ sdk.Ctx, cdc *codec.Codec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
 	if !reflect.DeepEqual(cs.ConsensusState, consState) {
 		return errorsmod.Wrapf(clienttypes.ErrInvalidConsensus, "consensus state in initial client does not equal initial consensus state. expected: %s, got: %s",
 			cs.ConsensusState, consState)
@@ -97,7 +97,7 @@ func (cs ClientState) ExportMetadata(_ sdk.KVStore) []exported.GenesisMetadata {
 
 // VerifyUpgradeAndUpdateState returns an error since solomachine client does not support upgrades
 func (cs ClientState) VerifyUpgradeAndUpdateState(
-	_ sdk.Ctx, _ codec.BinaryCodec, _ sdk.KVStore,
+	_ sdk.Ctx, _ *codec.Codec, _ sdk.KVStore,
 	_ exported.ClientState, _ exported.ConsensusState, _, _ []byte,
 ) error {
 	return errorsmod.Wrap(clienttypes.ErrInvalidUpgradeClient, "cannot upgrade solomachine client")
@@ -108,7 +108,7 @@ func (cs ClientState) VerifyUpgradeAndUpdateState(
 func (cs *ClientState) VerifyMembership(
 	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	_ exported.Height,
 	delayTimePeriod uint64,
 	delayBlockPeriod uint64,
@@ -159,7 +159,7 @@ func (cs *ClientState) VerifyMembership(
 func (cs *ClientState) VerifyNonMembership(
 	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	_ exported.Height,
 	delayTimePeriod uint64,
 	delayBlockPeriod uint64,
@@ -204,7 +204,7 @@ func (cs *ClientState) VerifyNonMembership(
 // shared between the verification functions and returns the public key of the
 // consensus state, the unmarshalled proof representing the signature and timestamp.
 func produceVerificationArgs(
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	cs *ClientState,
 	proof []byte,
 ) (cryptotypes.PubKey, signing.SignatureData, uint64, uint64, error) {
@@ -241,7 +241,7 @@ func produceVerificationArgs(
 }
 
 // sets the client state to the store
-func setClientState(store sdk.KVStore, cdc codec.BinaryCodec, clientState exported.ClientState) {
+func setClientState(store sdk.KVStore, cdc *codec.Codec, clientState exported.ClientState) {
 	bz := clienttypes.MustMarshalClientState(cdc, clientState)
 	store.Set([]byte(host.KeyClientState), bz)
 }

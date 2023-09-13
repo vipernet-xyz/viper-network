@@ -11,7 +11,7 @@ import (
 )
 
 // CheckForMisbehaviour returns true for type Misbehaviour (passed VerifyClientMessage check), otherwise returns false
-func (cs ClientState) CheckForMisbehaviour(_ sdk.Ctx, _ codec.BinaryCodec, _ sdk.KVStore, clientMsg exported.ClientMessage) bool {
+func (cs ClientState) CheckForMisbehaviour(_ sdk.Ctx, _ *codec.Codec, _ sdk.KVStore, clientMsg exported.ClientMessage) bool {
 	if _, ok := clientMsg.(*Misbehaviour); ok {
 		return true
 	}
@@ -19,7 +19,7 @@ func (cs ClientState) CheckForMisbehaviour(_ sdk.Ctx, _ codec.BinaryCodec, _ sdk
 	return false
 }
 
-func (cs ClientState) verifyMisbehaviour(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, misbehaviour *Misbehaviour) error {
+func (cs ClientState) verifyMisbehaviour(ctx sdk.Ctx, cdc *codec.Codec, clientStore sdk.KVStore, misbehaviour *Misbehaviour) error {
 	// NOTE: a check that the misbehaviour message data are not equal is done by
 	// misbehaviour.ValidateBasic which is called by the 02-client keeper.
 	// verify first signature
@@ -38,7 +38,7 @@ func (cs ClientState) verifyMisbehaviour(ctx sdk.Ctx, cdc codec.BinaryCodec, cli
 // verifySignatureAndData verifies that the currently registered public key has signed
 // over the provided data and that the data is valid. The data is valid if it can be
 // unmarshaled into the specified data type.
-func (cs ClientState) verifySignatureAndData(cdc codec.BinaryCodec, misbehaviour *Misbehaviour, sigAndData *SignatureAndData) error {
+func (cs ClientState) verifySignatureAndData(cdc *codec.Codec, misbehaviour *Misbehaviour, sigAndData *SignatureAndData) error {
 	// do not check misbehaviour timestamp since we want to allow processing of past misbehaviour
 	if err := cdc.Unmarshal(sigAndData.Path, new(commitmenttypes.MerklePath)); err != nil {
 		return err

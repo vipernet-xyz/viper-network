@@ -250,3 +250,10 @@ func (cdc *LegacyAmino) MarshalLengthPrefixed(o interface{}) ([]byte, error) {
 	}
 	return cdc.Amino.MarshalBinaryLengthPrefixed(o)
 }
+
+func (cdc *LegacyAmino) MustUnmarshal(bz []byte, ptr interface{}) {
+	err := cdc.Unmarshal(bz, ptr)
+	if err != nil {
+		panic(err)
+	}
+}

@@ -59,6 +59,7 @@ const (
 	StoreTypeDB        = types.StoreTypeDB
 	StoreTypeIAVL      = types.StoreTypeIAVL
 	StoreTypeTransient = types.StoreTypeTransient
+	StoreTypeMemory    = types.StoreTypeMemory
 )
 
 // nolint - reexport
@@ -97,6 +98,18 @@ func NewTransientStoreKeys(names ...string) map[string]*TransientStoreKey {
 	keys := make(map[string]*TransientStoreKey)
 	for _, name := range names {
 		keys[name] = NewTransientStoreKey(name)
+	}
+	return keys
+}
+
+func NewMemoryStoreKey(name string) *MemoryStoreKey {
+	return types.NewMemoryStoreKey(name)
+}
+
+func NewMemoryStoreKeys(names ...string) map[string]*MemoryStoreKey {
+	keys := make(map[string]*MemoryStoreKey)
+	for _, name := range names {
+		keys[name] = NewMemoryStoreKey(name)
 	}
 	return keys
 }

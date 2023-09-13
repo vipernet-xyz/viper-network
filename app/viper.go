@@ -8,7 +8,6 @@ import (
 
 	bam "github.com/vipernet-xyz/viper-network/baseapp"
 	"github.com/vipernet-xyz/viper-network/codec"
-	upgradeKeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
 	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
@@ -23,6 +22,7 @@ import (
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 
+	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
@@ -42,8 +42,8 @@ type ViperCoreApp struct {
 	// extends baseapp
 	*bam.BaseApp
 	// the codec (uses amino)
-	cdc  *codec.Codec
-	Bcdc codec.BinaryCodec
+	cdc *codec.Codec
+
 	// Keys to access the substores
 	Keys    map[string]*sdk.KVStoreKey
 	Tkeys   map[string]*sdk.TransientStoreKey
@@ -58,9 +58,8 @@ type ViperCoreApp struct {
 	IBCKeeper            *ibckeeper.Keeper
 	CapabilityKeeper     *capabilityKeeper.Keeper
 	BankKeeper           authkeeper.Keeper
-	UpgradeKeeper        upgradeKeeper.Keeper
 	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
-	scopedTransferKeeper capabilityKeeper.ScopedKeeper
+	ScopedTransferKeeper capabilityKeeper.ScopedKeeper
 
 	viperKeeper viperKeeper.Keeper
 	// Module Manager
@@ -76,9 +75,11 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, viperTypes.StoreKey, capabilityTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, viperTypes.StoreKey, capabilityTypes.StoreKey, ibcexported.StoreKey)
 	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey, capabilityTypes.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey, capabilityTypes.TStoreKey, ibcexported.TStoreKey)
+
+	memkeys := sdk.NewMemoryStoreKeys(capabilityTypes.MemStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -86,6 +87,7 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 		cdc:     cdc,
 		Keys:    k,
 		Tkeys:   tkeys,
+		memKeys: memkeys,
 	}
 }
 

@@ -65,7 +65,7 @@ which submits pre-built packet data containing messages to be executed on the ho
 				return err
 			}
 
-			cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
+			cdc := codec.NewProtoCodec(clientCtx.InterfaceRegistry)
 
 			memo, err := cmd.Flags().GetString(memoFlag)
 			if err != nil {
@@ -89,7 +89,7 @@ which submits pre-built packet data containing messages to be executed on the ho
 
 // generatePacketData takes in message bytes and a memo and serializes the message into an
 // instance of InterchainAccountPacketData which is returned as bytes.
-func generatePacketData(cdc *codec.ProtoCodec1, msgBytes []byte, memo string) ([]byte, error) {
+func generatePacketData(cdc *codec.ProtoCodec, msgBytes []byte, memo string) ([]byte, error) {
 	protoMessages, err := convertBytesIntoProtoMessages(cdc, msgBytes)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func generatePacketData(cdc *codec.ProtoCodec1, msgBytes []byte, memo string) ([
 
 // convertBytesIntoProtoMessages returns a list of proto messages from bytes. The bytes can be in the form of a single
 // message, or a json array of messages.
-func convertBytesIntoProtoMessages(cdc *codec.ProtoCodec1, msgBytes []byte) ([]proto.Message, error) {
+func convertBytesIntoProtoMessages(cdc *codec.ProtoCodec, msgBytes []byte) ([]proto.Message, error) {
 	var rawMessages []json.RawMessage
 	if err := json.Unmarshal(msgBytes, &rawMessages); err != nil {
 		// if we fail to unmarshal a list of messages, we assume we are just dealing with a single message.
@@ -127,8 +127,10 @@ func convertBytesIntoProtoMessages(cdc *codec.ProtoCodec1, msgBytes []byte) ([]p
 }
 
 // generateIcaPacketDataFromProtoMessages generates ica packet data as bytes from a given set of proto encoded sdk messages and a memo.
-func generateIcaPacketDataFromProtoMessages(cdc *codec.ProtoCodec1, sdkMessages []proto.Message, memo string) ([]byte, error) {
-	icaPacketDataBytes, err := icatypes.SerializeCosmosTx(cdc, sdkMessages)
+func generateIcaPacketDataFromProtoMessages(cdc *codec.ProtoCodec, sdkMessages []proto.Message, memo string) ([]byte, error) {
+	anyUnpacker := cdc.AnyUnpacker
+	codec := codec.NewCodec(anyUnpacker)
+	icaPacketDataBytes, err := icatypes.SerializeCosmosTx(codec, sdkMessages)
 	if err != nil {
 		return nil, err
 	}

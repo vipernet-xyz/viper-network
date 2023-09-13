@@ -49,7 +49,7 @@ func QueryClientStateABCI(
 		return nil, errorsmod.Wrap(types.ErrClientNotFound, clientID)
 	}
 
-	cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
+	cdc := codec.NewCodec(clientCtx.InterfaceRegistry)
 
 	clientState, err := types.UnmarshalClientState(cdc, value)
 	if err != nil {
@@ -102,7 +102,7 @@ func QueryConsensusStateABCI(
 		return nil, errorsmod.Wrap(types.ErrConsensusStateNotFound, clientID)
 	}
 
-	cdc := codec.NewProtoCodec1(clientCtx.InterfaceRegistry)
+	cdc := codec.NewCodec(clientCtx.InterfaceRegistry)
 
 	cs, err := types.UnmarshalConsensusState(cdc, value)
 	if err != nil {

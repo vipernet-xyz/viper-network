@@ -76,7 +76,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 		Chains:                  []string{ethereum, bitcoin},
 		ServiceURL:              "https://www.google.com:443",
 		StakedTokens:            sdk.NewInt(100000),
-		GeoZone:                 "0001",
+		GeoZone:                 []string{"0001"},
 		UnstakingCompletionTime: time.Time{},
 	}
 	var noEthereumNodes []exported.ValidatorI
@@ -90,7 +90,7 @@ func TestRelay_Validate(t *testing.T) { // TODO add overservice, and not unique 
 			Chains:                  []string{bitcoin},
 			ServiceURL:              "https://www.google.com:443",
 			StakedTokens:            sdk.NewInt(100000),
-			GeoZone:                 "0001",
+			GeoZone:                 []string{"0001"},
 			UnstakingCompletionTime: time.Time{},
 		})
 	}
@@ -437,6 +437,13 @@ func (m MockPosKeeper) BurnforNoActivity(ctx sdk.Ctx, address sdk.Address) {
 	panic("implement me")
 }
 
+func (m MockPosKeeper) GetHistoricalInfo(ctx sdk.Ctx, height int64) (servicersTypes.HistoricalInfo, bool) {
+	panic("implement me")
+}
+
+func (m MockPosKeeper) UnbondingTime(ctx sdk.Ctx) (res time.Duration) {
+	panic("implement me")
+}
 func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)

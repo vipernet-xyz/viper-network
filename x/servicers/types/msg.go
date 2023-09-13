@@ -155,7 +155,7 @@ type MsgStake struct {
 	Chains     []string         `json:"chains" yaml:"chains"`
 	Value      sdk.BigInt       `json:"value" yaml:"value"`
 	ServiceUrl string           `json:"service_url" yaml:"service_url"`
-	GeoZone    string           `json:"geo_zone" yaml:"geo_zone"`
+	GeoZone    []string         `json:"geo_zone" yaml:"geo_zone"`
 	Output     sdk.Address      `json:"output_address,omitempty" yaml:"output_address"`
 }
 
@@ -229,6 +229,15 @@ func (msg MsgStake) ValidateBasic() sdk.Error {
 	}
 	for _, chain := range msg.Chains {
 		err := ValidateNetworkIdentifier(chain)
+		if err != nil {
+			return err
+		}
+	}
+	if len(msg.GeoZone) == 0 {
+		return ErrNoGeoZone(DefaultCodespace)
+	}
+	for _, geozone := range msg.GeoZone {
+		err := ValidateGeoZone(geozone)
 		if err != nil {
 			return err
 		}

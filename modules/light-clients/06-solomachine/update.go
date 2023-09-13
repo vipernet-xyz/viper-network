@@ -14,7 +14,7 @@ import (
 // VerifyClientMessage introspects the provided ClientMessage and checks its validity
 // A Solomachine Header is considered valid if the currently registered public key has signed over the new public key with the correct sequence
 // A Solomachine Misbehaviour is considered valid if duplicate signatures of the current public key are found on two different messages at a given sequence
-func (cs ClientState) VerifyClientMessage(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, clientMsg exported.ClientMessage) error {
+func (cs ClientState) VerifyClientMessage(ctx sdk.Ctx, cdc *codec.Codec, clientStore sdk.KVStore, clientMsg exported.ClientMessage) error {
 	switch msg := clientMsg.(type) {
 	case *Header:
 		return cs.verifyHeader(ctx, cdc, clientStore, msg)
@@ -25,7 +25,7 @@ func (cs ClientState) VerifyClientMessage(ctx sdk.Ctx, cdc codec.BinaryCodec, cl
 	}
 }
 
-func (cs ClientState) verifyHeader(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, header *Header) error {
+func (cs ClientState) verifyHeader(ctx sdk.Ctx, cdc *codec.Codec, clientStore sdk.KVStore, header *Header) error {
 	// assert update timestamp is not less than current consensus state timestamp
 	if header.Timestamp < cs.ConsensusState.Timestamp {
 		return errorsmod.Wrapf(
@@ -77,7 +77,7 @@ func (cs ClientState) verifyHeader(ctx sdk.Ctx, cdc codec.BinaryCodec, clientSto
 
 // UpdateState updates the consensus state to the new public key and an incremented sequence.
 // A list containing the updated consensus height is returned.
-func (cs ClientState) UpdateState(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, clientMsg exported.ClientMessage) []exported.Height {
+func (cs ClientState) UpdateState(ctx sdk.Ctx, cdc *codec.Codec, clientStore sdk.KVStore, clientMsg exported.ClientMessage) []exported.Height {
 	smHeader, ok := clientMsg.(*Header)
 	if !ok {
 		panic(fmt.Errorf("unsupported ClientMessage: %T", clientMsg))
@@ -100,7 +100,7 @@ func (cs ClientState) UpdateState(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStor
 
 // UpdateStateOnMisbehaviour updates state upon misbehaviour. This method should only be called on misbehaviour
 // as it does not perform any misbehaviour checks.
-func (cs ClientState) UpdateStateOnMisbehaviour(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, _ exported.ClientMessage) {
+func (cs ClientState) UpdateStateOnMisbehaviour(ctx sdk.Ctx, cdc *codec.Codec, clientStore sdk.KVStore, _ exported.ClientMessage) {
 	cs.IsFrozen = true
 
 	setClientState(clientStore, cdc, &cs)

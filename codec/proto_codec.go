@@ -17,7 +17,7 @@ import (
 // ProtoCodec defines a codec that utilizes Protobuf for both binary and JSON
 // encoding.
 type ProtoCodec struct {
-	anyUnpacker types.AnyUnpacker
+	AnyUnpacker types.AnyUnpacker
 }
 
 var (
@@ -26,11 +26,11 @@ var (
 )
 
 func NewProtoCodec(anyUnpacker types.AnyUnpacker) *ProtoCodec {
-	return &ProtoCodec{anyUnpacker: anyUnpacker}
+	return &ProtoCodec{AnyUnpacker: anyUnpacker}
 }
 
 func (pc *ProtoCodec) Register(protoName string, iface interface{}, impls ...proto.Message) {
-	res, ok := pc.anyUnpacker.(types.InterfaceRegistry)
+	res, ok := pc.AnyUnpacker.(types.InterfaceRegistry)
 	if !ok {
 		panic("unable to convert protocodec.anyUnpacker into types.InterfaceRegistry")
 	}
@@ -38,7 +38,7 @@ func (pc *ProtoCodec) Register(protoName string, iface interface{}, impls ...pro
 }
 
 func (pc *ProtoCodec) RegisterImplementation(iface interface{}, impls ...proto.Message) {
-	res, ok := pc.anyUnpacker.(types.InterfaceRegistry)
+	res, ok := pc.AnyUnpacker.(types.InterfaceRegistry)
 	if !ok {
 		panic("unable to convert protocodec.anyUnpacker into types.InterfaceRegistry")
 	}
@@ -83,7 +83,7 @@ func (pc *ProtoCodec) UnmarshalBinaryBare(bz []byte, ptr ProtoMarshaler) error {
 	if err != nil {
 		return err
 	}
-	err = types.UnpackInterfaces(ptr, pc.anyUnpacker)
+	err = types.UnpackInterfaces(ptr, pc.AnyUnpacker)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (pc *ProtoCodec) UnmarshalJSON(bz []byte, ptr interface{}) error {
 		return err
 	}
 
-	return types.UnpackInterfaces(ptr, pc.anyUnpacker)
+	return types.UnpackInterfaces(ptr, pc.AnyUnpacker)
 }
 
 func (pc *ProtoCodec) MustUnmarshalJSON(bz []byte, ptr interface{}) {
@@ -157,7 +157,7 @@ func (pc *ProtoCodec) MustUnmarshalJSON(bz []byte, ptr interface{}) {
 }
 
 func (pc *ProtoCodec) UnpackAny(any *types.Any, iface interface{}) error {
-	return pc.anyUnpacker.UnpackAny(any, iface)
+	return pc.AnyUnpacker.UnpackAny(any, iface)
 }
 
 // ProtoCodec defines a codec that utilizes Protobuf for both binary and JSON
@@ -475,4 +475,13 @@ func (pc *ProtoCodec) Marshal(o ProtoMarshaler) ([]byte, error) {
 		return []byte{}, nil
 	}
 	return o.Marshal()
+}
+
+func (pc *ProtoCodec) UnmarshalInterfaceJSON(bz []byte, iface interface{}) error {
+	any := &types.Any{}
+	err := pc.UnmarshalJSON(bz, any)
+	if err != nil {
+		return err
+	}
+	return pc.UnpackAny(any, iface)
 }

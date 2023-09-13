@@ -16,7 +16,7 @@ import (
 // It retrieves the associated channel capability index and reassigns ownership to the ICS27 controller submodule.
 func MigrateICS27ChannelCapability(
 	ctx sdk.Ctx,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	capabilityStoreKey storetypes.StoreKey,
 	capabilityKeeper *capabilitykeeper.Keeper,
 	module string, // the name of the scoped keeper for the underlying app module

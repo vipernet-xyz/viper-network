@@ -17,7 +17,7 @@ import (
 func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, serviceURL string, amount sdk.BigInt, kp keys.KeyPair, output sdk.Address, passphrase string, legacyCodec bool, fromAddr sdk.Address) (*sdk.TxResponse, error) {
 	var msg sdk.ProtoMsg
 	{
-		msg = &types.LegacyMsgStake{
+		msg = &types.MsgStake{
 			PublicKey:  kp.PublicKey,
 			Value:      amount,
 			ServiceUrl: serviceURL, // url where viper service api is hosted
@@ -37,9 +37,6 @@ func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chain
 
 func UnstakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, address, signer sdk.Address, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
 	var msg sdk.ProtoMsg
-	{
-		msg = &types.LegacyMsgBeginUnstake{Address: address}
-	}
 	txBuilder, cliCtx, err := newTx(cdc, msg, address, tmNode, keybase, passphrase)
 	if err != nil {
 		return nil, err
@@ -51,13 +48,11 @@ func UnstakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, add
 	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, msg, legacyCodec)
 }
 
-func UnjailTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, address sdk.Address, passphrase string, legacyCodec bool, isAfter8 bool) (*sdk.TxResponse, error) {
+func UnjailTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, address sdk.Address, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
 	var msg sdk.ProtoMsg
-	if isAfter8 {
-		msg = &types.MsgUnjail{ValidatorAddr: address}
-	} else {
-		msg = &types.LegacyMsgUnjail{ValidatorAddr: address}
-	}
+
+	msg = &types.MsgUnjail{ValidatorAddr: address}
+
 	txBuilder, cliCtx, err := newTx(cdc, msg, address, tmNode, keybase, passphrase)
 	if err != nil {
 		return nil, err

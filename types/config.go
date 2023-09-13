@@ -50,7 +50,7 @@ type ViperConfig struct {
 	GenerateTokenOnStart     bool   `json:"generate_token_on_start"`
 	LeanViper                bool   `json:"lean_viper"`
 	LeanViperUserKeyFileName string `json:"lean_viper_user_key_file"`
-	GeoZonesName             string `json:"geo_zones_name"`
+	GeoZoneName              string `json:"geo_zones_name"`
 	GeoZonesHotReload        bool   `json:"geo_zones_hot_reload"`
 }
 
@@ -78,7 +78,7 @@ const (
 	DefaultNKNameLean                  = "node_key_lean.json"
 	DefaultNKName                      = "servicer_key.json"
 	DefaultChainsName                  = "chains.json"
-	DefaultGeoZonesName                = "geozone.json"
+	DefaultGeoZoneName                 = "geozone.json"
 	DefaultGenesisName                 = "genesis.json"
 	DefaultRPCPort                     = "8081"
 	DefaultEvidenceDBName              = "viper_evidence"
@@ -126,7 +126,7 @@ func DefaultConfig(dataDir string) Config {
 			DataDir:                  dataDir,
 			GenesisName:              DefaultGenesisName,
 			ChainsName:               DefaultChainsName,
-			GeoZonesName:             DefaultGeoZonesName,
+			GeoZoneName:              DefaultGeoZoneName,
 			EvidenceDBName:           DefaultEvidenceDBName,
 			TendermintURI:            DefaultTMURI,
 			KeybaseName:              DefaultKeybaseName,

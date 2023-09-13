@@ -61,6 +61,8 @@ If no changes are desired for the parameter, just enter the current param value 
 		}
 		rawChains := reg.ReplaceAllString(args[2], "")
 		chains := strings.Split(rawChains, ",")
+		rawGeoZone := reg.ReplaceAllString(args[5], "")
+		geozone := strings.Split(rawGeoZone, ",")
 		serviceURI := args[3]
 		fee, err := strconv.Atoi(args[6])
 		if err != nil {
@@ -78,7 +80,7 @@ If no changes are desired for the parameter, just enter the current param value 
 			return
 		}
 		fmt.Println("Enter Passphrase: ")
-		res1, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], args[5], types.NewInt(int64(amount)), int64(fee))
+		res1, err := LegacyStakeNode(chains, serviceURI, fromAddr, app.Credentials(pwd), args[4], geozone, types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -129,6 +131,8 @@ The signer may be the operator or the output address.`,
 		}
 		rawChains := reg.ReplaceAllString(args[3], "")
 		chains := strings.Split(rawChains, ",")
+		rawGeoZone := reg.ReplaceAllString(args[6], "")
+		geozone := strings.Split(rawGeoZone, ",")
 		serviceURI := args[4]
 		fee, err := strconv.Atoi(args[7])
 		if err != nil {
@@ -146,7 +150,7 @@ The signer may be the operator or the output address.`,
 			return
 		}
 		fmt.Println("Enter Passphrase: ")
-		res1, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], args[6], types.NewInt(int64(amount)), int64(fee))
+		res1, err := StakeNode(chains, serviceURI, operatorPubKey, output, app.Credentials(pwd), args[5], geozone, types.NewInt(int64(amount)), int64(fee))
 		if err != nil {
 			fmt.Println(err)
 			return

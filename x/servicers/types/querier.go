@@ -70,8 +70,8 @@ func (opts QueryValidatorsParams) IsValid(val Validator) bool {
 	}
 	if opts.GeoZone != "" {
 		var contains bool
-		for _, geoZone := range val.GeoZone {
-			if string(geoZone) == opts.GeoZone {
+		for _, geozone := range val.GeoZone {
+			if geozone == opts.GeoZone {
 				contains = true
 				break
 			}

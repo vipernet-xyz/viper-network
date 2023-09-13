@@ -1,12 +1,15 @@
 package types
 
 import (
+	"time"
+
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicersexported "github.com/vipernet-xyz/viper-network/x/servicers/exported"
+	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
 type PosKeeper interface {
@@ -27,6 +30,8 @@ type PosKeeper interface {
 	FishermenCount(ctx sdk.Ctx) (res int64)
 	PauseNode(ctx sdk.Ctx, addr sdk.Address)
 	BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address)
+	GetHistoricalInfo(ctx sdk.Ctx, height int64) (servicersTypes.HistoricalInfo, bool)
+	UnbondingTime(ctx sdk.Ctx) time.Duration
 }
 
 type ProvidersKeeper interface {

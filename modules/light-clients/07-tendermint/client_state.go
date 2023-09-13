@@ -58,7 +58,7 @@ func (cs ClientState) GetLatestHeight() exported.Height {
 func (cs ClientState) GetTimestampAtHeight(
 	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	height exported.Height,
 ) (uint64, error) {
 	// get consensus state at height from clientStore to check for expiry
@@ -80,7 +80,7 @@ func (cs ClientState) GetTimestampAtHeight(
 func (cs ClientState) Status(
 	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 ) exported.Status {
 	if !cs.FrozenHeight.IsZero() {
 		return exported.Frozen
@@ -191,7 +191,7 @@ func (cs ClientState) ZeroCustomFields() exported.ClientState {
 
 // Initialize checks that the initial consensus state is an 07-tendermint consensus state and
 // sets the client state, consensus state and associated metadata in the provided client store.
-func (cs ClientState) Initialize(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
+func (cs ClientState) Initialize(ctx sdk.Ctx, cdc *codec.Codec, clientStore sdk.KVStore, consState exported.ConsensusState) error {
 	consensusState, ok := consState.(*ConsensusState)
 	if !ok {
 		return errorsmod.Wrapf(clienttypes.ErrInvalidConsensus, "invalid initial consensus state. expected type: %T, got: %T",
@@ -211,7 +211,7 @@ func (cs ClientState) Initialize(ctx sdk.Ctx, cdc codec.BinaryCodec, clientStore
 func (cs ClientState) VerifyMembership(
 	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	height exported.Height,
 	delayTimePeriod uint64,
 	delayBlockPeriod uint64,
@@ -258,7 +258,7 @@ func (cs ClientState) VerifyMembership(
 func (cs ClientState) VerifyNonMembership(
 	ctx sdk.Ctx,
 	clientStore sdk.KVStore,
-	cdc codec.BinaryCodec,
+	cdc *codec.Codec,
 	height exported.Height,
 	delayTimePeriod uint64,
 	delayBlockPeriod uint64,

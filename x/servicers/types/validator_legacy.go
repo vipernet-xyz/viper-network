@@ -20,7 +20,7 @@ type LegacyValidator struct {
 	Chains                  []string         `json:"chains" yaml:"chains"`           // validator non native blockchains
 	ServiceURL              string           `json:"service_url" yaml:"service_url"` // url where the viper service api is hosted
 	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`           // tokens staked in the network
-	GeoZone                 string           `json:"geo_zone" yaml:"geo_zone"`
+	GeoZone                 []string         `json:"geo_zone" yaml:"geo_zone"`
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the validator to complete unstaking
 
 }
@@ -110,7 +110,7 @@ func (v *LegacyValidator) GetChains() []string {
 	return val.GetChains()
 }
 
-func (v *LegacyValidator) GetGeoZone() string {
+func (v *LegacyValidator) GetGeoZone() []string {
 	val := v.ToValidator()
 	return val.GetGeoZone()
 }

@@ -5,8 +5,12 @@ const (
 	ModuleName = "ibc"
 	// StoreKey is the string store representation
 	StoreKey = ModuleName
+
+	TStoreKey = "transient_" + ModuleName
 	// QuerierRoute is the querier route for the IBC module
 	QuerierRoute = ModuleName
 	// RouterKey is the msg router key for the IBC module
 	RouterKey = ModuleName
+
+	DefaultParamspace = ModuleName
 )

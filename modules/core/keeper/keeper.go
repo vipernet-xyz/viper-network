@@ -6,10 +6,10 @@ import (
 
 	abciTypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/vipernet-xyz/viper-network/codec"
-	storetypes "github.com/vipernet-xyz/viper-network/store/types"
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	capabilitykeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	clientkeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
@@ -28,7 +28,7 @@ type Keeper struct {
 	// implements gRPC QueryServer interface
 	types.QueryServer
 
-	cdc codec.BinaryCodec
+	cdc *codec.Codec
 
 	ClientKeeper     clientkeeper.Keeper
 	ConnectionKeeper connectionkeeper.Keeper
@@ -39,7 +39,7 @@ type Keeper struct {
 
 // NewKeeper creates a new ibc Keeper
 func NewKeeper(
-	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace, upgradeKeeper clienttypes.UpgradeKeeper,
+	cdc *codec.Codec, key sdk.StoreKey, paramSpace paramtypes.Subspace, stakingKeeper viperTypes.PosKeeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
 ) *Keeper {
 	// register paramSpace at top level keeper
@@ -49,16 +49,15 @@ func NewKeeper(
 		keyTable.RegisterParamSet(&connectiontypes.Params{})
 		paramSpace = paramSpace.WithKeyTable(keyTable)
 	}
-
-	if isEmpty(upgradeKeeper) {
-		panic(fmt.Errorf("cannot initialize IBC keeper: empty upgrade keeper"))
+	if isEmpty(stakingKeeper) {
+		panic(fmt.Errorf("cannot initialize IBC keeper: empty staking keeper"))
 	}
 
 	if reflect.DeepEqual(capabilitykeeper.ScopedKeeper{}, scopedKeeper) {
 		panic(fmt.Errorf("cannot initialize IBC keeper: empty scoped keeper"))
 	}
 
-	clientKeeper := clientkeeper.NewKeeper(cdc, key, paramSpace, upgradeKeeper)
+	clientKeeper := clientkeeper.NewKeeper(cdc, key, paramSpace, stakingKeeper)
 	connectionKeeper := connectionkeeper.NewKeeper(cdc, key, paramSpace, clientKeeper)
 	portKeeper := portkeeper.NewKeeper(scopedKeeper)
 	channelKeeper := channelkeeper.NewKeeper(cdc, key, clientKeeper, connectionKeeper, portKeeper, scopedKeeper)
@@ -73,7 +72,7 @@ func NewKeeper(
 }
 
 // Codec returns the IBC module codec.
-func (k Keeper) Codec() codec.BinaryCodec {
+func (k Keeper) Codec() *codec.Codec {
 	return k.cdc
 }
 

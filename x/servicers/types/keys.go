@@ -167,22 +167,22 @@ func AddressFromLastValidatorPowerKey(key []byte) []byte {
 
 // ScoresToPower - convert report card scores to potential consensus-engine power
 func ScoresToPower(reportCard ReportCard) int64 {
-	// Convert total sessions to BigDec for computation
+	if reportCard.TotalSessions == 0 {
+		return 0
+	}
+
 	totalSessionsDec := sdk.NewDec(reportCard.TotalSessions)
 
-	// Calculate average latency, availability, and reliability scores
 	avgLatencyScore := reportCard.TotalLatencyScore.Quo(totalSessionsDec)
 	avgAvailabilityScore := reportCard.TotalAvailabilityScore.Quo(totalSessionsDec)
-	avgReliabilityScore := reportCard.TotalReliabilityScore.Quo(totalSessionsDec) // Assuming you have this field in your ReportCard struct
+	avgReliabilityScore := reportCard.TotalReliabilityScore.Quo(totalSessionsDec) // Assuming you have this field
 
-	// Weighted average based on your requirements: 50% to latency, 30% to reliability, and 20% to availability.
 	totalScore := avgLatencyScore.Mul(sdk.NewDecWithPrec(5, 1)).Add(
 		avgAvailabilityScore.Mul(sdk.NewDecWithPrec(2, 1)).Add(
 			avgReliabilityScore.Mul(sdk.NewDecWithPrec(3, 1))))
 
 	powerReductionDec := sdk.NewDecFromInt(sdk.PowerReduction)
 
-	// Convert the result of the division to BigInt and then to int64
 	reducedPower := totalScore.Quo(powerReductionDec).BigInt().Int64()
 
 	return reducedPower

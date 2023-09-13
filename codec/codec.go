@@ -43,9 +43,9 @@ var (
 )
 
 const (
-	UpgradeCodecHeight      = int64(0)
-	CodecChainHaltHeight    = int64(0)
-	ValidatorSplitHeight    = int64(0)
+	UpgradeCodecHeight      = int64(1)
+	CodecChainHaltHeight    = int64(1)
+	ValidatorSplitHeight    = int64(1)
 	UpgradeCodecUpdateKey   = "CODEC"
 	ValidatorSplitUpdateKey = "SPLIT"
 	NonCustodialUpdateKey   = "NCUST"
@@ -85,7 +85,7 @@ func (cdc *Codec) DisableUpgradeOverride() {
 }
 
 func (cdc *Codec) RegisterInterface(name string, iface interface{}, impls ...proto.Message) {
-	res, ok := cdc.protoCdc.anyUnpacker.(types.InterfaceRegistry)
+	res, ok := cdc.protoCdc.AnyUnpacker.(types.InterfaceRegistry)
 	if !ok {
 		panic("unable to convert protocodec.anyUnpacker into types.InterfaceRegistry")
 	}
@@ -94,7 +94,7 @@ func (cdc *Codec) RegisterInterface(name string, iface interface{}, impls ...pro
 }
 
 func (cdc *Codec) RegisterImplementation(iface interface{}, impls ...proto.Message) {
-	res, ok := cdc.protoCdc.anyUnpacker.(types.InterfaceRegistry)
+	res, ok := cdc.protoCdc.AnyUnpacker.(types.InterfaceRegistry)
 	if !ok {
 		panic("unable to convert protocodec.anyUnpacker into types.InterfaceRegistry")
 	}
@@ -233,6 +233,23 @@ func (cdc *Codec) MustMarshalJSON(o interface{}) []byte {
 	return bz
 }
 
+// Marshal implements BinaryMarshaler.Marshal method.
+func (cdc *Codec) Marshal(o ProtoMarshaler) ([]byte, error) {
+	return cdc.legacyCdc.Marshal(o)
+}
+
+func (cdc *Codec) MustMarshal(o ProtoMarshaler) []byte {
+	return cdc.legacyCdc.MustMarshal(o)
+}
+
+func (cdc *Codec) Unmarshal(bz []byte, ptr ProtoMarshaler) error {
+	return cdc.legacyCdc.Unmarshal(bz, ptr)
+}
+
+func (cdc *Codec) MustUnmarshal(bz []byte, ptr ProtoMarshaler) {
+	cdc.legacyCdc.MustUnmarshal(bz, ptr)
+}
+
 func (cdc *Codec) MustUnmarshalJSON(bz []byte, ptr interface{}) {
 	err := cdc.UnmarshalJSON(bz, ptr)
 	if err != nil {
@@ -328,4 +345,19 @@ func CleanUpgradeFeatureSlice(arr []string) []string {
 	s := MapToSlice(m)
 	sort.Strings(s)
 	return s
+}
+
+func (cdc *Codec) MarshalInterface(i proto.Message) ([]byte, error) {
+	if err := assertNotNil(i); err != nil {
+		return nil, err
+	}
+	return cdc.legacyCdc.Marshal(i)
+}
+
+func (cdc *Codec) UnmarshalInterface(bz []byte, ptr interface{}) error {
+	return cdc.legacyCdc.Unmarshal(bz, ptr)
+}
+
+func (cdc *Codec) UnmarshalInterfaceJSON(bz []byte, ptr interface{}) error {
+	return cdc.legacyCdc.UnmarshalJSON(bz, ptr)
 }

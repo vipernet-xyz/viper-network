@@ -23,20 +23,20 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 	"github.com/vipernet-xyz/viper-network/types/kv"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
 // Keeper represents a type that grants read and write permissions to any client
 // state information
 type Keeper struct {
-	storeKey      storetypes.StoreKey
-	cdc           codec.BinaryCodec
+	storeKey      sdk.StoreKey
+	cdc           *codec.Codec
 	paramSpace    paramtypes.Subspace
 	stakingKeeper types.StakingKeeper
-	upgradeKeeper types.UpgradeKeeper
 }
 
 // NewKeeper creates a new NewKeeper instance
-func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace, uk types.UpgradeKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramSpace paramtypes.Subspace, sk viperTypes.PosKeeper) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
 		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
@@ -46,7 +46,7 @@ func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramt
 		storeKey:      key,
 		cdc:           cdc,
 		paramSpace:    paramSpace,
-		upgradeKeeper: uk,
+		stakingKeeper: sk,
 	}
 }
 
@@ -345,9 +345,15 @@ func (k Keeper) GetUpgradePlan(ctx sdk.Ctx) (plan upgradetypes.Plan, havePlan bo
 	return plan, true
 }
 
-// GetUpgradedClient executes the upgrade keeper GetUpgradeClient function.
-func (k Keeper) GetUpgradedClient(ctx sdk.Ctx, planHeight int64) ([]byte, bool) {
-	return k.upgradeKeeper.GetUpgradedClient(ctx, planHeight)
+// GetUpgradedClient gets the expected upgraded client for the next version of this chain
+func (k Keeper) GetUpgradedClient(ctx sdk.Ctx, height int64) ([]byte, bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz, _ := store.Get(types.UpgradedClientKey(height))
+	if len(bz) == 0 {
+		return nil, false
+	}
+
+	return bz, true
 }
 
 // GetUpgradedConsensusState returns the upgraded consensus state
@@ -359,11 +365,6 @@ func (k Keeper) GetUpgradedConsensusState(ctx sdk.Ctx, planHeight int64) ([]byte
 	}
 
 	return bz, true
-}
-
-// SetUpgradedConsensusState executes the upgrade keeper SetUpgradedConsensusState function.
-func (k Keeper) SetUpgradedConsensusState(ctx sdk.Ctx, planHeight int64, bz []byte) error {
-	return k.upgradeKeeper.SetUpgradedConsensusState(ctx, planHeight, bz)
 }
 
 // IterateClientStates provides an iterator over all stored light client State
@@ -475,5 +476,13 @@ func (k Keeper) ClearIBCState(ctx sdk.Ctx, lastHeight int64) {
 func (k Keeper) SetUpgradedClient(ctx sdk.Ctx, planHeight int64, bz []byte) error {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.UpgradedClientKey(planHeight), bz)
+	return nil
+}
+
+// SetUpgradedConsensusState sets the expected upgraded consensus state for the next version of this chain
+// using the last height committed on this chain.
+func (k Keeper) SetUpgradedConsensusState(ctx sdk.Ctx, planHeight int64, bz []byte) error {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.UpgradedConsStateKey(planHeight), bz)
 	return nil
 }

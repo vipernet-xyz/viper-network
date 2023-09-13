@@ -10,13 +10,15 @@ import (
 )
 
 const (
-	paramsKey  = "params"
-	paramsTKey = "transient_params"
+	paramsKey    = "params"
+	paramsTKey   = "transient_params"
+	paramsmemKey = "memory_params"
 )
 
 var (
-	ParamsKey  = NewKVStoreKey(paramsKey)
-	ParamsTKey = NewTransientStoreKey(paramsTKey)
+	ParamsKey    = NewKVStoreKey(paramsKey)
+	ParamsTKey   = NewTransientStoreKey(paramsTKey)
+	ParamsmemKey = NewMemoryStoreKey(paramsmemKey)
 	// AdditionalParametersKeys Tracks the keys for parameter added on the live network
 	AdditionalParametersKeys = []string{"BlockByteSize"}
 )

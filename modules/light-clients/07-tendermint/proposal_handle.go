@@ -25,7 +25,7 @@ import (
 // In case 1) before updating the client, the client will be unfrozen by resetting
 // the FrozenHeight to the zero Height.
 func (cs ClientState) CheckSubstituteAndUpdateState(
-	ctx sdk.Ctx, cdc codec.BinaryCodec, subjectClientStore,
+	ctx sdk.Ctx, cdc *codec.Codec, subjectClientStore,
 	substituteClientStore sdk.KVStore, substituteClient exported.ClientState,
 ) error {
 	substituteClientState, ok := substituteClient.(*ClientState)

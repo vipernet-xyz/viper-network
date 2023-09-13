@@ -5,11 +5,9 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	ibc "github.com/vipernet-xyz/viper-network/modules/core"
-	upgradeKeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
 	port "github.com/vipernet-xyz/viper-network/modules/core/05-port/types"
 	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
-	ibctypes "github.com/vipernet-xyz/viper-network/modules/core/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
@@ -53,11 +51,10 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	providersSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
 	transferSubspace := sdk.NewSubspace(transferTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
-	ibcSubspace := sdk.NewSubspace(ibctypes.DefaultParamspace)
+	ibcSubspace := sdk.NewSubspace(ibcexported.DefaultParamspace)
 	capabilitySubspace := sdk.NewSubspace(capabilityTypes.DefaultParamspace)
-
 	app.CapabilityKeeper = capabilityKeeper.NewKeeper(
-		app.Bcdc,
+		app.cdc,
 		app.Keys[capabilityTypes.StoreKey],
 		app.memKeys[capabilityTypes.MemStoreKey],
 	)
@@ -109,22 +106,14 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.Keys[viperTypes.StoreKey],
 		governanceTypes.DefaultCodespace,
 		app.accountKeeper,
-		authSubspace, servicersSubspace, providersSubspace, viperSubspace, transferSubspace, capabilitySubspace,
-	)
-
-	app.UpgradeKeeper = upgradeKeeper.NewKeeper(
-		app.Bcdc,
-		app.Keys[ibcexported.StoreKey],
-		ibcSubspace,
-		app.UpgradeKeeper,
+		authSubspace, servicersSubspace, providersSubspace, viperSubspace, transferSubspace, capabilitySubspace, ibcSubspace,
 	)
 
 	app.IBCKeeper = ibckeeper.NewKeeper(
-		app.Bcdc,
+		app.cdc,
 		app.Keys[ibcexported.StoreKey],
 		ibcSubspace,
-		//app.StakingKeeper,
-		app.UpgradeKeeper,
+		app.servicersKeeper,
 		scopedIBCKeeper,
 	)
 
@@ -151,20 +140,23 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	// give viper keeper to servicers module for easy cache clearing
 	app.servicersKeeper.ViperKeeper = app.viperKeeper
 	app.providersKeeper.ViperKeeper = app.viperKeeper
+	app.ScopedIBCKeeper = scopedIBCKeeper
+	app.ScopedTransferKeeper = scopedTransferKeeper
+
 	// setup module manager
 	app.mm = module.NewManager(
+		capability.NewAppModule(*app.CapabilityKeeper),
 		authentication.NewAppModule(app.accountKeeper),
 		servicers.NewAppModule(app.servicersKeeper),
 		providers.NewAppModule(app.providersKeeper),
 		viper.NewAppModule(app.viperKeeper),
-		capability.NewAppModule(*app.CapabilityKeeper),
-		ibc.NewAppModule(app.IBCKeeper),
 		governance.NewAppModule(app.governanceKeeper),
+		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, capabilityTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, capabilityTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, transferTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, transferTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		capabilityTypes.ModuleName,
@@ -190,6 +182,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	// initialize stores
 	app.MountKVStores(app.Keys)
 	app.MountTransientStores(app.Tkeys)
+	app.MountMemoryStores(app.memKeys)
 	app.SetAppVersion(AppVersion)
 	// load the latest persistent version of the store
 	err := app.LoadLatestVersion(app.Keys[bam.MainStoreKey])

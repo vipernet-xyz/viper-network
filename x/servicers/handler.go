@@ -18,7 +18,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		if reflect.ValueOf(msg).Kind() == reflect.Ptr {
 			msg = reflect.Indirect(reflect.ValueOf(msg)).Interface().(sdk.Msg)
 		}
-		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
+		{
 			switch msg := msg.(type) {
 			case types.MsgBeginUnstake:
 				return handleMsgBeginUnstake(ctx, msg, k)
@@ -30,20 +30,6 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 				return handleStake(ctx, msg, k, signer)
 			case types.MsgPause:
 				return handleMsgPause(ctx, msg, k)
-			default:
-				errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
-				return sdk.ErrUnknownRequest(errMsg).Result()
-			}
-		} else {
-			switch msg := msg.(type) {
-			case types.LegacyMsgBeginUnstake:
-				return legacyHandleMsgBeginUnstake(ctx, msg, k)
-			case types.LegacyMsgUnjail:
-				return legacyHandleMsgUnjail(ctx, msg, k)
-			case types.MsgSend:
-				return handleMsgSend(ctx, msg, k)
-			case types.LegacyMsgStake:
-				return legacyHandleMsgStake(ctx, msg, k, signer)
 			default:
 				errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
 				return sdk.ErrUnknownRequest(errMsg).Result()
@@ -203,30 +189,4 @@ func handleMsgUnpause(ctx sdk.Ctx, msg types.MsgUnpause, k keeper.Keeper) sdk.Re
 		),
 	)
 	return sdk.Result{Events: ctx.EventManager().Events()}
-}
-
-func legacyHandleMsgBeginUnstake(ctx sdk.Ctx, msg types.LegacyMsgBeginUnstake, k keeper.Keeper) sdk.Result {
-	m := types.MsgBeginUnstake{
-		Address: msg.Address,
-		Signer:  msg.Address,
-	}
-	return handleMsgBeginUnstake(ctx, m, k)
-}
-
-func legacyHandleMsgUnjail(ctx sdk.Ctx, msg types.LegacyMsgUnjail, k keeper.Keeper) sdk.Result {
-	m := types.MsgUnjail{
-		ValidatorAddr: msg.ValidatorAddr,
-		Signer:        msg.ValidatorAddr,
-	}
-	return handleMsgUnjail(ctx, m, k)
-}
-
-func legacyHandleMsgStake(ctx sdk.Ctx, msg types.LegacyMsgStake, k keeper.Keeper, signer crypto.PublicKey) sdk.Result {
-	m := types.MsgStake{
-		PublicKey:  msg.PublicKey,
-		Chains:     msg.Chains,
-		Value:      msg.Value,
-		ServiceUrl: msg.ServiceUrl,
-	}
-	return handleStake(ctx, m, k, signer)
 }

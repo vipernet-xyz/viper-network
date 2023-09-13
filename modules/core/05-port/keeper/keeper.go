@@ -45,7 +45,6 @@ func (k *Keeper) BindPort(ctx sdk.Ctx, portID string) *capabilitytypes.Capabilit
 	if err := host.PortIdentifierValidator(portID); err != nil {
 		panic(err.Error())
 	}
-
 	if k.IsBound(ctx, portID) {
 		panic(fmt.Sprintf("port %s is already bound", portID))
 	}

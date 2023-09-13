@@ -34,13 +34,14 @@ func (k Keeper) SetStakedValidatorByChains(ctx sdk.Ctx, validator types.Validato
 // SetStakedValidatorByGeoZone - Store staked validator using geoZone
 func (k Keeper) SetStakedValidatorByGeoZone(ctx sdk.Ctx, validator types.Validator) {
 	store := ctx.KVStore(k.storeKey)
-	c := validator.GeoZone
-	cBz, err := hex.DecodeString(c)
-	if err != nil {
-		ctx.Logger().Error(fmt.Errorf("could not hex decode chains for validator: %s with geoZone: %s", validator.Address, c).Error())
+	for _, g := range validator.GeoZone {
+		gBz, err := hex.DecodeString(g)
+		if err != nil {
+			ctx.Logger().Error(fmt.Errorf("could not hex decode chains for validator: %s with geoZone: %s", validator.Address, g).Error())
+			continue
+		}
+		_ = store.Set(types.KeyForValidatorByGeoZone(validator.Address, gBz), []byte{}) // use empty byte slice to save space
 	}
-	_ = store.Set(types.KeyForValidatorByGeoZone(validator.Address, cBz), []byte{}) // use empty byte slice to save space
-
 }
 
 // GetValidatorByChains - Returns the validator staked by network identifier

@@ -20,8 +20,8 @@ message ProtoValidator {
 	int32 status = 5 [(gogoproto.jsontag) = "status"];
 	repeated string Chains = 6 [(gogoproto.jsontag) = "chains"];
 	string ServiceURL = 7 [(gogoproto.jsontag) = "service_url"];
-	string StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
-	string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
+	bytes StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
+	repeated string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
 	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
 	bytes OutputAddress = 11 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.jsontag) = "output_address,omitempty", (gogoproto.moretags) = "yaml:\"output_address\""];
 	ReportCard reportCard = 12 [(gogoproto.jsontag) = "report_card"];
@@ -40,8 +40,8 @@ message LegacyProtoValidator {
 	int32 status = 5 [(gogoproto.jsontag) = "status"];
 	repeated string Chains = 6 [(gogoproto.jsontag) = "chains"];
 	string ServiceURL = 7 [(gogoproto.jsontag) = "service_url"];
-	string StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
-	string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
+	bytes StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
+	repeated string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
 	ReportCard reportCard = 12 [(gogoproto.jsontag) = "report_card"];
 	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
 }

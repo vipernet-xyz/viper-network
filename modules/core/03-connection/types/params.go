@@ -33,7 +33,7 @@ func DefaultParams() Params {
 // Validate ensures MaxExpectedTimePerBlock is non-zero
 func (p Params) Validate() error {
 	if p.MaxExpectedTimePerBlock == 0 {
-		return fmt.Errorf("MaxExpectedTimePerBlock cannot be zero")
+		p.MaxExpectedTimePerBlock = uint64(DefaultTimePerBlock)
 	}
 	return nil
 }

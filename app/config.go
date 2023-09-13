@@ -56,6 +56,7 @@ import (
 
 var (
 	cdc *codec.Codec
+
 	// the default fileseparator based on OS
 	FS = string(fp.Separator)
 	// app instance currently running
@@ -787,7 +788,6 @@ func MakeCodec() {
 	cryptoamino.RegisterAmino(cdc.AminoCodec().Amino)
 	codec.RegisterEvidences(cdc.AminoCodec(), cdc.ProtoCodec())
 }
-
 func Credentials(pwd string) string {
 	if pwd != "" && strings.TrimSpace(pwd) != "" {
 		return strings.TrimSpace(pwd)
@@ -1198,7 +1198,7 @@ func HotReloadGeoZones(geoZones *types.HostedGeoZones) {
 		for {
 			time.Sleep(time.Minute * 1)
 			// create the geoZones path
-			var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZonesName
+			var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZoneName
 			// if file exists open, else create and open
 			var jsonFile *os.File
 			var bz []byte
@@ -1230,6 +1230,9 @@ func HotReloadGeoZones(geoZones *types.HostedGeoZones) {
 			for _, geoZone := range hostedGeoZonesSlice {
 				m[geoZone.ID] = geoZone
 			}
+			if len(hostedGeoZonesSlice) > 1 {
+				log2.Fatal("More than one geozone is defined in geozone.json! A validator can only stake for one geozone.")
+			}
 			geoZones.L.Lock()
 			geoZones.M = m
 			geoZones.L.Unlock()
@@ -1239,7 +1242,7 @@ func HotReloadGeoZones(geoZones *types.HostedGeoZones) {
 
 func NewHostedGeoZones(generate bool) *types.HostedGeoZones {
 	// Create the geoZones path
-	var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZonesName
+	var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZoneName
 	// If the file exists, open it; otherwise, create and open a new file
 	var jsonFile *os.File
 	var bz []byte
@@ -1283,7 +1286,6 @@ func NewHostedGeoZones(generate bool) *types.HostedGeoZones {
 		geoZone := hostedGeoZonesSlice[0]
 		m[geoZone.ID] = geoZone
 	}
-
 	// Return the hosted geozone
 	return &types.HostedGeoZones{
 		M: m,
@@ -1299,7 +1301,7 @@ func generateGeoZonesJson(geoZonesPath string) *types.HostedGeoZones {
 		return &types.HostedGeoZones{} // default to empty object
 	}
 	// generate hosted geoZones from user input
-	gz := GenerateHostedGeoZones()
+	gz := GenerateHostedGeoZone()
 	// create dummy input for the file
 	res, err := json.MarshalIndent(gz, "", "  ")
 	if err != nil {
@@ -1323,7 +1325,7 @@ func generateGeoZonesJson(geoZonesPath string) *types.HostedGeoZones {
 	return &types.HostedGeoZones{M: m, L: sync.Mutex{}}
 }
 
-func GenerateHostedGeoZones() (geozones []types.GeoZone) {
+func GenerateHostedGeoZone() (geozones []types.GeoZone) {
 	for {
 		var ID string
 		fmt.Println(enterGZPrompt)
@@ -1334,6 +1336,9 @@ func GenerateHostedGeoZones() (geozones []types.GeoZone) {
 			os.Exit(3)
 		}
 		ID = strings.Trim(strings.TrimSpace(ID), "\n")
+		if len(geozones) > 1 {
+			log2.Fatal("More than one geozone is defined in geozone.json! A validator can only stake for one geozone.")
+		}
 		if err := servicerTypes.ValidateGeoZone(ID); err != nil {
 			fmt.Println(err)
 			fmt.Println("please try again")
@@ -1346,9 +1351,9 @@ func GenerateHostedGeoZones() (geozones []types.GeoZone) {
 	return geozones
 }
 
-func DeleteHostedGeoZones() {
+func DeleteHostedGeoZone() {
 	// create the geoZones path
-	var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZonesName
+	var geoZonesPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.GeoZoneName
 	err := os.Remove(geoZonesPath)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("could not delete %s file: ", geoZonesPath) + err.Error())

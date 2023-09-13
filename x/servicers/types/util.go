@@ -54,6 +54,7 @@ const (
 func ValidateNetworkIdentifier(chain string) sdk.Error {
 	// decode string into bz
 	h, err := hex.DecodeString(chain)
+
 	if err != nil {
 		return ErrInvalidNetworkIdentifier(ModuleName, err)
 	}
@@ -82,5 +83,6 @@ func ValidateGeoZone(geoZone string) sdk.Error {
 	if len(h) > GeoZoneLength {
 		return ErrInvalidGeoZone(ModuleName, fmt.Errorf("geozone id length is > %d", GeoZoneLength))
 	}
+
 	return nil
 }

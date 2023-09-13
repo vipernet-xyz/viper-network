@@ -19,7 +19,7 @@ import (
 
 // Keeper defines the IBC fungible transfer keeper
 type Keeper struct {
-	storeKey   storetypes.StoreKey
+	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
 	Cdc        codec.BinaryCodec
 	paramSpace paramtypes.Subspace

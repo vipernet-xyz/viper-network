@@ -110,3 +110,5 @@ func UpgradedConsStateKey(height int64) []byte {
 func UpgradedClientKey(height int64) []byte {
 	return []byte(fmt.Sprintf("%s/%d/%s", KeyUpgradedIBCState, height, KeyUpgradedClient))
 }
+
+var UpgradeKey = []byte("upgrade")

@@ -15,5 +15,5 @@ func (k Keeper) GetHistoricalInfo(ctx sdk.Ctx, height int64) (types.HistoricalIn
 		return types.HistoricalInfo{}, false
 	}
 
-	return types.MustUnmarshalHistoricalInfo(k.Bcdc, value), true
+	return types.MustUnmarshalHistoricalInfo(k.Cdc, value), true
 }

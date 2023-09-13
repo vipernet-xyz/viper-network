@@ -222,21 +222,11 @@ func validateGenesisStateValidators(validators []types.Validator, minimumStake s
 				return err
 			}
 		}
-		if err := types.ValidateGeoZone(val.GeoZone); err != nil {
-			return err
-		}
-		report := val.ReportCard
-
-		if report.TotalLatencyScore.LT(sdk.NewDec(0)) || report.TotalLatencyScore.GT(sdk.NewDec(1)) {
-			return fmt.Errorf("invalid TotalLatencyScore for validator %v: expected value between 0 and 1, got %v", val.Address, report.TotalLatencyScore)
-		}
-
-		if report.TotalAvailabilityScore.LT(sdk.NewDec(0)) || report.TotalAvailabilityScore.GT(sdk.NewDec(1)) {
-			return fmt.Errorf("invalid TotalAvailabilityScore for validator %v: expected value between 0 and 1, got %v", val.Address, report.TotalAvailabilityScore)
-		}
-
-		if report.TotalSessions < 0 {
-			return fmt.Errorf("invalid TotalSessions for validator %v: cannot be negative, got %v", val.Address, report.TotalSessions)
+		for _, geozone := range val.GeoZone {
+			err := types.ValidateGeoZone(geozone)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return

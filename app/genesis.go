@@ -9,6 +9,7 @@ import (
 	tmType "github.com/tendermint/tendermint/types"
 
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
+	ibc "github.com/vipernet-xyz/viper-network/modules/core"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
@@ -24,7 +25,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
-var mainnetGenesis = `{ }`
+var mainnetGenesis = `{
+}`
 
 var testnetGenesis = `{ }`
 
@@ -51,6 +53,7 @@ func newDefaultGenesisState() []byte {
 		providers.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		capability.AppModuleBasic{},
+		ibc.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
 		transfer.AppModuleBasic{},
@@ -67,7 +70,7 @@ func newDefaultGenesisState() []byte {
 	})
 	res := Codec().MustMarshalJSON(accountGenesis)
 	defaultGenesis[authentication.ModuleName] = res
-	// set address as application too
+	// set address as provider too
 	rawApps := defaultGenesis[providersTypes.ModuleName]
 	var providersGenesis providersTypes.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawApps, &providersGenesis)
@@ -148,22 +151,22 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("provider/MaximumChains", addr)
 	acl.SetOwner("provider/ParticipationRate", addr)
 	acl.SetOwner("provider/StabilityModulation", addr)
-	acl.SetOwner("provider/SupportedGeoZones", addr)
 	acl.SetOwner("provider/MinNumServicers", addr)
+	acl.SetOwner("provider/MaxNumServicers", addr)
+	acl.SetOwner("provider/MaxFreeTierRelaysPerSession", addr)
 	acl.SetOwner("authentication/MaxMemoCharacters", addr)
 	acl.SetOwner("authentication/TxSigLimit", addr)
+	acl.SetOwner("authentication/FeeMultipliers", addr)
 	acl.SetOwner("governance/acl", addr)
 	acl.SetOwner("governance/daoOwner", addr)
 	acl.SetOwner("governance/upgrade", addr)
 	acl.SetOwner("vipernet/ClaimExpiration", addr)
-	acl.SetOwner("authentication/FeeMultipliers", addr)
 	acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", addr)
-	acl.SetOwner("pos/ProposerPercentage", addr)
-	acl.SetOwner("pos/ProviderAllocation", addr)
 	acl.SetOwner("vipernet/ClaimSubmissionWindow", addr)
 	acl.SetOwner("vipernet/MinimumNumberOfProofs", addr)
 	acl.SetOwner("vipernet/SupportedBlockchains", addr)
-	acl.SetOwner("vipernet/MaxNumServicers", addr)
+	acl.SetOwner("vipernet/SupportedGeoZones", addr)
+	acl.SetOwner("vipernet/MinimumSampleRelays", addr)
 	acl.SetOwner("pos/BlocksPerSession", addr)
 	acl.SetOwner("pos/DAOAllocation", addr)
 	acl.SetOwner("pos/ProviderAllocation", addr)
@@ -183,5 +186,10 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("pos/ServicerCountLock", addr)
 	acl.SetOwner("pos/BurnActive", addr)
 	acl.SetOwner("pos/MinPauseTime", addr)
+	acl.SetOwner("pos/MaxFishermen", addr)
+	acl.SetOwner("pos/FishermenCount", addr)
+	acl.SetOwner("pos/SlashFractionNoActivity", addr)
+	acl.SetOwner("pos/ProposerPercentage", addr)
+	acl.SetOwner("pos/ProviderAllocation", addr)
 	return acl
 }

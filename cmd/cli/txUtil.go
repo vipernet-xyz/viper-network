@@ -62,7 +62,7 @@ func SendTransaction(fromAddr, toAddr, passphrase, chainID string, amount sdk.Bi
 }
 
 // LegacyStakeNode - Deliver Stake message to servicer
-func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, geoZone string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
+func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID string, geoZone []string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 	if err != nil {
 		return nil, err
 	}
-	err = viperTypes.GeoZoneIdentifierVerification(geoZone)
+	err = viperTypes.GeoZoneIdentifierVerification(geoZone[0])
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func LegacyStakeNode(chains []string, serviceURL, fromAddr, passphrase, chainID 
 }
 
 // StakeNode - Deliver Stake message to servicer
-func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, geoZone string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
+func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, chainID string, geoZone []string, amount sdk.BigInt, fees int64) (*rpc.SendRawTxParams, error) {
 	var operatorPublicKey crypto.PublicKey
 	var operatorAddress sdk.Address
 	var fromAddress sdk.Address
@@ -177,7 +177,7 @@ func StakeNode(chains []string, serviceURL, operatorPubKey, output, passphrase, 
 	if err != nil {
 		return nil, err
 	}
-	err = viperTypes.GeoZoneIdentifierVerification(geoZone)
+	err = viperTypes.GeoZoneIdentifierVerification(geoZone[0])
 	if err != nil {
 		return nil, err
 	}

@@ -18,7 +18,6 @@ import (
 	"github.com/vipernet-xyz/viper-network/client"
 	"github.com/vipernet-xyz/viper-network/codec"
 	cdctypes "github.com/vipernet-xyz/viper-network/codec/types"
-	store "github.com/vipernet-xyz/viper-network/store/types"
 	"github.com/vipernet-xyz/viper-network/telemetry"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
@@ -168,8 +167,8 @@ type CapabilityInputs struct {
 
 	Config *modulev1.Module
 
-	KvStoreKey  *store.KVStoreKey
-	MemStoreKey *store.MemoryStoreKey
+	KvStoreKey  *sdk.KVStoreKey
+	MemStoreKey *sdk.MemoryStoreKey
 	Cdc         codec.Codec
 	Bcdc        codec.BinaryCodec
 }
@@ -182,7 +181,7 @@ type CapabilityOutputs struct {
 }
 
 func ProvideModule(in CapabilityInputs) CapabilityOutputs {
-	k := keeper.NewKeeper(in.Bcdc, in.KvStoreKey, in.MemStoreKey)
+	k := keeper.NewKeeper(&in.Cdc, in.KvStoreKey, in.MemStoreKey)
 	m := NewAppModule(*k)
 
 	return CapabilityOutputs{

@@ -85,13 +85,13 @@ func (k Keeper) HandleUpgradeProposal(ctx sdk.Ctx, p *types.UpgradeProposal) err
 		return errorsmod.Wrap(err, "could not marshal UpgradedClientState")
 	}
 
-	if err := k.upgradeKeeper.ScheduleUpgrade(ctx, p.Plan); err != nil {
+	if err := k.ScheduleUpgrade(ctx, p.Plan); err != nil {
 		return err
 	}
 
 	// sets the new upgraded client in last height committed on this chain is at plan.Height,
 	// since the chain will panic at plan.Height and new chain will resume at plan.Height
-	if err = k.upgradeKeeper.SetUpgradedClient(ctx, p.Plan.Height, bz); err != nil {
+	if err = k.SetUpgradedClient(ctx, p.Plan.Height, bz); err != nil {
 		return err
 	}
 
