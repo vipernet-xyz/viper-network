@@ -71,7 +71,8 @@ viper utils generate-geozone
 ```
 Create genesis.json:
 ```bash
-#cd ~/.viper/config
+cd ~/.viper/config
+
 #use can use the below sample genesis code with address and public key replaced by the once generated locally
 
 {
