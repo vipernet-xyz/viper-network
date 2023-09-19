@@ -477,6 +477,6 @@ viper start
   <a href="https://t.me/vishruthsk"><img src="https://img.shields.io/badge/Telegram-blue.svg"></a>
 </div>
 
-Join our Discord: https://discord.gg/eBDYH4Zxek
+Join us on Discord: https://discord.gg/eBDYH4Zxek
 
 Website: https://vipernet.xyz/
