@@ -2,11 +2,11 @@
 # V I P E R  -  N E T W O R K
 
 
-The Problem:
+## The Problem:
 
 Most node infrastructure providers in the Web3 space are completely centralized, contradicting Web3's core value of Decentralization and introducing potential central points of failure. This compromises reliability, security, and data integrity.
 
-Viper Network: An RPC relay protocol for Web3
+## Viper Network: An RPC relay protocol for Web3
 
 Viper Network is building a Decentralised Physical Infrastructure Network (DePIN) protocol that provides a trustless RPC layer for Web3 applications to interact with blockchains in a decentralized way.
 
