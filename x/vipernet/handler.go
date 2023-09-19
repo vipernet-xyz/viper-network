@@ -14,9 +14,9 @@ import (
 // "NewHandler" - Returns a handler for "vipernet" type messages.
 func NewHandler(keeper keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Ctx, msg sdk.Msg, _ crypto.PublicKey) sdk.Result {
-		if ctx.IsAfterUpgradeHeight() {
-			ctx = ctx.WithEventManager(sdk.NewEventManager())
-		}
+
+		ctx = ctx.WithEventManager(sdk.NewEventManager())
+
 		// convert to value for switch consistency
 		if reflect.ValueOf(msg).Kind() == reflect.Ptr {
 			msg = reflect.Indirect(reflect.ValueOf(msg)).Interface().(sdk.Msg)

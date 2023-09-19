@@ -26,7 +26,7 @@ func (k Keeper) ValidateProviderStaking(ctx sdk.Ctx, provider types.Provider, am
 	// if the provider exists
 	if found {
 		// edit stake in 6.X upgrade
-		if ctx.IsAfterUpgradeHeight() && app.IsStaked() {
+		if app.IsStaked() {
 			return k.ValidateEditStake(ctx, app, amount)
 		}
 		if !app.IsUnstaked() { // unstaking or already staked but before the upgrade
@@ -55,11 +55,11 @@ func (k Keeper) ValidateProviderStaking(ctx sdk.Ctx, provider types.Provider, am
 	if !k.AccountKeeper.HasCoins(ctx, provider.Address, coin) {
 		return types.ErrNotEnoughCoins(k.codespace)
 	}
-	if ctx.IsAfterUpgradeHeight() {
-		if k.getStakedProvidersCount(ctx) >= k.MaxProviders(ctx) {
-			return types.ErrMaxProviders(k.codespace)
-		}
+
+	if k.getStakedProvidersCount(ctx) >= k.MaxProviders(ctx) {
+		return types.ErrMaxProviders(k.codespace)
 	}
+
 	return nil
 }
 
@@ -84,12 +84,10 @@ func (k Keeper) ValidateEditStake(ctx sdk.Ctx, currentApp types.Provider, amount
 // StakeProvider - Store ops when a provider stakes
 func (k Keeper) StakeProvider(ctx sdk.Ctx, provider types.Provider, amount sdk.BigInt) sdk.Error {
 	// edit stake
-	if ctx.IsAfterUpgradeHeight() {
-		// get Validator to see if edit stake
-		curApp, found := k.GetProvider(ctx, provider.Address)
-		if found && curApp.IsStaked() {
-			return k.EditStakeProvider(ctx, curApp, provider, amount)
-		}
+	// get Validator to see if edit stake
+	curApp, found := k.GetProvider(ctx, provider.Address)
+	if found && curApp.IsStaked() {
+		return k.EditStakeProvider(ctx, curApp, provider, amount)
 	}
 	// send the coins from address to staked module account
 	err := k.coinsFromUnstakedToStaked(ctx, provider, amount)
@@ -272,9 +270,9 @@ func (k Keeper) LegacyForceProviderUnstake(ctx sdk.Ctx, provider types.Provider)
 
 // ForceValidatorUnstake - Coerce unstake (called when slashed below the minimum)
 func (k Keeper) ForceProviderUnstake(ctx sdk.Ctx, provider types.Provider) sdk.Error {
-	if !ctx.IsAfterUpgradeHeight() {
-		return k.LegacyForceProviderUnstake(ctx, provider)
-	}
+
+	return k.LegacyForceProviderUnstake(ctx, provider)
+
 	switch provider.Status {
 	case sdk.Staked:
 		k.deleteProviderFromStakingSet(ctx, provider)

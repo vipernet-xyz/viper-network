@@ -61,10 +61,6 @@ func (pm AppModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	return pm.keeper.ConsensusParamUpdate(ctx)
 }
 
-func (pm AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	pm.keeper.UpgradeCodec(ctx)
-}
-
 // NewAppModule "NewAppModule" - Creates a new AppModule Object
 func NewAppModule(keeper keeper.Keeper) AppModule {
 	return AppModule{
@@ -105,12 +101,9 @@ func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 
 // ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
 func ActivateAdditionalParameters(ctx sdk.Ctx, pm AppModule) {
-	if pm.keeper.Cdc.IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
-		//on the height we set the default value
-		params := pm.keeper.GetParams(ctx)
-		params.BlockByteSize = types.DefaultBlockByteSize
-		pm.keeper.SetParams(ctx, params)
-	}
+	params := pm.keeper.GetParams(ctx)
+	params.BlockByteSize = types.DefaultBlockByteSize
+	pm.keeper.SetParams(ctx, params)
 }
 
 // EndBlock "EndBlock" - Functionality that is called at the end of (every) block

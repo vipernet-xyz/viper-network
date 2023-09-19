@@ -199,12 +199,3 @@ func (k Keeper) SetInterchainAccountAddress(ctx sdk.Ctx, connectionID, portID, a
 	store := ctx.KVStore(k.storeKey)
 	store.Set(icatypes.KeyOwnerAccount(portID, connectionID), []byte(address))
 }
-
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-}

@@ -30,6 +30,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 				return handleStake(ctx, msg, k, signer)
 			case types.MsgPause:
 				return handleMsgPause(ctx, msg, k)
+			case types.MsgUnpause:
+				return handleMsgUnpause(ctx, msg, k)
 			default:
 				errMsg := fmt.Sprintf("unrecognized staking message type: %T", msg)
 				return sdk.ErrUnknownRequest(errMsg).Result()
@@ -41,11 +43,9 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 func handleStake(ctx sdk.Ctx, msg types.MsgStake, k keeper.Keeper, signer crypto.PublicKey) sdk.Result {
 	defer sdk.TimeTrack(time.Now())
 
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		err := msg.CheckServiceUrlLength(msg.ServiceUrl)
-		if err != nil {
-			return err.Result()
-		}
+	err := msg.CheckServiceUrlLength(msg.ServiceUrl)
+	if err != nil {
+		return err.Result()
 	}
 
 	pk := msg.PublicKey
@@ -61,8 +61,8 @@ func handleStake(ctx sdk.Ctx, msg types.MsgStake, k keeper.Keeper, signer crypto
 		return err.Result()
 	}
 	// change the validator state to staked
-	err := k.StakeValidator(ctx, validator, msg.Value, signer)
-	if err != nil {
+	err1 := k.StakeValidator(ctx, validator, msg.Value, signer)
+	if err1 != nil {
 		if sdk.ShowTimeTrackData {
 			result := err.Result()
 			fmt.Println(result.String())

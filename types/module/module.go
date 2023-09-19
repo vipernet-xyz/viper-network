@@ -108,7 +108,6 @@ type AppModule interface {
 
 	BeginBlock(sdk.Ctx, abci.RequestBeginBlock)
 	EndBlock(sdk.Ctx, abci.RequestEndBlock) []abci.ValidatorUpdate
-	UpgradeCodec(sdk.Ctx)
 	ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams
 }
 
@@ -276,14 +275,6 @@ func (m *Manager) ExportGenesis(ctx sdk.Ctx) map[string]json.RawMessage {
 func (m *Manager) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	defer sdk.TimeTrack(time.Now())
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
-	if ctx.IsOnUpgradeHeight() {
-		//for _, name := range m.OrderBeginBlockers {
-		//	m.Modules[name].UpgradeCodec(ctx)
-		//}
-		for _, mod := range m.Modules {
-			mod.UpgradeCodec(ctx)
-		}
-	}
 
 	for _, moduleName := range m.OrderBeginBlockers {
 		m.Modules[moduleName].BeginBlock(ctx, req)

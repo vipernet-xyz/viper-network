@@ -76,10 +76,6 @@ func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 // Route module message route name
 func (AppModule) Route() string { return "" }
 
-func (am AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	am.accountKeeper.UpgradeCodec(ctx)
-}
-
 // NewHandler module handler
 func (AppModule) NewHandler() sdk.Handler { return nil }
 

@@ -492,23 +492,6 @@ func SigningInfo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
 }
 
-func SecondUpgrade(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var params = HeightParams{Height: 0}
-	if err := PopModel(w, r, ps, &params); err != nil {
-		WriteErrorResponse(w, 400, err.Error())
-		return
-	}
-	if params.Height == 0 {
-		params.Height = app.VCA.BaseApp.LastBlockHeight()
-	}
-	result := app.Codec().IsAfterValidatorSplitUpgrade(params.Height)
-	j, _ := json.Marshal(struct {
-		R bool `json:"r"`
-	}{R: result})
-
-	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
-}
-
 func Chains(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	value := r.URL.Query().Get("authtoken")
 	if value == app.AuthToken.Value {

@@ -20,11 +20,12 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterStructure(MsgChangeParam{}, "governance/msg_change_param")
 	cdc.RegisterStructure(MsgDAOTransfer{}, "governance/msg_dao_transfer")
 	cdc.RegisterStructure(MsgUpgrade{}, "governance/msg_upgrade")
+	cdc.RegisterStructure(MsgGenerateDiscountKey{}, "governance/MsgGenerateDiscountKey")
 	cdc.RegisterInterface("x.interface.nil", (*interface{})(nil))
 	cdc.RegisterStructure(ACL{}, "governance/non_map_acl")
 	cdc.RegisterStructure(Upgrade{}, "governance/upgrade")
-	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgChangeParam{}, &MsgDAOTransfer{}, &MsgUpgrade{})
-	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgChangeParam{}, &MsgDAOTransfer{}, &MsgUpgrade{})
+	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgChangeParam{}, &MsgDAOTransfer{}, &MsgUpgrade{}, &MsgGenerateDiscountKey{})
+	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgChangeParam{}, &MsgDAOTransfer{}, &MsgUpgrade{}, &MsgGenerateDiscountKey{})
 	ModuleCdc = cdc
 }
 

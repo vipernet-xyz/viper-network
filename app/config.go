@@ -120,7 +120,7 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	// init key files
 	InitKeyfiles(logger)
 	// init configs & evidence/session caches
-	InitViperCoreConfig(chains, logger)
+	InitViperCoreConfig(chains, geoZone, logger)
 	// init genesis
 	InitGenesis(genesisType, logger)
 	// log the config and chains
@@ -250,6 +250,7 @@ func UpdateConfig(datadir string) {
 	GlobalConfig.ViperConfig.RPCTimeout = sdk.DefaultRPCTimeout
 	GlobalConfig.ViperConfig.IavlCacheSize = sdk.DefaultIavlCacheSize
 	GlobalConfig.ViperConfig.LeanViper = sdk.DefaultLeanViper
+	GlobalConfig.ViperConfig.ClientSessionSyncAllowance = sdk.DefaultSessionSyncAllowance
 
 	// Backup and Save the File
 	var jsonFile *os.File
@@ -417,6 +418,33 @@ func InitKeyfiles(logger log.Logger) {
 	}
 }
 
+func InitNodesLean(logger log.Logger) error {
+	pvkName := path.Join(GlobalConfig.ViperConfig.DataDir, GlobalConfig.TendermintConfig.PrivValidatorKey)
+
+	if _, err := os.Stat(pvkName); err != nil {
+		if os.IsNotExist(err) {
+			return errors.New("viper accounts set-validators must be ran first")
+		}
+		return errors.New("Failed to retrieve information on " + pvkName)
+	}
+
+	leanNodesTm, err := LoadFilePVKeysFromFileLean(pvkName)
+
+	if err != nil {
+		return err
+	}
+
+	if len(leanNodesTm) == 0 {
+		return errors.New("failed to load lean validators, length of zero")
+	}
+
+	for _, node := range leanNodesTm {
+		types.AddViperNodeByFilePVKey(node, logger)
+	}
+
+	return nil
+}
+
 func InitLogger() (logger log.Logger) {
 	logger = log.NewTMLoggerWithColorFn(log.NewSyncWriter(os.Stdout), func(keyvals ...interface{}) term.FgBgColor {
 		if keyvals[0] != kitlevel.Key() {
@@ -441,14 +469,14 @@ func InitLogger() (logger log.Logger) {
 	return
 }
 
-func InitViperCoreConfig(chains *types.HostedBlockchains, logger log.Logger) {
+func InitViperCoreConfig(chains *types.HostedBlockchains, geozone *types.HostedGeoZones, logger log.Logger) {
 	logger.Info("Initializing viper core config")
-	types.InitConfig(chains, logger, GlobalConfig)
+	types.InitConfig(chains, geozone, logger, GlobalConfig)
 	logger.Info("Initializing ctx cache")
 	sdk.InitCtxCache(GlobalConfig.ViperConfig.CtxCacheSize)
 	logger.Info("Initializing pos config")
 	servicerTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
-	logger.Info("Initializing app config")
+	logger.Info("Initializing provider config")
 	providersTypes.InitConfig(GlobalConfig.ViperConfig.ProviderCacheSize)
 }
 
@@ -1149,33 +1177,6 @@ func nodeKeyLean(res crypto.PrivateKey) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func InitNodesLean(logger log.Logger) error {
-	pvkName := path.Join(GlobalConfig.ViperConfig.DataDir, GlobalConfig.TendermintConfig.PrivValidatorKey)
-
-	if _, err := os.Stat(pvkName); err != nil {
-		if os.IsNotExist(err) {
-			return errors.New("viper accounts set-validators must be ran first")
-		}
-		return errors.New("Failed to retrieve information on " + pvkName)
-	}
-
-	leanNodesTm, err := LoadFilePVKeysFromFileLean(pvkName)
-
-	if err != nil {
-		return err
-	}
-
-	if len(leanNodesTm) == 0 {
-		return errors.New("failed to load lean validators, length of zero")
-	}
-
-	for _, node := range leanNodesTm {
-		types.AddViperNodeByFilePVKey(node, logger)
-	}
-
 	return nil
 }
 

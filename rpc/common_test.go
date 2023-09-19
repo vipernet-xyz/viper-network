@@ -69,7 +69,7 @@ func NewInMemoryTendermintNode(t *testing.T, genesisState []byte) (tendermintNod
 	// init cache in memory
 	viperTypes.InitConfig(&viperTypes.HostedBlockchains{
 		M: make(map[string]viperTypes.HostedBlockchain),
-	}, tendermintNode.Logger, sdk.DefaultTestingViperConfig())
+	}, nil, tendermintNode.Logger, sdk.DefaultTestingViperConfig())
 	// start the in memory node
 	err := tendermintNode.Start()
 	// assert that it is not nil

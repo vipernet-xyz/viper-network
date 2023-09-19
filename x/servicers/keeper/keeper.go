@@ -58,12 +58,6 @@ func (k Keeper) Codespace() sdk.CodespaceType {
 	return k.codespace
 }
 
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
 func (k Keeper) ConvertValidatorsState(ctx sdk.Ctx) {
 	validators := make([]types.Validator, 0)
 	store := ctx.KVStore(k.storeKey)
@@ -86,39 +80,4 @@ func (k Keeper) ConvertValidatorsState(ctx sdk.Ctx) {
 	for _, val := range validators {
 		k.SetValidator(ctx, val)
 	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-	k.Cdc.SetUpgradeOverride(false)
-	params := k.GetParams(ctx)
-	prevStateTotalPower := k.PrevStateValidatorsPower(ctx)
-	validators := k.GetAllValidators(ctx)
-	waitingValidators := k.GetWaitingValidators(ctx)
-	prevProposer := k.GetPreviousProposer(ctx)
-	Provider := k.GetProvider(ctx)
-	var prevStateValidatorPowers []types.PrevStatePowerMprovidering
-	k.IterateAndExecuteOverPrevStateValsByPower(ctx, func(addr sdk.Address, power int64) (stop bool) {
-		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMprovidering{Address: addr, Power: power})
-		return false
-	})
-	signingInfos := make([]types.ValidatorSigningInfo, 0)
-	k.IterateAndExecuteOverValSigningInfo(ctx, func(address sdk.Address, info types.ValidatorSigningInfo) (stop bool) {
-		signingInfos = append(signingInfos, info)
-		return false
-	})
-	err := k.UpgradeMissedBlocksArray(ctx, validators) // TODO might be able to remove missed array code
-	if err != nil {
-		panic(err)
-	}
-	k.Cdc.SetUpgradeOverride(true)
-	// custom logic for minSignedPerWindow
-	params.MinSignedPerWindow = params.MinSignedPerWindow.QuoInt64(params.SignedBlocksWindow)
-	k.SetParams(ctx, params)
-	k.SetPrevStateValidatorsPower(ctx, prevStateTotalPower)
-	k.SetWaitingValidators(ctx, waitingValidators)
-	k.SetValidators(ctx, validators)
-	k.SetPreviousProposer(ctx, prevProposer)
-	k.SetProviderKey(ctx, Provider)
-	k.SetValidatorSigningInfos(ctx, signingInfos)
-	k.Cdc.DisableUpgradeOverride()
 }

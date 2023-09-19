@@ -18,7 +18,7 @@ func InitCacheTest() {
 	// init cache in memory
 	InitConfig(&HostedBlockchains{
 		M: make(map[string]HostedBlockchain),
-	}, logger, sdk.DefaultTestingViperConfig())
+	}, nil, logger, sdk.DefaultTestingViperConfig())
 }
 
 func TestMain(m *testing.M) {

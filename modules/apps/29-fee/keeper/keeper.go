@@ -394,12 +394,3 @@ func NewQuerier(k Keeper) sdk.Querier {
 		return nil, sdk.ErrUnknownRequest("unknown governance query endpoint")
 	}
 }
-
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-}

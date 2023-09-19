@@ -1,7 +1,6 @@
 package vipernet
 
 import (
-	"github.com/vipernet-xyz/viper-network/codec"
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
@@ -24,9 +23,8 @@ func ClaimTx(kp crypto.PrivateKey, cliCtx util.CLIContext, txBuilder authenticat
 		return nil, err
 	}
 	var legacyCodec bool
-	if cliCtx.Height < codec.GetCodecUpgradeHeight() {
-		legacyCodec = true
-	}
+
+	legacyCodec = false
 	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, legacyCodec)
 }
 
@@ -42,8 +40,7 @@ func ProofTx(cliCtx util.CLIContext, txBuilder authentication.TxBuilder, merkleP
 		return nil, err
 	}
 	var legacyCodec bool
-	if cliCtx.Height < codec.GetCodecUpgradeHeight() {
-		legacyCodec = true
-	}
+	legacyCodec = false
+
 	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, legacyCodec)
 }

@@ -32,10 +32,6 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	types.RegisterCodec(cdc)
 }
 
-func (pm AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	pm.keeper.UpgradeCodec(ctx)
-}
-
 // DefaultGenesis returns default genesis state as raw bytes for the staking
 // module.
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {

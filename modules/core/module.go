@@ -187,7 +187,3 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 func (AppModule) Route() string {
 	return types.RouterKey
 }
-
-func (am AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	am.keeper.UpgradeCodec(ctx)
-}

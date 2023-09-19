@@ -714,10 +714,9 @@ func (app *BaseApp) validateHeight(req abci.RequestBeginBlock) error {
 
 // BeginBlock implements the ABCI application interface.
 func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeginBlock) {
-	if req.Header.Height == codec.GetCodecUpgradeHeight() {
-		app.cdc.SetUpgradeOverride(true)
-		app.txDecoder = authentication.DefaultTxDecoder(app.cdc)
-	}
+	app.cdc.SetUpgradeOverride(true)
+	app.txDecoder = authentication.DefaultTxDecoder(app.cdc)
+
 	if app.cms.TracingEnabled() {
 		app.cms.SetTracingContext(sdk.TraceContext(
 			map[string]interface{}{"blockHeight": req.Header.Height},
@@ -813,7 +812,7 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 	if err != nil {
 		result = err.Result()
 	} else {
-		if duplicateTransaction && cdc.IsAfterNamedFeatureActivationHeight(app.LastBlockHeight(), codec.TxCacheEnhancementKey) {
+		if duplicateTransaction {
 			app.logger.Debug("Duplicate Tx Found")
 			result = sdk.Result{
 				Code:      codeDuplicateTransaction,

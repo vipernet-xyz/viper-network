@@ -67,11 +67,8 @@ func (k Keeper) simpleSlash(ctx sdk.Ctx, addr sdk.Address, amount sdk.BigInt) {
 	// if falls below minimum force burn all of the stake
 	if validator.GetTokens().LT(sdk.NewInt(k.MinimumStake(ctx))) {
 		var err error
-		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-			err = k.ForceValidatorUnstake(ctx, validator)
-		} else {
-			err = k.LegacyForceValidatorUnstake(ctx, validator)
-		}
+		err = k.ForceValidatorUnstake(ctx, validator)
+
 		if err != nil {
 			k.Logger(ctx).Error("could not force unstake in simpleSlash: " + err.Error() + "\nfor validator " + addr.String())
 			return
@@ -134,11 +131,8 @@ func (k Keeper) slash(ctx sdk.Ctx, addr sdk.Address, infractionHeight, power int
 	// if falls below minimum force burn all of the stake
 	if validator.GetTokens().LT(sdk.NewInt(k.MinimumStake(ctx))) {
 		var err error
-		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-			err = k.ForceValidatorUnstake(ctx, validator)
-		} else {
-			err = k.LegacyForceValidatorUnstake(ctx, validator)
-		}
+		err = k.ForceValidatorUnstake(ctx, validator)
+
 		if err != nil {
 			k.Logger(ctx).Error("could not force unstake in Slash: " + err.Error() + "\nfor validator " + addr.String())
 			return
@@ -270,9 +264,9 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 	signInfo.Index++
 	// calculate the max missed blocks
 	maxMissed := signedBlocksWindow - minSignedPerWindow
-	if !validator.Paused {
+	if signInfo.MissedBlocksCounter > maxMissed {
 		// if we are past the minimum height and the validator has missed too many blocks, punish them
-		if signInfo.MissedBlocksCounter > maxMissed {
+		if !validator.Paused {
 			// Downtime confirmed: slash and jail the validator
 			// ctx.Logger().Info(fmt.Sprintf("Validator %s missed more than the max signed blocks: %d", addr, signedBlocksWindow-minSignedPerWindow))
 			// height where the infraction occured

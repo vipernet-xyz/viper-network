@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vipernet-xyz/viper-network/codec"
-
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	auth "github.com/vipernet-xyz/viper-network/x/authentication"
@@ -128,11 +126,10 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	if !found {
 		return vc.NewProviderNotFoundError(vc.ModuleName)
 	}
-	if vc.ModuleCdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.MaxRelayProtKey) {
-		if vc.MaxPossibleRelays(app, int64(app.GetNumServicers())).LT(sdk.NewInt(claim.TotalProofs)) {
-			return vc.NewOverServiceError(vc.ModuleName)
-		}
+	if vc.MaxPossibleRelays(app, int64(app.GetNumServicers())).LT(sdk.NewInt(claim.TotalProofs)) {
+		return vc.NewOverServiceError(vc.ModuleName)
 	}
+
 	// get the session node count for the time of the session
 	sessionNodeCount := int(app.GetNumServicers())
 	// check cache

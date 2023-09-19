@@ -302,7 +302,7 @@ func (s Subspace) SetParamSet(ctx Ctx, ps ParamSet) {
 		v := reflect.Indirect(reflect.ValueOf(pair.Value)).Interface()
 		//if we are on the genesis or at codec upgrade height (heights where we call setParamSet For all the modules)
 		//ignore the additional parameter as they will alter the apphash
-		if ctx.BlockHeight() < 3 || ctx.IsOnUpgradeHeight() {
+		if ctx.BlockHeight() < 3 {
 			if !ContainsString(AdditionalParametersKeys, (string)(pair.Key)) {
 				s.Set(ctx, pair.Key, v)
 			}

@@ -90,7 +90,7 @@ func NewInMemoryTendermintNodeAminoWithValidators(t *testing.T, genesisState []b
 
 	viperTypes.InitConfig(&viperTypes.HostedBlockchains{
 		M: make(map[string]viperTypes.HostedBlockchain),
-	}, tendermintNode.Logger, defaultConfig)
+	}, nil, tendermintNode.Logger, defaultConfig)
 	// start the in memory node
 	err := tendermintNode.Start()
 	if err != nil {
@@ -152,7 +152,7 @@ func NewInMemoryTendermintNodeProtoWithValidators(t *testing.T, genesisState []b
 	}
 	viperTypes.InitConfig(&viperTypes.HostedBlockchains{
 		M: make(map[string]viperTypes.HostedBlockchain),
-	}, tendermintNode.Logger, defaultConfig)
+	}, nil, tendermintNode.Logger, defaultConfig)
 	// start the in memory node
 	err := tendermintNode.Start()
 	if err != nil {

@@ -162,7 +162,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 			ID: "0001",
 		}},
 	}
-	types.InitConfig(&hb, log.NewTMLogger(os.Stdout), sdk.DefaultTestingViperConfig())
+	types.InitConfig(&hb, &gz, log.NewTMLogger(os.Stdout), sdk.DefaultTestingViperConfig())
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	servicersSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
 	providerSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
@@ -378,7 +378,7 @@ func simulateRelays(t *testing.T, k Keeper, ctx *sdk.Ctx, maxRelays int) (npk cr
 	logger := log.NewNopLogger()
 	types.InitConfig(&types.HostedBlockchains{
 		M: make(map[string]types.HostedBlockchain),
-	}, logger, sdk.DefaultTestingViperConfig())
+	}, nil, logger, sdk.DefaultTestingViperConfig())
 
 	// NOTE Add a minimum of 5 proofs to memInvoice to be able to create a merkle tree
 	for j := 0; j < maxRelays; j++ {

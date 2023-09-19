@@ -36,10 +36,6 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	types.RegisterCodec(cdc)
 }
 
-func (am AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	am.keeper.UpgradeCodec(ctx)
-}
-
 // NewHandler returns an sdk.Handler for the staking module.
 func (am AppModule) NewHandler() sdk.Handler {
 	return NewHandler(am.keeper)

@@ -69,10 +69,6 @@ func (AppModule) Name() string {
 func (pm AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {
 }
 
-func (pm AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	pm.keeper.UpgradeCodec(ctx)
-}
-
 // Route returns the message routing key for the staking module.
 func (AppModule) Route() string {
 	return types.RouterKey
@@ -144,15 +140,12 @@ func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 
 // ActivateAdditionalParametersACL ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
 func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm AppModule) {
-
 	// activate BlockSizeModify params
-	if pm.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
-		gParams := pm.keeper.GetParams(ctx)
-		//on the height we get the ACL and insert the key
-		gParams.ACL.SetOwner(types.NewACLKey(types.VipercoreSubspace, "BlockByteSize"), pm.keeper.GetDAOOwner(ctx))
-		//update params
-		pm.keeper.SetParams(ctx, gParams)
-	}
+	gParams := pm.keeper.GetParams(ctx)
+	//on the height we get the ACL and insert the key
+	gParams.ACL.SetOwner(types.NewACLKey(types.VipercoreSubspace, "BlockByteSize"), pm.keeper.GetDAOOwner(ctx))
+	//update params
+	pm.keeper.SetParams(ctx, gParams)
 }
 
 // EndBlock returns the end blocker for the staking module. It returns no validator

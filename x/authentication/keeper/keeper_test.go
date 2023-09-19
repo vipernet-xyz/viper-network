@@ -171,7 +171,6 @@ func TestModuleUpgrade(t *testing.T) {
 	ctx, keeper := createTestInput(t, false, initialPower, nAccs)
 	accs := keeper.GetAllAccounts(ctx)
 	p := keeper.GetParams(ctx)
-	keeper.ConvertState(ctx)
 	keeper.Cdc.SetUpgradeOverride(true)
 	accs2 := keeper.GetAllAccounts(ctx)
 	p2 := keeper.GetParams(ctx)

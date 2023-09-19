@@ -60,19 +60,3 @@ func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
 func (k Keeper) Codespace() sdk.CodespaceType {
 	return k.codespace
 }
-
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-	k.Cdc.SetUpgradeOverride(false)
-	params := k.GetParams(ctx)
-	providers := k.GetAllProviders(ctx)
-	k.Cdc.SetUpgradeOverride(true)
-	k.SetParams(ctx, params)
-	k.SetProviders(ctx, providers)
-	k.Cdc.DisableUpgradeOverride()
-}

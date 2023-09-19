@@ -219,13 +219,3 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 func (AppModule) Route() string {
 	return types.RouterKey
 }
-
-func (am AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	if am.controllerKeeper != nil {
-		am.controllerKeeper.UpgradeCodec(ctx)
-	}
-
-	if am.hostKeeper != nil {
-		am.hostKeeper.UpgradeCodec(ctx)
-	}
-}

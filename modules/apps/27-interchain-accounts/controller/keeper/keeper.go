@@ -267,12 +267,3 @@ func (k Keeper) DeleteMiddlewareEnabled(ctx sdk.Ctx, portID, connectionID string
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(icatypes.KeyIsMiddlewareEnabled(portID, connectionID))
 }
-
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-}

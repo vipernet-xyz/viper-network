@@ -11,7 +11,6 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 
 	"github.com/tendermint/tendermint/store"
-	"golang.org/x/crypto/sha3"
 
 	log1 "github.com/cometbft/cometbft/libs/log"
 	"github.com/gogo/protobuf/proto"
@@ -101,10 +100,7 @@ type Ctx interface {
 	AppVersion() string
 	ClearGlobalCache()
 	IsPrevCtx() bool
-	IsAfterUpgradeHeight() bool
-	IsOnUpgradeHeight() bool
 	BlockHash(cdc *codec.Codec, height int64) ([]byte, error)
-	//Logger1() log1.Logger
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -128,12 +124,6 @@ func (c Context) AppVersion() string          { return dropTag(c.appVersion) }
 func (c Context) ClearGlobalCache()           { c.cachedStore.Purge() }
 func (c Context) Logger1() log1.Logger        { return c.logger1 }
 func (c Context) IsReCheckTx() bool           { return c.recheckTx }
-func (c Context) IsAfterUpgradeHeight() bool {
-	return c.header.Height >= codec.GetCodecUpgradeHeight()
-}
-func (c Context) IsOnUpgradeHeight() bool {
-	return c.header.Height == codec.GetCodecUpgradeHeight()
-}
 
 // clone the header before returning
 func (c Context) BlockHeader() abci.Header {
@@ -147,23 +137,7 @@ var _ codec.ProtoMarshaler = &abci.Header{}
 
 // clone the header before returning
 func (c Context) BlockHash(cdc *codec.Codec, height int64) ([]byte, error) {
-	if cdc.IsAfterCodecUpgrade(height) {
-		if c.header.Equal(abci.Header{}) {
-			return nil, errors.New(blockHashError + ": the header is empty")
-		}
-		sha := sha3.New256()
-		bz, err := cdc.MarshalBinaryBare(&c.header, height)
-		if err != nil {
-			return nil, err
-		}
-		_, err = sha.Write(bz)
-		if err != nil {
-			return nil, err
-		}
-		return sha.Sum(nil), nil
-	} else {
-		return c.BlockHeader().LastBlockId.Hash, nil
-	}
+	return c.BlockHeader().LastBlockId.Hash, nil
 }
 
 func (c Context) Deadline() (deadline time.Time, ok bool) {

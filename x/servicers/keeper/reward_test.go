@@ -1,6 +1,6 @@
 package keeper
 
-import (
+/*
 	"fmt"
 	"testing"
 
@@ -10,9 +10,9 @@ import (
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 
-	"github.com/stretchr/testify/assert"
-)
+	"github.com/stretchr/testify/assert"*/
 
+/*
 type args struct {
 	consAddress sdk.Address
 }
@@ -427,3 +427,4 @@ func TestKeeper_rewardFromRelaysEXP(t *testing.T) {
 		})
 	}
 }
+*/

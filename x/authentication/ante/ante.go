@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/vipernet-xyz/viper-network/codec"
 	posCrypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/keeper"
@@ -82,8 +81,7 @@ func ValidateTransaction(ctx sdk.Ctx, k Keeper, stdTx types.StdTx, params Params
 				return nil, types.ErrEmptyPublicKey(ModuleName)
 			}
 		}
-		//patch sync fix : add Verify against after codec upgrade chainhalt height
-		if !bytes.Equal(pk.Address(), signer) && ctx.BlockHeight() != codec.CodecChainHaltHeight {
+		if !bytes.Equal(pk.Address(), signer) {
 			continue
 		}
 		// get the sign bytes from the tx
@@ -175,16 +173,9 @@ func DeductFees(keeper keeper.Keeper, ctx sdk.Ctx, tx types.StdTx, signer posCry
 	var acc Account
 	var err sdk.Error
 
-	if keeper.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		acc, err = GetSignerAcc(ctx, keeper, sdk.Address(signer.Address()))
-		if err != nil {
-			return err
-		}
-	} else {
-		acc, err = GetSignerAcc(ctx, keeper, tx.GetSigners()[0])
-		if err != nil {
-			return err
-		}
+	acc, err = GetSignerAcc(ctx, keeper, sdk.Address(signer.Address()))
+	if err != nil {
+		return err
 	}
 
 	coins := acc.GetCoins()

@@ -156,19 +156,6 @@ func (k Keeper) ClaimCapability(ctx sdk.Ctx, cap *capabilitytypes.Capability, na
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
 }
 
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-	k.cdc.SetUpgradeOverride(false)
-	params := k.GetParams(ctx)
-	k.SetParams(ctx, params)
-	k.cdc.DisableUpgradeOverride()
-}
-
 // creates a querier for staking REST endpoints
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Ctx, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {

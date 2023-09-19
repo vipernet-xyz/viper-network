@@ -20,12 +20,6 @@ type Codec struct {
 	upgradeOverride int
 }
 
-type BinaryCodec1 struct {
-	protoCdc        *ProtoCodec
-	legacyCdc       *LegacyAmino
-	upgradeOverride int
-}
-
 func NewCodec(anyUnpacker types.AnyUnpacker) *Codec {
 	return &Codec{
 		protoCdc:        NewProtoCodec(anyUnpacker),
@@ -275,31 +269,6 @@ func (cdc *Codec) IsAfterCodecUpgrade(height int64) bool {
 		return cdc.upgradeOverride == 1
 	}
 	return (GetCodecUpgradeHeight() <= height || height == -1) || TestMode <= -1
-}
-
-// IsAfterValidatorSplitUpgrade Note: includes the actual upgrade height
-func (cdc *Codec) IsAfterValidatorSplitUpgrade(height int64) bool {
-	return height >= ValidatorSplitHeight || (height >= UpgradeHeight && UpgradeHeight > GetCodecUpgradeHeight()) || TestMode <= -2
-}
-
-// IsAfterNonCustodialUpgrade Note: includes the actual upgrade height
-func (cdc *Codec) IsAfterNonCustodialUpgrade(height int64) bool {
-	return (UpgradeFeatureMap[NonCustodialUpdateKey] != 0 && height >= UpgradeFeatureMap[NonCustodialUpdateKey]) || TestMode <= -3
-}
-
-// IsOnNonCustodialUpgrade Note: includes the actual upgrade height
-func (cdc *Codec) IsOnNonCustodialUpgrade(height int64) bool {
-	return (UpgradeFeatureMap[NonCustodialUpdateKey] != 0 && height == UpgradeFeatureMap[NonCustodialUpdateKey]) || TestMode <= -3
-}
-
-// IsAfterNamedFeatureActivationHeight Note: includes the actual upgrade height
-func (cdc *Codec) IsAfterNamedFeatureActivationHeight(height int64, key string) bool {
-	return UpgradeFeatureMap[key] != 0 && height >= UpgradeFeatureMap[key]
-}
-
-// IsOnNamedFeatureActivationHeight Note: includes the actual upgrade height
-func (cdc *Codec) IsOnNamedFeatureActivationHeight(height int64, key string) bool {
-	return UpgradeFeatureMap[key] != 0 && height == UpgradeFeatureMap[key]
 }
 
 // Upgrade Utils for feature map

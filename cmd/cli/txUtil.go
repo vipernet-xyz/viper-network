@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/vipernet-xyz/viper-network/app"
@@ -444,6 +445,8 @@ func newTxBz(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, chainID s
 	fees := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(fee)))
 	// entroyp
 	entropy := rand.Int64()
+	log.Println("Generating sign bytes...")
+
 	signBytes, err := authentication.StdSignBytes(chainID, entropy, fees, msg, memo)
 	if err != nil {
 		return nil, err
@@ -452,8 +455,12 @@ func newTxBz(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, chainID s
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("Generated signature: %x, with publicKey: %x", sig, pubKey)
+
 	s := authTypes.StdSignature{PublicKey: pubKey, Signature: sig}
 	tx := authTypes.NewTx(msg, fees, s, memo, entropy)
+	log.Println("Encoding the transaction...")
+
 	if legacyCodec {
 		return authentication.DefaultTxEncoder(cdc)(tx, 0)
 	}
@@ -526,6 +533,8 @@ func UnpauseNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64)
 }
 
 func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fees int64, legacyCodec bool) (string, *rpc.SendRawTxParams, error) {
+	log.Println("Starting GenerateAndSendDiscountKey with parameters:", fromAddr, toAddr, passphrase, chainID, fees, legacyCodec)
+
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return "", nil, err
@@ -534,13 +543,17 @@ func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fe
 	if err != nil {
 		return "", nil, err
 	}
+	log.Printf("Converted Addresses: fa = %s, ta = %s", fa, ta)
+
 	kb, err := app.GetKeybase()
 	if err != nil {
 		return "", nil, err
 	}
+	log.Println("Generating unique discount key...")
 
 	// Generating a unique DiscountKey
 	discountKey := generateUniqueDiscountKey(toAddr)
+	log.Printf("Generated Discount Key: %s", discountKey)
 
 	msg := governanceTypes.MsgGenerateDiscountKey{
 		FromAddress: fa,
@@ -552,11 +565,13 @@ func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fe
 	if err != nil {
 		return "", nil, err
 	}
+	log.Println("Creating transaction bytes...")
 
 	txBz, err := newTxBz(app.Codec(), &msg, fa, chainID, kb, passphrase, fees, "", legacyCodec)
 	if err != nil {
 		return "", nil, err
 	}
+	log.Printf("Generated transaction bytes of length: %d", len(txBz))
 
 	return discountKey, &rpc.SendRawTxParams{
 		Addr:        fromAddr,
@@ -569,8 +584,11 @@ func generateUniqueDiscountKey(providerAddr string) string {
 	// Concatenate provider address and current time
 	baseString := fmt.Sprintf("%s-%d", providerAddr, time.Now().UnixNano())
 
+	log.Printf("Base string for discount key: %s", baseString)
+
 	// Add a nonce for additional randomness
 	nonce := generateNonce(16) // 16 bytes random data
+	log.Printf("Generated nonce: %s", nonce)
 
 	// Concatenate the nonce to the base string
 	finalString := baseString + nonce
@@ -584,9 +602,13 @@ func generateUniqueDiscountKey(providerAddr string) string {
 
 // generateNonce creates a random string of the given length.
 func generateNonce(length int) string {
+	log.Printf("Generating nonce of length: %d", length)
+
 	nonce := make([]byte, length)
 	_, err := rand1.Read(nonce)
 	if err != nil {
+		log.Printf("Error generating nonce: %v", err)
+
 		// Handle the error. Here we're just returning a fixed string, but
 		// you might want to handle it differently in production code.
 		return "ErrorGeneratingNonce"

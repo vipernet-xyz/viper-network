@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/vipernet-xyz/viper-network/codec"
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
@@ -149,13 +148,10 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 		return servicerAddr, claim, vc.NewInvalidProofsError(vc.ModuleName)
 	}
 	// validate the merkle proofs
-	isValid, isReplayAttack := proof.MerkleProof.Validate(claim.SessionHeader.SessionBlockHeight, claim.MerkleRoot, proof.GetLeaf(), levelCount)
+	isValid, _ := proof.MerkleProof.Validate(claim.SessionHeader.SessionBlockHeight, claim.MerkleRoot, proof.GetLeaf(), levelCount)
 	// if is not valid for other reasons
 	if !isValid {
-		if isReplayAttack && k.Cdc.IsAfterNamedFeatureActivationHeight(ctx.BlockHeight(), codec.ReplayBurnKey) {
-			return servicerAddr, claim, vc.NewReplayAttackError(vc.ModuleName)
-		}
-		return servicerAddr, claim, vc.NewInvalidMerkleVerifyError(vc.ModuleName)
+		return servicerAddr, claim, vc.NewReplayAttackError(vc.ModuleName)
 	}
 	// get the provider
 	provider, found := k.GetProviderFromPublicKey(sessionCtx, claim.SessionHeader.ProviderPubKey)

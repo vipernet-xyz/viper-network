@@ -38,7 +38,6 @@ func StartRPC(port string, timeout int64, simulation, debug, allBlockTxs, hotRel
 		routes = append(routes, Route{Name: "DebugTrace", Method: "GET", Path: "/debug/pprof/trace", HandlerFunc: wrapperHandlerFunc(pprof.Trace)})
 		routes = append(routes, Route{Name: "FreeOsMemory", Method: "GET", Path: "/debug/freememory", HandlerFunc: FreeMemory})
 		routes = append(routes, Route{Name: "MemStats", Method: "GET", Path: "/debug/memstats", HandlerFunc: MemStats})
-		routes = append(routes, Route{Name: "QuerySecondUpgrade", Method: "POST", Path: "/debug/second", HandlerFunc: SecondUpgrade})
 		routes = append(routes, Route{Name: "QueryValidatorByChain", Method: "POST", Path: "/debug/vbc", HandlerFunc: QueryValidatorsByChain})
 		routes = append(routes, Route{Name: "QueryValidatorByGeoZone", Method: "POST", Path: "/debug/vbc", HandlerFunc: QueryValidatorsByGeoZone})
 	}

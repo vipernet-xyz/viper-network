@@ -44,20 +44,6 @@ func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-	k.cdc.SetUpgradeOverride(false)
-	params := k.GetParams(ctx)
-	k.cdc.SetUpgradeOverride(true)
-	k.SetParams(ctx, params)
-	k.cdc.DisableUpgradeOverride()
-}
-
 // HasDiscountKey checks if a discount key already exists for the given address
 func (k Keeper) HasDiscountKey(ctx sdk.Context, addr sdk.Address) bool {
 	store := ctx.KVStore(k.discountStoreKey) // use the discountStoreKey

@@ -141,9 +141,8 @@ func (k Keeper) unstakeAllMatureProviders(ctx sdk.Ctx) {
 					sdk.NewAttribute(types.AttributeKeyProvider, valAddr.String()),
 				),
 			)
-			if ctx.IsAfterUpgradeHeight() {
-				k.DeleteProvider(ctx, valAddr)
-			}
+			k.DeleteProvider(ctx, valAddr)
+
 		}
 		_ = store.Delete(unstakingProvidersIterator.Key())
 	}

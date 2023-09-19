@@ -25,9 +25,9 @@ var (
 )
 
 // "InitConfig" - Initializes the cache for sessions and evidence
-func InitConfig(chains *HostedBlockchains, logger log.Logger, c types.Config) {
+func InitConfig(chains *HostedBlockchains, geozone *HostedGeoZones, logger log.Logger, c types.Config) {
 	ConfigOnce.Do(func() {
-		InitGlobalServiceMetric(chains, logger, c.ViperConfig.PrometheusAddr, c.ViperConfig.PrometheusMaxOpenfiles)
+		InitGlobalServiceMetric(chains, geozone, logger, c.ViperConfig.PrometheusAddr, c.ViperConfig.PrometheusMaxOpenfiles)
 	})
 	InitViperNodeCaches(c, logger)
 	GlobalViperConfig = c.ViperConfig
@@ -42,7 +42,7 @@ func InitConfig(chains *HostedBlockchains, logger log.Logger, c types.Config) {
 
 func ConvertEvidenceToProto(config types.Config) error {
 	node := AddViperNode(crypto.GenerateEd25519PrivKey().GenPrivateKey(), log.NewNopLogger())
-	InitConfig(nil, log.NewNopLogger(), config)
+	InitConfig(nil, nil, log.NewNopLogger(), config)
 
 	gec := node.EvidenceStore
 	it, err := gec.Iterator()

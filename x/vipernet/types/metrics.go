@@ -39,6 +39,7 @@ type ServiceMetrics struct {
 	tmLogger        log.Logger
 	ServiceMetric   `json:"accumulated_service_metrics"` // total metrics
 	NonNativeChains map[string]ServiceMetric             `json:"individual_service_metrics"` // metrics per chain
+	GeoZone         `json:"geo_zone"`
 	prometheusSrv   *http.Server
 }
 
@@ -51,9 +52,9 @@ func GlobalServiceMetric() *ServiceMetrics {
 	return globalServiceMetrics
 }
 
-func InitGlobalServiceMetric(hostedBlockchains *HostedBlockchains, logger log.Logger, addr string, maxOpenConn int) {
+func InitGlobalServiceMetric(hostedBlockchains *HostedBlockchains, hostedGeozone *HostedGeoZones, logger log.Logger, addr string, maxOpenConn int) {
 	// create a new service metric
-	serviceMetric := NewServiceMetrics(hostedBlockchains, logger)
+	serviceMetric := NewServiceMetrics(hostedBlockchains, hostedGeozone, logger)
 	// set the service metrics
 	globalServiceMetrics = serviceMetric
 	// start metrics server
@@ -217,7 +218,7 @@ func KeyForServiceMetrics() []byte {
 	return []byte(ServiceMetricsKey)
 }
 
-func NewServiceMetrics(hostedBlockchains *HostedBlockchains, logger log.Logger) *ServiceMetrics {
+func NewServiceMetrics(hostedBlockchains *HostedBlockchains, hostedGeozone *HostedGeoZones, logger log.Logger) *ServiceMetrics {
 	serviceMetrics := ServiceMetrics{
 		ServiceMetric:   NewServiceMetricsFor("all"),
 		NonNativeChains: make(map[string]ServiceMetric),

@@ -15,6 +15,7 @@ func init() {
 	servicersCmd.AddCommand(servicerUnstakeCmd)
 	servicersCmd.AddCommand(servicerUnjailCmd)
 	servicersCmd.AddCommand(servicerPauseCmd)
+	servicersCmd.AddCommand(servicerUnpauseCmd)
 }
 
 var servicersCmd = &cobra.Command{
@@ -129,7 +130,7 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 }
 
 var servicerUnpauseCmd = &cobra.Command{
-	Use:   "Unpause <operatorAddr> <fromAddr> <networkID> <fee>",
+	Use:   "unpause <operatorAddr> <fromAddr> <networkID> <fee>",
 	Short: "Unpauses a servicer in the network",
 	Long: `Unpauses a servicer in the network.
 Will prompt the user for the <fromAddr> account passphrase.`,

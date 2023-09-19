@@ -21,7 +21,6 @@ type Keeper struct {
 	Paramstore        sdk.Subspace
 	storeKey          sdk.StoreKey // Unexposed key to access store from sdk.Ctx
 	Cdc               *codec.Codec // The wire codec for binary encoding/decoding.
-	Bcdc              codec.BinaryCodec
 }
 
 // NewKeeper creates new instances of the vipernet module Keeper
@@ -46,22 +45,6 @@ func (k Keeper) Codec() *codec.Codec {
 func (k Keeper) GetBlock(height int) (*coretypes.ResultBlock, error) {
 	h := int64(height)
 	return k.TmNode.Block(&h)
-}
-
-func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
-	if ctx.IsOnUpgradeHeight() {
-		k.ConvertState(ctx)
-	}
-}
-
-func (k Keeper) ConvertState(ctx sdk.Ctx) {
-	k.Cdc.SetUpgradeOverride(false)
-	params := k.GetParams(ctx)
-	claims := k.GetAllClaims(ctx)
-	k.Cdc.SetUpgradeOverride(true)
-	k.SetParams(ctx, params)
-	k.SetClaims(ctx, claims)
-	k.Cdc.DisableUpgradeOverride()
 }
 
 func (k Keeper) ConsensusParamUpdate(ctx sdk.Ctx) *abci.ConsensusParams {

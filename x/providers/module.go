@@ -120,10 +120,6 @@ func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 	keeper.BeginBlocker(ctx, req, pm.keeper)
 }
 
-func (pm AppModule) UpgradeCodec(ctx sdk.Ctx) {
-	pm.keeper.UpgradeCodec(ctx)
-}
-
 // EndBlock returns the end blocker for the staking module. It returns no provider
 // updates.
 func (pm AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {

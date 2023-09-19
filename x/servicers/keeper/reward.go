@@ -11,13 +11,12 @@ import (
 
 // RewardForRelays - Award coins to an address
 func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt {
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		var found bool
-		address, found = k.GetValidatorOutputAddress(ctx, address)
-		if !found {
-			k.Logger(ctx).Error(fmt.Sprintf("no validator found for address %s; unable to mint the relay reward...", address.String()))
-			return sdk.ZeroInt()
-		}
+
+	var found bool
+	address, found = k.GetValidatorOutputAddress(ctx, address)
+	if !found {
+		k.Logger(ctx).Error(fmt.Sprintf("no validator found for address %s; unable to mint the relay reward...", address.String()))
+		return sdk.ZeroInt()
 	}
 
 	var coins sdk.BigInt
@@ -81,18 +80,17 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	if err != nil {
 		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the dao: %s, at height %d", daoCut.String(), err.Error(), ctx.BlockHeight()))
 	}
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		outputAddress, found := k.GetValidatorOutputAddress(ctx, previousProposer)
-		if !found {
-			ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, types.ErrNoValidatorForAddress(types.ModuleName), ctx.BlockHeight()))
-			return
-		}
-		err = k.AccountKeeper.SendCoins(ctx, feeAddr, outputAddress, sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, proposerCut)))
-		if err != nil {
-			ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, err.Error(), ctx.BlockHeight()))
-		}
+
+	outputAddress, found := k.GetValidatorOutputAddress(ctx, previousProposer)
+	if !found {
+		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, types.ErrNoValidatorForAddress(types.ModuleName), ctx.BlockHeight()))
 		return
 	}
+	err = k.AccountKeeper.SendCoins(ctx, feeAddr, outputAddress, sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, proposerCut)))
+	if err != nil {
+		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, err.Error(), ctx.BlockHeight()))
+	}
+
 	err = k.AccountKeeper.SendCoins(ctx, feeAddr, previousProposer, sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, proposerCut)))
 	if err != nil {
 		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, err.Error(), ctx.BlockHeight()))
@@ -140,11 +138,8 @@ func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, provider providersTypes.Pro
 	// if falls below minimum force burn all of the stake
 	if provider.GetTokens().LT(sdk.NewInt(k.providerKeeper.MinimumStake(ctx))) {
 		var err error
-		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-			err = k.providerKeeper.ForceProviderUnstake(ctx, provider)
-		} else {
-			err = k.providerKeeper.LegacyForceProviderUnstake(ctx, provider)
-		}
+		err = k.providerKeeper.ForceProviderUnstake(ctx, provider)
+
 		if err != nil {
 			k.Logger(ctx).Error("could not force unstake: " + err.Error() + "\nfor provider " + provider.Address.String())
 			return sdk.Result{}, nil

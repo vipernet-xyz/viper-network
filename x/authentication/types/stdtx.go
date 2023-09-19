@@ -308,17 +308,15 @@ func DefaultTxDecoder(cdc *codec.Codec) sdk.TxDecoder {
 		// are registered by MakeTxCodec
 		err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx, blockHeight)
 
-		//replicate error on new stake msg sent before upgrade block for compatibility reasons (happened on 56550 BU)
-		if !cdc.IsAfterNonCustodialUpgrade(blockHeight) {
-			if _, ok := tx.Msg.(*types2.MsgStake); ok {
-				return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgProtoStake8 against interface *types.ProtoMsg")
-			}
-			if _, ok := tx.Msg.(*types2.MsgUnjail); ok {
-				return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgUnjail8 against interface *types.ProtoMsg")
-			}
-			if _, ok := tx.Msg.(*types2.MsgBeginUnstake); ok {
-				return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgBeginUnstake8 against interface *types.ProtoMsg")
-			}
+		//replicate error on new stake msg sent before upgrade block for compatibility reasons
+		if _, ok := tx.Msg.(*types2.MsgStake); ok {
+			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgProtoStake against interface *types.ProtoMsg")
+		}
+		if _, ok := tx.Msg.(*types2.MsgUnjail); ok {
+			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgUnjail against interface *types.ProtoMsg")
+		}
+		if _, ok := tx.Msg.(*types2.MsgBeginUnstake); ok {
+			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgBeginUnstake against interface *types.ProtoMsg")
 		}
 
 		if err != nil {

@@ -92,11 +92,9 @@ func (k Keeper) UpdateTendermintValidators(ctx sdk.Ctx) (updates []abci.Validato
 		k.DeletePrevStateValPower(ctx, validator.GetAddress())
 		// add to one of the updates for tendermint
 		ctx.Logger().Debug(fmt.Sprintf("Updating Validator-Set to Tendermint: %s is no longer staked, at height %d", validator.Address, ctx.BlockHeight()))
-		if k.Cdc.IsAfterValidatorSplitUpgrade(ctx.BlockHeight()) {
-			updates = append(updates, validator.ABCIValidatorZeroUpdate())
-		} else {
-			updates = append(updates, validator.ABCIValidatorUpdate())
-		}
+
+		updates = append(updates, validator.ABCIValidatorZeroUpdate())
+
 		// if validator was force unstaked, delete the validator from the all validators store
 		if validator.IsUnstaked() {
 			k.DeleteValidator(ctx, validator.Address)
@@ -121,10 +119,9 @@ func (k Keeper) ValidateValidatorStaking(ctx sdk.Ctx, validator types.Validator,
 
 	//check that we don't allow nil output if we are after noncustodial upgrade
 	//so we won't accept stakes/edits with nil outputAddress
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		if validator.OutputAddress == nil {
-			return types.ErrNilOutputAddr(k.codespace)
-		}
+
+	if validator.OutputAddress == nil {
+		return types.ErrNilOutputAddr(k.codespace)
 	}
 
 	coin := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
@@ -142,7 +139,7 @@ func (k Keeper) ValidateValidatorStaking(ctx sdk.Ctx, validator types.Validator,
 			return err
 		}
 
-		if ctx.IsAfterUpgradeHeight() && val.IsStaked() {
+		if val.IsStaked() {
 			return k.ValidateEditStake(ctx, val, validator, amount, signerAddress)
 		}
 		if !val.IsUnstaked() { // unstaking or already staked but before the upgrade
@@ -167,14 +164,9 @@ func (k Keeper) ValidateValidatorStaking(ctx sdk.Ctx, validator types.Validator,
 	if amount.LT(sdk.NewInt(k.MinimumStake(ctx))) {
 		return types.ErrMinimumStake(k.codespace)
 	}
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		if !k.AccountKeeper.HasCoins(ctx, signerAddress, coin) {
-			return types.ErrNotEnoughCoins(k.codespace)
-		}
-	} else {
-		if !k.AccountKeeper.HasCoins(ctx, validator.Address, coin) {
-			return types.ErrNotEnoughCoins(k.codespace)
-		}
+
+	if !k.AccountKeeper.HasCoins(ctx, signerAddress, coin) {
+		return types.ErrNotEnoughCoins(k.codespace)
 	}
 
 	return nil
@@ -207,28 +199,22 @@ func (k Keeper) ValidateEditStake(ctx sdk.Ctx, currentValidator, newValidtor typ
 	if !diff.IsZero() {
 		// ensure account has enough coins for bump
 		coin := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), diff))
-		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-			if !k.AccountKeeper.HasCoins(ctx, signer, coin) {
-				return types.ErrNotEnoughCoins(k.Codespace())
-			}
-		} else {
-			if !k.AccountKeeper.HasCoins(ctx, currentValidator.Address, coin) {
-				return types.ErrNotEnoughCoins(k.Codespace())
-			}
+
+		if !k.AccountKeeper.HasCoins(ctx, signer, coin) {
+			return types.ErrNotEnoughCoins(k.Codespace())
+		}
+
+	}
+	// ensure output address doesn't change
+	if currentValidator.OutputAddress != nil {
+		if !newValidtor.OutputAddress.Equals(currentValidator.OutputAddress) {
+			fmt.Println(currentValidator.String())
+			return types.ErrUnequalOutputAddr(k.Codespace())
 		}
 	}
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		// ensure output address doesn't change
-		if currentValidator.OutputAddress != nil {
-			if !newValidtor.OutputAddress.Equals(currentValidator.OutputAddress) {
-				fmt.Println(currentValidator.String())
-				return types.ErrUnequalOutputAddr(k.Codespace())
-			}
-		}
-		// prevent waiting vals from modifying anything
-		if k.IsWaitingValidator(ctx, currentValidator.Address) {
-			return types.ErrValidatorWaitingToUnstake(types.ModuleName)
-		}
+	// prevent waiting vals from modifying anything
+	if k.IsWaitingValidator(ctx, currentValidator.Address) {
+		return types.ErrValidatorWaitingToUnstake(types.ModuleName)
 	}
 	return nil
 }
@@ -236,12 +222,10 @@ func (k Keeper) ValidateEditStake(ctx sdk.Ctx, currentValidator, newValidtor typ
 // StakeValidator - Store ops when a validator stakes
 func (k Keeper) StakeValidator(ctx sdk.Ctx, validator types.Validator, amount sdk.BigInt, signer crypto.PublicKey) sdk.Error {
 	// edit stake
-	if ctx.IsAfterUpgradeHeight() {
-		// get Validator to see if edit stake
-		val, found := k.GetValidator(ctx, validator.Address)
-		if found && val.IsStaked() {
-			return k.EditStakeValidator(ctx, val, validator, amount, signer)
-		}
+	// get Validator to see if edit stake
+	val, found := k.GetValidator(ctx, validator.Address)
+	if found && val.IsStaked() {
+		return k.EditStakeValidator(ctx, val, validator, amount, signer)
 	}
 	// send the coins from address to staked module account
 	err := k.coinsFromUnstakedToStaked(ctx, sdk.Address(signer.Address()), amount)
@@ -261,8 +245,8 @@ func (k Keeper) StakeValidator(ctx sdk.Ctx, validator types.Validator, amount sd
 	k.SetStakedValidatorByGeoZone(ctx, validator)
 	k.SetValidatorReportCard(ctx, validator)
 	// ensure there's a signing info entry for the validator (used in slashing)
-	_, found := k.GetValidatorSigningInfo(ctx, validator.GetAddress())
-	if !found {
+	_, found1 := k.GetValidatorSigningInfo(ctx, validator.GetAddress())
+	if !found1 {
 		signingInfo := types.ValidatorSigningInfo{
 			Address:     validator.GetAddress(),
 			StartHeight: ctx.BlockHeight(),
@@ -288,11 +272,10 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 		}
 		currentValidator.StakedTokens = currentValidator.StakedTokens.Add(diff)
 	}
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-		if currentValidator.OutputAddress == nil {
-			currentValidator.OutputAddress = updatedValidator.OutputAddress
-		}
+	if currentValidator.OutputAddress == nil {
+		currentValidator.OutputAddress = updatedValidator.OutputAddress
 	}
+
 	// update chains
 	currentValidator.Chains = updatedValidator.Chains
 	// update service url
@@ -329,9 +312,6 @@ func (k Keeper) ValidateValidatorBeginUnstaking(ctx sdk.Ctx, validator types.Val
 	// must be staked to begin unstaking
 	if !validator.IsStaked() {
 		return types.ErrValidatorStatus(k.codespace)
-	}
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) { // allow jailed validators to begin unstaking
-		return nil
 	}
 	if validator.IsJailed() {
 		return types.ErrValidatorJailed(k.codespace)
@@ -398,9 +378,6 @@ func (k Keeper) BeginUnstakingValidator(ctx sdk.Ctx, validator types.Validator) 
 func (k Keeper) ValidateValidatorFinishUnstaking(ctx sdk.Ctx, validator types.Validator) sdk.Error {
 	if !validator.IsUnstaking() {
 		return types.ErrValidatorStatus(k.codespace)
-	}
-	if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) { // allow jailed validators to finish unstaking
-		return nil
 	}
 	if validator.IsJailed() {
 		return types.ErrValidatorJailed(k.codespace)
@@ -579,19 +556,10 @@ func (k Keeper) IncrementJailedValidators(ctx sdk.Ctx) {
 			signInfo.JailedBlocksCounter++
 			// compare against MaxJailedBlocks
 			if signInfo.JailedBlocksCounter > k.MaxJailedBlocks(ctx) {
-				if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-					err := k.ForceValidatorUnstake(ctx, val)
-					if err != nil {
-						k.Logger(ctx).Error("could not force unstake in simpleSlash: " + err.Error() + "\nfor validator " + addr.String())
-						return
-					}
-				} else {
-					err := k.LegacyForceValidatorUnstake(ctx, val)
-					if err != nil {
-						k.Logger(ctx).Error("could not force unstake in simpleSlash: " + err.Error() + "\nfor validator " + addr.String())
-						return
-					}
-					k.DeleteValidator(ctx, addr)
+				err := k.ForceValidatorUnstake(ctx, val)
+				if err != nil {
+					k.Logger(ctx).Error("could not force unstake in simpleSlash: " + err.Error() + "\nfor validator " + addr.String())
+					return
 				}
 			} else {
 				k.SetValidatorSigningInfo(ctx, addr, signInfo)
@@ -618,10 +586,7 @@ func (k Keeper) ValidateUnjailMessage(ctx sdk.Ctx, msg types.MsgUnjail) (addr sd
 		return nil, types.ErrMissingSelfDelegation(k.Codespace())
 	}
 	if validator.GetTokens().LT(sdk.NewInt(k.MinimumStake(ctx))) {
-		if k.Cdc.IsAfterNonCustodialUpgrade(ctx.BlockHeight()) {
-			k.SetWaitingValidator(ctx, validator) // defensive against 'stuck in jail'
-		}
-		return nil, types.ErrSelfDelegationTooLowToUnjail(k.Codespace())
+		k.SetWaitingValidator(ctx, validator) // defensive against 'stuck in jail'
 	}
 	// cannot be unjailed if not jailed
 	if !validator.IsJailed() {
@@ -698,7 +663,7 @@ func (k Keeper) UnpauseNode(ctx sdk.Ctx, addr sdk.Address) {
 		return
 	}
 	if !validator.Paused {
-		k.Logger(ctx).Error(fmt.Sprintf("cannot unjail already unpaused validator, validator: %v at height %d", validator, ctx.BlockHeight()))
+		k.Logger(ctx).Error(fmt.Sprintf("cannot unpause already unpaused validator, validator: %v at height %d", validator, ctx.BlockHeight()))
 		return
 	}
 	info, found := k.GetValidatorSigningInfo(ctx, addr)
