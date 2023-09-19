@@ -63,8 +63,8 @@ func (opts QueryProvidersWithOpts) IsValid(provider Provider) bool {
 	}
 	if opts.GeoZone != "" {
 		var contains bool
-		for _, chain := range provider.GeoZones {
-			if chain == opts.GeoZone {
+		for _, geozone := range provider.GeoZones {
+			if geozone == opts.GeoZone {
 				contains = true
 				break
 			}

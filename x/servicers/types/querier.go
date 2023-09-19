@@ -31,6 +31,7 @@ func NewQueryValidatorParams(validatorAddr sdk.Address) QueryValidatorParams {
 type QueryValidatorsParams struct {
 	StakingStatus sdk.StakeStatus `json:"staking_status"`
 	JailedStatus  int             `json:"jailed_status"`
+	PausedStatus  int             `json:"paused_status"`
 	Blockchain    string          `json:"blockchain"`
 	GeoZone       string          `json:"geo_zone"`
 	Page          int             `json:"page"`
@@ -47,6 +48,18 @@ func (opts QueryValidatorsParams) IsValid(val Validator) bool {
 			}
 		case 2: // 2 is unjailed
 			if val.Jailed {
+				return false
+			}
+		}
+	}
+	if opts.PausedStatus != 0 {
+		switch opts.PausedStatus {
+		case 1:
+			if !val.Paused {
+				return false
+			}
+		case 2:
+			if val.Paused {
 				return false
 			}
 		}
