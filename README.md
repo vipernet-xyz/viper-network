@@ -73,7 +73,7 @@ Create genesis.json:
 ```bash
 cd ~/.viper/config
 
-#use can use the below sample genesis code with address and public key replaced by the once generated locally
+#use the below sample genesis code with address and public key replaced by the once generated locally
 
 {
     "genesis_time": "2023-09-19T12:19:57.265745Z",
