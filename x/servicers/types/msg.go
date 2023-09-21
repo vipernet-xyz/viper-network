@@ -301,15 +301,23 @@ func (msg MsgStake) CheckServiceUrlLength(url string) sdk.Error {
 }
 
 func (*MsgProtoStake) XXX_MessageName() string {
-	return "x.servicers.MsgProtoStake8"
+	return "x.servicers.MsgProtoStake"
 }
 
 func (*MsgBeginUnstake) XXX_MessageName() string {
-	return "x.servicers.MsgBeginUnstake8"
+	return "x.servicers.MsgBeginUnstake"
 }
 
 func (*MsgUnjail) XXX_MessageName() string {
-	return "x.servicers.MsgUnjail8"
+	return "x.servicers.MsgUnjail"
+}
+
+func (*MsgPause) XXX_MessageName() string {
+	return "x.servicers.MsgPause"
+}
+
+func (*MsgUnpause) XXX_MessageName() string {
+	return "x.servicers.MsgUnpause"
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -318,6 +318,12 @@ func DefaultTxDecoder(cdc *codec.Codec) sdk.TxDecoder {
 		if _, ok := tx.Msg.(*types2.MsgBeginUnstake); ok {
 			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgBeginUnstake against interface *types.ProtoMsg")
 		}
+		if _, ok := tx.Msg.(*types2.MsgPause); ok {
+			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgPause against interface *types.ProtoMsg")
+		}
+		if _, ok := tx.Msg.(*types2.MsgUnpause); ok {
+			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgUnpause against interface *types.ProtoMsg")
+		}
 
 		if err != nil {
 			return nil, sdk.ErrTxDecode("error decoding transaction: " + err.Error()).TraceSDK(err.Error())
