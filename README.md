@@ -10,7 +10,7 @@ Most node infrastructure providers in the Web3 space are completely centralized,
 
 Viper Network is building a Decentralised Physical Infrastructure Network (DePIN) protocol that provides a trustless RPC layer for Web3 applications to interact with blockchains in a decentralized way.
 
-Imagine us as a decentralized counterpart to Alchemy, where we leverage a network of individual nodes to offer a more secure, cost-effective, and reliable RPC solution for web3 applications.
+Imagine us as a decentralized counterpart to [Alchemy](https://www.alchemy.com/), where we leverage a network of individual nodes to offer a more secure, cost-effective, fast and reliable RPC solution for web3 applications.
 
 ## Installation
 
@@ -81,7 +81,7 @@ Flags:
 
 Use "viper [command] --help" for more information about a command.
 ```
-## How to Run a Node?
+## How to Run a Test-Node?
 
 **Step 1. Create account:**
 ```bash
@@ -103,7 +103,9 @@ viper utils generate-geozone
 ```bash
 cd ~/.viper/config
 
-#use the below sample genesis code with address and public key replaced by the once generated locally
+#Use the below sample genesis code with address and public key replaced by the once generated locally
+
+#The code snippet below automatically adds your node to the staking set. There's no need to run the staking command again (note: this is only for testing purposes).
 
 {
     "genesis_time": "2023-09-19T12:19:57.265745Z",
@@ -507,6 +509,7 @@ viper start
   <a href="https://t.me/vishruthsk"><img src="https://img.shields.io/badge/Telegram-blue.svg"></a>
 </div>
 
-Join us on Discord: https://discord.gg/eBDYH4Zxek
 
-Website: https://vipernet.xyz/
+Engage and collaborate with our community on [Discord](https://discord.gg/eBDYH4Zxek)
+
+Dive deeper into our vision on our [Website](https://vipernet.xyz/) or explore our detailed [Deck](https://www.dropbox.com/scl/fi/nuhh9ag7idaekxelf6rl9/Viper.pdf?rlkey=g6h3lpegyzp24rna4flhni43i&dl=0)
