@@ -96,6 +96,8 @@ const (
 	CodeEvidenceSealed                     = 90
 	CodeGeoZoneNotHostedError              = 91
 	CodeInvalidGeoZoneError                = 92
+	CodeSampleNotHostedError               = 93
+	CodeInvalidSampleError                 = 94
 )
 
 var (
@@ -147,8 +149,10 @@ var (
 	RequestHashError                   = errors.New("the request hash does not match the payload hash")
 	InvalidHostedChainError            = errors.New("invalid hosted chain error")
 	InvalidGeoZoneError                = errors.New("invalid geozone error")
+	InvalidSampleError                 = errors.New("invalid sample error")
 	ChainNotHostedError                = errors.New("the blockchain requested is not hosted")
 	GeoZoneNotHostedError              = errors.New("the GeoZone requested is not hosted")
+	SampleNotHostedError               = errors.New("the Sample requested is not hosted")
 	NodeNotFoundErr                    = errors.New("the servicer is not found in world state")
 	InvalidProofsError                 = errors.New("the proofs provided are invalid or less than the minimum requirement")
 	InconsistentPubKeyError            = errors.New("the public keys in the proofs are inconsistent")
@@ -501,4 +505,12 @@ func NewInvalidPKError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewInvalidNumServicersError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidEntropyError, InvalidEntropyError.Error())
+}
+
+func NewInvalidSampleError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidSampleError, InvalidSampleError.Error())
+}
+
+func NewSampleNotHostedError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeSampleNotHostedError, SampleNotHostedError.Error())
 }

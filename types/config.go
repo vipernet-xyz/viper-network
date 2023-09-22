@@ -53,6 +53,8 @@ type ViperConfig struct {
 	LeanViperUserKeyFileName   string `json:"lean_viper_user_key_file"`
 	GeoZoneName                string `json:"geo_zones_name"`
 	GeoZonesHotReload          bool   `json:"geo_zones_hot_reload"`
+	SamplePoolName             string `json:"sample_pool_name"`
+	SamplePoolHotReload        bool   `json:"sample_pool_hot_reload"`
 }
 
 func (c ViperConfig) GetLeanViperUserKeyFilePath() string {

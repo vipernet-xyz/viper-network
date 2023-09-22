@@ -93,8 +93,15 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	}
 	geoZone := NewHostedGeoZones(false)
 	if GlobalConfig.ViperConfig.GeoZonesHotReload {
-		// hot reload chains
+		// hot reload geoZone
 		HotReloadGeoZones(geoZone)
+	}
+
+	samplePools := NewSamplePools(false)
+	if GlobalConfig.ViperConfig.SamplePoolHotReload {
+		// hot reload sample pool
+		HotReloadSamplePools(samplePools)
+
 	}
 	// create logger
 	logger := InitLogger()
@@ -1249,7 +1256,7 @@ func NewHostedGeoZones(generate bool) *types.HostedGeoZones {
 	var bz []byte
 	if _, err := os.Stat(geoZonesPath); err != nil && os.IsNotExist(err) {
 		if !generate {
-			log2.Println(fmt.Sprintf("no geoZones.json found @ %s, defaulting to empty geoZones", geoZonesPath))
+			log2.Println(fmt.Sprintf("no geozone.json found @ %s, defaulting to empty geoZone", geoZonesPath))
 			// Added for hot reload compatibility: geoZones.json should exist even if empty
 			createMissingGeoZonesJson(geoZonesPath)
 			return &types.HostedGeoZones{} // Default to empty object
@@ -1389,4 +1396,194 @@ func createMissingGeoZonesJson(geoZonesPath string) {
 	if err != nil {
 		log2.Fatal(NewInvalidGeoZonesError(err))
 	}
+}
+
+// HotReloadSamplePools regularly reloads the sample pools.
+func HotReloadSamplePools(samplePools *types.SamplePools) {
+	go func() {
+		for {
+			time.Sleep(time.Minute * 1)
+			var samplePoolPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.SamplePoolName
+
+			// if file exists open, else create and open
+			if _, err := os.Stat(samplePoolPath); err != nil && os.IsNotExist(err) {
+				log2.Println(fmt.Sprintf("no samplepool.json found @ %s, defaulting to empty pool", samplePoolPath))
+				createMissingSamplePoolJson(samplePoolPath)
+				continue
+			}
+
+			// Reopen the file to read its content
+			jsonFile, err := os.OpenFile(samplePoolPath, os.O_RDONLY|os.O_CREATE, os.ModePerm)
+			if err != nil {
+				log2.Fatal(NewInvalidSamplePoolError(err))
+			}
+
+			bz, err := ioutil.ReadAll(jsonFile)
+			if err != nil {
+				log2.Fatal(NewInvalidSamplePoolError(err))
+			}
+			jsonFile.Close()
+
+			// Unmarshal into structure
+			var samplePoolSlice []types.SamplePool
+			err = json.Unmarshal(bz, &samplePoolSlice)
+			if err != nil {
+				log2.Fatal(NewInvalidSamplePoolError(err))
+			}
+
+			m := make(map[string]types.SamplePool)
+			for _, sp := range samplePoolSlice {
+				m[sp.Blockchain] = sp
+			}
+
+			samplePools.L.Lock()
+			samplePools.M = m
+			samplePools.L.Unlock()
+		}
+	}()
+}
+
+func NewSamplePools(generate bool) *types.SamplePools {
+	var samplePoolsPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + "samplepool.json"
+	var jsonFile *os.File
+	var bz []byte
+
+	if _, err := os.Stat(samplePoolsPath); os.IsNotExist(err) {
+		if !generate {
+			log2.Println(fmt.Sprintf("no samplepool.json found @ %s, defaulting to empty SamplePool", samplePoolsPath))
+			createMissingSamplePoolJson(samplePoolsPath)
+			return &types.SamplePools{}
+		}
+		return generateSamplePoolsJson(samplePoolsPath)
+	}
+
+	jsonFile, err := os.OpenFile(samplePoolsPath, os.O_RDONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		log2.Fatal("Error while opening samplepool.json: ", err)
+	}
+
+	bz, err = ioutil.ReadAll(jsonFile)
+	if err != nil {
+		log2.Fatal("Error reading samplepool.json: ", err)
+	}
+
+	var SamplePoolsSlice []types.SamplePool
+	err = json.Unmarshal(bz, &SamplePoolsSlice)
+	if err != nil {
+		log2.Fatal("Error unmarshaling data from samplepool.json: ", err)
+	}
+
+	err = jsonFile.Close()
+	if err != nil {
+		log2.Fatal("Error closing samplepool.json: ", err)
+	}
+
+	m := make(map[string]types.SamplePool)
+	for _, pool := range SamplePoolsSlice {
+		m[pool.Blockchain] = pool
+	}
+
+	return &types.SamplePools{
+		M: m,
+		L: sync.Mutex{},
+	}
+}
+
+func generateSamplePoolsJson(samplePoolsPath string) *types.SamplePools {
+	jsonFile, err := os.OpenFile(samplePoolsPath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		log2.Fatal("Error opening or creating samplepool.json: ", err)
+	}
+
+	sp := GenerateHostedSamplePool()
+	res, err := json.MarshalIndent(sp, "", "  ")
+	if err != nil {
+		log2.Fatal("Error marshaling data for samplepool.json: ", err)
+	}
+
+	_, err = jsonFile.Write(res)
+	if err != nil {
+		log2.Fatal("Error writing to samplepool.json: ", err)
+	}
+
+	err = jsonFile.Close()
+	if err != nil {
+		log2.Fatal("Error closing samplepool.json after write: ", err)
+	}
+
+	m := make(map[string]types.SamplePool)
+	for _, pool := range sp {
+		m[pool.Blockchain] = pool
+	}
+
+	return &types.SamplePools{
+		M: m,
+		L: sync.Mutex{},
+	}
+}
+
+func GenerateHostedSamplePool() []types.SamplePool {
+	var samplepools []types.SamplePool
+	// Define a common Ethereum relay payload
+	ethSamplePayload := &types.RelayPayload{
+		Data:    "0x12345678", // Dummy data
+		Method:  "eth_call",
+		Path:    "/",
+		Headers: types.RelayHeaders{},
+	}
+
+	// Add this payload to Ethereum's sample pool
+	ethSamplePool := types.SamplePool{
+		Blockchain: "0002", // Ethereum
+		Payloads:   []types.RelayPayload{*ethSamplePayload},
+	}
+	samplepools = append(samplepools, ethSamplePool)
+	return samplepools
+}
+
+func DeleteHostedSamplePool() {
+	var samplePoolsPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.SamplePoolName
+	err := os.Remove(samplePoolsPath)
+	if err != nil {
+		log2.Fatal(fmt.Sprintf("Error deleting %s file: ", samplePoolsPath), err)
+	}
+}
+
+func createMissingSamplePoolJson(samplePoolPath string) {
+	jsonFile, err := os.OpenFile(samplePoolPath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		log2.Fatal(NewInvalidSamplePoolError(err))
+	}
+
+	var samplePoolSlice []types.SamplePool
+
+	// Define a common Ethereum relay payload
+	ethSamplePayload := &types.RelayPayload{
+		Data:    "0x12345678", // Dummy data
+		Method:  "eth_call",
+		Path:    "/",
+		Headers: types.RelayHeaders{},
+	}
+
+	// Add this payload to Ethereum's sample pool
+	ethSamplePool := types.SamplePool{
+		Blockchain: "0002", // Ethereum
+		Payloads:   []types.RelayPayload{*ethSamplePayload},
+	}
+
+	samplePoolSlice = append(samplePoolSlice, ethSamplePool)
+
+	res, err := json.MarshalIndent(samplePoolSlice, "", "  ")
+	if err != nil {
+		log2.Fatal(NewInvalidSamplePoolError(err))
+	}
+	_, err = jsonFile.Write(res)
+	if err != nil {
+		log2.Fatal(NewInvalidSamplePoolError(err))
+	}
+	jsonFile.Close()
+}
+
+func NewInvalidSamplePoolError(err error) error {
+	return fmt.Errorf("Invalid Sample Pool: %v", err)
 }

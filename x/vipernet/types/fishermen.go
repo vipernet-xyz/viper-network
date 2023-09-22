@@ -15,6 +15,12 @@ import (
 
 func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI) (*Output, error) {
 
+	// First, we will ensure SampleRelayPools is loaded
+	err := LoadSampleRelayPool()
+	if err != nil {
+		return nil, fmt.Errorf("Failed to load SampleRelayPools: %v", err)
+	}
+
 	start := time.Now()
 	//Get the appropriate relay pool for the blockchain
 	relayPool, exists := SampleRelayPools[Blockchain]
