@@ -22,7 +22,10 @@ func (k Keeper) GetReceiveEnabled(ctx sdk.Ctx) bool {
 
 // GetParams returns the total set of ibc-transfer parameters.
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
-	return types.NewParams(k.GetSendEnabled(ctx), k.GetReceiveEnabled(ctx))
+	return types.Params{
+		SendEnabled:    k.GetSendEnabled(ctx),
+		ReceiveEnabled: k.GetReceiveEnabled(ctx),
+	}
 }
 
 // SetParams sets the total set of ibc-transfer parameters.

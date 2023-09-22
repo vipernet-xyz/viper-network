@@ -119,11 +119,13 @@ func (p Params) String() string {
   ReplayAttackBurnMultiplier %d
   BlockByteSize              %d
   Supported GeoZones         %v
+  MinimumSampleRelays        %d
 `,
 		p.ClaimSubmissionWindow,
 		p.SupportedBlockchains,
 		p.ClaimExpiration,
 		p.ReplayAttackBurnMultiplier,
 		p.BlockByteSize,
-		p.SupportedGeoZones)
+		p.SupportedGeoZones,
+		p.MinimumSampleRelays)
 }

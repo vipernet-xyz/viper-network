@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
-	//"github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
 const (
@@ -55,8 +54,8 @@ func (p Params) Validate() error {
 // ParamSetPairs implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeySendEnabled, p.SendEnabled, validateEnabledType),
-		paramtypes.NewParamSetPair(KeyReceiveEnabled, p.ReceiveEnabled, validateEnabledType),
+		{Key: KeySendEnabled, Value: &p.SendEnabled},
+		{Key: KeyReceiveEnabled, Value: &p.ReceiveEnabled},
 	}
 }
 

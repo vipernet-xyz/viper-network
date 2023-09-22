@@ -104,7 +104,7 @@ func GetRoutes() Routes {
 		Route{Name: "QueryACL", Method: "POST", Path: "/v1/query/acl", HandlerFunc: ACL},
 		Route{Name: "QueryAllParams", Method: "POST", Path: "/v1/query/allparams", HandlerFunc: AllParams},
 		Route{Name: "QueryProvider", Method: "POST", Path: "/v1/query/app", HandlerFunc: App},
-		Route{Name: "QueryProviderParams", Method: "POST", Path: "/v1/query/appparams", HandlerFunc: AppParams},
+		Route{Name: "QueryProviderParams", Method: "POST", Path: "/v1/query/providerparams", HandlerFunc: ProviderParams},
 		Route{Name: "QueryProviders", Method: "POST", Path: "/v1/query/providers", HandlerFunc: Providers},
 		Route{Name: "QueryBalance", Method: "POST", Path: "/v1/query/balance", HandlerFunc: Balance},
 		Route{Name: "QueryBlock", Method: "POST", Path: "/v1/query/block", HandlerFunc: Block},

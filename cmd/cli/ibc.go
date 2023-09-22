@@ -19,7 +19,6 @@ import (
 func init() {
 	rootCmd.AddCommand(ibcCmd)
 	ibcCmd.AddCommand(GetCmdQueryDenomTrace)
-	ibcCmd.AddCommand(GetCmdParams)
 	ibcCmd.AddCommand(GetCmdQueryEscrowAddress)
 	ibcCmd.AddCommand(NewTransferTxCmd)
 }
@@ -56,30 +55,6 @@ var GetCmdQueryDenomTrace = &cobra.Command{
 		}
 
 		return clientCtx.PrintProto(res)
-	},
-}
-
-// GetCmdParams returns the command handler for ibc-transfer parameter querying.
-var GetCmdParams = &cobra.Command{
-	Use:     "params",
-	Short:   "Query the current ibc-transfer parameters",
-	Long:    "Query the current ibc-transfer parameters",
-	Args:    cobra.NoArgs,
-	Example: fmt.Sprintf("%s query ibc-transfer params", version.Version),
-	RunE: func(cmd *cobra.Command, _ []string) error {
-		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
-		clientCtx, err := client.GetClientQueryContext(cmd)
-		if err != nil {
-			return err
-		}
-		queryClient := types.NewQueryClient(clientCtx)
-
-		res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
-		if err != nil {
-			return err
-		}
-
-		return clientCtx.PrintProto(res.Params)
 	},
 }
 

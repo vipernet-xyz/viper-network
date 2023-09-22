@@ -706,7 +706,7 @@ func App(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
 }
 
-func AppParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func ProviderParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var params = HeightParams{Height: 0}
 	if err := PopModel(w, r, ps, &params); err != nil {
 		WriteErrorResponse(w, 400, err.Error())

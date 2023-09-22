@@ -527,7 +527,7 @@ func TestRPC_QueryProviderParams(t *testing.T) {
 	}
 	q := newQueryRequest("appparams", newBody(params))
 	rec := httptest.NewRecorder()
-	AppParams(rec, q, httprouter.Params{})
+	ProviderParams(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp)
@@ -539,7 +539,7 @@ func TestRPC_QueryProviderParams(t *testing.T) {
 	}
 	q = newQueryRequest("appparams", newBody(params))
 	rec = httptest.NewRecorder()
-	AppParams(rec, q, httprouter.Params{})
+	ProviderParams(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp)
