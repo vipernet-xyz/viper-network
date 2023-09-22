@@ -12,7 +12,6 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	posCrypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	types2 "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"gopkg.in/yaml.v2"
 )
 
@@ -307,23 +306,6 @@ func DefaultTxDecoder(cdc *codec.Codec) sdk.TxDecoder {
 		// ProtoStdTx.ProtoMsg is an interface. The concrete types
 		// are registered by MakeTxCodec
 		err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx, blockHeight)
-
-		//replicate error on new stake msg sent before upgrade block for compatibility reasons
-		if _, ok := tx.Msg.(*types2.MsgStake); ok {
-			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgProtoStake against interface *types.ProtoMsg")
-		}
-		if _, ok := tx.Msg.(*types2.MsgUnjail); ok {
-			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgUnjail against interface *types.ProtoMsg")
-		}
-		if _, ok := tx.Msg.(*types2.MsgBeginUnstake); ok {
-			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgBeginUnstake against interface *types.ProtoMsg")
-		}
-		if _, ok := tx.Msg.(*types2.MsgPause); ok {
-			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgPause against interface *types.ProtoMsg")
-		}
-		if _, ok := tx.Msg.(*types2.MsgUnpause); ok {
-			return nil, sdk.ErrTxDecode("error decoding transaction: no concrete type registered for type URL /x.servicers.MsgUnpause against interface *types.ProtoMsg")
-		}
 
 		if err != nil {
 			return nil, sdk.ErrTxDecode("error decoding transaction: " + err.Error()).TraceSDK(err.Error())

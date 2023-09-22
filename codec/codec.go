@@ -153,26 +153,15 @@ func (cdc *Codec) UnmarshalBinaryBare(bz []byte, ptr interface{}, height int64) 
 func (cdc *Codec) UnmarshalBinaryLengthPrefixed(bz []byte, ptr interface{}, height int64) error {
 	p, ok := ptr.(ProtoMarshaler)
 	if !ok {
-		if cdc.IsAfterCodecUpgrade(height) {
-			return NotProtoCompatibleInterfaceError
-		}
-		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
+		return NotProtoCompatibleInterfaceError
 	}
-	if cdc.IsAfterCodecUpgrade(height) {
-		if height == UpgradeCodecHeight {
-			e := cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
-			if e != nil {
-				return cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
-			}
-			return e
-		}
-		return cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
-	}
+
 	e := cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
 	if e != nil {
 		return cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
 	}
 	return e
+
 }
 
 func (cdc *Codec) ProtoMarshalBinaryBare(o ProtoMarshaler) ([]byte, error) {
