@@ -91,10 +91,6 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, err.Error(), ctx.BlockHeight()))
 	}
 
-	err = k.AccountKeeper.SendCoins(ctx, feeAddr, previousProposer, sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, proposerCut)))
-	if err != nil {
-		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, err.Error(), ctx.BlockHeight()))
-	}
 }
 
 // "mint" - takes an amount and mints it to the servicer staking pool, then sends the coins to the address
