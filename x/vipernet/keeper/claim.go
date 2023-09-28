@@ -129,7 +129,6 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	if vc.MaxPossibleRelays(app, int64(app.GetNumServicers())).LT(sdk.NewInt(claim.TotalProofs)) {
 		return vc.NewOverServiceError(vc.ModuleName)
 	}
-
 	// get the session node count for the time of the session
 	sessionNodeCount := int(app.GetNumServicers())
 	// check cache
@@ -181,7 +180,7 @@ func (k Keeper) SetClaim(ctx sdk.Ctx, msg vc.MsgClaim) error {
 		msg.ExpirationHeight = ctx.BlockHeight() + k.ClaimExpiration(sessionCtx)*k.BlocksPerSession(sessionCtx)
 	}
 	// marshal the message into amino
-	bz, err := k.Cdc.MarshalBinaryBare(&msg, ctx.BlockHeight())
+	bz, err := k.Cdc.MarshalBinaryBare(&msg)
 	if err != nil {
 		panic(err)
 	}
@@ -206,7 +205,7 @@ func (k Keeper) GetClaim(ctx sdk.Ctx, address sdk.Address, header vc.SessionHead
 		return vc.MsgClaim{}, false
 	}
 	// unmarshal into message object
-	err = k.Cdc.UnmarshalBinaryBare(res, &msg, ctx.BlockHeight())
+	err = k.Cdc.UnmarshalBinaryBare(res, &msg)
 	if err != nil {
 		panic(err)
 	}
@@ -240,7 +239,7 @@ func (k Keeper) GetClaims(ctx sdk.Ctx, address sdk.Address) (claims []vc.MsgClai
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var claim vc.MsgClaim
-		err = k.Cdc.UnmarshalBinaryBare(iterator.Value(), &claim, ctx.BlockHeight())
+		err = k.Cdc.UnmarshalBinaryBare(iterator.Value(), &claim)
 		if err != nil {
 			panic(err)
 		}
@@ -258,7 +257,7 @@ func (k Keeper) GetAllClaims(ctx sdk.Ctx) (claims []vc.MsgClaim) {
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var claim vc.MsgClaim
-		err := k.Cdc.UnmarshalBinaryBare(iterator.Value(), &claim, ctx.BlockHeight())
+		err := k.Cdc.UnmarshalBinaryBare(iterator.Value(), &claim)
 		if err != nil {
 			panic(err)
 		}
@@ -295,7 +294,7 @@ func (k Keeper) GetMatureClaims(ctx sdk.Ctx, address sdk.Address) (matureProofs 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var msg vc.MsgClaim
-		err = k.Cdc.UnmarshalBinaryBare(iterator.Value(), &msg, ctx.BlockHeight())
+		err = k.Cdc.UnmarshalBinaryBare(iterator.Value(), &msg)
 		if err != nil {
 			panic(err)
 		}
@@ -320,7 +319,7 @@ func (k Keeper) DeleteExpiredClaims(ctx sdk.Ctx) {
 	iterator, _ := sdk.KVStorePrefixIterator(store, vc.ClaimKey)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		err := k.Cdc.UnmarshalBinaryBare(iterator.Value(), &msg, ctx.BlockHeight())
+		err := k.Cdc.UnmarshalBinaryBare(iterator.Value(), &msg)
 		if err != nil {
 			panic(err)
 		}

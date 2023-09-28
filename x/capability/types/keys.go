@@ -14,7 +14,7 @@ const (
 	StoreKey = ModuleName
 
 	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "memory:capability"
+	MemStoreKey = "memory_" + ModuleName
 
 	// QuerierRoute is the querier route for IBC transfer
 	QuerierRoute = ModuleName

@@ -807,17 +807,15 @@ func MakeCodec() {
 	// register all of the app module types
 	module.NewBasicManager(
 		capability.AppModuleBasic{},
-		providers.AppModuleBasic{},
 		authentication.AppModuleBasic{},
+		providers.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
+		viper.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		transfer.AppModuleBasic{},
-		viper.AppModuleBasic{},
 		ibctm.AppModuleBasic{},
 	).RegisterCodec(cdc)
-	// register the sdk types
-	//sdk.RegisterCodec(cdc)
 	// register the crypto types
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	cryptoamino.RegisterAmino(cdc.AminoCodec().Amino)

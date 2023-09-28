@@ -70,7 +70,7 @@ func (t *TransactionIndexer) AddBatch(b *txindex.Batch) error {
 		storeBatch.Set(keyForHeight(result), hash)
 
 		// index tx by hash
-		rawBytes, err := cdc.MarshalBinaryBare(result, 0) // TODO make protobuf compatible
+		rawBytes, err := cdc.MarshalBinaryBare(result) // TODO make protobuf compatible
 		if err != nil {
 			return err
 		}
@@ -101,7 +101,7 @@ func (t *TransactionIndexer) Index(result *types.TxResult) error {
 	storeBatch.Set(keyForHeight(result), hash)
 
 	// index tx by hash
-	rawBytes, err := cdc.MarshalBinaryBare(result, 0) // TODO make protobuf compatible
+	rawBytes, err := cdc.MarshalBinaryBare(result) // TODO make protobuf compatible
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (t *TransactionIndexer) Get(hash []byte) (*types.TxResult, error) {
 	}
 
 	txResult := new(types.TxResult)
-	err := cdc.UnmarshalBinaryBare(rawBytes, &txResult, 0)
+	err := cdc.UnmarshalBinaryBare(rawBytes, &txResult)
 	if err != nil {
 		return nil, fmt.Errorf("error reading TxResult: %v", err)
 	}

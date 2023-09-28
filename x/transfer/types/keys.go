@@ -31,7 +31,8 @@ const (
 	DenomPrefix = "ibc"
 
 	// TStoreKey is the string transient store representation
-	TStoreKey = "transient_" + ModuleName
+	TStoreKey   = "transient_" + ModuleName
+	MemStoreKey = "memory_" + ModuleName
 )
 
 var (

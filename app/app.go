@@ -1,6 +1,11 @@
 package app
 
 import (
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	cmn "github.com/tendermint/tendermint/libs/os"
+	"github.com/tendermint/tendermint/rpc/client"
+	dbm "github.com/tendermint/tm-db"
 	bam "github.com/vipernet-xyz/viper-network/baseapp"
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
@@ -30,12 +35,6 @@ import (
 	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
 	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
-
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	cmn "github.com/tendermint/tendermint/libs/os"
-	"github.com/tendermint/tendermint/rpc/client"
-	dbm "github.com/tendermint/tm-db"
 )
 
 const (
@@ -43,7 +42,7 @@ const (
 )
 
 // NewViperCoreApp is a constructor function for ViperCoreApp
-func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient client.Client, hostedChains *viperTypes.HostedBlockchains, geoZone *viperTypes.HostedGeoZones, logger log.Logger, db dbm.DB, cache bool, iavlCacheSize int64, baseAppOptions ...func(*bam.BaseApp)) *ViperCoreApp {
+func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient client.Client, hostedChains *viperTypes.HostedBlockchains, hostedGeoZone *viperTypes.HostedGeoZones, logger log.Logger, db dbm.DB, cache bool, iavlCacheSize int64, baseAppOptions ...func(*bam.BaseApp)) *ViperCoreApp {
 	app := NewViperBaseApp(logger, db, cache, iavlCacheSize, baseAppOptions...)
 	// setup subspaces
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
@@ -95,7 +94,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.servicersKeeper,
 		app.providersKeeper,
 		hostedChains,
-		geoZone,
+		hostedGeoZone,
 		viperSubspace,
 	)
 	// The governance keeper
@@ -155,8 +154,8 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		transferModule,
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, transferTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, ibcexported.ModuleName, transferTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName)
+	app.mm.SetOrderEndBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		capabilityTypes.ModuleName,
@@ -165,8 +164,8 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		providersTypes.ModuleName,
 		viperTypes.ModuleName,
 		governance.ModuleName,
-		ibcexported.ModuleName,
 		transferTypes.ModuleName,
+		ibcexported.ModuleName,
 	)
 	// register all module routes and module queriers
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())

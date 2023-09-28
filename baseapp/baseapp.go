@@ -19,7 +19,6 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec/types"
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
-	"github.com/vipernet-xyz/viper-network/x/authentication"
 	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
 
 	"github.com/tendermint/tendermint/evidence"
@@ -569,7 +568,7 @@ func handleQueryProvider(app *BaseApp, path []string, req abci.RequestQuery) (re
 			result = sdk.ErrUnknownRequest(fmt.Sprintf("Unknown query: %s", path)).Result()
 		}
 
-		value, _ := cdc.MarshalBinaryLengthPrefixed(&result, req.Height)
+		value, _ := cdc.MarshalBinaryLengthPrefixed(&result)
 		return abci.ResponseQuery{
 			Code:      uint32(sdk.CodeOK),
 			Codespace: string(sdk.CodespaceRoot),
@@ -714,8 +713,6 @@ func (app *BaseApp) validateHeight(req abci.RequestBeginBlock) error {
 
 // BeginBlock implements the ABCI application interface.
 func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeginBlock) {
-	app.cdc.SetUpgradeOverride(true)
-	app.txDecoder = authentication.DefaultTxDecoder(app.cdc)
 
 	if app.cms.TracingEnabled() {
 		app.cms.SetTracingContext(sdk.TraceContext(

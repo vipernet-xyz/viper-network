@@ -114,12 +114,12 @@ func (e Evidence) LegacyAminoMarshal() ([]byte, error) {
 		Proofs:        e.Proofs,
 		EvidenceType:  e.EvidenceType,
 	}
-	return ModuleCdc.MarshalBinaryBare(ep, 0)
+	return ModuleCdc.MarshalBinaryBare(ep)
 }
 
 func (e Evidence) LegacyAminoUnmarshal(b []byte) (CacheObject, error) {
 	ep := evidence{}
-	err := ModuleCdc.UnmarshalBinaryBare(b, &ep, 0)
+	err := ModuleCdc.UnmarshalBinaryBare(b, &ep)
 	if err != nil {
 		return Evidence{}, fmt.Errorf("could not unmarshal into evidence from cache, moduleCdc unmarshal binary bare: %s", err.Error())
 	}

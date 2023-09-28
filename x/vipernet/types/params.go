@@ -70,6 +70,7 @@ func DefaultParams() Params {
 		ReplayAttackBurnMultiplier: DefaultReplayAttackBurnMultiplier,
 		MinimumNumberOfProofs:      DefaultMinimumNumberOfProofs,
 		MinimumSampleRelays:        DefaultMinimumSampleRelays,
+		BlockByteSize:              DefaultBlockByteSize,
 	}
 }
 

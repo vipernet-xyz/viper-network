@@ -25,6 +25,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgDaoTransfer(ctx, msg, k)
 		case types.MsgUpgrade:
 			return handleMsgUpgrade(ctx, msg, k)
+		case types.MsgGenerateDiscountKey:
+			return handleMsgGenerateDiscountKey(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized governance message type: %T", msg)
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -55,21 +57,21 @@ func handleMsgUpgrade(ctx sdk.Ctx, msg types.MsgUpgrade, k keeper.Keeper) sdk.Re
 }
 
 // HandleMsgGenerateDiscountKey processes MsgGenerateDiscountKey
-func HandleMsgGenerateDiscountKey(ctx sdk.Context, k keeper.Keeper, msg types.MsgGenerateDiscountKey) (*sdk.Result, error) {
+func handleMsgGenerateDiscountKey(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgGenerateDiscountKey) sdk.Result {
 	// Check if a discount key already exists for the given address
 	if k.HasDiscountKey(ctx, msg.ToAddress) {
-		return nil, sdk.ErrInternal(fmt.Sprintf("Discount Key already exists for address %s", msg.ToAddress))
+		return sdk.ErrInternal(fmt.Sprintf("Discount Key already exists for address %s", msg.ToAddress)).Result()
 	}
 
 	// Store the generated discount key in the state using the keeper
 	err := k.SetDiscountKey(ctx, msg.ToAddress, msg.DiscountKey)
 	if err != nil {
-		return nil, sdk.ErrInternal(fmt.Sprintf("Failed to set discount key: %s", err.Error()))
+		return sdk.ErrInternal(fmt.Sprintf("Failed to set discount key: %s", err.Error())).Result()
 	}
 
-	return &sdk.Result{
+	return sdk.Result{
 		Events: ctx.EventManager().ABCIEvents(),
-	}, nil
+	}
 }
 
 // Content defines an interface that a proposal must implement. It contains

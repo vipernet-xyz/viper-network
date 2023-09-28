@@ -8,6 +8,7 @@ import (
 const (
 	StoreKey         = types.StoreKey
 	TStoreKey        = types.TStoreKey
+	MemStoreKey      = types.MemStoreKey
 	DefaultCodespace = types.DefaultCodespace
 	ModuleName       = types.ModuleName
 	RouterKey        = types.RouterKey

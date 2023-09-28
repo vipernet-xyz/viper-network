@@ -12,7 +12,6 @@ import (
 
 	"github.com/tendermint/tendermint/store"
 
-	log1 "github.com/cometbft/cometbft/libs/log"
 	"github.com/gogo/protobuf/proto"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -50,7 +49,6 @@ type Context struct {
 	appVersion    string
 	cachedStore   *Cache
 	isPrev        bool
-	logger1       log1.Logger
 	recheckTx     bool // if recheckTx == true, then checkTx must also be true
 }
 
@@ -122,7 +120,6 @@ func (c Context) MinGasPrices() DecCoins      { return c.minGasPrice }
 func (c Context) EventManager() *EventManager { return c.eventManager }
 func (c Context) AppVersion() string          { return dropTag(c.appVersion) }
 func (c Context) ClearGlobalCache()           { c.cachedStore.Purge() }
-func (c Context) Logger1() log1.Logger        { return c.logger1 }
 func (c Context) IsReCheckTx() bool           { return c.recheckTx }
 
 // clone the header before returning

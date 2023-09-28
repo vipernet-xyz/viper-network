@@ -5,9 +5,10 @@ import (
 )
 
 const (
-	ModuleName = "vipernet"              // name of the module
-	StoreKey   = ModuleName              // key for state store
-	TStoreKey  = "transient_" + StoreKey // transient key for state store
+	ModuleName  = "vipernet"              // name of the module
+	StoreKey    = ModuleName              // key for state store
+	TStoreKey   = "transient_" + StoreKey // transient key for state store
+	MemStoreKey = "memory_" + ModuleName
 )
 
 var (

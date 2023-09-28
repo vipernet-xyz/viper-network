@@ -305,7 +305,7 @@ func DefaultTxDecoder(cdc *codec.Codec) sdk.TxDecoder {
 		}
 		// ProtoStdTx.ProtoMsg is an interface. The concrete types
 		// are registered by MakeTxCodec
-		err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx, blockHeight)
+		err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)
 
 		if err != nil {
 			return nil, sdk.ErrTxDecode("error decoding transaction: " + err.Error()).TraceSDK(err.Error())
@@ -321,7 +321,7 @@ func DefaultTxEncoder(cdc *codec.Codec) sdk.TxEncoder {
 		if !ok {
 			log.Fatal("tx must be of type StdTx")
 		}
-		return cdc.MarshalBinaryLengthPrefixed(&t, blockHeight)
+		return cdc.MarshalBinaryLengthPrefixed(&t)
 	}
 }
 

@@ -65,7 +65,7 @@ func newDefaultGenesisState() []byte {
 	types.ModuleCdc.MustUnmarshalJSON(rawAuth, &accountGenesis)
 	accountGenesis.Accounts = append(accountGenesis.Accounts, &authentication.BaseAccount{
 		Address: cb.GetAddress(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(1000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, sdk.NewInt(10000000000000))),
 		PubKey:  pubKey,
 	})
 	res := Codec().MustMarshalJSON(accountGenesis)
@@ -86,7 +86,6 @@ func newDefaultGenesisState() []byte {
 	})
 	res = Codec().MustMarshalJSON(providersGenesis)
 	defaultGenesis[providersTypes.ModuleName] = res
-	// set default governance in genesis
 	rawViper := defaultGenesis[types.ModuleName]
 	var viperGenesis types.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawViper, &viperGenesis)
@@ -102,7 +101,7 @@ func newDefaultGenesisState() []byte {
 			Status:       sdk.Staked,
 			Chains:       []string{sdk.PlaceholderHash},
 			ServiceURL:   sdk.PlaceholderServiceURL,
-			StakedTokens: sdk.NewInt(10000000)})
+			StakedTokens: sdk.NewInt(10000000000000)})
 	res = types.ModuleCdc.MustMarshalJSON(posGenesisState)
 	defaultGenesis[servicersTypes.ModuleName] = res
 	// set default governance in genesis

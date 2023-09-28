@@ -160,7 +160,7 @@ func (k Keeper) GetPreviousProposer(ctx sdk.Ctx) (addr sdk.Address) {
 		return nil
 		//os.Exit(1)
 	}
-	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(b, &addr, ctx.BlockHeight())
+	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(b, &addr)
 	return addr
 
 }
@@ -168,7 +168,7 @@ func (k Keeper) GetPreviousProposer(ctx sdk.Ctx) (addr sdk.Address) {
 // SetPreviousProposer -  Store proposer public key for this block
 func (k Keeper) SetPreviousProposer(ctx sdk.Ctx, consAddr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
-	b, err := k.Cdc.MarshalBinaryLengthPrefixed(&consAddr, ctx.BlockHeight())
+	b, err := k.Cdc.MarshalBinaryLengthPrefixed(&consAddr)
 	if err != nil {
 		panic(err)
 	}
@@ -184,7 +184,7 @@ func (k Keeper) GetProvider(ctx sdk.Ctx) (addr sdk.Address) {
 		return nil
 		//os.Exit(1)
 	}
-	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(b, &addr, ctx.BlockHeight())
+	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(b, &addr)
 	return addr
 
 }
@@ -192,7 +192,7 @@ func (k Keeper) GetProvider(ctx sdk.Ctx) (addr sdk.Address) {
 // SetProviderKey -  Store provider public key for this block
 func (k Keeper) SetProviderKey(ctx sdk.Ctx, consAddr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
-	b, err := k.Cdc.MarshalBinaryLengthPrefixed(&consAddr, ctx.BlockHeight())
+	b, err := k.Cdc.MarshalBinaryLengthPrefixed(&consAddr)
 	if err != nil {
 		panic(err)
 	}

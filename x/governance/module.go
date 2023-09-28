@@ -48,7 +48,7 @@ type AppModule struct {
 	keeper keeper.Keeper
 }
 
-func (pm AppModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
+func (am AppModule) ConsensusParamsUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	return &abci.ConsensusParams{}
 }
 
@@ -66,7 +66,7 @@ func (AppModule) Name() string {
 }
 
 // RegisterInvariants registers the staking module invariants.
-func (pm AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {
+func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {
 }
 
 // Route returns the message routing key for the staking module.
@@ -75,8 +75,8 @@ func (AppModule) Route() string {
 }
 
 // NewHandler returns an sdk.Handler for the staking module.
-func (pm AppModule) NewHandler() sdk.Handler {
-	return NewHandler(pm.keeper)
+func (am AppModule) NewHandler() sdk.Handler {
+	return NewHandler(am.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.
@@ -85,13 +85,13 @@ func (AppModule) QuerierRoute() string {
 }
 
 // NewQuerierHandler returns the staking module sdk.Querier.
-func (pm AppModule) NewQuerierHandler() sdk.Querier {
-	return keeper.NewQuerier(pm.keeper)
+func (am AppModule) NewQuerierHandler() sdk.Querier {
+	return keeper.NewQuerier(am.keeper)
 }
 
 // InitGenesis performs genesis initialization for the pos module. It returns
 // no validator updates.
-func (pm AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if ctx.AppVersion() == "" {
 		fmt.Println(fmt.Errorf("must set app version in context, set with ctx.WithAppVersion(<version>)").Error())
@@ -102,22 +102,22 @@ func (pm AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.Valida
 	} else {
 		types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	}
-	return pm.keeper.InitGenesis(ctx, genesisState)
+	return am.keeper.InitGenesis(ctx, genesisState)
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the staking
 // module.
-func (pm AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
-	gs := pm.keeper.ExportGenesis(ctx)
+func (am AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
+	gs := am.keeper.ExportGenesis(ctx)
 	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // BeginBlock module begin-block
-func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+	am.activateAdditionalParametersACL(ctx)
 
-	ActivateAdditionalParametersACL(ctx, pm)
+	u := am.keeper.GetUpgrade(ctx)
 
-	u := pm.keeper.GetUpgrade(ctx)
 	if ctx.AppVersion() < u.Version && ctx.BlockHeight() >= u.UpgradeHeight() && ctx.BlockHeight() != 0 {
 		ctx.Logger().Error("MUST UPGRADE TO NEXT VERSION: ", u.Version)
 		ctx.EventManager().EmitEvent(sdk.NewEvent(types.EventMustUpgrade,
@@ -138,18 +138,21 @@ func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 	}
 }
 
-// ActivateAdditionalParametersACL ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
-func ActivateAdditionalParametersACL(ctx sdk.Ctx, pm AppModule) {
-	// activate BlockSizeModify params
-	gParams := pm.keeper.GetParams(ctx)
-	//on the height we get the ACL and insert the key
-	gParams.ACL.SetOwner(types.NewACLKey(types.VipercoreSubspace, "BlockByteSize"), pm.keeper.GetDAOOwner(ctx))
-	//update params
-	pm.keeper.SetParams(ctx, gParams)
+// activateAdditionalParametersACL activates additional parameters on their respective upgrade heights
+func (am AppModule) activateAdditionalParametersACL(ctx sdk.Ctx) {
+
+	// Activate BlockSizeModify params
+	if am.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
+		gParams := am.keeper.GetParams(ctx)
+		// Adding a neww ACL owner for the block parameter key (before its activation)
+		gParams.ACL.SetOwner(types.NewACLKey(types.VipercoreSubspace, "BlockByteSize"), am.keeper.GetDAOOwner(ctx))
+		// Update all the params
+		am.keeper.SetParams(ctx, gParams)
+	}
 }
 
 // EndBlock returns the end blocker for the staking module. It returns no validator
 // updates.
-func (pm AppModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }

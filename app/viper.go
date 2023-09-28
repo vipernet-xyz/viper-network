@@ -8,6 +8,7 @@ import (
 
 	bam "github.com/vipernet-xyz/viper-network/baseapp"
 	"github.com/vipernet-xyz/viper-network/codec"
+	ibcExported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	ibckeeper "github.com/vipernet-xyz/viper-network/modules/core/keeper"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
@@ -22,7 +23,6 @@ import (
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 
-	ibcexported "github.com/vipernet-xyz/viper-network/modules/core/exported"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
@@ -49,19 +49,19 @@ type ViperCoreApp struct {
 	Tkeys   map[string]*sdk.TransientStoreKey
 	memKeys map[string]*sdk.MemoryStoreKey
 	// Keepers for each module
+	CapabilityKeeper *capabilityKeeper.Keeper
+	BankKeeper       authkeeper.Keeper
 	accountKeeper    authentication.Keeper
 	providersKeeper  providersKeeper.Keeper
 	servicersKeeper  servicersKeeper.Keeper
 	governanceKeeper governanceKeeper.Keeper
 	transferKeeper   transferKeeper.Keeper
-	//StakingKeeper        stakingKeeper.Keeper
+
+	viperKeeper          viperKeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
-	CapabilityKeeper     *capabilityKeeper.Keeper
-	BankKeeper           authkeeper.Keeper
 	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
 	ScopedTransferKeeper capabilityKeeper.ScopedKeeper
 
-	viperKeeper viperKeeper.Keeper
 	// Module Manager
 	mm *module.Manager
 }
@@ -75,11 +75,11 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, viperTypes.StoreKey, capabilityTypes.StoreKey, ibcexported.StoreKey)
-	// setup the transient store Keys
-	tkeys := sdk.NewTransientStoreKeys(servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey, capabilityTypes.TStoreKey, ibcexported.TStoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, capabilityTypes.StoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, viperTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, ibcExported.StoreKey)
+	// setup the transient store KeysibcExported.StoreKey, transferTypes.StoreKey)
+	tkeys := sdk.NewTransientStoreKeys(capabilityTypes.TStoreKey, servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey, ibcExported.TStoreKey)
 
-	memkeys := sdk.NewMemoryStoreKeys(capabilityTypes.MemStoreKey)
+	memkeys := sdk.NewMemoryStoreKeys(capabilityTypes.MemStoreKey, servicersTypes.MemStoreKey, providersTypes.MemStoreKey, viperTypes.MemStoreKey, governance.MemStoreKey, transferTypes.MemStoreKey, ibcExported.MemStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -187,7 +187,7 @@ func (app *ViperCoreApp) ExportState(height int64, chainID string) (string, erro
 		ChainID: chainID,
 		ConsensusParams: &types.ConsensusParams{
 			Block: types.BlockParams{
-				MaxBytes:   4000000,
+				MaxBytes:   8000000,
 				MaxGas:     -1,
 				TimeIotaMs: 1,
 			},

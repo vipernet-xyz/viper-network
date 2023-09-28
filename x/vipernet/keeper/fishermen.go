@@ -217,7 +217,7 @@ func (k Keeper) GetProofsForServicer(ctx sdk.Ctx, header vc.SessionHeader, servi
 		// Check if key starts with keyPrefix
 		if bytes.HasPrefix(iterator.Key(), keyPrefix) {
 			var result vc.Result
-			err := vc.ModuleCdc.UnmarshalBinaryBare(iterator.Value(), &result, maxResultSize)
+			err := vc.ModuleCdc.UnmarshalBinaryBare(iterator.Value(), &result)
 			if err == nil {
 				proofs = append(proofs, result.TestResults...)
 			}

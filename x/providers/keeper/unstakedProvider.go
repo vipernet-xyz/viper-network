@@ -40,7 +40,7 @@ func (k Keeper) getAllUnstakingProviders(ctx sdk.Ctx) (providers []types.Provide
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var addrs sdk.Addresses
-		err := k.Cdc.UnmarshalBinaryLengthPrefixed(iterator.Value(), &addrs, ctx.BlockHeight())
+		err := k.Cdc.UnmarshalBinaryLengthPrefixed(iterator.Value(), &addrs)
 		if err != nil {
 			k.Logger(ctx).Error(fmt.Errorf("could not unmarshal unstakingProviders in getAllUnstakingProviders call: %s", string(iterator.Value())).Error())
 			return
@@ -65,7 +65,7 @@ func (k Keeper) getUnstakingProviders(ctx sdk.Ctx, unstakingTime time.Time) (val
 	if bz == nil {
 		return []sdk.Address{}
 	}
-	err := k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &valAddrs, ctx.BlockHeight())
+	err := k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &valAddrs)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +76,7 @@ func (k Keeper) getUnstakingProviders(ctx sdk.Ctx, unstakingTime time.Time) (val
 // setUnstakingProviders - Store providers in unstaking queue at a certain unstaking time
 func (k Keeper) setUnstakingProviders(ctx sdk.Ctx, unstakingTime time.Time, keys sdk.Addresses) {
 	store := ctx.KVStore(k.storeKey)
-	bz, err := k.Cdc.MarshalBinaryLengthPrefixed(&keys, ctx.BlockHeight())
+	bz, err := k.Cdc.MarshalBinaryLengthPrefixed(&keys)
 	if err != nil {
 		panic(err)
 	}
@@ -102,7 +102,7 @@ func (k Keeper) getMatureProviders(ctx sdk.Ctx) (matureValsAddrs sdk.Addresses) 
 	defer unstakingValsIterator.Close()
 	for ; unstakingValsIterator.Valid(); unstakingValsIterator.Next() {
 		var providers sdk.Addresses
-		err := k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingValsIterator.Value(), &providers, ctx.BlockHeight())
+		err := k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingValsIterator.Value(), &providers)
 		if err != nil {
 			panic(err)
 		}
@@ -119,7 +119,7 @@ func (k Keeper) unstakeAllMatureProviders(ctx sdk.Ctx) {
 	defer unstakingProvidersIterator.Close()
 	for ; unstakingProvidersIterator.Valid(); unstakingProvidersIterator.Next() {
 		var unstakingVals sdk.Addresses
-		err := k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingProvidersIterator.Value(), &unstakingVals, ctx.BlockHeight())
+		err := k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingProvidersIterator.Value(), &unstakingVals)
 		if err != nil {
 			panic(err)
 		}

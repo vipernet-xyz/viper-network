@@ -37,30 +37,13 @@ var (
 )
 
 const (
-	UpgradeCodecHeight      = int64(1)
-	CodecChainHaltHeight    = int64(1)
-	ValidatorSplitHeight    = int64(1)
-	UpgradeCodecUpdateKey   = "CODEC"
-	ValidatorSplitUpdateKey = "SPLIT"
-	NonCustodialUpdateKey   = "NCUST"
-	TxCacheEnhancementKey   = "REDUP"
-	MaxRelayProtKey         = "MREL"
-	ReplayBurnKey           = "REPBR"
-	BlockSizeModifyKey      = "BLOCK"
-	VEDITKey                = "VEDIT"
+	TxCacheEnhancementKey      = "REDUP"
+	MaxRelayProtKey            = "MREL"
+	ReplayBurnKey              = "REPBR"
+	BlockSizeModifyKey         = "BLOCK"
+	VEDITKey                   = "VEDIT"
+	ClearUnjailedValSessionKey = "CRVAL"
 )
-
-func GetCodecUpgradeHeight() int64 {
-	if UpgradeHeight >= UpgradeCodecHeight {
-		return UpgradeCodecHeight
-	} else {
-		if OldUpgradeHeight != 0 && OldUpgradeHeight < UpgradeHeight {
-			return OldUpgradeHeight
-		} else {
-			return UpgradeHeight
-		}
-	}
-}
 
 func (cdc *Codec) RegisterStructure(o interface{}, name string) {
 	cdc.legacyCdc.RegisterConcrete(o, name, nil)
@@ -95,73 +78,48 @@ func (cdc *Codec) RegisterImplementation(iface interface{}, impls ...proto.Messa
 	res.RegisterImplementations(iface, impls...)
 }
 
-func (cdc *Codec) MarshalBinaryBare(o interface{}, height int64) ([]byte, error) { // TODO take height as parameter, move upgrade height to this package, switch based on height not upgrade mod
+func (cdc *Codec) MarshalBinaryBare(o interface{}) ([]byte, error) {
 	p, ok := o.(ProtoMarshaler)
 	if !ok {
-		if cdc.IsAfterCodecUpgrade(height) {
-			return nil, NotProtoCompatibleInterfaceError
-		}
 		return cdc.legacyCdc.MarshalBinaryBare(o)
-	} else {
-		if cdc.IsAfterCodecUpgrade(height) {
-			return cdc.protoCdc.MarshalBinaryBare(p)
-		}
-		return cdc.legacyCdc.MarshalBinaryBare(p)
 	}
+	// Defaulting to protoCdc since Viper starts with an upgraded codec
+	return cdc.protoCdc.MarshalBinaryBare(p)
 }
 
-func (cdc *Codec) MarshalBinaryLengthPrefixed(o interface{}, height int64) ([]byte, error) {
+func (cdc *Codec) MarshalBinaryLengthPrefixed(o interface{}) ([]byte, error) {
 	p, ok := o.(ProtoMarshaler)
 	if !ok {
-		if cdc.IsAfterCodecUpgrade(height) {
-			return nil, NotProtoCompatibleInterfaceError
-		}
 		return cdc.legacyCdc.MarshalBinaryLengthPrefixed(o)
-	} else {
-		if cdc.IsAfterCodecUpgrade(height) {
-			return cdc.protoCdc.MarshalBinaryLengthPrefixed(p)
-		}
-		return cdc.legacyCdc.MarshalBinaryLengthPrefixed(p)
 	}
+	return cdc.legacyCdc.MarshalBinaryLengthPrefixed(p)
+
 }
 
-func (cdc *Codec) UnmarshalBinaryBare(bz []byte, ptr interface{}, height int64) error {
+func (cdc *Codec) UnmarshalBinaryBare(bz []byte, ptr interface{}) error {
 	p, ok := ptr.(ProtoMarshaler)
 	if !ok {
-		if cdc.IsAfterCodecUpgrade(height) {
-			return NotProtoCompatibleInterfaceError
-		}
 		return cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
 	}
-	if cdc.IsAfterCodecUpgrade(height) {
-		if height == UpgradeCodecHeight {
-			e := cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
-			if e != nil {
-				return cdc.protoCdc.UnmarshalBinaryBare(bz, p)
-			}
-			return e
-		}
-		return cdc.protoCdc.UnmarshalBinaryBare(bz, p)
+	// Attempt with protoCdc; if that fails, try with legacyCdc
+	err := cdc.protoCdc.UnmarshalBinaryBare(bz, p)
+	if err != nil {
+		return cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
 	}
-	e := cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
-	if e != nil {
-		return cdc.protoCdc.UnmarshalBinaryBare(bz, p)
-	}
-	return e
+	return nil
 }
 
-func (cdc *Codec) UnmarshalBinaryLengthPrefixed(bz []byte, ptr interface{}, height int64) error {
+func (cdc *Codec) UnmarshalBinaryLengthPrefixed(bz []byte, ptr interface{}) error {
 	p, ok := ptr.(ProtoMarshaler)
 	if !ok {
-		return NotProtoCompatibleInterfaceError
+		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
 	}
-
-	e := cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
-	if e != nil {
-		return cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
+	// Attempt with protoCdc; if that fails, try with legacyCdc
+	err := cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
+	if err != nil {
+		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
 	}
-	return e
-
+	return nil
 }
 
 func (cdc *Codec) ProtoMarshalBinaryBare(o ProtoMarshaler) ([]byte, error) {
@@ -252,12 +210,32 @@ func (cdc *Codec) ProtoCodec() *ProtoCodec {
 	return cdc.protoCdc
 }
 
-// IsAfterCodecUpgrade Note: includes the actual upgrade height
-func (cdc *Codec) IsAfterCodecUpgrade(height int64) bool {
-	if cdc.upgradeOverride != -1 {
-		return cdc.upgradeOverride == 1
+// IsAfterNamedFeatureActivationHeight Note: includes the actual upgrade height
+func (cdc *Codec) IsAfterNamedFeatureActivationHeight(height int64, key string) bool {
+	return UpgradeFeatureMap[key] != 0 && height >= UpgradeFeatureMap[key]
+}
+
+// IsOnNamedFeatureActivationHeight Note: includes the actual upgrade height
+func (cdc *Codec) IsOnNamedFeatureActivationHeight(height int64, key string) bool {
+	return UpgradeFeatureMap[key] != 0 && height == UpgradeFeatureMap[key]
+}
+
+// IsOnNamedFeatureActivationHeightWithTolerance is used to enable certain
+// business logic within some tolerance (i.e. only a few blocks) of feature
+// activation to have more confidence in the feature's release and avoid
+// non-deterministic or hard-to-predict behaviour.
+func (cdc *Codec) IsOnNamedFeatureActivationHeightWithTolerance(
+	height int64,
+	featureKey string,
+	tolerance int64,
+) bool {
+	upgradeHeight := UpgradeFeatureMap[featureKey]
+	if upgradeHeight == 0 {
+		return false
 	}
-	return (GetCodecUpgradeHeight() <= height || height == -1) || TestMode <= -1
+	minHeight := upgradeHeight - tolerance
+	maxHeight := upgradeHeight + tolerance
+	return height >= minHeight && height <= maxHeight
 }
 
 // Upgrade Utils for feature map

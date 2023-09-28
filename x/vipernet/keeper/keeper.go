@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -48,18 +50,13 @@ func (k Keeper) GetBlock(height int) (*coretypes.ResultBlock, error) {
 }
 
 func (k Keeper) ConsensusParamUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
-	return k.consensusBlockSizeParamUpdate(ctx)
-}
-
-func (k Keeper) consensusBlockSizeParamUpdate(ctx sdk.Ctx) *abci.ConsensusParams {
 	previousBlockCtx, err := ctx.PrevCtx(ctx.BlockHeight() - 1)
 	if err != nil {
-		ctx.Logger().Error("failed to get previous block context")
+		fmt.Println(err)
 		return &abci.ConsensusParams{}
 	}
 
 	currentHeightBlockSize := k.BlockByteSize(ctx)
-	// If it's 0, we're using the default value from genesis (i.e. unset)
 	if currentHeightBlockSize == 0 {
 		return &abci.ConsensusParams{}
 	}

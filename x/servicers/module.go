@@ -115,8 +115,13 @@ func (pm AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
 }
 
 // BeginBlock module begin-block
-func (pm AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
-	keeper.BeginBlocker(ctx, req, pm.keeper)
+func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+	ActivateAdditionalParameters(ctx, am)
+	keeper.BeginBlocker(ctx, req, am.keeper)
+}
+
+// ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
+func ActivateAdditionalParameters(ctx sdk.Ctx, am AppModule) {
 }
 
 // EndBlock returns the end blocker for the staking module. It returns no validator

@@ -274,8 +274,12 @@ func (rs *Store) LoadLazyVersion(ver int64) (*types.Store, error) {
 			if _, ok := (v).(*transient.Store); ok {
 				continue
 			}
+			if _, ok := (v).(*mem.Store); ok {
+				continue
+			}
 			return nil, fmt.Errorf("cannot convert store into iavl store in get immutable")
 		}
+		fmt.Println("version:", ver, "Store:", k)
 		s, err := a.LazyLoadStore(ver, rs.Cache.GetSingleStoreCache(k))
 		if err != nil {
 			return nil, fmt.Errorf("error loading store: %s, in LoadLazyVersion: %s", k, err.Error())

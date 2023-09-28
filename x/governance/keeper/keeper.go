@@ -45,14 +45,14 @@ func (k Keeper) Logger(ctx sdk.Ctx) log.Logger {
 }
 
 // HasDiscountKey checks if a discount key already exists for the given address
-func (k Keeper) HasDiscountKey(ctx sdk.Context, addr sdk.Address) bool {
+func (k Keeper) HasDiscountKey(ctx sdk.Ctx, addr sdk.Address) bool {
 	store := ctx.KVStore(k.discountStoreKey) // use the discountStoreKey
 	h, _ := store.Has(addr.Bytes())
 	return h
 }
 
 // SetDiscountKey sets a discount key for the given address
-func (k Keeper) SetDiscountKey(ctx sdk.Context, addr sdk.Address, discountKey string) error {
+func (k Keeper) SetDiscountKey(ctx sdk.Ctx, addr sdk.Address, discountKey string) error {
 	store := ctx.KVStore(k.discountStoreKey) // use the discountStoreKey
 	h, _ := store.Has(addr.Bytes())
 	if h {

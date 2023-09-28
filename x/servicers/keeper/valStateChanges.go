@@ -61,7 +61,7 @@ func (k Keeper) UpdateTendermintValidators(ctx sdk.Ctx) (updates []abci.Validato
 		var curStatePowerBytes []byte
 		var err error
 		csp := sdk.Int64(curStatePower)
-		curStatePowerBytes, err = k.Cdc.MarshalBinaryLengthPrefixed(&csp, ctx.BlockHeight())
+		curStatePowerBytes, err = k.Cdc.MarshalBinaryLengthPrefixed(&csp)
 		if err != nil {
 			panic(err)
 		}

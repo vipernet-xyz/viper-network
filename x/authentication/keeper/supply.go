@@ -44,12 +44,12 @@ func (k Keeper) EncodeSupply(ctx sdk.Ctx, supply exported.SupplyI) ([]byte, erro
 	if !ok {
 		return nil, fmt.Errorf("%s", "supplyI must be of type Supply")
 	}
-	bz, err := k.Cdc.MarshalBinaryLengthPrefixed(&s, ctx.BlockHeight())
+	bz, err := k.Cdc.MarshalBinaryLengthPrefixed(&s)
 	return bz, err
 }
 
 func (k Keeper) DecodeSupply(ctx sdk.Ctx, bz []byte) (exported.SupplyI, error) {
 	var supply types.Supply
-	err := k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &supply, ctx.BlockHeight())
+	err := k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &supply)
 	return supply, err
 }

@@ -30,8 +30,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterStructure(ProofI_RelayProof{}, "vipernet/proto_relay_proofI")
 	cdc.RegisterStructure(ProofI_ChallengeProof{}, "vipernet/proto_challenge_proofI")
 	cdc.RegisterStructure(ProtoEvidence{}, "vipernet/evidence_persisted")
-	cdc.RegisterStructure(servicersTypes.Validator{}, "pos/8.0Validator")    // todo does this really need to depend on servicers/types
-	cdc.RegisterStructure(servicersTypes.LegacyValidator{}, "pos/Validator") // todo does this really need to depend on servicers/types
+	cdc.RegisterStructure(servicersTypes.Validator{}, "pos/Validator") // todo does this really need to depend on servicers/types
 	cdc.RegisterInterface("x.vipernet.Proof", (*Proof)(nil), &RelayProof{}, &ChallengeProofInvalidData{})
 	cdc.RegisterInterface("types.isProofI_Proof", (*isProofI_Proof)(nil))
 	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgClaim{}, &MsgProof{})

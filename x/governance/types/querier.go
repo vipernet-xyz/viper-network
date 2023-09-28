@@ -10,8 +10,9 @@ const (
 	RouterKey                          = ModuleName             // RouterKey defines the routing key for a Parameter Change
 	StoreKey                           = "governance"           // StoreKey is the string store key for the param store
 	TStoreKey                          = "transient_governance" // TStoreKey is the string store key for the param transient store
-	DefaultCodespace sdk.CodespaceType = ModuleName             // default codespace for governance errors
-	QuerierRoute                       = ModuleName             // QuerierRoute is the querier route for the staking module
+	MemStoreKey                        = "memory_governance"
+	DefaultCodespace sdk.CodespaceType = ModuleName // default codespace for governance errors
+	QuerierRoute                       = ModuleName // QuerierRoute is the querier route for the staking module
 	QueryACL                           = "acl"
 	QueryDAO                           = "dao"
 	QueryUpgrade                       = "upgrade"

@@ -85,7 +85,7 @@ func (k Keeper) getAllUnstakingValidators(ctx sdk.Ctx) (validators []types.Valid
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var addrs sdk.Addresses
-		_ = k.Cdc.UnmarshalBinaryLengthPrefixed(iterator.Value(), &addrs, ctx.BlockHeight())
+		_ = k.Cdc.UnmarshalBinaryLengthPrefixed(iterator.Value(), &addrs)
 		for _, addr := range addrs {
 			validator, found := k.GetValidator(ctx, addr)
 			if !found {
@@ -106,7 +106,7 @@ func (k Keeper) getUnstakingValidators(ctx sdk.Ctx, unstakingTime time.Time) (va
 	if bz == nil {
 		return
 	}
-	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &valAddrs, ctx.BlockHeight())
+	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &valAddrs)
 	return valAddrs
 
 }
@@ -114,7 +114,7 @@ func (k Keeper) getUnstakingValidators(ctx sdk.Ctx, unstakingTime time.Time) (va
 // setUnstakingValidators - Store validators in unstaking queue at a certain unstaking time
 func (k Keeper) setUnstakingValidators(ctx sdk.Ctx, unstakingTime time.Time, keys sdk.Addresses) {
 	store := ctx.KVStore(k.storeKey)
-	bz, _ := k.Cdc.MarshalBinaryLengthPrefixed(&keys, ctx.BlockHeight())
+	bz, _ := k.Cdc.MarshalBinaryLengthPrefixed(&keys)
 	_ = store.Set(types.KeyForUnstakingValidators(unstakingTime), bz)
 
 }
@@ -138,7 +138,7 @@ func (k Keeper) getMatureValidators(ctx sdk.Ctx) (matureValsAddrs []sdk.Address)
 	defer unstakingValsIterator.Close()
 	for ; unstakingValsIterator.Valid(); unstakingValsIterator.Next() {
 		var validators sdk.Addresses
-		_ = k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingValsIterator.Value(), &validators, ctx.BlockHeight())
+		_ = k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingValsIterator.Value(), &validators)
 		matureValsAddrs = append(matureValsAddrs, validators...)
 
 	}
@@ -152,7 +152,7 @@ func (k Keeper) unstakeAllMatureValidators(ctx sdk.Ctx) {
 	defer unstakingValidatorsIterator.Close()
 	for ; unstakingValidatorsIterator.Valid(); unstakingValidatorsIterator.Next() {
 		var unstakingVals sdk.Addresses
-		_ = k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingValidatorsIterator.Value(), &unstakingVals, ctx.BlockHeight())
+		_ = k.Cdc.UnmarshalBinaryLengthPrefixed(unstakingValidatorsIterator.Value(), &unstakingVals)
 		for _, valAddr := range unstakingVals {
 			val, found := k.GetValidator(ctx, valAddr)
 			if !found {

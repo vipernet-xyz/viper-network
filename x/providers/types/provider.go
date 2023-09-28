@@ -253,12 +253,12 @@ func (a *Provider) UnmarshalJSON(data []byte) error {
 
 // marshal the provider
 func MarshalProvider(cdc *codec.Codec, ctx sdk.Ctx, provider Provider) (result []byte, err error) {
-	return cdc.MarshalBinaryLengthPrefixed(&provider, ctx.BlockHeight())
+	return cdc.MarshalBinaryLengthPrefixed(&provider)
 }
 
 // unmarshal the provider
 func UnmarshalProvider(cdc *codec.Codec, ctx sdk.Ctx, providerBytes []byte) (provider Provider, err error) {
-	err = cdc.UnmarshalBinaryLengthPrefixed(providerBytes, &provider, ctx.BlockHeight())
+	err = cdc.UnmarshalBinaryLengthPrefixed(providerBytes, &provider)
 	return
 }
 

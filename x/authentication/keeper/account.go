@@ -192,12 +192,12 @@ func (k Keeper) EncodeAccount(acc exported.Account, ctx sdk.Ctx) ([]byte, error)
 }
 
 func (k Keeper) EncodeBaseAccount(acc *types.BaseAccount, ctx sdk.Ctx) ([]byte, error) {
-	return k.Cdc.MarshalBinaryBare(acc, ctx.BlockHeight())
+	return k.Cdc.MarshalBinaryBare(acc)
 }
 
 // "DecodeModuleAccount" - encodes account interface into protobuf
 func (k Keeper) EncodeModuleAccount(macc *types.ModuleAccount, ctx sdk.Ctx) ([]byte, error) {
-	return k.Cdc.MarshalBinaryBare(macc, ctx.BlockHeight())
+	return k.Cdc.MarshalBinaryBare(macc)
 }
 
 // "DecodeAccount" - decodes into account interface
@@ -211,13 +211,13 @@ func (k Keeper) DecodeAccount(bz []byte, ctx sdk.Ctx) (exported.Account, error) 
 
 func (k Keeper) DecodeBaseAccount(bz []byte, ctx sdk.Ctx) (exported.Account, error) {
 	var ba types.BaseAccount
-	err := k.Cdc.UnmarshalBinaryBare(bz, &ba, ctx.BlockHeight())
+	err := k.Cdc.UnmarshalBinaryBare(bz, &ba)
 	return &ba, err
 }
 
 // "DecodeModuleAccount" - encodes account interface into protobuf
 func (k Keeper) DecodeModuleAccount(bz []byte, ctx sdk.Ctx) (exported.ModuleAccountI, error) {
 	var ma types.ModuleAccount
-	err := k.Cdc.UnmarshalBinaryBare(bz, &ma, ctx.BlockHeight())
+	err := k.Cdc.UnmarshalBinaryBare(bz, &ma)
 	return &ma, err
 }

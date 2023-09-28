@@ -6,7 +6,8 @@ const (
 	// StoreKey is the string store representation
 	StoreKey = ModuleName
 
-	TStoreKey = "transient_" + ModuleName
+	TStoreKey   = "transient_" + ModuleName
+	MemStoreKey = "memory_" + ModuleName
 	// QuerierRoute is the querier route for the IBC module
 	QuerierRoute = ModuleName
 	// RouterKey is the msg router key for the IBC module
