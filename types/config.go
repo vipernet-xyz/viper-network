@@ -100,6 +100,7 @@ const (
 	ProviderDBName                     = "application"
 	TransactionIndexerDBName           = "txindexer"
 	PlaceholderHash                    = "0001"
+	PlaceholderGeoZone                 = "0000"
 	PlaceholderURL                     = "http://127.0.0.1:8081"
 	PlaceholderServiceURL              = PlaceholderURL
 	DefaultRemoteCLIURL                = "http://localhost:8081"

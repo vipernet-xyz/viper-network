@@ -270,9 +270,6 @@ func (k Keeper) LegacyForceProviderUnstake(ctx sdk.Ctx, provider types.Provider)
 
 // ForceValidatorUnstake - Coerce unstake (called when slashed below the minimum)
 func (k Keeper) ForceProviderUnstake(ctx sdk.Ctx, provider types.Provider) sdk.Error {
-
-	return k.LegacyForceProviderUnstake(ctx, provider)
-
 	switch provider.Status {
 	case sdk.Staked:
 		k.deleteProviderFromStakingSet(ctx, provider)

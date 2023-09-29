@@ -20,7 +20,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	github.com/willf/bloom v2.0.3+incompatible
 	golang.org/x/crypto v0.7.0
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/protobuf v1.31.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/yaml.v2 v2.4.0
 )

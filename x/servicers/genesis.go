@@ -44,6 +44,7 @@ func InitGenesis(ctx sdk.Ctx, keeper keeper.Keeper, supplyKeeper types.AuthKeepe
 				Address:     validator.GetAddress(),
 				StartHeight: ctx.BlockHeight(),
 				JailedUntil: time.Unix(0, 0),
+				PausedUntil: time.Unix(0, 0),
 			}
 			keeper.SetValidatorSigningInfo(ctx, validator.GetAddress(), signingInfo)
 		}

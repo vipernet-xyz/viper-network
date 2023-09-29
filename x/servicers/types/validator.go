@@ -253,7 +253,7 @@ func (v ProtoValidator) FromProto() (Validator, error) {
 		StakedTokens:            v.StakedTokens,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
-		ReportCard:              *v.ReportCard,
+		ReportCard:              v.ReportCard,
 	}, nil
 }
 
@@ -271,7 +271,7 @@ func (v Validator) ToProto() ProtoValidator {
 		GeoZone:                 v.GeoZone,
 		UnstakingCompletionTime: v.UnstakingCompletionTime,
 		OutputAddress:           v.OutputAddress,
-		ReportCard:              &v.ReportCard,
+		ReportCard:              v.ReportCard,
 	}
 }
 

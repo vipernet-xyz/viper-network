@@ -83,8 +83,12 @@ func (cdc *Codec) MarshalBinaryBare(o interface{}) ([]byte, error) {
 	if !ok {
 		return cdc.legacyCdc.MarshalBinaryBare(o)
 	}
-	// Defaulting to protoCdc since Viper starts with an upgraded codec
-	return cdc.protoCdc.MarshalBinaryBare(p)
+	res, err := cdc.protoCdc.MarshalBinaryBare(p)
+	if err == nil {
+		return res, err
+	}
+	return cdc.legacyCdc.MarshalBinaryBare(p)
+
 }
 
 func (cdc *Codec) MarshalBinaryLengthPrefixed(o interface{}) ([]byte, error) {
@@ -92,8 +96,11 @@ func (cdc *Codec) MarshalBinaryLengthPrefixed(o interface{}) ([]byte, error) {
 	if !ok {
 		return cdc.legacyCdc.MarshalBinaryLengthPrefixed(o)
 	}
+	res, err := cdc.protoCdc.MarshalBinaryLengthPrefixed(p)
+	if err == nil {
+		return res, err
+	}
 	return cdc.legacyCdc.MarshalBinaryLengthPrefixed(p)
-
 }
 
 func (cdc *Codec) UnmarshalBinaryBare(bz []byte, ptr interface{}) error {
@@ -101,7 +108,6 @@ func (cdc *Codec) UnmarshalBinaryBare(bz []byte, ptr interface{}) error {
 	if !ok {
 		return cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
 	}
-	// Attempt with protoCdc; if that fails, try with legacyCdc
 	err := cdc.protoCdc.UnmarshalBinaryBare(bz, p)
 	if err != nil {
 		return cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
@@ -114,7 +120,6 @@ func (cdc *Codec) UnmarshalBinaryLengthPrefixed(bz []byte, ptr interface{}) erro
 	if !ok {
 		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
 	}
-	// Attempt with protoCdc; if that fails, try with legacyCdc
 	err := cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
 	if err != nil {
 		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)

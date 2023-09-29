@@ -25,8 +25,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
-var mainnetGenesis = `{
-}`
+var mainnetGenesis = `{ }`
 
 var testnetGenesis = `{ }`
 
@@ -80,6 +79,8 @@ func newDefaultGenesisState() []byte {
 		Jailed:                  false,
 		Status:                  2,
 		Chains:                  []string{sdk.PlaceholderHash},
+		GeoZones:                []string{sdk.PlaceholderGeoZone},
+		NumServicers:            5,
 		StakedTokens:            sdk.NewInt(10000000000000),
 		MaxRelays:               sdk.NewInt(10000000000000),
 		UnstakingCompletionTime: time.Time{},
@@ -96,12 +97,18 @@ func newDefaultGenesisState() []byte {
 	var posGenesisState servicersTypes.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawPOS, &posGenesisState)
 	posGenesisState.Validators = append(posGenesisState.Validators,
-		servicersTypes.Validator{Address: sdk.Address(pubKey.Address()),
-			PublicKey:    pubKey,
-			Status:       sdk.Staked,
-			Chains:       []string{sdk.PlaceholderHash},
-			ServiceURL:   sdk.PlaceholderServiceURL,
-			StakedTokens: sdk.NewInt(10000000000000)})
+		servicersTypes.Validator{
+			Address:                 sdk.Address(pubKey.Address()),
+			PublicKey:               pubKey,
+			Jailed:                  false,
+			Paused:                  false,
+			Status:                  sdk.Staked,
+			Chains:                  []string{sdk.PlaceholderHash},
+			GeoZone:                 []string{sdk.PlaceholderGeoZone},
+			ServiceURL:              sdk.PlaceholderServiceURL,
+			StakedTokens:            sdk.NewInt(10000000000000),
+			UnstakingCompletionTime: time.Time{},
+			ReportCard:              servicersTypes.ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0)}})
 	res = types.ModuleCdc.MustMarshalJSON(posGenesisState)
 	defaultGenesis[servicersTypes.ModuleName] = res
 	// set default governance in genesis

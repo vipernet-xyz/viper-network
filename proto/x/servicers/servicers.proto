@@ -24,26 +24,8 @@ message ProtoValidator {
 	repeated string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
 	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
 	bytes OutputAddress = 11 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.jsontag) = "output_address,omitempty", (gogoproto.moretags) = "yaml:\"output_address\""];
-	ReportCard reportCard = 12 [(gogoproto.jsontag) = "report_card"];
+	ReportCard reportCard = 12 [(gogoproto.jsontag) = "report_card", (gogoproto.nullable) = false];
 
-}
-
-message LegacyProtoValidator {
-	option (gogoproto.equal) = true;
-	option (gogoproto.goproto_stringer) = false;
-	option (gogoproto.goproto_getters) = false;
-
-	bytes Address = 1 [(gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address", (gogoproto.moretags) = "yaml:\"address\"", (gogoproto.jsontag) = "address"];
-	bytes PublicKey = 2 [(gogoproto.moretags) = "yaml:\"public_key\"", (gogoproto.jsontag) = "public_key"];
-	bool jailed = 3 [(gogoproto.jsontag) = "jailed"];
-	bool paused = 4 [(gogoproto.jsontag) = "paused"];
-	int32 status = 5 [(gogoproto.jsontag) = "status"];
-	repeated string Chains = 6 [(gogoproto.jsontag) = "chains"];
-	string ServiceURL = 7 [(gogoproto.jsontag) = "service_url"];
-	bytes StakedTokens = 8 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigInt", (gogoproto.jsontag) = "tokens", (gogoproto.nullable) = false];
-	repeated string GeoZone = 9 [(gogoproto.jsontag) = "geo_zone"];
-	ReportCard reportCard = 12 [(gogoproto.jsontag) = "report_card"];
-	google.protobuf.Timestamp UnstakingCompletionTime = 10 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true, (gogoproto.jsontag) = "unstaking_time", (gogoproto.moretags) = "yaml:\"unstaking_time\""];
 }
 
 // ValidatorSigningInfo defines the signing info for a validator

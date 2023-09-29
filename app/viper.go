@@ -13,7 +13,6 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
-	authkeeper "github.com/vipernet-xyz/viper-network/x/authentication/keeper"
 	capabilityKeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
 	capabilityTypes "github.com/vipernet-xyz/viper-network/x/capability/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
@@ -32,7 +31,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/rpc/client"
-	"github.com/tendermint/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
@@ -50,7 +48,6 @@ type ViperCoreApp struct {
 	memKeys map[string]*sdk.MemoryStoreKey
 	// Keepers for each module
 	CapabilityKeeper *capabilityKeeper.Keeper
-	BankKeeper       authkeeper.Keeper
 	accountKeeper    authentication.Keeper
 	providersKeeper  providersKeeper.Keeper
 	servicersKeeper  servicersKeeper.Keeper
@@ -183,18 +180,18 @@ func (app *ViperCoreApp) ExportState(height int64, chainID string) (string, erro
 	if chainID == "" {
 		chainID = "<Input New ChainID>"
 	}
-	j, _ = Codec().MarshalJSONIndent(types.GenesisDoc{
+	j, _ = Codec().MarshalJSONIndent(tmtypes.GenesisDoc{
 		ChainID: chainID,
-		ConsensusParams: &types.ConsensusParams{
-			Block: types.BlockParams{
+		ConsensusParams: &tmtypes.ConsensusParams{
+			Block: tmtypes.BlockParams{
 				MaxBytes:   8000000,
 				MaxGas:     -1,
 				TimeIotaMs: 1,
 			},
-			Evidence: types.EvidenceParams{
+			Evidence: tmtypes.EvidenceParams{
 				MaxAge: 1000000,
 			},
-			Validator: types.ValidatorParams{
+			Validator: tmtypes.ValidatorParams{
 				PubKeyTypes: []string{"ed25519"},
 			},
 		},

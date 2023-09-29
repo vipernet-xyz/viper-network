@@ -81,47 +81,7 @@ func (k Keeper) GetAllParamNameValue(ctx sdk.Ctx) (paramNames map[string]string)
 }
 
 func (k Keeper) HandleUpgrade(ctx sdk.Ctx, aclKey string, paramValue interface{}, owner sdk.Address) sdk.Result {
-	if err := k.VerifyACL(ctx, aclKey, owner); err != nil {
-		return err.Result()
-	}
-	subspaceName, paramKey := types.SplitACLKey(aclKey)
-	space, ok := k.spaces[subspaceName]
-	if !ok {
-		k.Logger(ctx).Error(types.ErrSubspaceNotFound(types.ModuleName, subspaceName).Error())
-		os.Exit(1)
-	}
-	space.Set(ctx, []byte(paramKey), paramValue)
-	k.spaces[subspaceName] = space
-	// create the event
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			types.EventParamChange,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeyAction, fmt.Sprintf("modified: %s to: %v", aclKey, paramValue)),
-			sdk.NewAttribute(sdk.AttributeKeySender, owner.String()),
-		),
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, owner.String()),
-		),
-	})
-	// if upgrade, emit separate upgrade event
-	if aclKey == types.NewACLKey(types.ModuleName, string(types.UpgradeKey)) {
-		u, ok := paramValue.(types.Upgrade)
-		if !ok {
-			ctx.Logger().Error(fmt.Sprintf("unable to convert %v to upgrade, can't emit event about upgrade, at height: %d", paramValue, ctx.BlockHeight()))
-			return sdk.Result{Events: ctx.EventManager().Events()}
-		}
-		codec.UpgradeHeight = u.Height
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventUpgrade,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeyAction, fmt.Sprintf("UPGRADE CONFIRMED: %s at height %v", u.UpgradeVersion(), u.UpgradeHeight())),
-			sdk.NewAttribute(sdk.AttributeKeySender, owner.String()),
-		))
-	}
-	return sdk.Result{Events: ctx.EventManager().Events()}
+	return handleUpgradeAfterUpdate(ctx, aclKey, paramValue, owner, k)
 }
 
 func handleUpgradeAfterUpdate(ctx sdk.Ctx, aclKey string, paramValue interface{}, owner sdk.Address, k Keeper) sdk.Result {
@@ -196,10 +156,6 @@ func handleUpgradeAfterUpdate(ctx sdk.Ctx, aclKey string, paramValue interface{}
 func (k Keeper) ModifyParam(ctx sdk.Ctx, aclKey string, paramValue []byte, owner sdk.Address) sdk.Result {
 	if err := k.VerifyACL(ctx, aclKey, owner); err != nil {
 		return err.Result()
-	}
-
-	if ctx.BlockHeight() >= minSafeMaxValidatorParamChangeHeight {
-		return types.ErrUnauthorizedHeightParamChange(types.ModuleName, codec.UpgradeHeight, aclKey).Result()
 	}
 
 	subspaceName, paramKey := types.SplitACLKey(aclKey)

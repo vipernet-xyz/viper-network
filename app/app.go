@@ -124,7 +124,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.accountKeeper,
-		app.BankKeeper,
+		app.accountKeeper,
 		scopedTransferKeeper,
 	)
 
