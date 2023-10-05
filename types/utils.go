@@ -217,3 +217,7 @@ func CompareVersionStrings(verStr1, verStr2 string) (int, error) {
 
 	return 0, nil
 }
+
+func IsBetween(target, minInclusive, maxInclusive int64) bool {
+	return minInclusive <= target && target <= maxInclusive
+}

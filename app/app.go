@@ -52,14 +52,14 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	ibcSubspace := sdk.NewSubspace(ibcexported.DefaultParamspace)
 	capabilitySubspace := sdk.NewSubspace(capabilityTypes.DefaultParamspace)
-	app.CapabilityKeeper = capabilityKeeper.NewKeeper(
+	app.capabilityKeeper = capabilityKeeper.NewKeeper(
 		app.cdc,
 		app.Keys[capabilityTypes.StoreKey],
 		app.memKeys[capabilityTypes.MemStoreKey],
 	)
 
-	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
-	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(transferTypes.ModuleName)
+	scopedIBCKeeper := app.capabilityKeeper.ScopeToModule(ibcexported.ModuleName)
+	scopedTransferKeeper := app.capabilityKeeper.ScopeToModule(transferTypes.ModuleName)
 
 	// The AuthKeeper handles address -> account lookups
 	app.accountKeeper = authentication.NewKeeper(
@@ -86,27 +86,6 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		providersSubspace,
 		providersTypes.DefaultCodespace,
 	)
-	// The main viper core
-	app.viperKeeper = viperKeeper.NewKeeper(
-		app.Keys[viperTypes.StoreKey],
-		app.cdc,
-		app.accountKeeper,
-		app.servicersKeeper,
-		app.providersKeeper,
-		hostedChains,
-		hostedGeoZone,
-		viperSubspace,
-	)
-	// The governance keeper
-	app.governanceKeeper = governanceKeeper.NewKeeper(
-		app.cdc,
-		app.Keys[viperTypes.StoreKey],
-		app.Tkeys[viperTypes.StoreKey],
-		app.Keys[viperTypes.StoreKey],
-		governanceTypes.DefaultCodespace,
-		app.accountKeeper,
-		authSubspace, servicersSubspace, providersSubspace, viperSubspace, transferSubspace, capabilitySubspace, ibcSubspace,
-	)
 
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		app.cdc,
@@ -128,6 +107,28 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		scopedTransferKeeper,
 	)
 
+	// The main viper core
+	app.viperKeeper = viperKeeper.NewKeeper(
+		app.Keys[viperTypes.StoreKey],
+		app.cdc,
+		app.accountKeeper,
+		app.servicersKeeper,
+		app.providersKeeper,
+		hostedChains,
+		hostedGeoZone,
+		viperSubspace,
+	)
+	// The governance keeper
+	app.governanceKeeper = governanceKeeper.NewKeeper(
+		app.cdc,
+		app.Keys[viperTypes.StoreKey],
+		app.Tkeys[viperTypes.StoreKey],
+		app.Keys[viperTypes.StoreKey],
+		governanceTypes.DefaultCodespace,
+		app.accountKeeper,
+		capabilitySubspace, authSubspace, servicersSubspace, providersSubspace, transferSubspace, ibcSubspace, viperSubspace,
+	)
+
 	transferModule := transfer.NewAppModule(app.transferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.transferKeeper)
 	ibcRouter := port.NewRouter()
@@ -139,33 +140,34 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	// give viper keeper to servicers module for easy cache clearing
 	app.servicersKeeper.ViperKeeper = app.viperKeeper
 	app.providersKeeper.ViperKeeper = app.viperKeeper
+	app.accountKeeper.POSKeeper = app.servicersKeeper
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
 	// setup module manager
 	app.mm = module.NewManager(
-		capability.NewAppModule(*app.CapabilityKeeper),
+		capability.NewAppModule(*app.capabilityKeeper),
 		authentication.NewAppModule(app.accountKeeper),
 		servicers.NewAppModule(app.servicersKeeper),
 		providers.NewAppModule(app.providersKeeper),
-		viper.NewAppModule(app.viperKeeper),
-		governance.NewAppModule(app.governanceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
+		viper.NewAppModule(app.viperKeeper),
+		governance.NewAppModule(app.governanceKeeper),
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName)
-	app.mm.SetOrderEndBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName)
+	app.mm.SetOrderBeginBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		capabilityTypes.ModuleName,
 		authentication.ModuleName,
 		servicersTypes.ModuleName,
 		providersTypes.ModuleName,
-		viperTypes.ModuleName,
-		governance.ModuleName,
 		transferTypes.ModuleName,
 		ibcexported.ModuleName,
+		viperTypes.ModuleName,
+		governance.ModuleName,
 	)
 	// register all module routes and module queriers
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())

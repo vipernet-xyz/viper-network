@@ -19,7 +19,7 @@ import (
 
 var APIVersion = app.AppVersion
 
-func StartRPC(port string, timeout int64, simulation, debug, allBlockTxs, hotReloadChains bool) {
+func StartRPC(port string, timeout int64, simulation, debug, allBlockTxs, hotReloadChains bool, hotReloadGeozones bool) {
 	routes := GetRoutes()
 	if simulation {
 		simRoute := Route{Name: "SimulateRequest", Method: "POST", Path: "/v1/client/sim", HandlerFunc: SimRequest}
@@ -49,6 +49,10 @@ func StartRPC(port string, timeout int64, simulation, debug, allBlockTxs, hotRel
 	//if hot reload is not enabled, enable manual reload.
 	if !hotReloadChains {
 		routes = append(routes, Route{Name: "UpdateChains", Method: "POST", Path: "/v1/private/updatechains", HandlerFunc: UpdateChains})
+	}
+
+	if !hotReloadGeozones {
+		routes = append(routes, Route{Name: "UpdateGeoZones", Method: "POST", Path: "/v1/private/updategeozones", HandlerFunc: UpdateGeoZones})
 	}
 
 	srv := &http.Server{

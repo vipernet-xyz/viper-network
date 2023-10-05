@@ -263,7 +263,7 @@ func (k Keeper) getSendEnabled(store sdk.KVStore, denom string) (bool, bool) {
 	}
 
 	var enabled gogotypes.BoolValue
-	k.Bcdc.MustUnmarshal(bz, &enabled)
+	k.Cdc.MustUnmarshal(bz, &enabled)
 
 	return enabled.Value, true
 }

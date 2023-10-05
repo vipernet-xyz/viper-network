@@ -109,7 +109,7 @@ func (st *Store) LazyLoadStore(version int64, cache types.SingleStoreCache) (*St
 	if !ok {
 		return nil, fmt.Errorf("not immutable tree in LazyLoadStore")
 	}
-
+	fmt.Println("Ver(lazyloadstore):", version)
 	tree, err := a.LazyLoadVersion(version)
 	if err != nil {
 		return nil, err

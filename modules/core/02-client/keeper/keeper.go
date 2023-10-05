@@ -23,7 +23,6 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	sdkerrors "github.com/vipernet-xyz/viper-network/types/errors"
 	"github.com/vipernet-xyz/viper-network/types/kv"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
 // Keeper represents a type that grants read and write permissions to any client
@@ -36,7 +35,7 @@ type Keeper struct {
 }
 
 // NewKeeper creates a new NewKeeper instance
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramSpace paramtypes.Subspace, sk viperTypes.PosKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramSpace paramtypes.Subspace, sk types.StakingKeeper) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
 		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())

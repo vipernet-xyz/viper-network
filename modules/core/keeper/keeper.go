@@ -9,7 +9,6 @@ import (
 	paramtypes "github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	capabilitykeeper "github.com/vipernet-xyz/viper-network/x/capability/keeper"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	clientkeeper "github.com/vipernet-xyz/viper-network/modules/core/02-client/keeper"
 	clienttypes "github.com/vipernet-xyz/viper-network/modules/core/02-client/types"
@@ -39,7 +38,7 @@ type Keeper struct {
 
 // NewKeeper creates a new ibc Keeper
 func NewKeeper(
-	cdc *codec.Codec, key sdk.StoreKey, paramSpace paramtypes.Subspace, stakingKeeper viperTypes.PosKeeper,
+	cdc *codec.Codec, key sdk.StoreKey, paramSpace paramtypes.Subspace, stakingKeeper clienttypes.StakingKeeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
 ) *Keeper {
 	// register paramSpace at top level keeper

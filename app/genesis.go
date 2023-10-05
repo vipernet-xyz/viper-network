@@ -49,9 +49,9 @@ func newDefaultGenesisState() []byte {
 	}
 	pubKey := cb.PublicKey
 	defaultGenesis := module.NewBasicManager(
+		capability.AppModuleBasic{},
 		providers.AppModuleBasic{},
 		authentication.AppModuleBasic{},
-		capability.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},

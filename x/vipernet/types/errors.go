@@ -98,6 +98,7 @@ const (
 	CodeInvalidGeoZoneError                = 92
 	CodeSampleNotHostedError               = 93
 	CodeInvalidSampleError                 = 94
+	CodeEmptyGeoZoneError                  = 95
 )
 
 var (
@@ -197,6 +198,7 @@ var (
 	InvalidNumServicersError           = errors.New("the NumServicers included in the relay request is invalid")
 	ZeroTimeError                      = errors.New("Timestamp cannot be zero")
 	NegativeLatency                    = errors.New("Latency should be a positive duration")
+	EmptyGeoZoneError                  = errors.New("the geozone is of Length 0")
 )
 
 func NewSealedEvidenceError(codespace sdk.CodespaceType) sdk.Error {
@@ -466,6 +468,10 @@ func NewInvalidSessionKeyError(codespace sdk.CodespaceType, err error) sdk.Error
 
 func NewEmptyNonNativeChainError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeEmptyNonNativeChainError, EmptyNonNativeChainError.Error())
+}
+
+func NewEmptyGeoZoneError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeEmptyGeoZoneError, EmptyGeoZoneError.Error())
 }
 
 func NewInsufficientServicersError(codespace sdk.CodespaceType) sdk.Error {

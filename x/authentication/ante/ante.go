@@ -62,6 +62,10 @@ func ValidateTransaction(ctx sdk.Ctx, k Keeper, stdTx types.StdTx, params Params
 	if res != nil {
 		return nil, types.ErrDuplicateTx(ModuleName, hex.EncodeToString(txHash))
 	}
+	validSigners := stdTx.GetSigners()
+
+	validSigners = append(validSigners, k.POSKeeper.GetMsgStakeOutputSigner(ctx, stdTx.Msg))
+
 	var pk posCrypto.PublicKey
 	for _, signer := range stdTx.GetSigners() {
 		// attempt to get the public key from the signature

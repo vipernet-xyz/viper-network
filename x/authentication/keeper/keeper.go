@@ -13,7 +13,7 @@ import (
 // Keeper of the supply store
 type Keeper struct {
 	Cdc       *codec.Codec
-	Bcdc      codec.BinaryCodec
+	POSKeeper types.PosKeeper
 	storeKey  sdk.StoreKey
 	subspace  sdk.Subspace
 	permAddrs map[string]types.PermissionsForAddress

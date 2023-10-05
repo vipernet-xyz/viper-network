@@ -56,6 +56,9 @@ func (s Session) Validate(servicer sdk.Address, provider providerexported.Provid
 	if len(s.SessionHeader.Chain) == 0 {
 		return NewEmptyNonNativeChainError(ModuleName)
 	}
+	if len(s.SessionHeader.GeoZone) == 0 {
+		return NewEmptyGeoZoneError(ModuleName)
+	}
 	// validate sessionBlockHeight
 	if s.SessionHeader.SessionBlockHeight < 1 {
 		return NewInvalidBlockHeightError(ModuleName)
@@ -278,6 +281,9 @@ func (sh SessionHeader) ValidateHeader() sdk.Error {
 	}
 	// verify the chain merkleHash
 	if err := NetworkIdentifierVerification(sh.Chain); err != nil {
+		return err
+	}
+	if err := GeoZoneIdentifierVerification(sh.GeoZone); err != nil {
 		return err
 	}
 	// verify the block height

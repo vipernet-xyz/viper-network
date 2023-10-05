@@ -4,7 +4,6 @@ import (
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
-// "GetHostedBlockchains" returns the non native chains hosted locally on this servicer
 func (k Keeper) GetHostedGeoZone() *vc.HostedGeoZones {
 	return k.hostedGeoZone
 }

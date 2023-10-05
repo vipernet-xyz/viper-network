@@ -96,7 +96,6 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 		// hot reload geoZone
 		HotReloadGeoZones(geoZone)
 	}
-
 	samplePools := NewSamplePools(false)
 	if GlobalConfig.ViperConfig.SamplePoolHotReload {
 		// hot reload sample pool
@@ -811,10 +810,10 @@ func MakeCodec() {
 		providers.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
-		viper.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		ibctm.AppModuleBasic{},
+		viper.AppModuleBasic{},
 	).RegisterCodec(cdc)
 	// register the crypto types
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)

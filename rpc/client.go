@@ -123,6 +123,39 @@ func UpdateChains(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 }
 
+// Update Geozones
+func UpdateGeoZones(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	value := r.URL.Query().Get("authtoken")
+	if value == app.AuthToken.Value {
+		var hostedGeoZoneSlice []types.GeoZone
+		if err := PopModel(w, r, ps, &hostedGeoZoneSlice); err != nil {
+			WriteErrorResponse(w, 400, err.Error())
+			return
+		}
+		m := make(map[string]types.GeoZone)
+		for _, zone := range hostedGeoZoneSlice {
+			if err := servicersTypes.ValidateGeoZone(zone.ID); err != nil { // assuming you have a similar validation function
+				WriteErrorResponse(w, 400, fmt.Sprintf("invalid ID: %s in geo zone identifier in json", zone.ID))
+				return
+			}
+			m[zone.ID] = zone
+		}
+		result, err := app.VCA.SetHostedGeoZone(m) // assuming you have a similar setter function
+		if err != nil {
+			WriteErrorResponse(w, 400, err.Error())
+		} else {
+			j, er := json.Marshal(result)
+			if er != nil {
+				WriteErrorResponse(w, 400, er.Error())
+				return
+			}
+			WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
+		}
+	} else {
+		WriteErrorResponse(w, 401, "wrong authtoken "+value)
+	}
+}
+
 // Stop
 func Stop(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	value := r.URL.Query().Get("authtoken")

@@ -207,7 +207,7 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 
 	// First, delete all active servicers in the current (latest) version whose node version is after
 	// the given version.
-	err = ndb.deleteServicersFrom(version, root)
+	err = ndb.deleteNodesFrom(version, root)
 	if err != nil {
 		return err
 	}
@@ -236,21 +236,21 @@ func (ndb *nodeDB) DeleteVersionsFrom(version int64) error {
 	return nil
 }
 
-// deleteServicersFrom deletes the given node and any descendants that have versions after the given
+// deleteNodesFrom deletes the given node and any descendants that have versions after the given
 // (inclusive). It is mainly used via LoadVersionForOverwriting, to delete the current version.
-func (ndb *nodeDB) deleteServicersFrom(version int64, hash []byte) error {
+func (ndb *nodeDB) deleteNodesFrom(version int64, hash []byte) error {
 	if len(hash) == 0 {
 		return nil
 	}
 
 	node := ndb.GetNode(hash)
 	if node.leftHash != nil {
-		if err := ndb.deleteServicersFrom(version, node.leftHash); err != nil {
+		if err := ndb.deleteNodesFrom(version, node.leftHash); err != nil {
 			return err
 		}
 	}
 	if node.rightHash != nil {
-		if err := ndb.deleteServicersFrom(version, node.rightHash); err != nil {
+		if err := ndb.deleteNodesFrom(version, node.rightHash); err != nil {
 			return err
 		}
 	}
@@ -459,6 +459,7 @@ func (ndb *nodeDB) Commit() error {
 }
 
 func (ndb *nodeDB) getRoot(version int64) ([]byte, error) {
+	fmt.Println(ndb.rootKey(version))
 	return ndb.db.Get(ndb.rootKey(version))
 }
 
@@ -479,6 +480,7 @@ func (ndb *nodeDB) SaveRoot(root *Node, version int64) error {
 	if len(root.hash) == 0 {
 		panic("SaveRoot: root hash should not be empty")
 	}
+	fmt.Println("saveRoot(rh):", root.hash)
 	return ndb.saveRoot(root.hash, version)
 }
 

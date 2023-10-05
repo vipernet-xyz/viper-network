@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/vipernet-xyz/viper-network/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	cfg "github.com/tendermint/tendermint/config"
@@ -122,7 +123,7 @@ func NewClient(c config, creator AppCreator) (*node.Node, *ViperCoreApp, error) 
 	// create & start tendermint node
 	tmNode, err := node.NewNode(app,
 		c.TmConfig,
-		0,
+		codec.UpgradeHeight,
 		loadFilePVWithConfig(c),
 		nodeKey,
 		proxy.NewLocalClientCreator(app),

@@ -47,18 +47,16 @@ type ViperCoreApp struct {
 	Tkeys   map[string]*sdk.TransientStoreKey
 	memKeys map[string]*sdk.MemoryStoreKey
 	// Keepers for each module
-	CapabilityKeeper *capabilityKeeper.Keeper
-	accountKeeper    authentication.Keeper
-	providersKeeper  providersKeeper.Keeper
-	servicersKeeper  servicersKeeper.Keeper
-	governanceKeeper governanceKeeper.Keeper
-	transferKeeper   transferKeeper.Keeper
-
-	viperKeeper          viperKeeper.Keeper
+	capabilityKeeper     *capabilityKeeper.Keeper
+	accountKeeper        authentication.Keeper
+	providersKeeper      providersKeeper.Keeper
+	servicersKeeper      servicersKeeper.Keeper
+	transferKeeper       transferKeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
 	ScopedIBCKeeper      capabilityKeeper.ScopedKeeper
 	ScopedTransferKeeper capabilityKeeper.ScopedKeeper
-
+	viperKeeper          viperKeeper.Keeper
+	governanceKeeper     governanceKeeper.Keeper
 	// Module Manager
 	mm *module.Manager
 }
@@ -72,11 +70,11 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, capabilityTypes.StoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, viperTypes.StoreKey, governance.StoreKey, transferTypes.StoreKey, ibcExported.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, capabilityTypes.StoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, transferTypes.StoreKey, ibcExported.StoreKey, governance.StoreKey, viperTypes.StoreKey)
 	// setup the transient store KeysibcExported.StoreKey, transferTypes.StoreKey)
-	tkeys := sdk.NewTransientStoreKeys(capabilityTypes.TStoreKey, servicersTypes.TStoreKey, providersTypes.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey, transferTypes.TStoreKey, ibcExported.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(capabilityTypes.TStoreKey, servicersTypes.TStoreKey, providersTypes.TStoreKey, transferTypes.TStoreKey, ibcExported.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
 
-	memkeys := sdk.NewMemoryStoreKeys(capabilityTypes.MemStoreKey, servicersTypes.MemStoreKey, providersTypes.MemStoreKey, viperTypes.MemStoreKey, governance.MemStoreKey, transferTypes.MemStoreKey, ibcExported.MemStoreKey)
+	memkeys := sdk.NewMemoryStoreKeys(capabilityTypes.MemStoreKey)
 	// add params Keys too
 	// Create the application
 	return &ViperCoreApp{
@@ -216,13 +214,13 @@ func (app *ViperCoreApp) GetClient() client.Client {
 var (
 	// module account permissions
 	moduleAccountPermissions = map[string][]string{
+		capabilityTypes.ModuleName:      nil,
 		authentication.FeeCollectorName: {authentication.Burner, authentication.Minter, authentication.Staking},
 		servicersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
 		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Minter, authentication.Staking},
 		servicersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
 		providersTypes.ModuleName:       nil,
-		capabilityTypes.ModuleName:      nil,
 		transferTypes.ModuleName:        {authentication.Burner, authentication.Minter},
 	}
 )

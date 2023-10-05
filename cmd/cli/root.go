@@ -98,7 +98,7 @@ func start(cmd *cobra.Command, args []string) {
 		genesisType = app.TestnetGenesisType
 	}
 	tmNode := app.InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL, keybase, genesisType, useCache, forceSetValidatorsLean)
-	go rpc.StartRPC(app.GlobalConfig.ViperConfig.RPCPort, app.GlobalConfig.ViperConfig.RPCTimeout, simulateRelay, profileApp, allBlockTxs, app.GlobalConfig.ViperConfig.ChainsHotReload)
+	go rpc.StartRPC(app.GlobalConfig.ViperConfig.RPCPort, app.GlobalConfig.ViperConfig.RPCTimeout, simulateRelay, profileApp, allBlockTxs, app.GlobalConfig.ViperConfig.ChainsHotReload, app.GlobalConfig.ViperConfig.GeoZonesHotReload)
 	// trap kill signals (2,3,15,9)
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel,

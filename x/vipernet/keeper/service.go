@@ -15,6 +15,12 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 	relayTimeStart := time.Now()
 	// get the latest session block height because this relay will correspond with the latest session
 	sessionBlockHeight := k.GetLatestSessionBlockHeight(ctx)
+
+	if !k.IsProofSessionHeightWithinTolerance(ctx, sessionBlockHeight) {
+		// For legacy support, we are intentionally returning the invalid block height error.
+		return nil, vc.NewInvalidBlockHeightError(vc.ModuleName)
+	}
+
 	var node *vc.ViperNode
 	var nodeAddress sdk.Address
 
