@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/vipernet-xyz/viper-network/codec"
+	"golang.org/x/crypto/sha3"
 
 	"github.com/tendermint/tendermint/store"
 
@@ -49,7 +50,6 @@ type Context struct {
 	appVersion    string
 	cachedStore   *Cache
 	isPrev        bool
-	recheckTx     bool // if recheckTx == true, then checkTx must also be true
 }
 
 type Ctx interface {
@@ -120,7 +120,6 @@ func (c Context) MinGasPrices() DecCoins      { return c.minGasPrice }
 func (c Context) EventManager() *EventManager { return c.eventManager }
 func (c Context) AppVersion() string          { return dropTag(c.appVersion) }
 func (c Context) ClearGlobalCache()           { c.cachedStore.Purge() }
-func (c Context) IsReCheckTx() bool           { return c.recheckTx }
 
 // clone the header before returning
 func (c Context) BlockHeader() abci.Header {
@@ -134,7 +133,20 @@ var _ codec.ProtoMarshaler = &abci.Header{}
 
 // clone the header before returning
 func (c Context) BlockHash(cdc *codec.Codec, height int64) ([]byte, error) {
-	return c.BlockHeader().LastBlockId.Hash, nil
+	if c.header.Equal(abci.Header{}) {
+		return nil, errors.New(blockHashError + ": the header is empty")
+	}
+	sha := sha3.New256()
+	bz, err := cdc.MarshalBinaryBare(&c.header)
+	if err != nil {
+		return nil, err
+	}
+	_, err = sha.Write(bz)
+	if err != nil {
+		return nil, err
+	}
+	return sha.Sum(nil), nil
+
 }
 
 func (c Context) Deadline() (deadline time.Time, ok bool) {

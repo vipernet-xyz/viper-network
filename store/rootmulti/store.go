@@ -191,6 +191,9 @@ func (rs *Store) RollbackVersion(height int64) error {
 		if store.GetStoreType() == types.StoreTypeTransient {
 			continue
 		}
+		if store.GetStoreType() == types.StoreTypeMemory {
+			continue
+		}
 		// convert to iavl
 		s, ok := store.(*iavl.Store)
 		if !ok {
@@ -278,13 +281,6 @@ func (rs *Store) LoadLazyVersion(ver int64) (*types.Store, error) {
 				continue
 			}
 			return nil, fmt.Errorf("cannot convert store into iavl store in get immutable")
-		}
-		fmt.Println("version:", ver, "Store:", k)
-		if !a.VersionExists(ver) {
-			return nil, fmt.Errorf("version %d does not exist for store: %s", ver, k)
-		}
-		if a.VersionExists(ver) {
-			fmt.Printf("version %d does exist for store: %s", ver, k)
 		}
 		s, err := a.LazyLoadStore(ver, rs.Cache.GetSingleStoreCache(k))
 		if err != nil {
@@ -572,8 +568,9 @@ func (rs *Store) loadCommitStoreFromParams(key types.StoreKey, id types.CommitID
 		}
 		return transient.NewStore(), nil
 	case types.StoreTypeMemory:
-		if _, ok := key.(*types.MemoryStoreKey); !ok {
-			return nil, fmt.Errorf("unexpected key type for a MemoryStoreKey; got: %s", key.String())
+		_, ok := key.(*types.MemoryStoreKey)
+		if !ok {
+			return store, fmt.Errorf("unexpected key type for a MemoryStoreKey; got: %s", key.String())
 		}
 		return mem.NewStore(), nil
 

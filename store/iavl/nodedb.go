@@ -459,7 +459,6 @@ func (ndb *nodeDB) Commit() error {
 }
 
 func (ndb *nodeDB) getRoot(version int64) ([]byte, error) {
-	fmt.Println(ndb.rootKey(version))
 	return ndb.db.Get(ndb.rootKey(version))
 }
 
@@ -480,7 +479,6 @@ func (ndb *nodeDB) SaveRoot(root *Node, version int64) error {
 	if len(root.hash) == 0 {
 		panic("SaveRoot: root hash should not be empty")
 	}
-	fmt.Println("saveRoot(rh):", root.hash)
 	return ndb.saveRoot(root.hash, version)
 }
 

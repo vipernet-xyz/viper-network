@@ -70,7 +70,7 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, capabilityTypes.StoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, transferTypes.StoreKey, ibcExported.StoreKey, governance.StoreKey, viperTypes.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, capabilityTypes.StoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, transferTypes.StoreKey, ibcExported.StoreKey, viperTypes.StoreKey, governance.StoreKey)
 	// setup the transient store KeysibcExported.StoreKey, transferTypes.StoreKey)
 	tkeys := sdk.NewTransientStoreKeys(capabilityTypes.TStoreKey, servicersTypes.TStoreKey, providersTypes.TStoreKey, transferTypes.TStoreKey, ibcExported.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
 

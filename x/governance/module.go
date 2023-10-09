@@ -89,12 +89,10 @@ func (am AppModule) NewQuerierHandler() sdk.Querier {
 	return keeper.NewQuerier(am.keeper)
 }
 
-// InitGenesis performs genesis initialization for the pos module. It returns
-// no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if ctx.AppVersion() == "" {
-		fmt.Println(fmt.Errorf("must set app version in context, set with ctx.WithAppVersion(<version>)").Error())
+		ctx.Logger().Error("Must set app version in context, set with ctx.WithAppVersion(<version>)")
 		os.Exit(1)
 	}
 	if data == nil {
@@ -144,10 +142,11 @@ func (am AppModule) activateAdditionalParametersACL(ctx sdk.Ctx) {
 	// Activate BlockSizeModify params
 	if am.keeper.GetCodec().IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
 		gParams := am.keeper.GetParams(ctx)
-		// Adding a neww ACL owner for the block parameter key (before its activation)
+		ctx.Logger().Info("Current Governance Params:", gParams)
 		gParams.ACL.SetOwner(types.NewACLKey(types.VipercoreSubspace, "BlockByteSize"), am.keeper.GetDAOOwner(ctx))
-		// Update all the params
+		ctx.Logger().Info("Updated ACL for BlockByteSize.")
 		am.keeper.SetParams(ctx, gParams)
+		ctx.Logger().Info("Updated Governance Params Set.")
 	}
 }
 

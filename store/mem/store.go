@@ -6,6 +6,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/store/types"
 
 	"github.com/vipernet-xyz/viper-network/store/dbadapter"
+	pruningtypes "github.com/vipernet-xyz/viper-network/store/pruning/types"
 )
 
 var (
@@ -38,5 +39,7 @@ func (s *Store) Commit() (id types.CommitID) { return }
 // Implements CommitStore
 func (s *Store) SetPruning(pruning types.PruningOptions) {
 }
-
+func (s *Store) GetPruning() pruningtypes.PruningOptions {
+	return pruningtypes.NewPruningOptions(pruningtypes.PruningUndefined)
+}
 func (s Store) LastCommitID() (id types.CommitID) { return }

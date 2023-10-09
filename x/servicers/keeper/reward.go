@@ -12,7 +12,11 @@ import (
 // RewardForRelays - Award coins to an address
 func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt {
 
-	var found bool
+	_, found := k.GetValidator(ctx, address)
+	if !found {
+		ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", address.String(), ctx.BlockHeight()).Error())
+		return sdk.ZeroInt()
+	}
 	address, found = k.GetValidatorOutputAddress(ctx, address)
 	if !found {
 		k.Logger(ctx).Error(fmt.Sprintf("no validator found for address %s; unable to mint the relay reward...", address.String()))
@@ -80,7 +84,6 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	if err != nil {
 		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the dao: %s, at height %d", daoCut.String(), err.Error(), ctx.BlockHeight()))
 	}
-
 	outputAddress, found := k.GetValidatorOutputAddress(ctx, previousProposer)
 	if !found {
 		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, types.ErrNoValidatorForAddress(types.ModuleName), ctx.BlockHeight()))
@@ -90,7 +93,7 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	if err != nil {
 		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, err.Error(), ctx.BlockHeight()))
 	}
-
+	return
 }
 
 // "mint" - takes an amount and mints it to the servicer staking pool, then sends the coins to the address

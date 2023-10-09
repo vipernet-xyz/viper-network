@@ -23,7 +23,7 @@ func NewRedundantRelayDecorator(k *keeper.Keeper) RedundantRelayDecorator {
 // all packets, by rejecting the tx at the mempool layer.
 func (rrd RedundantRelayDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx1, simulate bool, next sdk.AnteHandler1) (sdk.Context, error) {
 	// do not run redundancy check on DeliverTx or simulate
-	if (ctx.IsCheckTx() || ctx.IsReCheckTx()) && !simulate {
+	if (ctx.IsCheckTx()) && !simulate {
 		// keep track of total packet messages and number of redundancies across `RecvPacket`, `AcknowledgePacket`, and `TimeoutPacket/OnClose`
 		redundancies := 0
 		packetMsgs := 0

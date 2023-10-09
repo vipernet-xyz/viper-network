@@ -97,21 +97,22 @@ func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 	ActivateAdditionalParameters(ctx, am)
 	// delete the expired claims
 	am.keeper.DeleteExpiredClaims(ctx)
+
 }
 
 // ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
 func ActivateAdditionalParameters(ctx sdk.Ctx, am AppModule) {
 	if am.keeper.Cdc.IsOnNamedFeatureActivationHeight(ctx.BlockHeight(), codec.BlockSizeModifyKey) {
-		//on the height we set the default value
 		params := am.keeper.GetParams(ctx)
 		params.BlockByteSize = types.DefaultBlockByteSize
 		am.keeper.SetParams(ctx, params)
+
 	}
 }
 
 // EndBlock "EndBlock" - Functionality that is called at the end of (every) block
 func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-
+	blocksPerSession := am.keeper.BlocksPerSession(ctx)
 	// run go routine because cannot access TmNode during end-block period
 	go func() {
 		// use this sleep timer to bypass the beginBlock lock over transactions
@@ -131,12 +132,22 @@ func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.Validat
 			ctx.Logger().Debug("tendermint is currently syncing still (cannot submit claims/proofs in this state)")
 			return
 		}
+		for _, node := range types.GlobalViperNodes {
+			address := node.GetAddress()
+			if (ctx.BlockHeight()+int64(address[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
+				// auto send the proofs
+				am.keeper.SendClaimTx(ctx, am.keeper, am.keeper.TmNode, node, ClaimTx)
+				// auto claim the proofs
+				am.keeper.SendProofTx(ctx, am.keeper.TmNode, node, ProofTx)
+				// clear session cache and db
+				types.ClearSessionCache(node.SessionStore)
 
+			}
+		}
 	}()
 	return []abci.ValidatorUpdate{}
 }
 
-// InitGenesis "InitGenesis" - Inits the module genesis from raw json
 func (pm AppModule) InitGenesis(ctx sdk.Ctx, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	if data == nil {

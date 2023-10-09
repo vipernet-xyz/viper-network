@@ -281,12 +281,10 @@ func (tree *MutableTree) LazyLoadVersion(targetVersion int64) (*MutableTree, err
 	if targetVersion <= 0 {
 		targetVersion = latestVersion
 	}
-	fmt.Println("targetVersion:", targetVersion)
 	rootHash, err := tree.ndb.getRoot(targetVersion)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("roothash:", rootHash)
 	if rootHash == nil {
 		return nil, ErrVersionDoesNotExist
 	}

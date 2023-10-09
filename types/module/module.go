@@ -291,40 +291,37 @@ func (m *Manager) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) abci.ResponseE
 	defer sdk.TimeTrack(time.Now())
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
 	validatorUpdates := []abci.ValidatorUpdate{}
-	UpdateToApply := &abci.ConsensusParams{}
+	var consensusUpdates *abci.ConsensusParams
 
 	for _, moduleName := range m.OrderEndBlockers {
+		// Use these validator updates if provided
 		moduleValUpdates := m.Modules[moduleName].EndBlock(ctx, req)
-
-		// use these validator updates if provided, the module manager assumes
-		// only one module will update the validator set
 		if len(moduleValUpdates) > 0 {
+			// The module manager assumes only one module will update the validator set
 			if len(validatorUpdates) > 0 {
 				panic("validator EndBlock updates already set by a previous module")
 			}
-
 			validatorUpdates = moduleValUpdates
 		}
 
+		// Currently its only a non-empty struct in the pocket-core modules
 		consensusParamUpdate := m.Modules[moduleName].ConsensusParamsUpdate(ctx)
 		if !consensusParamUpdate.Equal(&abci.ConsensusParams{}) {
-			UpdateToApply = consensusParamUpdate
+			consensusUpdates = consensusParamUpdate
 		}
 	}
 
-	//not adding empty struct  saves us from updating consensus params every block if there are no updates.
-	if UpdateToApply.Equal(&abci.ConsensusParams{}) {
-		return abci.ResponseEndBlock{
-			ValidatorUpdates: validatorUpdates,
-			Events:           ctx.EventManager().ABCIEvents(),
-		}
+	// Only attach the consensus updates if present.
+	// Avoids sending the update (i.e. an empty struct) every block
+	responseBlock := abci.ResponseEndBlock{
+		ValidatorUpdates: validatorUpdates,
+		Events:           ctx.EventManager().ABCIEvents(),
 	}
 
-	return abci.ResponseEndBlock{
-		ValidatorUpdates:      validatorUpdates,
-		Events:                ctx.EventManager().ABCIEvents(),
-		ConsensusParamUpdates: UpdateToApply,
+	if consensusUpdates != nil {
+		responseBlock.ConsensusParamUpdates = consensusUpdates
 	}
+	return responseBlock
 }
 
 // MigrationHandler is the migration function that each module registers.
