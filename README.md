@@ -114,4 +114,4 @@ viper start
 
 Engage and collaborate with our community on [Discord](https://discord.gg/eBDYH4Zxek)
 
-Dive deeper into our vision on our [Website](https://vipernet.xyz/) or explore our detailed [Deck](https://www.dropbox.com/scl/fi/nuhh9ag7idaekxelf6rl9/Viper.pdf?rlkey=g6h3lpegyzp24rna4flhni43i&dl=0)
+Dive deeper into our vision on our [Website](https://vipernet.xyz/) or explore our detailed [Deck](https://pitchdeck.hypermatic.com/slides/lnsc44r427645/?token=SWoyU1o4NE8xdXgwISU=)
