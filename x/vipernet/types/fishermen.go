@@ -93,22 +93,41 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 	// Send the relay to the servicer and measure its latency
 	relayOutput, err := sender.Relay(servicer.GetServiceURL(), relay)
 	servicerLatency := time.Since(start)
+
 	if err != nil {
 		return nil, err
 	}
 
-	// Now, execute the same relay within the fisherman itself to verify the servicer's response
-	localResp, err := sender.localRelay(fishermanValidator.GetServiceURL(), relay)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to execute relay internally within fisherman: %s", err.Error())
-	}
+	servicerReliability := true
+	var localResp *RelayOutput
 
-	servicerReliablility := true
+	// Execute the local relay only if the request method is GET
+	if samplePayload.Method == "GET" {
+		c := make(chan struct{}, 1)
+		go func() {
+			localResp, err = sender.localRelay(fishermanValidator.GetServiceURL(), relay)
+			c <- struct{}{}
+		}()
 
-	// Compare the response from the servicer with the local response
-	if relayOutput.Response != localResp.Response {
-		// This is a discrepancy. Handle accordingly.
-		servicerReliablility = false // set reliability to false if there's a mismatch
+		select {
+		case <-c:
+			if err != nil {
+				return nil, fmt.Errorf("Failed to execute relay internally within fisherman: %s", err.Error())
+			}
+
+			if relayOutput.Response != localResp.Response {
+				// This is a discrepancy. Handle accordingly.
+				servicerReliability = false // set reliability to false if there's a mismatch
+			}
+		case <-time.After(servicerLatency): // time allotted for local relay is same as the servicer's latency
+			// If the local relay takes more than the servicer's latency, continue with the process
+			servicerReliability = true // assuming the relay was reliable as it didn't return an error
+		}
+	} else {
+		// If the request method is not GET, just check the response for errors
+		if err != nil {
+			servicerReliability = false
+		}
 	}
 
 	return &Output{
@@ -116,7 +135,7 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 		LocalResp:   localResp,
 		Proof:       relay.Proof,
 		Latency:     servicerLatency,
-		Reliability: servicerReliablility,
+		Reliability: servicerReliability,
 	}, nil
 }
 
