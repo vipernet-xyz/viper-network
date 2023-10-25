@@ -64,7 +64,7 @@ func EndBlocker(ctx sdk.Ctx, k Keeper) []abci.ValidatorUpdate {
 	k.IncrementJailedValidators(ctx)
 	// NOTE: UpdateTendermintValidators has to come before unstakeAllMatureValidators.
 	validatorUpdates := k.UpdateTendermintValidators(ctx)
-	// Unstake all mature validators from the unstakeing queue.
+	// Unstake all mature validators from the unstaking queue.
 	k.unstakeAllMatureValidators(ctx)
 	return validatorUpdates
 }

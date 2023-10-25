@@ -165,7 +165,14 @@ func handleMsgPause(ctx sdk.Ctx, msg types.MsgPause, k keeper.Keeper) sdk.Result
 	defer sdk.TimeTrack(time.Now())
 
 	ctx.Logger().Info("Pause Node Message received from " + msg.ValidatorAddr.String())
-	k.PauseNode(ctx, msg.ValidatorAddr)
+
+	// Validate the PauseNode message
+	addr, err := k.ValidatePauseNodeMessage(ctx, msg)
+	if err != nil {
+		return err.Result()
+	}
+
+	k.PauseNode(ctx, addr)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -180,7 +187,15 @@ func handleMsgUnpause(ctx sdk.Ctx, msg types.MsgUnpause, k keeper.Keeper) sdk.Re
 	defer sdk.TimeTrack(time.Now())
 
 	ctx.Logger().Info("Unpause Node Message received from " + msg.ValidatorAddr.String())
-	k.UnpauseNode(ctx, msg.ValidatorAddr)
+
+	// Validate the unpause message
+	addr, err := k.ValidateUnpauseNodeMessage(ctx, msg)
+	if err != nil {
+		return err.Result()
+	}
+
+	// Only unpause if the message was valid
+	k.UnpauseNode(ctx, addr)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,

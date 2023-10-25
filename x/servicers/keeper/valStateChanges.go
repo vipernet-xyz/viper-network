@@ -669,6 +669,42 @@ func (k Keeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) {
 	)
 }
 
+// ValidatePauseNodeMessage - Check PauseNode message
+func (k Keeper) ValidatePauseNodeMessage(ctx sdk.Ctx, msg types.MsgPause) (addr sdk.Address, err sdk.Error) {
+	validator, found := k.GetValidator(ctx, msg.ValidatorAddr)
+	if !found {
+		return nil, types.ErrNoValidatorForAddress(k.Codespace())
+	}
+	// Check msg Signature
+	err, valid := ValidateValidatorMsgSigner(validator, msg.Signer, k)
+	if !valid {
+		return nil, err
+	}
+
+	// cannot pause if no self-delegation exists
+	selfDel := validator.GetTokens()
+	if selfDel == sdk.ZeroInt() {
+		return nil, types.ErrMissingSelfDelegation(k.Codespace())
+	}
+
+	if validator.GetTokens().LT(sdk.NewInt(k.MinimumStake(ctx))) {
+		k.SetWaitingValidator(ctx, validator) // defensive against potential issues
+	}
+
+	// cannot pause if already paused
+	if validator.IsPaused() {
+		return nil, types.ErrValidatorAlreadyPaused(k.Codespace())
+	}
+	addr = validator.GetAddress()
+
+	_, found = k.GetValidatorSigningInfo(ctx, addr)
+	if !found {
+		return nil, types.ErrNoValidatorForAddress(k.Codespace())
+	}
+
+	return
+}
+
 // UnpausedNode - Remove a validator from jail
 func (k Keeper) UnpauseNode(ctx sdk.Ctx, addr sdk.Address) {
 	validator, found := k.GetValidator(ctx, addr)
@@ -698,4 +734,37 @@ func (k Keeper) UnpauseNode(ctx sdk.Ctx, addr sdk.Address) {
 	k.SetValidator(ctx, validator)
 	k.ResetValidatorSigningInfo(ctx, addr)
 	k.Logger(ctx).Info(fmt.Sprintf("validator %s unpaused", addr))
+}
+
+// ValidateUnpauseNodeMessage - Check unpause node message
+func (k Keeper) ValidateUnpauseNodeMessage(ctx sdk.Ctx, msg types.MsgUnpause) (addr sdk.Address, err sdk.Error) {
+	validator, found := k.GetValidator(ctx, msg.ValidatorAddr)
+	if !found {
+		return nil, types.ErrNoValidatorForAddress(k.Codespace())
+	}
+
+	//Check msg Signature (assuming you want to check the signer's authenticity)
+	err, valid := ValidateValidatorMsgSigner(validator, msg.Signer, k)
+	if !valid {
+		return nil, err
+	}
+
+	// cannot be unpaused if not paused
+	if !validator.IsPaused() {
+		return nil, types.ErrValidatorNotPaused(k.Codespace())
+	}
+
+	addr = validator.GetAddress()
+	info, found := k.GetValidatorSigningInfo(ctx, addr)
+	if !found {
+		return nil, types.ErrNoValidatorForAddress(k.Codespace())
+	}
+	if info.PausedUntil.After(time.Now()) {
+		return nil, types.ErrValidatorPaused(k.Codespace())
+	}
+	// cannot be unjailed until out of jail
+	if ctx.BlockHeader().Time.Before(info.PausedUntil) {
+		return nil, types.ErrValidatorPaused(k.Codespace())
+	}
+	return
 }

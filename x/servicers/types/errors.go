@@ -39,6 +39,9 @@ const (
 	CodeInvalidGeoZone              CodeType          = 127
 	CodeNoGeoZone                   CodeType          = 128
 	CodeDisallowedOutputAddressEdit CodeType          = 129
+	CodeValidatorAlreadyPaused      CodeType          = 130
+	CodeValidatorNotPaused          CodeType          = 131
+	CodeValidatorPaused             CodeType          = 132
 )
 
 func ErrTooManyChains(codespace sdk.CodespaceType) sdk.Error {
@@ -168,4 +171,16 @@ func ErrInvalidGeoZone(codespace sdk.CodespaceType, err error) sdk.Error {
 func ErrDisallowedOutputAddressEdit(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeDisallowedOutputAddressEdit,
 		"Only the owner of the current output address can edit the output address")
+}
+
+func ErrValidatorAlreadyPaused(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeValidatorAlreadyPaused, "validator already paused")
+}
+
+func ErrValidatorNotPaused(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeValidatorNotPaused, "validator not paused")
+}
+
+func ErrValidatorPaused(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeValidatorPaused, "validator paused")
 }

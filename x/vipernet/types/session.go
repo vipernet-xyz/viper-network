@@ -83,7 +83,7 @@ func (s Session) Validate(servicer sdk.Address, provider providerexported.Provid
 	if !found {
 		return NewUnsupportedBlockchainProviderError(ModuleName)
 	}
-	// validate provider geozones
+
 	geoZones := provider.GetGeoZones()
 	found1 := false
 	for _, c := range geoZones {

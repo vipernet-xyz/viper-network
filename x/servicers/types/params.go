@@ -18,7 +18,7 @@ const (
 	DefaultMinStake             int64 = 10000000000
 	DefaultMaxEvidenceAge             = 60 * 2 * time.Second
 	DefaultSignedBlocksWindow         = int64(10)
-	DefaultDowntimeJailDuration       = 60 * 10 * time.Second
+	DefaultDowntimeJailDuration       = 60 * 60 * time.Second
 	DefaultSessionBlocktime           = 4
 	DefaultProposerAllocation         = 5
 	DefaultDAOAllocation              = 10

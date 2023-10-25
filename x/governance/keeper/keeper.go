@@ -61,3 +61,13 @@ func (k Keeper) SetDiscountKey(ctx sdk.Ctx, addr sdk.Address, discountKey string
 	store.Set(addr.Bytes(), []byte(discountKey))
 	return nil
 }
+
+func (k Keeper) GetDiscountKey(ctx sdk.Ctx, addr sdk.Address) string {
+	store := ctx.KVStore(k.discountStoreKey)
+	d, _ := store.Has(addr)
+	if !d {
+		return "" // Return an empty string if the key does not exist
+	}
+	dk, _ := store.Get(addr)
+	return string(dk)
+}

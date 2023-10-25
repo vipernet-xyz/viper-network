@@ -425,10 +425,6 @@ func (m MockPosKeeper) GetStakedValidatorsLimit(ctx sdk.Ctx, maxRetrieve int64) 
 	panic("implement me")
 }
 
-func (m MockPosKeeper) MaxFishermen(ctx sdk.Ctx) (res int64) {
-	panic("implement me")
-}
-
 func (m MockPosKeeper) FishermenCount(ctx sdk.Ctx) (res int64) {
 	panic("implement me")
 }

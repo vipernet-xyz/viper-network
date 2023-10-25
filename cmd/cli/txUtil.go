@@ -527,19 +527,19 @@ func UnpauseNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64)
 	}, nil
 }
 
-func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fees int64, legacyCodec bool) (string, *rpc.SendRawTxParams, error) {
+func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 	ta, err := sdk.AddressFromHex(toAddr)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	kb, err := app.GetKeybase()
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	// Generating a unique DiscountKey
@@ -553,15 +553,15 @@ func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fe
 
 	err = msg.ValidateBasic()
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	txBz, err := newTxBz(app.Codec(), &msg, fa, chainID, kb, passphrase, fees, "", legacyCodec)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
-	return discountKey, &rpc.SendRawTxParams{
+	return &rpc.SendRawTxParams{
 		Addr:        fromAddr,
 		RawHexBytes: hex.EncodeToString(txBz),
 	}, nil

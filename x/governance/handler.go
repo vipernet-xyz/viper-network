@@ -56,11 +56,14 @@ func handleMsgUpgrade(ctx sdk.Ctx, msg types.MsgUpgrade, k keeper.Keeper) sdk.Re
 	return k.HandleUpgrade(ctx, types.NewACLKey(ModuleName, string(types.UpgradeKey)), msg.Upgrade, msg.Address)
 }
 
-// HandleMsgGenerateDiscountKey processes MsgGenerateDiscountKey
 func handleMsgGenerateDiscountKey(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgGenerateDiscountKey) sdk.Result {
 	// Check if a discount key already exists for the given address
 	if k.HasDiscountKey(ctx, msg.ToAddress) {
-		return sdk.ErrInternal(fmt.Sprintf("Discount Key already exists for address %s", msg.ToAddress)).Result()
+		existingKey := k.GetDiscountKey(ctx, msg.ToAddress) // Fetch the existing discount key
+		ctx.Logger().Info(fmt.Sprintf("Discount Key already exists for address %s: %s", msg.ToAddress, existingKey))
+		return sdk.Result{
+			Events: ctx.EventManager().ABCIEvents(),
+		}
 	}
 
 	// Store the generated discount key in the state using the keeper
@@ -68,6 +71,8 @@ func handleMsgGenerateDiscountKey(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgGen
 	if err != nil {
 		return sdk.ErrInternal(fmt.Sprintf("Failed to set discount key: %s", err.Error())).Result()
 	}
+
+	ctx.Logger().Info(fmt.Sprintf("New Discount Key set for address %s: %s", msg.ToAddress, msg.DiscountKey))
 
 	return sdk.Result{
 		Events: ctx.EventManager().ABCIEvents(),

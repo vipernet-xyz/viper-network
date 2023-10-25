@@ -272,7 +272,7 @@ var governanceGenDiscountKey = &cobra.Command{
 		passphrase := app.Credentials(pwd)
 
 		// Generate and broadcast the discount key message
-		key, res, err := GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID, int64(fees), false)
+		res, err := GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID, int64(fees), false)
 		if err != nil {
 			return err
 		}
@@ -285,8 +285,7 @@ var governanceGenDiscountKey = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Println("Broadcast result:", resp)
-		fmt.Println("Generated Discount Key:", key)
+		fmt.Println(resp)
 		return nil
 	},
 }
