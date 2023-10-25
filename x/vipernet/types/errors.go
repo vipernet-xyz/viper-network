@@ -99,6 +99,7 @@ const (
 	CodeSampleNotHostedError               = 93
 	CodeInvalidSampleError                 = 94
 	CodeEmptyGeoZoneError                  = 95
+	CodeUnsupportedGeoZoneProviderError    = 96
 )
 
 var (
@@ -121,6 +122,7 @@ var (
 	EmptyPayloadDataError              = errors.New("the payload data of the relay request is empty")
 	UnsupportedBlockchainError         = errors.New("the blockchain in this request is not supported")
 	UnsupportedBlockchainProviderError = errors.New("the blockchain in the relay request is not supported for this provider")
+	UnsupportedGeoZoneProviderError    = errors.New("the geo-zone in the relay request is not supported for this provider")
 	UnsupportedBlockchainNodeError     = errors.New("the blockchain in the relay request is not supported on this servicer")
 	HttpStatusCodeError                = errors.New("HTTP status code returned not okay: ")
 	InvalidSessionError                = errors.New("this servicer (self) is not responsible for this session provided by the client")
@@ -484,6 +486,10 @@ func NewInvalidSessionError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewUnsupportedBlockchainProviderError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeUnsupportedBlockchainProviderError, UnsupportedBlockchainProviderError.Error())
+}
+
+func NewUnsupportedGeoZoneProviderError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeUnsupportedGeoZoneProviderError, UnsupportedGeoZoneProviderError.Error())
 }
 
 func NewEmptyProofsError(codespace sdk.CodespaceType) sdk.Error {

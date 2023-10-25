@@ -7,12 +7,13 @@ import (
 
 // ProviderI expected provider functions
 type ProviderI interface {
-	IsJailed() bool                 // whether the provider is jailed
-	GetStatus() sdk.StakeStatus     // status of the provider
-	IsStaked() bool                 // check if has a staked status
-	IsUnstaked() bool               // check if has status unstaked
-	IsUnstaking() bool              // check if has status unstaking
-	GetChains() []string            // retrieve the staked chains
+	IsJailed() bool             // whether the provider is jailed
+	GetStatus() sdk.StakeStatus // status of the provider
+	IsStaked() bool             // check if has a staked status
+	IsUnstaked() bool           // check if has status unstaked
+	IsUnstaking() bool          // check if has status unstaking
+	GetChains() []string        // retrieve the staked chains
+	GetGeoZones() []string
 	GetAddress() sdk.Address        // operator address to receive/return providers coins
 	GetPublicKey() crypto.PublicKey // validation consensus pubkey
 	GetTokens() sdk.BigInt          // validation tokens

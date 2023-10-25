@@ -83,6 +83,18 @@ func (s Session) Validate(servicer sdk.Address, provider providerexported.Provid
 	if !found {
 		return NewUnsupportedBlockchainProviderError(ModuleName)
 	}
+	// validate provider geozones
+	geoZones := provider.GetGeoZones()
+	found1 := false
+	for _, c := range geoZones {
+		if c == s.SessionHeader.GeoZone {
+			found1 = true
+			break
+		}
+	}
+	if !found1 {
+		return NewUnsupportedGeoZoneProviderError(ModuleName)
+	}
 	// validate sessionServicers
 	err := s.SessionServicers.Validate(sessionNodeCount)
 	if err != nil {
@@ -167,7 +179,7 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 		// Cross check the servicer from the `new` or `end` world state
 		servicer = keeper.Validator(ctx, n)
 		// If not found or jailed, don't add to session and continue
-		if servicer == nil || servicer.IsJailed() || !NodeHasChain(chain, servicer) || !NodeHasGeoZone(geoZone, servicer) || sessionServicers.Contains(servicer.GetAddress()) {
+		if servicer == nil || servicer.IsJailed() || servicer.IsPaused() || !NodeHasChain(chain, servicer) || !NodeHasGeoZone(geoZone, servicer) || sessionServicers.Contains(servicer.GetAddress()) {
 			continue
 		}
 		// Else add the servicer to the session
@@ -413,7 +425,7 @@ func NewSessionFishermen(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string
 		// Cross check the fisherman from the `new` or `end` world state
 		fisherman = keeper.Validator(ctx, n)
 		// If not found or jailed, don't add to session and continue
-		if fisherman == nil || fisherman.IsJailed() || !NodeHasChain(chain, fisherman) || !NodeHasGeoZone(geoZone, fisherman) || sessionFishermen.Contains(fisherman.GetAddress()) || FishermanInList(fisherman.GetAddress(), sessionFishermen) {
+		if fisherman == nil || fisherman.IsJailed() || fisherman.IsPaused() || !NodeHasChain(chain, fisherman) || !NodeHasGeoZone(geoZone, fisherman) || sessionFishermen.Contains(fisherman.GetAddress()) || FishermanInList(fisherman.GetAddress(), sessionFishermen) {
 			continue
 		}
 		// Else add the fisherman to the session
