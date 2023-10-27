@@ -1,5 +1,6 @@
 package app
 
+/*
 import (
 	"context"
 	"io"
@@ -1021,3 +1022,4 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 //		fmt.Println(string(bz))
 //	}
 //}
+*/

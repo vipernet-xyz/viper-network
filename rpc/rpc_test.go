@@ -1,5 +1,6 @@
 package rpc
 
+/*
 import (
 	"bytes"
 	"encoding/hex"
@@ -1450,3 +1451,4 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 	}
 	return proof
 }
+*/

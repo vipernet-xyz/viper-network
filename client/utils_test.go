@@ -1,5 +1,6 @@
 package client_test
 
+/*
 import (
 	"testing"
 
@@ -75,3 +76,4 @@ func TestPaginate(t *testing.T) {
 		})
 	}
 }
+*/

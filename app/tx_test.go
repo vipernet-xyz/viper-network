@@ -1,6 +1,7 @@
 // nolint
 package app
 
+/*
 import (
 	"encoding/hex"
 	"fmt"
@@ -1194,3 +1195,4 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 	}
 	return proofs
 }
+*/

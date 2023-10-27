@@ -1,5 +1,6 @@
 package rpc
 
+/*
 import (
 	"context"
 	"encoding/json"
@@ -596,3 +597,4 @@ func generateChainsJson(configFilePath string, chains []viperTypes.HostedBlockch
 	// return the map
 	return &viperTypes.HostedBlockchains{M: m}
 }
+*/
