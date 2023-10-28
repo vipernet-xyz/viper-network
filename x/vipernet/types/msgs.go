@@ -10,12 +10,13 @@ import (
 
 // RouterKey is the module name router key
 const (
-	RouterKey    = ModuleName // router name is module name
-	MsgClaimName = "claim"    // name for the claim message
-	MsgProofName = "proof"    // name for the proof message
+	RouterKey               = ModuleName // router name is module name
+	MsgClaimName            = "claim"    // name for the claim message
+	MsgProofName            = "proof"    // name for the proof message
+	MsgSubmitReportCardName = "submitReportCard"
 )
 
-// "GetFee" - Returns the fee (sdk.BigInt) of the messgae type
+// "GetFee" - Returns the fee (sdk.BigInt) of the message type
 func (msg MsgClaim) GetFee() sdk.BigInt {
 	return sdk.NewInt(ViperFeeMap[msg.Type()])
 }
@@ -206,4 +207,72 @@ func (msg MsgProof) GetRecipient() sdk.Address {
 
 func (msg MsgProof) GetLeaf() Proof {
 	return msg.Leaf
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// "MsgSubmitReportCard"
+
+// "GetFee" - Returns the fee (sdk.BigInt) of the message type
+func (msg MsgSubmitReportCard) GetFee() sdk.BigInt {
+	return sdk.NewInt(ViperFeeMap[msg.Type()])
+}
+
+// "Route" - Returns module router key
+func (msg MsgSubmitReportCard) Route() string { return RouterKey }
+
+// "Type" - Returns message name
+func (msg MsgSubmitReportCard) Type() string { return MsgClaimName }
+
+func (msg MsgSubmitReportCard) ValidateBasic() sdk.Error {
+	// Validate non-empty servicer address
+	if msg.ServicerAddress.Empty() {
+		return sdk.ErrInvalidAddress("Servicer address cannot be empty")
+	}
+
+	// Validate the report
+	report := msg.Report
+
+	// Ensure the block height is positive
+	if report.BlockHeight < 1 {
+		return sdk.ErrInvalidSequence("Block height must be positive")
+	}
+
+	// Ensure the LatencyScore, AvailabilityScore, and ReliabilityScore are within acceptable ranges
+	// You can adjust these checks based on your specific requirements
+	if report.LatencyScore.IsNegative() || report.AvailabilityScore.IsNegative() || report.ReliabilityScore.IsNegative() {
+		return sdk.ErrInternal("Scores cannot be negative")
+	}
+
+	// Validate SampleRoot
+	// Assuming the HashRange struct has a method to validate itself called IsValid()
+	if !report.SampleRoot.isValidRange() {
+		return sdk.ErrInternal("Invalid Sample Root")
+	}
+
+	// Ensure nonce is positive
+	if report.Nonce < 1 {
+		return sdk.ErrInvalidSequence("Nonce must be positive")
+	}
+
+	// Validate the signature is not empty (and potentially other signature checks if needed)
+	if report.Signature == "" {
+		return sdk.ErrUnauthorized("Missing signature")
+	}
+
+	return nil
+}
+
+// "GetSignBytes" - Encodes the message for signing
+func (msg MsgSubmitReportCard) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// "GetSigners" - Defines whose signature is required
+func (msg MsgSubmitReportCard) GetSigners() []sdk.Address {
+	return []sdk.Address{msg.FishermanAddress}
+}
+
+// "GetSigners" - Defines whose signature is required
+func (msg MsgSubmitReportCard) GetRecipient() sdk.Address {
+	return nil
 }

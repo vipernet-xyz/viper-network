@@ -23,8 +23,8 @@ message Session {
 
 	SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "header", (gogoproto.nullable) = false];
 	bytes sessionKey = 2 [(gogoproto.jsontag) = "key", (gogoproto.casttype) = "SessionKey"];
-	repeated bytes sessionServicers = 3 [(gogoproto.jsontag) = "servicers", (gogoproto.castrepeated) = "SessionServicers"];
-	repeated bytes sessionFishermen = 4 [(gogoproto.jsontag) = "fishermen", (gogoproto.castrepeated) = "SessionFishermen"];
+	//repeated bytes sessionServicers = 3 [(gogoproto.jsontag) = "servicers", (gogoproto.castrepeated) = "SessionServicers"];
+	//repeated bytes sessionFishermen = 4 [(gogoproto.jsontag) = "fishermen", (gogoproto.castrepeated) = "SessionFishermen"];
 }
 
 message MsgClaim {
@@ -63,7 +63,7 @@ message ProtoEvidence {
 	bytes bloomBytes = 1 [(gogoproto.jsontag) = "bloom_bytes"];
 	SessionHeader sessionHeader = 2 [(gogoproto.jsontag) = "evidence_header"];
 	int64 numOfProofs = 3 [(gogoproto.jsontag) = "num_of_proofs"];
-	repeated ProofI proofs = 4 [(gogoproto.jsontag) = "proofs", (gogoproto.castrepeated) = "ProofIs", (gogoproto.nullable) = false];
+	//repeated ProofI proofs = 4 [(gogoproto.jsontag) = "proofs", (gogoproto.castrepeated) = "ProofIs", (gogoproto.nullable) = false];
 	int32 evidenceType = 5 [(gogoproto.jsontag) = "evidence_type", (gogoproto.casttype) = "EvidenceType"];
 }
 
@@ -130,8 +130,7 @@ message TestResult {
     option (gogoproto.messagename) = true;
     option (gogoproto.goproto_getters) = false;
 
-    bytes servicerAddress = 1 [(gogoproto.jsontag) = "servicer_address", 
-                               (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
+    bytes servicerAddress = 1 [(gogoproto.jsontag) = "servicer_address", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
     google.protobuf.Timestamp timestamp = 2 [(gogoproto.jsontag) = "timestamp",
                                             (gogoproto.stdtime) = true,
                                             (gogoproto.nullable) = false];
@@ -154,10 +153,9 @@ message ProtoResult {
     option (gogoproto.goproto_getters) = false;
 
     SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "evidence_header", (gogoproto.nullable) = true];
-    bytes servicerAddr = 2 [(gogoproto.jsontag) = "servicer_addr", 
-                            (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
+    bytes servicerAddr = 2 [(gogoproto.jsontag) = "servicer_addr", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
     int64 numOfTestResults = 3 [(gogoproto.jsontag) = "num_of_test_results"];
-    repeated TestI testResults = 4 [(gogoproto.jsontag) = "test_results", (gogoproto.castrepeated) = "TestIs"];
+    //repeated TestI testResults = 4 [(gogoproto.jsontag) = "test_results", (gogoproto.castrepeated) = "TestIs"];
     int32 evidenceType = 5 [(gogoproto.jsontag) = "evidence_type", (gogoproto.casttype) = "EvidenceType"];
 }
 
@@ -169,17 +167,30 @@ message ViperQoSReport {
                                                        (gogoproto.stdtime) = true,
                                                        (gogoproto.nullable) = false];
     int64 BlockHeight = 2 [(gogoproto.jsontag) = "block_height"];
-    bytes LatencyScore = 3 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+	bytes servicer_address = 3 [(gogoproto.jsontag) = "servicer_addr", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
+    bytes LatencyScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
                              (gogoproto.jsontag) = "latency_score", 
                              (gogoproto.nullable) = false];
-    bytes AvailabilityScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+    bytes AvailabilityScore = 5 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
                                   (gogoproto.jsontag) = "availability_score", 
                                   (gogoproto.nullable) = false];
-	bytes ReliabilityScore = 5 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
+	bytes ReliabilityScore = 6 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
                                   (gogoproto.jsontag) = "reliability_score", 
                                   (gogoproto.nullable) = false];							  
-    HashRange SampleRoot = 6 [(gogoproto.jsontag) = "sample_root", 
+    HashRange SampleRoot = 7 [(gogoproto.jsontag) = "sample_root", 
                               (gogoproto.nullable) = false];
-    int64 Nonce = 7 [(gogoproto.jsontag) = "nonce"];
-    string Signature = 8 [(gogoproto.jsontag) = "signature"];
+    int64 Nonce = 8 [(gogoproto.jsontag) = "nonce"];
+    string Signature = 9 [(gogoproto.jsontag) = "signature"];
+}
+
+// MsgSubmitReportCard defines a message to submit a QoS report card.
+message MsgSubmitReportCard {
+    option (gogoproto.messagename) = true;
+    option (gogoproto.goproto_getters) = false;
+
+    SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "header", (gogoproto.nullable) = false];
+    bytes servicer_address = 2 [(gogoproto.jsontag) = "servicer_addr", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
+    bytes fisherman_address = 3 [(gogoproto.jsontag) = "fisherman_addr", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
+    ViperQoSReport report = 4 [(gogoproto.jsontag) = "report", (gogoproto.nullable) = false];
+    int64 expirationHeight = 5 [(gogoproto.jsontag) = "expiration_height"];
 }

@@ -768,14 +768,15 @@ func (m *ProtoResult) XXX_DiscardUnknown() {
 var xxx_messageInfo_ProtoResult proto.InternalMessageInfo
 
 type ViperQoSReport struct {
-	FirstSampleTimestamp time.Time                                          `protobuf:"bytes,1,opt,name=FirstSampleTimestamp,proto3,stdtime" json:"first_sample_timestamp"`
-	BlockHeight          int64                                              `protobuf:"varint,2,opt,name=BlockHeight,proto3" json:"block_height"`
-	LatencyScore         github_com_vipernet_xyz_viper_network_types.BigDec `protobuf:"bytes,3,opt,name=LatencyScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"latency_score"`
-	AvailabilityScore    github_com_vipernet_xyz_viper_network_types.BigDec `protobuf:"bytes,4,opt,name=AvailabilityScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"availability_score"`
-	ReliabilityScore     github_com_vipernet_xyz_viper_network_types.BigDec `protobuf:"bytes,5,opt,name=ReliabilityScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"reliability_score"`
-	SampleRoot           HashRange                                          `protobuf:"bytes,6,opt,name=SampleRoot,proto3" json:"sample_root"`
-	Nonce                int64                                              `protobuf:"varint,7,opt,name=Nonce,proto3" json:"nonce"`
-	Signature            string                                             `protobuf:"bytes,8,opt,name=Signature,proto3" json:"signature"`
+	FirstSampleTimestamp time.Time                                           `protobuf:"bytes,1,opt,name=FirstSampleTimestamp,proto3,stdtime" json:"first_sample_timestamp"`
+	BlockHeight          int64                                               `protobuf:"varint,2,opt,name=BlockHeight,proto3" json:"block_height"`
+	ServicerAddress      github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,3,opt,name=servicer_address,json=servicerAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"servicer_addr"`
+	LatencyScore         github_com_vipernet_xyz_viper_network_types.BigDec  `protobuf:"bytes,4,opt,name=LatencyScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"latency_score"`
+	AvailabilityScore    github_com_vipernet_xyz_viper_network_types.BigDec  `protobuf:"bytes,5,opt,name=AvailabilityScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"availability_score"`
+	ReliabilityScore     github_com_vipernet_xyz_viper_network_types.BigDec  `protobuf:"bytes,6,opt,name=ReliabilityScore,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigDec" json:"reliability_score"`
+	SampleRoot           HashRange                                           `protobuf:"bytes,7,opt,name=SampleRoot,proto3" json:"sample_root"`
+	Nonce                int64                                               `protobuf:"varint,8,opt,name=Nonce,proto3" json:"nonce"`
+	Signature            string                                              `protobuf:"bytes,9,opt,name=Signature,proto3" json:"signature"`
 }
 
 func (m *ViperQoSReport) Reset()      { *m = ViperQoSReport{} }
@@ -813,6 +814,51 @@ var xxx_messageInfo_ViperQoSReport proto.InternalMessageInfo
 func (*ViperQoSReport) XXX_MessageName() string {
 	return "x.vipernet.ViperQoSReport"
 }
+
+// MsgSubmitReportCard defines a message to submit a QoS report card.
+type MsgSubmitReportCard struct {
+	SessionHeader    SessionHeader                                       `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
+	ServicerAddress  github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,2,opt,name=servicer_address,json=servicerAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"servicer_addr"`
+	FishermanAddress github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,3,opt,name=fisherman_address,json=fishermanAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"fisherman_addr"`
+	Report           ViperQoSReport                                      `protobuf:"bytes,4,opt,name=report,proto3" json:"report"`
+}
+
+func (m *MsgSubmitReportCard) Reset()      { *m = MsgSubmitReportCard{} }
+func (*MsgSubmitReportCard) ProtoMessage() {}
+func (*MsgSubmitReportCard) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fa955d7377574a13, []int{17}
+}
+func (m *MsgSubmitReportCard) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSubmitReportCard) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSubmitReportCard.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSubmitReportCard) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSubmitReportCard.Merge(m, src)
+}
+func (m *MsgSubmitReportCard) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSubmitReportCard) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSubmitReportCard.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSubmitReportCard proto.InternalMessageInfo
+
+func (*MsgSubmitReportCard) XXX_MessageName() string {
+	return "x.vipernet.MsgSubmitReportCard"
+}
+
 func init() {
 	proto.RegisterType((*SessionHeader)(nil), "x.vipernet.SessionHeader")
 	proto.RegisterType((*Session)(nil), "x.vipernet.Session")
@@ -831,6 +877,7 @@ func init() {
 	proto.RegisterType((*TestI)(nil), "x.vipernet.TestI")
 	proto.RegisterType((*ProtoResult)(nil), "x.vipernet.ProtoResult")
 	proto.RegisterType((*ViperQoSReport)(nil), "x.vipernet.ViperQoSReport")
+	proto.RegisterType((*MsgSubmitReportCard)(nil), "x.vipernet.MsgSubmitReportCard")
 }
 
 func init() { proto.RegisterFile("vipernet.proto", fileDescriptor_fa955d7377574a13) }
@@ -1562,6 +1609,9 @@ func (this *ViperQoSReport) Equal(that interface{}) bool {
 	if this.BlockHeight != that1.BlockHeight {
 		return false
 	}
+	if !bytes.Equal(this.ServicerAddress, that1.ServicerAddress) {
+		return false
+	}
 	if !this.LatencyScore.Equal(that1.LatencyScore) {
 		return false
 	}
@@ -1578,6 +1628,39 @@ func (this *ViperQoSReport) Equal(that interface{}) bool {
 		return false
 	}
 	if this.Signature != that1.Signature {
+		return false
+	}
+	return true
+}
+func (this *MsgSubmitReportCard) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*MsgSubmitReportCard)
+	if !ok {
+		that2, ok := that.(MsgSubmitReportCard)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.SessionHeader.Equal(&that1.SessionHeader) {
+		return false
+	}
+	if !bytes.Equal(this.ServicerAddress, that1.ServicerAddress) {
+		return false
+	}
+	if !bytes.Equal(this.FishermanAddress, that1.FishermanAddress) {
+		return false
+	}
+	if !this.Report.Equal(&that1.Report) {
 		return false
 	}
 	return true
@@ -1843,16 +1926,30 @@ func (this *ViperQoSReport) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 12)
+	s := make([]string, 0, 13)
 	s = append(s, "&types.ViperQoSReport{")
 	s = append(s, "FirstSampleTimestamp: "+fmt.Sprintf("%#v", this.FirstSampleTimestamp)+",\n")
 	s = append(s, "BlockHeight: "+fmt.Sprintf("%#v", this.BlockHeight)+",\n")
+	s = append(s, "ServicerAddress: "+fmt.Sprintf("%#v", this.ServicerAddress)+",\n")
 	s = append(s, "LatencyScore: "+fmt.Sprintf("%#v", this.LatencyScore)+",\n")
 	s = append(s, "AvailabilityScore: "+fmt.Sprintf("%#v", this.AvailabilityScore)+",\n")
 	s = append(s, "ReliabilityScore: "+fmt.Sprintf("%#v", this.ReliabilityScore)+",\n")
 	s = append(s, "SampleRoot: "+strings.Replace(this.SampleRoot.GoString(), `&`, ``, 1)+",\n")
 	s = append(s, "Nonce: "+fmt.Sprintf("%#v", this.Nonce)+",\n")
 	s = append(s, "Signature: "+fmt.Sprintf("%#v", this.Signature)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *MsgSubmitReportCard) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 9)
+	s = append(s, "&types.MsgSubmitReportCard{")
+	s = append(s, "SessionHeader: "+strings.Replace(this.SessionHeader.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "ServicerAddress: "+fmt.Sprintf("%#v", this.ServicerAddress)+",\n")
+	s = append(s, "FishermanAddress: "+fmt.Sprintf("%#v", this.FishermanAddress)+",\n")
+	s = append(s, "Report: "+strings.Replace(this.Report.GoString(), `&`, ``, 1)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -2799,12 +2896,12 @@ func (m *ViperQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Signature)
 		i = encodeVarintVipernet(dAtA, i, uint64(len(m.Signature)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x4a
 	}
 	if m.Nonce != 0 {
 		i = encodeVarintVipernet(dAtA, i, uint64(m.Nonce))
 		i--
-		dAtA[i] = 0x38
+		dAtA[i] = 0x40
 	}
 	{
 		size, err := m.SampleRoot.MarshalToSizedBuffer(dAtA[:i])
@@ -2815,7 +2912,7 @@ func (m *ViperQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintVipernet(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x32
+	dAtA[i] = 0x3a
 	{
 		size := m.ReliabilityScore.Size()
 		i -= size
@@ -2825,7 +2922,7 @@ func (m *ViperQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintVipernet(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x2a
+	dAtA[i] = 0x32
 	{
 		size := m.AvailabilityScore.Size()
 		i -= size
@@ -2835,7 +2932,7 @@ func (m *ViperQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintVipernet(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x22
+	dAtA[i] = 0x2a
 	{
 		size := m.LatencyScore.Size()
 		i -= size
@@ -2845,7 +2942,14 @@ func (m *ViperQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintVipernet(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x1a
+	dAtA[i] = 0x22
+	if len(m.ServicerAddress) > 0 {
+		i -= len(m.ServicerAddress)
+		copy(dAtA[i:], m.ServicerAddress)
+		i = encodeVarintVipernet(dAtA, i, uint64(len(m.ServicerAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
 	if m.BlockHeight != 0 {
 		i = encodeVarintVipernet(dAtA, i, uint64(m.BlockHeight))
 		i--
@@ -2857,6 +2961,63 @@ func (m *ViperQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i -= n19
 	i = encodeVarintVipernet(dAtA, i, uint64(n19))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgSubmitReportCard) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSubmitReportCard) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSubmitReportCard) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Report.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintVipernet(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if len(m.FishermanAddress) > 0 {
+		i -= len(m.FishermanAddress)
+		copy(dAtA[i:], m.FishermanAddress)
+		i = encodeVarintVipernet(dAtA, i, uint64(len(m.FishermanAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ServicerAddress) > 0 {
+		i -= len(m.ServicerAddress)
+		copy(dAtA[i:], m.ServicerAddress)
+		i = encodeVarintVipernet(dAtA, i, uint64(len(m.ServicerAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	{
+		size, err := m.SessionHeader.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintVipernet(dAtA, i, uint64(size))
+	}
 	i--
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
@@ -3276,6 +3437,10 @@ func (m *ViperQoSReport) Size() (n int) {
 	if m.BlockHeight != 0 {
 		n += 1 + sovVipernet(uint64(m.BlockHeight))
 	}
+	l = len(m.ServicerAddress)
+	if l > 0 {
+		n += 1 + l + sovVipernet(uint64(l))
+	}
 	l = m.LatencyScore.Size()
 	n += 1 + l + sovVipernet(uint64(l))
 	l = m.AvailabilityScore.Size()
@@ -3291,6 +3456,28 @@ func (m *ViperQoSReport) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovVipernet(uint64(l))
 	}
+	return n
+}
+
+
+func (m *MsgSubmitReportCard) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.SessionHeader.Size()
+	n += 1 + l + sovVipernet(uint64(l))
+	l = len(m.ServicerAddress)
+	if l > 0 {
+		n += 1 + l + sovVipernet(uint64(l))
+	}
+	l = len(m.FishermanAddress)
+	if l > 0 {
+		n += 1 + l + sovVipernet(uint64(l))
+	}
+	l = m.Report.Size()
+	n += 1 + l + sovVipernet(uint64(l))
 	return n
 }
 
@@ -3562,12 +3749,26 @@ func (this *ViperQoSReport) String() string {
 	s := strings.Join([]string{`&ViperQoSReport{`,
 		`FirstSampleTimestamp:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.FirstSampleTimestamp), "Timestamp", "timestamppb.Timestamp", 1), `&`, ``, 1) + `,`,
 		`BlockHeight:` + fmt.Sprintf("%v", this.BlockHeight) + `,`,
+		`ServicerAddress:` + fmt.Sprintf("%v", this.ServicerAddress) + `,`,
 		`LatencyScore:` + fmt.Sprintf("%v", this.LatencyScore) + `,`,
 		`AvailabilityScore:` + fmt.Sprintf("%v", this.AvailabilityScore) + `,`,
 		`ReliabilityScore:` + fmt.Sprintf("%v", this.ReliabilityScore) + `,`,
 		`SampleRoot:` + strings.Replace(strings.Replace(this.SampleRoot.String(), "HashRange", "HashRange", 1), `&`, ``, 1) + `,`,
 		`Nonce:` + fmt.Sprintf("%v", this.Nonce) + `,`,
 		`Signature:` + fmt.Sprintf("%v", this.Signature) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *MsgSubmitReportCard) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&MsgSubmitReportCard{`,
+		`SessionHeader:` + strings.Replace(strings.Replace(this.SessionHeader.String(), "SessionHeader", "SessionHeader", 1), `&`, ``, 1) + `,`,
+		`ServicerAddress:` + fmt.Sprintf("%v", this.ServicerAddress) + `,`,
+		`FishermanAddress:` + fmt.Sprintf("%v", this.FishermanAddress) + `,`,
+		`Report:` + strings.Replace(strings.Replace(this.Report.String(), "ViperQoSReport", "ViperQoSReport", 1), `&`, ``, 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -6266,6 +6467,40 @@ func (m *ViperQoSReport) Unmarshal(dAtA []byte) error {
 			}
 		case 3:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ServicerAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ServicerAddress = append(m.ServicerAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.ServicerAddress == nil {
+				m.ServicerAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field LatencyScore", wireType)
 			}
 			var byteLen int
@@ -6297,7 +6532,7 @@ func (m *ViperQoSReport) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 4:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AvailabilityScore", wireType)
 			}
@@ -6330,7 +6565,7 @@ func (m *ViperQoSReport) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 5:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ReliabilityScore", wireType)
 			}
@@ -6363,7 +6598,7 @@ func (m *ViperQoSReport) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 6:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SampleRoot", wireType)
 			}
@@ -6396,7 +6631,7 @@ func (m *ViperQoSReport) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 7:
+		case 8:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
 			}
@@ -6415,7 +6650,7 @@ func (m *ViperQoSReport) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 8:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
 			}
@@ -6545,6 +6780,191 @@ func skipVipernet(dAtA []byte) (n int, err error) {
 		}
 	}
 	return 0, io.ErrUnexpectedEOF
+}
+
+func (m *MsgSubmitReportCard) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowVipernet
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSubmitReportCard: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSubmitReportCard: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SessionHeader", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.SessionHeader.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ServicerAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ServicerAddress = append(m.ServicerAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.ServicerAddress == nil {
+				m.ServicerAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FishermanAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FishermanAddress = append(m.FishermanAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.FishermanAddress == nil {
+				m.FishermanAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Report", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Report.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipVipernet(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 
 var (

@@ -33,7 +33,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterStructure(servicersTypes.Validator{}, "pos/Validator") // todo does this really need to depend on servicers/types
 	cdc.RegisterInterface("x.vipernet.Proof", (*Proof)(nil), &RelayProof{}, &ChallengeProofInvalidData{})
 	cdc.RegisterInterface("types.isProofI_Proof", (*isProofI_Proof)(nil))
-	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgClaim{}, &MsgProof{})
+	cdc.RegisterImplementation((*sdk.ProtoMsg)(nil), &MsgClaim{}, &MsgProof{}, &MsgSubmitReportCard{})
 	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgClaim{}, &MsgProof{})
+	cdc.RegisterImplementation((*sdk.Msg)(nil), &MsgSubmitReportCard{})
 	ModuleCdc = cdc
 }

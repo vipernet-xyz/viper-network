@@ -149,7 +149,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 						}
 
 						// Send the QoS to the servicer.
-						k.sendQoSToServicer(ctx, servicer, qos)
+						k.SendReportCardTx(ctx, k, k.TmNode, fisherman, qos.ServicerAddress, sessionHeader, resultForMerkle.EvidenceType, *qos, vc.SendReportCardTx)
 					}
 
 					return

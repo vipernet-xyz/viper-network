@@ -482,7 +482,7 @@ func (tr TestResult) Store(sessionHeader SessionHeader, testStore *CacheStorage)
 }
 
 func SetTestResult(header SessionHeader, evidenceType EvidenceType, tr TestResult, servicerAddr sdk.Address, testStore *CacheStorage) {
-	test, err := GetTestResult(header, evidenceType, servicerAddr, testStore)
+	test, err := GetResult(header, evidenceType, servicerAddr, testStore)
 	if err != nil {
 		log.Fatalf("could not set test result object: %s", err.Error())
 	}

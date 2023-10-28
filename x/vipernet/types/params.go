@@ -18,6 +18,7 @@ const (
 	DefaultMinimumNumberOfProofs      = int64(1000)    // default minimum number of proofs
 	DefaultBlockByteSize              = int64(8000000) // default block size in bytes
 	DefaultMinimumSampleRelays        = int64(100)
+	DefaultReportCardSubmissionWindow = int64(2)
 )
 
 var (
@@ -30,6 +31,7 @@ var (
 	KeyBlockByteSize              = []byte("BlockByteSize")
 	KeySupportedGeoZones          = []byte("SupportedGeoZones")
 	KeyMinimumSampleRelays        = []byte("MinimumSampleRelays")
+	KeyReportCardSubmissionWindow = []byte("ReportCardSubmissionWindow")
 )
 
 var _ types.ParamSet = (*Params)(nil)
@@ -44,6 +46,7 @@ type Params struct {
 	BlockByteSize              int64    `json:"block_byte_size,omitempty"`
 	SupportedGeoZones          []string `json:"supported_geo_zones"`
 	MinimumSampleRelays        int64    `json:"minimum_sample_relays"`
+	ReportCardSubmissionWindow int64    `json:"report_card_submission_window"`
 }
 
 // "ParamSetPairs" - returns an kv params object
@@ -58,6 +61,7 @@ func (p *Params) ParamSetPairs() types.ParamSetPairs {
 		{Key: KeyBlockByteSize, Value: p.BlockByteSize},
 		{Key: KeySupportedGeoZones, Value: p.SupportedGeoZones},
 		{Key: KeyMinimumSampleRelays, Value: p.MinimumSampleRelays},
+		{Key: KeyReportCardSubmissionWindow, Value: p.ReportCardSubmissionWindow},
 	}
 }
 
@@ -71,6 +75,7 @@ func DefaultParams() Params {
 		MinimumNumberOfProofs:      DefaultMinimumNumberOfProofs,
 		MinimumSampleRelays:        DefaultMinimumSampleRelays,
 		BlockByteSize:              DefaultBlockByteSize,
+		ReportCardSubmissionWindow: DefaultReportCardSubmissionWindow,
 	}
 }
 
@@ -103,6 +108,9 @@ func (p Params) Validate() error {
 	if p.ClaimExpiration < p.ClaimSubmissionWindow {
 		return errors.New("unverified Proof expiration is far too short, must be greater than Proof waiting period")
 	}
+	if p.ReportCardSubmissionWindow < 1 {
+		return errors.New("report card submission window cannot be less than one session")
+	}
 	return nil
 }
 
@@ -121,6 +129,7 @@ func (p Params) String() string {
   BlockByteSize              %d
   Supported GeoZones         %v
   MinimumSampleRelays        %d
+  ReportCardSubmissionWindow %d
 `,
 		p.ClaimSubmissionWindow,
 		p.SupportedBlockchains,
@@ -128,5 +137,6 @@ func (p Params) String() string {
 		p.ReplayAttackBurnMultiplier,
 		p.BlockByteSize,
 		p.SupportedGeoZones,
-		p.MinimumSampleRelays)
+		p.MinimumSampleRelays,
+		p.ReportCardSubmissionWindow)
 }

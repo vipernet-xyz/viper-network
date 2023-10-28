@@ -387,6 +387,18 @@ func SealEvidence(evidence Evidence, storage *CacheStorage) (Evidence, bool) {
 	return e, ok
 }
 
+func DeleteResult(header SessionHeader, evidenceType EvidenceType, testStore *CacheStorage) error {
+	// generate key for GOBEvidence
+	key, err := KeyForEvidence(header, evidenceType)
+	if err != nil {
+		return err
+	}
+	// delete from cache
+	testStore.Delete(key)
+	testStore.SealMap.Delete(header.HashString())
+	return nil
+}
+
 // "SealEvidence" - Locks/sets the evidence from the stores
 func SealResult(result Result, storage *CacheStorage) (Result, bool) {
 	co, ok := storage.Seal(result)
@@ -457,7 +469,7 @@ func EvidenceIterator(evidenceStore *CacheStorage) EvidenceIt {
 	}
 }
 
-func TestResultIterator(testStore *CacheStorage) TestResultIt {
+func ResultIterator(testStore *CacheStorage) TestResultIt {
 	it, _ := testStore.Iterator()
 	return TestResultIt{
 		Iterator: it,
@@ -508,7 +520,7 @@ func IsUniqueProof(p Proof, evidence Evidence) bool {
 	return !evidence.Bloom.Test(p.Hash())
 }
 
-func GetTestResult(header SessionHeader, evidenceType EvidenceType, servicerAddr sdk.Address, storage *CacheStorage) (result Result, err error) {
+func GetResult(header SessionHeader, evidenceType EvidenceType, servicerAddr sdk.Address, storage *CacheStorage) (result Result, err error) {
 	key, err := KeyForTestResult(header, evidenceType, servicerAddr)
 	if err != nil {
 		return

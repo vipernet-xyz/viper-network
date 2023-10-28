@@ -28,6 +28,8 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 		// handle legacy proof message
 		case types.MsgProof:
 			return handleProofMsg(ctx, keeper, msg)
+		case types.MsgSubmitReportCard:
+			return handleSubmitReportCardMsg(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized vipernet ProtoMsg type: %v", msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -115,4 +117,29 @@ func processSelf(ctx sdk.Ctx, signer sdk.Address, header types.SessionHeader, ev
 			types.GlobalServiceMetric().AdduviprEarnedFor(header.Chain, float64(tokens.Int64()), &signer)
 		}
 	}
+}
+
+// "handleSubmitReportCardMsg" - General handler for the MsgSubmitReportCard message
+func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmitReportCard) sdk.Result {
+	defer sdk.TimeTrack(time.Now())
+
+	// validate the report card submission message
+	if err := msg.ValidateBasic(); err != nil {
+		return err.Result()
+	}
+
+	err := k.SetReportCard(ctx, msg)
+	if err != nil {
+		return sdk.ErrInternal(err.Error()).Result()
+	}
+
+	// create the event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeSubmitReportCard,
+			sdk.NewAttribute(types.AttributeKeyValidator, msg.ServicerAddress.String()),
+		),
+	})
+
+	return sdk.Result{Events: ctx.EventManager().Events()}
 }

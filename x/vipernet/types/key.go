@@ -12,13 +12,14 @@ const (
 )
 
 var (
-	ClaimLen = len(ClaimKey)
-	ClaimKey = []byte{0x02} // key for pending claims
+	ClaimLen      = len(ClaimKey)
+	ClaimKey      = []byte{0x02} // key for pending claims
+	ReportCardKey = []byte{0x03}
 )
 
 // "KeyForClaim" - Generates the key for the claim object for the state store
 func KeyForClaim(ctx sdk.Ctx, addr sdk.Address, header SessionHeader, evidenceType EvidenceType) ([]byte, error) {
-	// validat the header
+	// validate the header
 	if err := header.ValidateHeader(); err != nil {
 		return nil, err
 	}
@@ -72,4 +73,37 @@ func KeyForTestResult(header SessionHeader, evidenceType EvidenceType, servicerA
 	}
 	combined := append(header.Hash(), servicerAddr.Bytes()...)
 	return append(combined, et), nil
+}
+
+// "KeyForReportCard" - Generates the key for the ViperQoSReport object for the state store
+func KeyForReportCard(ctx sdk.Ctx, servicerAddress sdk.Address, fishermanAddress sdk.Address, header SessionHeader) ([]byte, error) {
+	// Validate the servicer's address
+	if err := AddressVerification(servicerAddress.String()); err != nil {
+		return nil, err
+	}
+
+	// Validate the fisherman's address
+	if err := AddressVerification(fishermanAddress.String()); err != nil {
+		return nil, err
+	}
+
+	// Validate the header
+	if err := header.ValidateHeader(); err != nil {
+		return nil, err
+	}
+
+	// Construct the key by appending servicer's address, fisherman's address, and header's hash.
+	return append(append(append(ReportCardKey, servicerAddress.Bytes()...), fishermanAddress.Bytes()...), header.Hash()...), nil
+}
+
+func KeyForReportCards(servicerAddress sdk.Address, fishermanAddress sdk.Address) ([]byte, error) {
+	// verify the address
+	if err := AddressVerification(servicerAddress.String()); err != nil {
+		return nil, err
+	}
+	if err := AddressVerification(fishermanAddress.String()); err != nil {
+		return nil, err
+	}
+	// return the key bz
+	return append(append(ReportCardKey, servicerAddress.Bytes()...), fishermanAddress.Bytes()...), nil
 }

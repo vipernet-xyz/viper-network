@@ -261,6 +261,7 @@ func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*Viper
 	report := &ViperQoSReport{
 		FirstSampleTimestamp: firstSampleTimestamp,
 		BlockHeight:          blockHeight,
+		ServicerAddress:      result.ServicerAddress,
 		LatencyScore:         latencyScore,
 		AvailabilityScore:    scaledAvailabilityScore,
 		ReliabilityScore:     reliabilityScore,
