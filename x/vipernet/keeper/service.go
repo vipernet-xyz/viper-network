@@ -14,7 +14,7 @@ import (
 func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk.Error) {
 	relayTimeStart := time.Now()
 	// get the latest session block height because this relay will correspond with the latest session
-	sessionBlockHeight := k.GetLatestSessionBlockHeight(ctx)
+	sessionBlockHeight := relay.Proof.SessionBlockHeight
 
 	if !k.IsProofSessionHeightWithinTolerance(ctx, sessionBlockHeight) {
 		// For legacy support, we are intentionally returning the invalid block height error.
@@ -40,7 +40,6 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 		node = vc.GetViperNode()
 		nodeAddress = node.GetAddress()
 	}
-
 	// retrieve the nonNative blockchains your node is hosting
 	hostedBlockchains := k.GetHostedBlockchains()
 	// ensure the validity of the relay

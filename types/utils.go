@@ -26,6 +26,7 @@ var (
 
 func init() {
 	VbCCache = NewCache(1200)
+	VbGZCache = NewCache(1200)
 	ShowTimeTrackData = false
 }
 

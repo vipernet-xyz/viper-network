@@ -9,6 +9,7 @@ var (
 	_ sdk.ProtoMsg = &MsgChangeParam{}
 	_ sdk.ProtoMsg = &MsgDAOTransfer{}
 	_ sdk.ProtoMsg = &MsgUpgrade{}
+	_ sdk.ProtoMsg = &MsgGenerateDiscountKey{}
 )
 
 const (

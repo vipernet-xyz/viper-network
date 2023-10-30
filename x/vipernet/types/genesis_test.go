@@ -11,10 +11,11 @@ import (
 )
 
 func TestValidateGenesis(t *testing.T) {
-	providerPubKeyClaim := getRandomPubKey().RawString()
+	appPubKeyClaim := getRandomPubKey().RawString()
 	pk := getRandomPubKey()
 	servicerAddr := pk.Address()
 	nn := hex.EncodeToString([]byte{01})
+	gz := hex.EncodeToString([]byte{01})
 	rootHash := Hash([]byte("fakeRoot"))
 	root := HashRange{
 		Hash:  rootHash,
@@ -22,14 +23,17 @@ func TestValidateGenesis(t *testing.T) {
 	}
 	invalidParams := GenesisState{
 		Params: Params{
-			ClaimSubmissionWindow: 0,
-			SupportedBlockchains:  nil,
-			ClaimExpiration:       0,
+			ClaimSubmissionWindow:      0,
+			SupportedBlockchains:       nil,
+			ClaimExpiration:            0,
+			ReportCardSubmissionWindow: 0,
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				ProviderPubKey:     providerPubKeyClaim,
+				ProviderPubKey:     appPubKeyClaim,
 				Chain:              nn,
+				GeoZone:            gz,
+				NumServicers:       5,
 				SessionBlockHeight: 1,
 			},
 			MerkleRoot:   root,
@@ -40,14 +44,17 @@ func TestValidateGenesis(t *testing.T) {
 	}
 	invalidClaims := GenesisState{
 		Params: Params{
-			ClaimSubmissionWindow: 5,
-			SupportedBlockchains:  []string{nn},
-			ClaimExpiration:       50,
+			ClaimSubmissionWindow:      5,
+			SupportedBlockchains:       []string{nn},
+			ClaimExpiration:            50,
+			ReportCardSubmissionWindow: 3,
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				ProviderPubKey:     providerPubKeyClaim,
+				ProviderPubKey:     appPubKeyClaim,
 				Chain:              nn,
+				GeoZone:            gz,
+				NumServicers:       5,
 				SessionBlockHeight: 1,
 			},
 			MerkleRoot:   root,
@@ -58,14 +65,17 @@ func TestValidateGenesis(t *testing.T) {
 	}
 	validGenesisState := GenesisState{
 		Params: Params{
-			ClaimSubmissionWindow: 5,
-			SupportedBlockchains:  []string{nn},
-			ClaimExpiration:       50,
+			ClaimSubmissionWindow:      5,
+			SupportedBlockchains:       []string{nn},
+			ClaimExpiration:            50,
+			ReportCardSubmissionWindow: 3,
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				ProviderPubKey:     providerPubKeyClaim,
+				ProviderPubKey:     appPubKeyClaim,
 				Chain:              nn,
+				GeoZone:            gz,
+				NumServicers:       5,
 				SessionBlockHeight: 1,
 			},
 			MerkleRoot:   root,
@@ -103,7 +113,7 @@ func TestValidateGenesis(t *testing.T) {
 }
 
 func TestDefaultGenesisState(t *testing.T) {
-	providerPubKeyClaim := getRandomPubKey().RawString()
+	appPubKeyClaim := getRandomPubKey().RawString()
 	pk := getRandomPubKey()
 	servicerAddr := pk.Address()
 	nn := hex.EncodeToString([]byte{01})
@@ -120,7 +130,7 @@ func TestDefaultGenesisState(t *testing.T) {
 		},
 		Claims: []MsgClaim{{
 			SessionHeader: SessionHeader{
-				ProviderPubKey:     providerPubKeyClaim,
+				ProviderPubKey:     appPubKeyClaim,
 				Chain:              nn,
 				SessionBlockHeight: 1,
 			},
@@ -135,6 +145,10 @@ func TestDefaultGenesisState(t *testing.T) {
 		ClaimExpiration:            DefaultClaimExpiration,
 		ReplayAttackBurnMultiplier: DefaultReplayAttackBurnMultiplier,
 		MinimumNumberOfProofs:      DefaultMinimumNumberOfProofs,
+		BlockByteSize:              DefaultBlockByteSize,
+		SupportedGeoZones:          nil,
+		MinimumSampleRelays:        DefaultMinimumSampleRelays,
+		ReportCardSubmissionWindow: DefaultReportCardSubmissionWindow,
 	}}
 	tests := []struct {
 		name         string

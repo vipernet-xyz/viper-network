@@ -14,6 +14,7 @@ import (
 // GlobalEvidenceCache & GlobalSessionCache is used for the first viper node and acts as backwards-compatibility for pre-lean viper
 var GlobalEvidenceCache *CacheStorage
 var GlobalSessionCache *CacheStorage
+var GlobalTestCache *CacheStorage
 
 var GlobalViperNodes = map[string]*ViperNode{}
 
@@ -56,21 +57,26 @@ func AddViperNodeByFilePVKey(fpvKey privval.FilePVKey, logger log.Logger) {
 func InitViperNodeCache(node *ViperNode, c types.Config, logger log.Logger) {
 	node.DoCacheInitOnce.Do(func() {
 		evidenceDbName := c.ViperConfig.EvidenceDBName
+		resultDbName := c.ViperConfig.ResultDBName
 		address := node.GetAddress().String()
 		// In LeanViper, we create a evidence store on disk with suffix of the node's address
 		if c.ViperConfig.LeanViper {
 			evidenceDbName = evidenceDbName + "_" + address
+			resultDbName = resultDbName + "_" + address
 		}
-		logger.Info("Initializing " + address + " session and evidence cache")
+		logger.Info("Initializing " + address + " session, evidence and test cache")
 		node.EvidenceStore = &CacheStorage{}
 		node.SessionStore = &CacheStorage{}
+		node.TestStore = &CacheStorage{}
 		node.EvidenceStore.Init(c.ViperConfig.DataDir, evidenceDbName, c.TendermintConfig.LevelDBOptions, c.ViperConfig.MaxEvidenceCacheEntires, false)
 		node.SessionStore.Init(c.ViperConfig.DataDir, "", c.TendermintConfig.LevelDBOptions, c.ViperConfig.MaxSessionCacheEntries, true)
+		node.TestStore.Init(c.ViperConfig.DataDir, resultDbName, c.TendermintConfig.LevelDBOptions, c.ViperConfig.MaxResultCacheEntires, false)
 
 		// Set the GOBSession and GOBEvidence Global for backwards compatibility for pre-LeanViper
 		if GlobalSessionCache == nil {
 			GlobalSessionCache = node.SessionStore
 			GlobalEvidenceCache = node.EvidenceStore
+			GlobalTestCache = node.TestStore
 		}
 	})
 }
@@ -97,7 +103,7 @@ func CleanViperNodes() {
 		if n == nil {
 			continue
 		}
-		cacheToClean := []*CacheStorage{n.EvidenceStore, n.SessionStore}
+		cacheToClean := []*CacheStorage{n.EvidenceStore, n.SessionStore, n.TestStore}
 		for _, r := range cacheToClean {
 			if r == nil {
 				continue
@@ -110,6 +116,7 @@ func CleanViperNodes() {
 		}
 		GlobalEvidenceCache = nil
 		GlobalSessionCache = nil
+		GlobalTestCache = nil
 		GlobalViperNodes = map[string]*ViperNode{}
 	}
 }

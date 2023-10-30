@@ -593,6 +593,7 @@ func TestMsgStake_ValidateBasic(t *testing.T) {
 		Address    sdk.Address
 		PubKey     crypto.PublicKey
 		Chains     []string
+		GeoZone    []string
 		Value      sdk.BigInt
 		ServiceURL string
 		Output     sdk.Address
@@ -610,6 +611,7 @@ func TestMsgStake_ValidateBasic(t *testing.T) {
 	}
 	outputAddr := sdk.Address(pub2.Address())
 	chains := []string{"0001"}
+	geozone := []string{"0001"}
 	value := sdk.OneInt()
 	surl := "https://www.google.com:443"
 
@@ -621,6 +623,7 @@ func TestMsgStake_ValidateBasic(t *testing.T) {
 		{"Test Validate Basic ok", fields{
 			PubKey:     pub,
 			Chains:     chains,
+			GeoZone:    geozone,
 			Value:      value,
 			ServiceURL: surl,
 			Output:     outputAddr,
@@ -628,6 +631,7 @@ func TestMsgStake_ValidateBasic(t *testing.T) {
 		{"Test Validate Basic bad value", fields{
 			PubKey:     pub,
 			Chains:     chains,
+			GeoZone:    geozone,
 			Value:      sdk.NewInt(-1),
 			ServiceURL: surl,
 			Output:     outputAddr,
@@ -635,6 +639,7 @@ func TestMsgStake_ValidateBasic(t *testing.T) {
 		{"Test Validate Basic bad Chains", fields{
 			PubKey:     pub,
 			Chains:     []string{},
+			GeoZone:    []string{},
 			Value:      value,
 			ServiceURL: surl,
 			Output:     outputAddr,
@@ -642,6 +647,7 @@ func TestMsgStake_ValidateBasic(t *testing.T) {
 		{"Test Validate Basic bad chain in Chains", fields{
 			PubKey:     pub,
 			Chains:     []string{""},
+			GeoZone:    []string{""},
 			Value:      value,
 			ServiceURL: surl,
 			Output:     outputAddr,
@@ -652,6 +658,7 @@ func TestMsgStake_ValidateBasic(t *testing.T) {
 			msg := MsgStake{
 				PublicKey:  tt.fields.PubKey,
 				Chains:     tt.fields.Chains,
+				GeoZone:    tt.fields.GeoZone,
 				Value:      tt.fields.Value,
 				ServiceUrl: tt.fields.ServiceURL,
 				Output:     tt.fields.Output,

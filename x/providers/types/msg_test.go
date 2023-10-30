@@ -32,9 +32,11 @@ func init() {
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 
 	msgProviderStake = MsgStake{
-		PubKey: pub,
-		Chains: []string{"0001"},
-		Value:  sdk.NewInt(10),
+		PubKey:       pub,
+		Chains:       []string{"0001"},
+		GeoZones:     []string{"0001"},
+		NumServicers: 10,
+		Value:        sdk.NewInt(10),
 	}
 	msgProviderUnjail = MsgUnjail{sdk.Address(pub.Address())}
 	msgBeginProviderUnstake = MsgBeginUnstake{sdk.Address(pub.Address())}
@@ -163,8 +165,13 @@ func TestMsgProvider_ValidateBasic(t *testing.T) {
 			want: ErrNoChains(DefaultCodespace),
 		},
 		{
+			name: "errs if no native geozone supported",
+			args: args{MsgStake{PubKey: msgProviderStake.PubKey, Value: sdk.NewInt(1), Chains: []string{}, GeoZones: []string{}}},
+			want: ErrNoChains(DefaultCodespace),
+		},
+		{
 			name: "returns err",
-			args: args{MsgStake{PubKey: msgProviderStake.PubKey, Value: msgProviderStake.Value, Chains: []string{"aaaaaa"}}},
+			args: args{MsgStake{PubKey: msgProviderStake.PubKey, Value: msgProviderStake.Value, Chains: []string{"aaaaaa"}, GeoZones: []string{"aaaaaa"}}},
 			want: ErrInvalidNetworkIdentifier("provider", fmt.Errorf("net id length is > 2")),
 		},
 		{
@@ -174,11 +181,15 @@ func TestMsgProvider_ValidateBasic(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.args.msgProviderStake.ValidateBasic(); got != nil {
+			got := tt.args.msgProviderStake.ValidateBasic()
+			if got != nil && tt.want != nil {
 				if !reflect.DeepEqual(got.Error(), tt.want.Error()) {
 					t.Errorf("ValidatorBasic() = %v, want %v", got, tt.want)
 				}
+			} else if (got != nil && tt.want == nil) || (got == nil && tt.want != nil) {
+				t.Errorf("ValidatorBasic() = %v, want %v", got, tt.want)
 			}
+
 		})
 	}
 }

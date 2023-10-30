@@ -24,6 +24,7 @@ type ViperConfig struct {
 	GenesisName                string `json:"genesis_file"`
 	ChainsName                 string `json:"chains_name"`
 	EvidenceDBName             string `json:"evidence_db_name"`
+	ResultDBName               string `json:"result_db_name"`
 	TendermintURI              string `json:"tendermint_uri"`
 	KeybaseName                string `json:"keybase_name"`
 	RPCPort                    string `json:"rpc_port"`
@@ -31,6 +32,7 @@ type ViperConfig struct {
 	ClientSessionSyncAllowance int64  `json:"client_session_sync_allowance"`
 	MaxEvidenceCacheEntires    int    `json:"max_evidence_cache_entries"`
 	MaxSessionCacheEntries     int    `json:"max_session_cache_entries"`
+	MaxResultCacheEntires      int    `json:"max_result_cache_entries"`
 	JSONSortRelayResponses     bool   `json:"json_sort_relay_responses"`
 	RemoteCLIURL               string `json:"remote_cli_url"`
 	UserAgent                  string `json:"user_agent"`
@@ -85,9 +87,11 @@ const (
 	DefaultGenesisName                 = "genesis.json"
 	DefaultRPCPort                     = "8081"
 	DefaultEvidenceDBName              = "viper_evidence"
+	DefaultResultDBName                = "viper_result"
 	DefaultTMURI                       = "tcp://localhost:26657"
 	DefaultMaxSessionCacheEntries      = 500
 	DefaultMaxEvidenceCacheEntries     = 500
+	DefaultMaxResultCacheEntries       = 500
 	DefaultListenAddr                  = "tcp://0.0.0.0:"
 	DefaultClientBlockSyncAllowance    = 10
 	DefaultSessionSyncAllowance        = 0
@@ -133,12 +137,14 @@ func DefaultConfig(dataDir string) Config {
 			ChainsName:               DefaultChainsName,
 			GeoZoneName:              DefaultGeoZoneName,
 			EvidenceDBName:           DefaultEvidenceDBName,
+			ResultDBName:             DefaultResultDBName,
 			TendermintURI:            DefaultTMURI,
 			KeybaseName:              DefaultKeybaseName,
 			RPCPort:                  DefaultRPCPort,
 			ClientBlockSyncAllowance: DefaultClientBlockSyncAllowance,
 			MaxEvidenceCacheEntires:  DefaultMaxEvidenceCacheEntries,
 			MaxSessionCacheEntries:   DefaultMaxSessionCacheEntries,
+			MaxResultCacheEntires:    DefaultMaxResultCacheEntries,
 			JSONSortRelayResponses:   DefaultJSONSortRelayResponses,
 			RemoteCLIURL:             DefaultRemoteCLIURL,
 			UserAgent:                DefaultUserAgent,

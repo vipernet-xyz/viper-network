@@ -51,14 +51,13 @@ func TestProviderStateChange_ValidateProviderBeginUnstaking(t *testing.T) {
 	}
 }
 
-func TestAppStateChange_ValidateApplicaitonStaking(t *testing.T) {
+func TestAppStateChange_ValidateProviderStaking(t *testing.T) {
 	tests := []struct {
 		name            string
 		provider        types.Provider
 		panics          bool
 		amount          sdk.BigInt
 		stakedAppsCount int
-		isAfterUpgrade  bool
 		want            interface{}
 	}{
 		{
@@ -88,7 +87,6 @@ func TestAppStateChange_ValidateApplicaitonStaking(t *testing.T) {
 			stakedAppsCount: 5,
 			amount:          sdk.NewInt(1000000),
 			want:            types.ErrMaxProviders("apps"),
-			isAfterUpgrade:  true,
 		},
 	}
 
@@ -106,11 +104,10 @@ func TestAppStateChange_ValidateApplicaitonStaking(t *testing.T) {
 					Jailed:       false,
 					Status:       2,
 					Chains:       []string{"0021"},
+					GeoZones:     []string{"0001"},
+					NumServicers: 10,
 					StakedTokens: sdk.NewInt(10000000),
 				})
-			}
-			if tt.isAfterUpgrade {
-				codec.UpgradeHeight = -1
 			}
 			addMintedCoinsToModule(t, context, &keeper, types.StakedPoolName)
 			sendFromModuleToAccount(t, context, &keeper, types.StakedPoolName, tt.provider.Address, sdk.NewInt(100000000000))

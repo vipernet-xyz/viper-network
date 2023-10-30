@@ -112,9 +112,9 @@ func processSelf(ctx sdk.Ctx, signer sdk.Address, header types.SessionHeader, ev
 	}
 	if !tokens.IsZero() {
 		if types.GlobalViperConfig.LeanViper {
-			go types.GlobalServiceMetric().AdduviprEarnedFor(header.Chain, float64(tokens.Int64()), &signer)
+			go types.GlobalServiceMetric().AddUVIPREarnedFor(header.Chain, float64(tokens.Int64()), &signer)
 		} else {
-			types.GlobalServiceMetric().AdduviprEarnedFor(header.Chain, float64(tokens.Int64()), &signer)
+			types.GlobalServiceMetric().AddUVIPREarnedFor(header.Chain, float64(tokens.Int64()), &signer)
 		}
 	}
 }

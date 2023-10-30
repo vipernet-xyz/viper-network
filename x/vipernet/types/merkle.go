@@ -21,17 +21,31 @@ func (r Range) Bytes() []byte {
 type proofAndRanges struct {
 	hr []HashRange
 	p  []Proof
-	r  []Test
+}
+
+type testAndRanges struct {
+	hr []HashRange
+	t  []Test
 }
 type SortByProof proofAndRanges
+type SortByTest testAndRanges
 
 func (a SortByProof) Len() int { return len(a.hr) }
+
+func (a SortByTest) Len() int { return len(a.hr) }
+
 func (a SortByProof) Swap(i, j int) {
 	a.hr[i], a.hr[j] = a.hr[j], a.hr[i]
 	a.p[i], a.p[j] = a.p[j], a.p[i]
-	a.r[i], a.r[j] = a.r[j], a.r[i]
+}
+
+func (a SortByTest) Swap(i, j int) {
+	a.hr[i], a.hr[j] = a.hr[j], a.hr[i]
+	a.t[i], a.t[j] = a.t[j], a.t[i]
 }
 func (a SortByProof) Less(i, j int) bool { return a.hr[i].Range.Upper < a.hr[j].Range.Upper }
+
+func (a SortByTest) Less(i, j int) bool { return a.hr[i].Range.Upper < a.hr[j].Range.Upper }
 
 func uint64ToBytes(a uint64, x uint64) []byte {
 	b := make([]byte, 16)
@@ -259,7 +273,7 @@ func sortAndStructure(proofs []Proof) (d []HashRange, sortedProofs []Proof) { //
 			hashRanges[i].Range.Upper = sumFromHash(hashRanges[i].Hash)
 		}
 	}
-	sortedRangesAndProofs := proofAndRanges{hashRanges, proofs, nil}
+	sortedRangesAndProofs := proofAndRanges{hashRanges, proofs}
 	sort.Sort(SortByProof(sortedRangesAndProofs))
 	hashRanges, proofs = sortedRangesAndProofs.hr, sortedRangesAndProofs.p
 	// keep track of previous upper (next values lower)
@@ -350,9 +364,9 @@ func sortAndStructureResult(results []Test) (d []HashRange, sortedResults []Test
 			hashRanges[i].Range.Upper = sumFromHash(hashRanges[i].Hash)
 		}
 	}
-	sortedRangesAndProofs := proofAndRanges{hashRanges, nil, results}
-	sort.Sort(SortByProof(sortedRangesAndProofs))
-	hashRanges, results = sortedRangesAndProofs.hr, sortedRangesAndProofs.r
+	sortedRangesAndTests := testAndRanges{hashRanges, results}
+	sort.Sort(SortByTest(sortedRangesAndTests))
+	hashRanges, results = sortedRangesAndTests.hr, sortedRangesAndTests.t
 	// keep track of previous upper (next values lower)
 	lower := uint64(0)
 	// set the lower values of each

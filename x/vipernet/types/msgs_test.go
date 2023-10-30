@@ -180,6 +180,7 @@ func TestMsgProof_GetSigners(t *testing.T) {
 
 func TestMsgProof_ValidateBasic(t *testing.T) {
 	ethereum := hex.EncodeToString([]byte{01})
+	US := hex.EncodeToString([]byte{01})
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPrivKey := GetRandomPrivateKey()
 	clientPubKey := clientPrivKey.PublicKey().RawString()
@@ -220,7 +221,9 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 				ClientPublicKey:   clientPubKey,
 				ProviderSignature: "",
 			},
-			Signature: "",
+			Signature:    "",
+			GeoZone:      US,
+			NumServicers: 5,
 		},
 		EvidenceType: RelayEvidence,
 	}

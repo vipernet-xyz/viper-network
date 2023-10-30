@@ -145,7 +145,6 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 			}
 		}
 	}
-
 	// Validate that the number of servicers is sufficient
 	if len(validatorsInBoth) < int(sessionServicersCount) {
 		return nil, NewInsufficientServicersError(ModuleName)

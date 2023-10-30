@@ -292,10 +292,12 @@ func (k Keeper) mustGetValidator(ctx sdk.Ctx, addr sdk.Address) types.Validator 
 }
 
 func (k Keeper) InitializeReportCardForValidator(ctx sdk.Ctx, validator *types.Validator) {
+	zeroDec := sdk.NewDec(0)
 	validator.ReportCard = types.ReportCard{
 		TotalSessions:          0,
-		TotalLatencyScore:      sdk.BigDec{},
-		TotalAvailabilityScore: sdk.BigDec{},
+		TotalLatencyScore:      zeroDec,
+		TotalAvailabilityScore: zeroDec,
+		TotalReliabilityScore:  zeroDec,
 	}
 }
 

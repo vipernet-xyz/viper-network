@@ -111,3 +111,38 @@ func TestMsgUpgrade_ValidateBasic(t *testing.T) {
 	}
 	assert.NotNil(t, m.ValidateBasic())
 }
+
+func TestMsgGenerateDiscountKey_ValidateBasic(t *testing.T) {
+	// Valid case
+	m := MsgGenerateDiscountKey{
+		FromAddress: getRandomValidatorAddress(),
+		ToAddress:   getRandomValidatorAddress(),
+		DiscountKey: "testDiscountKey",
+	}
+	assert.Nil(t, m.ValidateBasic())
+
+	m = MsgGenerateDiscountKey{
+		ToAddress:   getRandomValidatorAddress(),
+		DiscountKey: "testDiscountKey",
+	}
+	assert.NotNil(t, m.ValidateBasic())
+
+	m = MsgGenerateDiscountKey{
+		FromAddress: getRandomValidatorAddress(),
+		DiscountKey: "testDiscountKey",
+	}
+	assert.NotNil(t, m.ValidateBasic())
+
+	m = MsgGenerateDiscountKey{
+		FromAddress: getRandomValidatorAddress(),
+		ToAddress:   getRandomValidatorAddress(),
+	}
+	assert.NotNil(t, m.ValidateBasic())
+
+	m = MsgGenerateDiscountKey{
+		FromAddress: getRandomValidatorAddress(),
+		ToAddress:   getRandomValidatorAddress(),
+		DiscountKey: "",
+	}
+	assert.NotNil(t, m.ValidateBasic())
+}

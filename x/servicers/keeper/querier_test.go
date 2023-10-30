@@ -411,7 +411,9 @@ func Test_queryValidators(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := queryValidators(tt.args.ctx, tt.args.req, tt.args.k)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("queryValidators() got = %v, want %v", got, tt.want)
+				t.Logf("Expected:\n%s\n", string(tt.want))
+				t.Logf("Got:\n%s\n", string(got))
+				t.Error("queryValidators() output did not match expected value.")
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("queryValidators() got1 = %v, want %v", got1, tt.want1)

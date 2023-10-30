@@ -39,7 +39,7 @@ func TestNewProvider(t *testing.T) {
 		args args
 		want Provider
 	}{
-		{"defaultProvider", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, []string{"0001"}, 5, "google.com"},
+		{"defaultProvider", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, []string{"0001"}, 10, "google.com"},
 			Provider{
 				Address:                 sdk.Address(pub.Address()),
 				PublicKey:               pub,
@@ -48,6 +48,7 @@ func TestNewProvider(t *testing.T) {
 				StakedTokens:            sdk.ZeroInt(),
 				Chains:                  []string{"0001"},
 				GeoZones:                []string{"0001"},
+				NumServicers:            10,
 				UnstakingCompletionTime: time.Time{}, // zero out because status: staked
 			}},
 	}
@@ -1192,7 +1193,7 @@ func TestProviderUtil_String(t *testing.T) {
 		{
 			name: "serializes providerlicaitons into string",
 			args: Providers{provider},
-			want: fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nChains:\t\t\t%v\nMaxRelays:\t\t%s\nStatus:\t\t\t%s\nTokens:\t\t\t%s\nUnstaking Time:\t%v\n----\n",
+			want: fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nChains:\t\t\t%v\nMaxRelays:\t\t%s\nStatus:\t\t\t%s\nTokens:\t\t\t%s\nGeoZones:\t\t\t%vUnstaking Time:\t%v\n----\n",
 				provider.Address,
 				provider.PublicKey.RawString(),
 				provider.Jailed,
@@ -1200,6 +1201,7 @@ func TestProviderUtil_String(t *testing.T) {
 				provider.MaxRelays.String(),
 				provider.Status,
 				provider.StakedTokens,
+				provider.GeoZones,
 				provider.UnstakingCompletionTime,
 			),
 		},

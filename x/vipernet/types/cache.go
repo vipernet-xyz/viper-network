@@ -22,6 +22,7 @@ var (
 	globalSessionCache *CacheStorage
 	// cache for GOBEvidence objects
 	globalEvidenceCache *CacheStorage
+	globalTestCache     *CacheStorage
 	// sync.once to perform initialization
 	cacheOnce sync.Once
 
@@ -64,6 +65,7 @@ func (cs *CacheStorage) Init(dir, name string, options config.LevelDBOptions, ma
 		}
 		panic(err)
 	}
+	cs.SealMap = &sync.Map{}
 }
 
 // "Get" - Returns the value from a key
@@ -265,8 +267,8 @@ func DeleteSession(header SessionHeader, sessionStore *CacheStorage) {
 
 // "ClearSessionCache" - Clears all items from the session cache db
 func ClearSessionCache(sessionStore *CacheStorage) {
-	if globalSessionCache != nil {
-		globalSessionCache.Clear()
+	if sessionStore != nil {
+		sessionStore.Clear()
 	}
 }
 

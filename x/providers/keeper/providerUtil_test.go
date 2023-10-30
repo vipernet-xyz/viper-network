@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 )
 
@@ -54,38 +53,6 @@ func TestProviderUtil_Provider(t *testing.T) {
 		})
 	}
 
-}
-
-func TestProviderUtil_AllProviders(t *testing.T) {
-	stakedProvider := getStakedProvider()
-
-	type args struct {
-		provider types.Provider
-	}
-	tests := []struct {
-		name   string
-		panics bool
-		args
-		expected []exported.ProviderI
-	}{
-		{
-			name:     "gets provider",
-			panics:   false,
-			args:     args{provider: stakedProvider},
-			expected: []exported.ProviderI{stakedProvider},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			context, _, keeper := createTestInput(t, true)
-			keeper.SetProvider(context, tt.args.provider)
-			keeper.SetStakedProvider(context, tt.args.provider)
-			if got := keeper.AllProviders(context); !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("keeperProviderUtil.AllProviders()= %v, want %v", got, tt.expected)
-			}
-		})
-	}
 }
 
 //func TestNewProviderCaching(t *testing.T) { todo

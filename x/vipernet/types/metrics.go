@@ -30,8 +30,12 @@ const (
 	AvgrelayHistHelp        = "the average relay time in ms executed against: "
 	SessionsCountName       = "sessions_count_for_"
 	SessionsCountHelp       = "the number of unique sessions generated for: "
-	uviprCountName          = "tokens_earned_for_"
-	uviprCountHelp          = "the number of tokens earned in uvipr for : "
+	UVIPRCountName          = "tokens_earned_for_"
+	UVIPRCountHelp          = "the number of tokens earned in uVIPR for : "
+	AvgClaimTimeName        = "avg_claim_time_for_"
+	AvgClaimTimeHelp        = "the average time in ms to generate the work needed for claim tx:"
+	AvgProofTimeName        = "avg_proof_time_for_"
+	AvgProofTimeHelp        = "the average time in ms to generate the work needed for claim tx:"
 )
 
 type ServiceMetrics struct {
@@ -39,7 +43,6 @@ type ServiceMetrics struct {
 	tmLogger        log.Logger
 	ServiceMetric   `json:"accumulated_service_metrics"` // total metrics
 	NonNativeChains map[string]ServiceMetric             `json:"individual_service_metrics"` // metrics per chain
-	GeoZone         `json:"geo_zone"`
 	prometheusSrv   *http.Server
 }
 
@@ -52,9 +55,9 @@ func GlobalServiceMetric() *ServiceMetrics {
 	return globalServiceMetrics
 }
 
-func InitGlobalServiceMetric(hostedBlockchains *HostedBlockchains, hostedGeozone *HostedGeoZones, logger log.Logger, addr string, maxOpenConn int) {
+func InitGlobalServiceMetric(hostedBlockchains *HostedBlockchains, logger log.Logger, addr string, maxOpenConn int) {
 	// create a new service metric
-	serviceMetric := NewServiceMetrics(hostedBlockchains, hostedGeozone, logger)
+	serviceMetric := NewServiceMetrics(hostedBlockchains, logger)
 	// set the service metrics
 	globalServiceMetrics = serviceMetric
 	// start metrics server
@@ -65,6 +68,10 @@ func StopServiceMetrics() {
 	if err := GlobalServiceMetric().prometheusSrv.Shutdown(context.Background()); err != nil {
 		GlobalServiceMetric().tmLogger.Error("unable to shutdown service metrics server: ", err.Error())
 	}
+}
+
+func (sm *ServiceMetrics) getValidatorLabel(nodeAddress *sdk.Address) []string {
+	return []string{"validator_address", nodeAddress.String()}
 }
 
 // startPrometheusServer starts a Prometheus HTTP server, listening for metrics
@@ -163,40 +170,8 @@ func (sm *ServiceMetrics) AddRelayTimingFor(networkID string, relayTime float64,
 	sm.NonNativeChains[networkID] = nnc
 }
 
-func (sm *ServiceMetrics) AddSessionFor(networkID string, nodeAddress *sdk.Address) {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	// attempt to locate nn chain
-	nnc, ok := sm.NonNativeChains[networkID]
-	if !ok {
-		sm.tmLogger.Error("unable to find corresponding networkID in service metrics: ", networkID)
-		sm.NonNativeChains[networkID] = NewServiceMetricsFor(networkID)
+func (sm *ServiceMetrics) AddClaimTiming(networkID string, time float64, nodeAddress *sdk.Address) {
 
-		return
-	}
-
-	if nodeAddress == nil {
-		// this implies that user is not running in lean viper
-		node := GetViperNode()
-		if node == nil {
-			sm.tmLogger.Error("unable to load privateKey", networkID)
-			return
-		}
-		addr := sdk.GetAddress(node.PrivateKey.PublicKey())
-		nodeAddress = &addr
-	}
-	labels := sm.getValidatorLabel(nodeAddress)
-
-	// add to accumulated count
-	sm.TotalSessions.With(labels...).Add(1)
-	// add to individual count
-	nnc.TotalSessions.With(labels...).Add(1)
-
-	// update nnc
-	sm.NonNativeChains[networkID] = nnc
-}
-
-func (sm *ServiceMetrics) AdduviprEarnedFor(networkID string, uviprEarned float64, nodeAddress *sdk.Address) {
 	sm.l.Lock()
 	defer sm.l.Unlock()
 	// attempt to locate nn chain
@@ -207,102 +182,12 @@ func (sm *ServiceMetrics) AdduviprEarnedFor(networkID string, uviprEarned float6
 		return
 	}
 	labels := sm.getValidatorLabel(nodeAddress)
-	// add to accumulated count
-	sm.uviprEarned.With(labels...).Add(uviprEarned)
-	// add to individual count
-	nnc.uviprEarned.With(labels...).Add(uviprEarned)
+	// add to accumulated hist
+	sm.AverageClaimTime.With(labels...).Observe(time)
+	// add to individual hist
+	nnc.AverageClaimTime.With(labels...).Observe(time)
 	// update nnc
 	sm.NonNativeChains[networkID] = nnc
-}
-func KeyForServiceMetrics() []byte {
-	return []byte(ServiceMetricsKey)
-}
-
-func NewServiceMetrics(hostedBlockchains *HostedBlockchains, hostedGeozone *HostedGeoZones, logger log.Logger) *ServiceMetrics {
-	serviceMetrics := ServiceMetrics{
-		ServiceMetric:   NewServiceMetricsFor("all"),
-		NonNativeChains: make(map[string]ServiceMetric),
-	}
-	if hostedBlockchains != nil {
-		for _, hb := range hostedBlockchains.M {
-			serviceMetrics.NonNativeChains[hb.ID] = NewServiceMetricsFor(hb.ID)
-		}
-	}
-	// add the logger
-	serviceMetrics.tmLogger = logger
-	// return the metrics
-	return &serviceMetrics
-}
-
-type ServiceMetric struct {
-	RelayCount       metrics.Counter   `json:"relay_count"`
-	ChallengeCount   metrics.Counter   `json:"challenge_count"`
-	ErrCount         metrics.Counter   `json:"err_count"`
-	AverageRelayTime metrics.Histogram `json:"avg_relay_time"`
-	AverageClaimTime metrics.Histogram `json:"avg_claim_time"`
-	AverageProofTime metrics.Histogram `json:"avg_proof_time"`
-	TotalSessions    metrics.Counter   `json:"total_sessions"`
-	uviprEarned      metrics.Counter   `json:"uvipr_earned"`
-}
-
-func NewServiceMetricsFor(networkID string) ServiceMetric {
-	//labels := make([]string, 1)
-	// relay counter metric
-	relayCounter := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
-		Namespace: ModuleName,
-		Subsystem: ServiceMetricsNamespace,
-		Name:      RelayCountName + networkID,
-		Help:      RelayCountHelp + networkID,
-	}, nil)
-	// challenge counter metric
-	challengeCounter := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
-		Namespace: ModuleName,
-		Subsystem: ServiceMetricsNamespace,
-		Name:      ChallengeCountName + networkID,
-		Help:      ChallengeCountHelp + networkID,
-	}, nil)
-	// err counter metric
-	errCounter := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
-		Namespace: ModuleName,
-		Subsystem: ServiceMetricsNamespace,
-		Name:      ErrCountName + networkID,
-		Help:      ErrCountHelp + networkID,
-	}, nil)
-	// Avg relay time histogram metric
-	avgRelayTime := prometheus.NewHistogramFrom(stdPrometheus.HistogramOpts{
-		Namespace:   ModuleName,
-		Subsystem:   ServiceMetricsNamespace,
-		Name:        AvgRelayHistName + networkID,
-		Help:        AvgrelayHistHelp + networkID,
-		ConstLabels: nil,
-		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
-	}, nil)
-	// session counter metric
-	totalSessions := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
-		Namespace: ModuleName,
-		Subsystem: ServiceMetricsNamespace,
-		Name:      SessionsCountName + networkID,
-		Help:      SessionsCountHelp + networkID,
-	}, nil)
-	// tokens earned metric
-	uviprEarned := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
-		Namespace: ModuleName,
-		Subsystem: ServiceMetricsNamespace,
-		Name:      uviprCountName + networkID,
-		Help:      uviprCountHelp + networkID,
-	}, nil)
-	return ServiceMetric{
-		RelayCount:       relayCounter,
-		ChallengeCount:   challengeCounter,
-		ErrCount:         errCounter,
-		AverageRelayTime: avgRelayTime,
-		TotalSessions:    totalSessions,
-		uviprEarned:      uviprEarned,
-	}
-}
-
-func (sm *ServiceMetrics) getValidatorLabel(nodeAddress *sdk.Address) []string {
-	return []string{"validator_address", nodeAddress.String()}
 }
 
 func (sm *ServiceMetrics) AddProofTiming(networkID string, time float64, nodeAddress *sdk.Address) {
@@ -326,8 +211,39 @@ func (sm *ServiceMetrics) AddProofTiming(networkID string, time float64, nodeAdd
 	sm.NonNativeChains[networkID] = nnc
 }
 
-func (sm *ServiceMetrics) AddClaimTiming(networkID string, time float64, nodeAddress *sdk.Address) {
+func (sm *ServiceMetrics) AddSessionFor(networkID string, nodeAddress *sdk.Address) {
+	sm.l.Lock()
+	defer sm.l.Unlock()
+	// attempt to locate nn chain
+	nnc, ok := sm.NonNativeChains[networkID]
+	if !ok {
+		sm.tmLogger.Error("unable to find corresponding networkID in service metrics: ", networkID)
+		sm.NonNativeChains[networkID] = NewServiceMetricsFor(networkID)
 
+		return
+	}
+
+	if nodeAddress == nil {
+		// this implies that user is not running in lean viper
+		node := GetViperNode()
+		if node == nil {
+			sm.tmLogger.Error("unable to load privateKey", networkID)
+			return
+		}
+		addr := sdk.GetAddress(node.PrivateKey.PublicKey())
+		nodeAddress = &addr
+	}
+	labels := sm.getValidatorLabel(nodeAddress)
+	// add to accumulated count
+	sm.TotalSessions.With(labels...).Add(1)
+	// add to individual count
+	nnc.TotalSessions.With(labels...).Add(1)
+
+	// update nnc
+	sm.NonNativeChains[networkID] = nnc
+}
+
+func (sm *ServiceMetrics) AddUVIPREarnedFor(networkID string, uviprEarned float64, nodeAddress *sdk.Address) {
 	sm.l.Lock()
 	defer sm.l.Unlock()
 	// attempt to locate nn chain
@@ -338,10 +254,116 @@ func (sm *ServiceMetrics) AddClaimTiming(networkID string, time float64, nodeAdd
 		return
 	}
 	labels := sm.getValidatorLabel(nodeAddress)
-	// add to accumulated hist
-	sm.AverageClaimTime.With(labels...).Observe(time)
-	// add to individual hist
-	nnc.AverageClaimTime.With(labels...).Observe(time)
+	// add to accumulated count
+	sm.UVIPREarned.With(labels...).Add(uviprEarned)
+	// add to individual count
+	nnc.UVIPREarned.With(labels...).Add(uviprEarned)
 	// update nnc
 	sm.NonNativeChains[networkID] = nnc
+}
+
+func KeyForServiceMetrics() []byte {
+	return []byte(ServiceMetricsKey)
+}
+
+func NewServiceMetrics(hostedBlockchains *HostedBlockchains, logger log.Logger) *ServiceMetrics {
+	serviceMetrics := ServiceMetrics{
+		ServiceMetric:   NewServiceMetricsFor("all"),
+		NonNativeChains: make(map[string]ServiceMetric),
+	}
+	if hostedBlockchains != nil {
+		for _, hb := range hostedBlockchains.M {
+			serviceMetrics.NonNativeChains[hb.ID] = NewServiceMetricsFor(hb.ID)
+		}
+	}
+	// add the logger
+	serviceMetrics.tmLogger = logger
+	// return the metrics
+	return &serviceMetrics
+}
+
+type ServiceMetric struct {
+	RelayCount       metrics.Counter   `json:"relay_count"`
+	ChallengeCount   metrics.Counter   `json:"challenge_count"`
+	ErrCount         metrics.Counter   `json:"err_count"`
+	AverageRelayTime metrics.Histogram `json:"avg_relay_time"`
+	AverageClaimTime metrics.Histogram `json:"avg_claim_time"`
+	AverageProofTime metrics.Histogram `json:"avg_proof_time"`
+	TotalSessions    metrics.Counter   `json:"total_sessions"`
+	UVIPREarned      metrics.Counter   `json:"uvipr_earned"`
+}
+
+func NewServiceMetricsFor(networkID string) ServiceMetric {
+	//labels := make([]string, 1)
+	// relay counter metric
+	labels := []string{}
+	relayCounter := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
+		Namespace: ModuleName,
+		Subsystem: ServiceMetricsNamespace,
+		Name:      RelayCountName + networkID,
+		Help:      RelayCountHelp + networkID,
+	}, append(labels, "validator_address"))
+	// challenge counter metric
+	challengeCounter := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
+		Namespace: ModuleName,
+		Subsystem: ServiceMetricsNamespace,
+		Name:      ChallengeCountName + networkID,
+		Help:      ChallengeCountHelp + networkID,
+	}, append(labels, "validator_address"))
+	// err counter metric
+	errCounter := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
+		Namespace: ModuleName,
+		Subsystem: ServiceMetricsNamespace,
+		Name:      ErrCountName + networkID,
+		Help:      ErrCountHelp + networkID,
+	}, append(labels, "validator_address"))
+	// Avg relay time histogram metric
+	avgRelayTime := prometheus.NewHistogramFrom(stdPrometheus.HistogramOpts{
+		Namespace:   ModuleName,
+		Subsystem:   ServiceMetricsNamespace,
+		Name:        AvgRelayHistName + networkID,
+		Help:        AvgrelayHistHelp + networkID,
+		ConstLabels: nil,
+		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
+	}, append(labels, "validator_address"))
+	// session counter metric
+	totalSessions := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
+		Namespace: ModuleName,
+		Subsystem: ServiceMetricsNamespace,
+		Name:      SessionsCountName + networkID,
+		Help:      SessionsCountHelp + networkID,
+	}, append(labels, "validator_address"))
+	// tokens earned metric
+	uVIPREarned := prometheus.NewCounterFrom(stdPrometheus.CounterOpts{
+		Namespace: ModuleName,
+		Subsystem: ServiceMetricsNamespace,
+		Name:      UVIPRCountName + networkID,
+		Help:      UVIPRCountHelp + networkID,
+	}, append(labels, "validator_address"))
+	avgClaimTime := prometheus.NewHistogramFrom(stdPrometheus.HistogramOpts{
+		Namespace:   ModuleName,
+		Subsystem:   ServiceMetricsNamespace,
+		Name:        AvgClaimTimeName + networkID,
+		Help:        AvgClaimTimeHelp + networkID,
+		ConstLabels: nil,
+		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
+	}, append(labels, "validator_address"))
+	avgProofTime := prometheus.NewHistogramFrom(stdPrometheus.HistogramOpts{
+		Namespace:   ModuleName,
+		Subsystem:   ServiceMetricsNamespace,
+		Name:        AvgProofTimeName + networkID,
+		Help:        AvgProofTimeHelp + networkID,
+		ConstLabels: nil,
+		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
+	}, append(labels, "validator_address"))
+	return ServiceMetric{
+		RelayCount:       relayCounter,
+		ChallengeCount:   challengeCounter,
+		ErrCount:         errCounter,
+		AverageRelayTime: avgRelayTime,
+		TotalSessions:    totalSessions,
+		UVIPREarned:      uVIPREarned,
+		AverageClaimTime: avgClaimTime,
+		AverageProofTime: avgProofTime,
+	}
 }

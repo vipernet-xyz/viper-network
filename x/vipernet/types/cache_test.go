@@ -15,10 +15,14 @@ import (
 
 func InitCacheTest() {
 	logger := log.NewNopLogger()
-	// init cache in memory
+	testingConfig := sdk.DefaultTestingViperConfig()
+	CleanViperNodes()
+	AddViperNode(GetRandomPrivateKey(), log.NewNopLogger())
 	InitConfig(&HostedBlockchains{
 		M: make(map[string]HostedBlockchain),
-	}, nil, logger, sdk.DefaultTestingViperConfig())
+	}, &HostedGeoZones{
+		M: make(map[string]GeoZone),
+	}, logger, testingConfig)
 }
 
 func TestMain(m *testing.M) {
@@ -79,6 +83,41 @@ func TestAllEvidence_AddGetEvidence(t *testing.T) {
 	}
 	SetProof(header, RelayEvidence, proof, sdk.NewInt(100000), GlobalEvidenceCache)
 	assert.True(t, reflect.DeepEqual(GetProof(header, RelayEvidence, 0, GlobalEvidenceCache), proof))
+}
+
+func TestAllEvidence_Iterator(t *testing.T) {
+	ClearEvidence(GlobalEvidenceCache)
+	appPubKey := getRandomPubKey().RawString()
+	servicerPubKey := getRandomPubKey().RawString()
+	clientPubKey := getRandomPubKey().RawString()
+	ethereum := hex.EncodeToString([]byte{0001})
+	header := SessionHeader{
+		ProviderPubKey:     appPubKey,
+		Chain:              ethereum,
+		SessionBlockHeight: 1,
+	}
+	proof := RelayProof{
+		Entropy:            0,
+		RequestHash:        header.HashString(), // fake
+		SessionBlockHeight: 1,
+		ServicerPubKey:     servicerPubKey,
+		Blockchain:         ethereum,
+		Token: AAT{
+			Version:           "0.0.1",
+			ProviderPublicKey: appPubKey,
+			ClientPublicKey:   clientPubKey,
+			ProviderSignature: "",
+		},
+		Signature: "",
+	}
+	SetProof(header, RelayEvidence, proof, sdk.NewInt(100000), GlobalEvidenceCache)
+	iter := EvidenceIterator(GlobalEvidenceCache)
+	var count = 0
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		count++
+	}
+	assert.Equal(t, 1, int(count))
 }
 
 func TestAllEvidence_DeleteEvidence(t *testing.T) {
@@ -163,8 +202,8 @@ func TestAllEvidence_GetTotalProofs(t *testing.T) {
 }
 
 func TestSetGetSession(t *testing.T) {
-	session := NewTestSession(t, hex.EncodeToString(Hash([]byte("foo"))))
-	session2 := NewTestSession(t, hex.EncodeToString(Hash([]byte("bar"))))
+	session := NewTestSession(t, hex.EncodeToString(Hash([]byte("foo"))), hex.EncodeToString(Hash([]byte("ind"))))
+	session2 := NewTestSession(t, hex.EncodeToString(Hash([]byte("bar"))), hex.EncodeToString(Hash([]byte("ind"))))
 	SetSession(session, GlobalSessionCache)
 	s, found := GetSession(session.SessionHeader, GlobalSessionCache)
 	assert.True(t, found)
@@ -178,7 +217,7 @@ func TestSetGetSession(t *testing.T) {
 }
 
 func TestDeleteSession(t *testing.T) {
-	session := NewTestSession(t, hex.EncodeToString(Hash([]byte("foo"))))
+	session := NewTestSession(t, hex.EncodeToString(Hash([]byte("foo"))), hex.EncodeToString(Hash([]byte("ind"))))
 	SetSession(session, GlobalSessionCache)
 	DeleteSession(session.SessionHeader, GlobalSessionCache)
 	_, found := GetSession(session.SessionHeader, GlobalSessionCache)
@@ -186,7 +225,7 @@ func TestDeleteSession(t *testing.T) {
 }
 
 func TestClearCache(t *testing.T) {
-	session := NewTestSession(t, hex.EncodeToString(Hash([]byte("foo"))))
+	session := NewTestSession(t, hex.EncodeToString(Hash([]byte("foo"))), hex.EncodeToString(Hash([]byte("ind"))))
 	SetSession(session, GlobalSessionCache)
 	ClearSessionCache(GlobalSessionCache)
 	iter := SessionIterator(GlobalSessionCache)
@@ -198,20 +237,24 @@ func TestClearCache(t *testing.T) {
 	assert.Zero(t, count)
 }
 
-func NewTestSession(t *testing.T, chain string) Session {
-	providerPubKey := getRandomPubKey()
+func NewTestSession(t *testing.T, chain string, geoZone string) Session {
+	appPubKey := getRandomPubKey()
 	var vals []sdk.Address
 	for i := 0; i < 5; i++ {
-		servicerPubKey := getRandomPubKey()
-		vals = append(vals, sdk.Address(servicerPubKey.Address()))
+		nodePubKey := getRandomPubKey()
+		vals = append(vals, sdk.Address(nodePubKey.Address()))
 	}
+	fisherman := append(vals, sdk.Address(getRandomPubKey().Address()))
 	return Session{
 		SessionHeader: SessionHeader{
-			ProviderPubKey:     providerPubKey.RawString(),
+			ProviderPubKey:     appPubKey.RawString(),
 			Chain:              chain,
 			SessionBlockHeight: 1,
+			GeoZone:            geoZone,
+			NumServicers:       5,
 		},
-		SessionKey:       providerPubKey.RawBytes(), // fake
+		SessionKey:       appPubKey.RawBytes(),
 		SessionServicers: vals,
+		SessionFishermen: fisherman,
 	}
 }

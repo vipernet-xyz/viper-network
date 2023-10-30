@@ -3,6 +3,7 @@ package keeper
 import (
 	"math/rand"
 	"testing"
+	"time"
 
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
 
@@ -152,15 +153,25 @@ func getRandomValidatorAddress() sdk.Address {
 
 func getValidator() types.Validator {
 	pub := getRandomPubKey()
+	zeroDec := sdk.NewDec(0)
 	return types.Validator{
 		Address:       sdk.Address(pub.Address()),
 		StakedTokens:  sdk.NewInt(100000000000),
 		PublicKey:     pub,
 		Jailed:        false,
+		Paused:        false,
 		Status:        sdk.Staked,
 		ServiceURL:    "https://www.google.com:443",
 		Chains:        []string{"0001", "0002", "FFFF"},
-		OutputAddress: nil,
+		GeoZone:       []string{"0001"},
+		OutputAddress: sdk.Address{},
+		ReportCard: types.ReportCard{
+			TotalSessions:          0,
+			TotalLatencyScore:      zeroDec,
+			TotalAvailabilityScore: zeroDec,
+			TotalReliabilityScore:  zeroDec,
+		},
+		UnstakingCompletionTime: time.Time{},
 	}
 }
 

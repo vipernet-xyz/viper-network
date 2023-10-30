@@ -14,13 +14,16 @@ func TestDefaultParams(t *testing.T) {
 	}{
 		{"Default Test",
 			Params{
-				UnstakingTime:       DefaultUnstakingTime,
-				MaxProviders:        DefaultMaxProviders,
-				MinProviderStake:    DefaultMinStake,
-				BaseRelaysPerVIPR:   DefaultBaseRelaysPerVIPR,
-				StabilityModulation: DefaultStabilityModulation,
-				ParticipationRate:   DefaultParticipationRateOn,
-				MaxChains:           DefaultMaxChains,
+				UnstakingTime:               DefaultUnstakingTime,
+				MaxProviders:                DefaultMaxProviders,
+				MinProviderStake:            DefaultMinStake,
+				BaseRelaysPerVIPR:           DefaultBaseRelaysPerVIPR,
+				StabilityModulation:         DefaultStabilityModulation,
+				ParticipationRate:           DefaultParticipationRateOn,
+				MaxChains:                   DefaultMaxChains,
+				MinNumServicers:             DefaultMinNumServicers,
+				MaxNumServicers:             DefaultMaxNumServicers,
+				MaxFreeTierRelaysPerSession: DefaultMaxFreeTierRelaysPerSession,
 			},
 		}}
 	for _, tt := range tests {
@@ -106,6 +109,8 @@ func TestParams_Validate(t *testing.T) {
 		BaselineThrouhgputStakeRate int64         `json:"baseline_throughput_stake_rate" yaml:"baseline_throughput_stake_rate"`
 		StabilityModulation         int64         `json:"staking_adjustment" yaml:"staking_adjustment"`
 		ParticipationRate           bool          `json:"participation_rate_on" yaml:"participation_rate_on"`
+		MinNumServicers             int32         `json:"minimum_number_servicers"`
+		MaxNumServicers             int32         `json:"maximum_number_servicers"`
 	}
 	tests := []struct {
 		name    string
@@ -119,6 +124,8 @@ func TestParams_Validate(t *testing.T) {
 			BaselineThrouhgputStakeRate: 1,
 			StabilityModulation:         0,
 			ParticipationRate:           false,
+			MinNumServicers:             0,
+			MaxNumServicers:             0,
 		}, true},
 		{"Default Validation Test / Wrong Providerstake", fields{
 			UnstakingTime:               0,
@@ -139,6 +146,8 @@ func TestParams_Validate(t *testing.T) {
 			BaselineThrouhgputStakeRate: 90,
 			StabilityModulation:         100,
 			ParticipationRate:           false,
+			MinNumServicers:             3,
+			MaxNumServicers:             25,
 		}, false},
 	}
 	for _, tt := range tests {
@@ -150,6 +159,8 @@ func TestParams_Validate(t *testing.T) {
 				BaseRelaysPerVIPR:   tt.fields.BaselineThrouhgputStakeRate,
 				StabilityModulation: tt.fields.StabilityModulation,
 				ParticipationRate:   tt.fields.ParticipationRate,
+				MinNumServicers:     tt.fields.MinNumServicers,
+				MaxNumServicers:     tt.fields.MaxNumServicers,
 			}
 			if err := p.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)

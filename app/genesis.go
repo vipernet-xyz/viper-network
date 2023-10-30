@@ -173,6 +173,7 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("vipernet/SupportedBlockchains", addr)
 	acl.SetOwner("vipernet/SupportedGeoZones", addr)
 	acl.SetOwner("vipernet/MinimumSampleRelays", addr)
+	acl.SetOwner("vipernet/ReportCardSubmissionWindow", addr)
 	acl.SetOwner("pos/BlocksPerSession", addr)
 	acl.SetOwner("pos/DAOAllocation", addr)
 	acl.SetOwner("pos/ProviderAllocation", addr)

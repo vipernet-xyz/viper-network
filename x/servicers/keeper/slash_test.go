@@ -384,12 +384,12 @@ func TestSlash(t *testing.T) {
 		{
 			name:   "slash all validaor coins",
 			panics: false,
-			args:   args{validator: stakedValidator, power: int64(1)},
+			args:   args{validator: stakedValidator, power: int64(100000)},
 			expected: expected{
 				validator:      stakedValidator,
 				found:          true,
 				pubKeyRelation: true,
-				stakedTokens:   stakedValidator.StakedTokens.Sub(sdk.NewInt(50000)),
+				stakedTokens:   stakedValidator.StakedTokens.Sub(sdk.NewInt(100000)),
 			},
 		},
 	}
@@ -412,6 +412,7 @@ func TestSlash(t *testing.T) {
 				Address:     test.args.validator.GetAddress(),
 				StartHeight: context.BlockHeight(),
 				JailedUntil: time.Unix(0, 0),
+				PausedUntil: time.Unix(0, 0),
 			}
 			infractionHeight := context.BlockHeight()
 
@@ -432,6 +433,10 @@ func TestSlash(t *testing.T) {
 			if !found {
 				t.Fail()
 			}
+			fmt.Println("Slashing fraction:", fraction)
+			fmt.Println("Original tokens:", stakedValidator.StakedTokens)
+			fmt.Println("Tokens after slashing:", validator.StakedTokens)
+
 			assert.True(t, validator.StakedTokens.Equal(test.expected.stakedTokens), "tokens were not slashed")
 		})
 	}

@@ -174,12 +174,13 @@ func (k Keeper) ValidateValidatorStaking(ctx sdk.Ctx, validatorNew types.Validat
 			}
 		}
 	}
-	if amount.LT(sdk.NewInt(k.MinimumStake(ctx))) {
-		return types.ErrMinimumStake(k.codespace)
-	}
 
 	if !k.AccountKeeper.HasCoins(ctx, signerAddress, coin) {
 		return types.ErrNotEnoughCoins(k.codespace)
+	}
+
+	if amount.LT(sdk.NewInt(k.MinimumStake(ctx))) {
+		return types.ErrMinimumStake(k.codespace)
 	}
 
 	return nil

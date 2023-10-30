@@ -21,6 +21,7 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 	verifyAddr := sPK.Address()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
+	US := hex.EncodeToString([]byte{01})
 	hbs := HostedBlockchains{
 		M: map[string]HostedBlockchain{ethereum: {ID: ethereum, URL: "https://www.google.com:443"}},
 	}
@@ -38,7 +39,9 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 			ClientPublicKey:   clientPubKey,
 			ProviderSignature: "",
 		},
-		Signature: "",
+		Signature:    "",
+		GeoZone:      US,
+		NumServicers: 5,
 	}
 	providerSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
@@ -222,6 +225,7 @@ func TestRelayProof_ValidateBasic(t *testing.T) {
 	servicerPubKey := getRandomPubKey().RawString()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
+	US := hex.EncodeToString([]byte{02})
 	validProof := RelayProof{
 		Entropy:            0,
 		SessionBlockHeight: 1,
@@ -234,7 +238,9 @@ func TestRelayProof_ValidateBasic(t *testing.T) {
 			ClientPublicKey:   clientPubKey,
 			ProviderSignature: "",
 		},
-		Signature: "",
+		Signature:    "",
+		GeoZone:      US,
+		NumServicers: 5,
 	}
 	providerSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
@@ -541,6 +547,7 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 	reporterAddr := reporterPubKey.Address()
 	clientPubKey := clientPrivateKey.PublicKey().RawString()
 	ethereum := hex.EncodeToString([]byte{01})
+	US := hex.EncodeToString([]byte{01})
 	validProof := RelayProof{
 		Entropy:            0,
 		SessionBlockHeight: 1,
@@ -553,7 +560,9 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 			ClientPublicKey:   clientPubKey,
 			ProviderSignature: "",
 		},
-		Signature: "",
+		Signature:    "",
+		GeoZone:      US,
+		NumServicers: 5,
 	}
 	providerSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
@@ -578,7 +587,9 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 			ClientPublicKey:   clientPubKey,
 			ProviderSignature: "",
 		},
-		Signature: "",
+		Signature:    "",
+		GeoZone:      US,
+		NumServicers: 5,
 	}
 	providerSignature, er = providerPrivateKey.Sign(validProof2.Token.Hash())
 	if er != nil {
@@ -603,7 +614,9 @@ func NewValidChallengeProof(t *testing.T) (challenge ChallengeProofInvalidData, 
 			ClientPublicKey:   clientPubKey,
 			ProviderSignature: "",
 		},
-		Signature: "",
+		Signature:    "",
+		GeoZone:      US,
+		NumServicers: 5,
 	}
 	providerSignature, er = providerPrivateKey.Sign(validProof3.Token.Hash())
 	if er != nil {

@@ -67,14 +67,14 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 	servicersKey := sdk.NewKVStoreKey(servicerstypes.StoreKey)
-	appsKey := sdk.NewKVStoreKey(types.StoreKey)
+	providersKey := sdk.NewKVStoreKey(types.StoreKey)
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(servicersKey, sdk.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(appsKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
 	err := ms.LoadLatestVersion()
 	require.Nil(t, err)
@@ -114,7 +114,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	keeper := NewKeeper(cdc, appsKey, nk, ak, MockViperKeeper{}, appSubspace, "apps")
+	keeper := NewKeeper(cdc, providersKey, nk, ak, MockViperKeeper{}, appSubspace, "apps")
 	p := types.DefaultParams()
 	keeper.SetParams(ctx, p)
 	return ctx, accs, keeper
@@ -174,6 +174,8 @@ func getProvider() types.Provider {
 		Status:       sdk.Staked,
 		MaxRelays:    sdk.NewInt(100000000000),
 		Chains:       []string{"0001"},
+		GeoZones:     []string{"0001"},
+		NumServicers: 10,
 	}
 }
 

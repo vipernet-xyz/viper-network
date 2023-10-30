@@ -11,6 +11,7 @@ func TestParams_Equal(t *testing.T) {
 	p1 := DefaultParams()
 	p2 := DefaultParams()
 	p3 := DefaultParams()
+	p3.MinimumSampleRelays = 50
 	assert.True(t, p1.Equal(p2))
 	assert.False(t, p2.Equal(p3))
 }
@@ -68,6 +69,10 @@ func TestDefaultParams(t *testing.T) {
 		ClaimExpiration:            DefaultClaimExpiration,
 		ReplayAttackBurnMultiplier: DefaultReplayAttackBurnMultiplier,
 		MinimumNumberOfProofs:      DefaultMinimumNumberOfProofs,
+		BlockByteSize:              DefaultBlockByteSize,
+		SupportedGeoZones:          nil,
+		MinimumSampleRelays:        DefaultMinimumSampleRelays,
+		ReportCardSubmissionWindow: DefaultReportCardSubmissionWindow,
 	}.Equal(DefaultParams()))
 }
 

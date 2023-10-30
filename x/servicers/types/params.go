@@ -159,7 +159,7 @@ func (p Params) Validate() error {
 		return fmt.Errorf("staking parameter MaxValidators must be a positive integer")
 	}
 	if p.StakeMinimum < DefaultMinStake {
-		return fmt.Errorf("staking parameter StakeMimimum must be a positive integer")
+		return fmt.Errorf("staking parameter StakeMimimum must be greater the Minimum Value")
 	}
 	if p.SessionBlockFrequency < 2 {
 		return fmt.Errorf("session block must be greater than 1")
@@ -177,10 +177,10 @@ func (p Params) Validate() error {
 		return fmt.Errorf("the combo of proposer allocation, dao allocation and provider allocation must not be greater than 100")
 	}
 	if p.MaxFishermen < 1 {
-		return fmt.Errorf("max fishermen must be greater than 1")
+		return fmt.Errorf("max fishermen must be equal to or greater than 1")
 	}
 	if p.FishermenCount < 1 {
-		return fmt.Errorf("fishermen count must be greater than 1")
+		return fmt.Errorf("fishermen count must be equal to or greater than 1")
 	}
 	return nil
 }

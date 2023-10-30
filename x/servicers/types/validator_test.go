@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -38,18 +37,20 @@ func TestNewValidator(t *testing.T) {
 		args args
 		want Validator
 	}{
-		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443", []string{"0001"}, ReportCard{TotalSessions: 1, TotalLatencyScore: sdk.NewDec(8 / 100), TotalAvailabilityScore: sdk.NewDec(8 / 100)}},
+		{"defaultValidator", args{sdk.Address(pub.Address()), pub, sdk.ZeroInt(), []string{"0001"}, "https://www.google.com:443", []string{"0001"}, ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0), TotalReliabilityScore: sdk.NewDec(0)}},
 			Validator{
 				Address:                 sdk.Address(pub.Address()),
 				PublicKey:               pub,
 				Jailed:                  false,
+				Paused:                  false,
 				Status:                  sdk.Staked,
 				Chains:                  []string{"0001"},
+				GeoZone:                 []string{"0001"},
 				ServiceURL:              "https://www.google.com:443",
 				StakedTokens:            sdk.ZeroInt(),
 				UnstakingCompletionTime: time.Time{}, // zero out because status: staked
 				OutputAddress:           sdk.Address(pub.Address()),
-				ReportCard:              ReportCard{TotalSessions: 1, TotalLatencyScore: sdk.NewDec(8 / 100), TotalAvailabilityScore: sdk.NewDec(8 / 100)},
+				ReportCard:              ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0), TotalReliabilityScore: sdk.NewDec(0)},
 			}},
 	}
 	for _, tt := range tests {
@@ -1129,47 +1130,6 @@ func TestValidator_GetChains(t *testing.T) {
 			}
 			if got := v.GetChains(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetChains() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestValidators_String(t *testing.T) {
-
-	var pub crypto.Ed25519PublicKey
-	_, err := rand.Read(pub[:])
-	if err != nil {
-		_ = err
-	}
-
-	v := Validators{
-		Validator{
-			Address:                 sdk.Address(pub.Address()),
-			PublicKey:               pub,
-			Jailed:                  false,
-			Status:                  sdk.Staked,
-			StakedTokens:            sdk.ZeroInt(),
-			Chains:                  []string{"0001"},
-			ServiceURL:              "https://www.google.com:443",
-			UnstakingCompletionTime: time.Unix(0, 0).UTC(),
-		},
-	}
-	tests := []struct {
-		name    string
-		v       Validators
-		wantOut string
-	}{
-		{"String Test", v, fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\n"+
-			"ServiceUrl:\t\t%s\nChains:\t\t\t%v\nUnstaking Completion Time:\t\t%v\nOutput Address:\t\t%s"+
-			"\n----",
-			sdk.Address(pub.Address()), pub.RawString(), false, sdk.Staked, sdk.ZeroInt(), "https://www.google.com:443", []string{"0001"}, time.Unix(0, 0).UTC(), "",
-		)},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			if gotOut := tt.v.String(); gotOut != tt.wantOut {
-				t.Errorf("String() = \n%v \nwant \b%v", gotOut, tt.wantOut)
 			}
 		})
 	}

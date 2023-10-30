@@ -24,10 +24,10 @@ var (
 	GlobalTenderMintConfig config.Config
 )
 
-// "InitConfig" - Initializes the cache for sessions and evidence
+// "InitConfig" - Initializes the cache for sessions, test and evidence
 func InitConfig(chains *HostedBlockchains, geozone *HostedGeoZones, logger log.Logger, c types.Config) {
 	ConfigOnce.Do(func() {
-		InitGlobalServiceMetric(chains, geozone, logger, c.ViperConfig.PrometheusAddr, c.ViperConfig.PrometheusMaxOpenfiles)
+		InitGlobalServiceMetric(chains, logger, c.ViperConfig.PrometheusAddr, c.ViperConfig.PrometheusMaxOpenfiles)
 	})
 	InitViperNodeCaches(c, logger)
 	GlobalViperConfig = c.ViperConfig

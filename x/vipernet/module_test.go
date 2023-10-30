@@ -2,6 +2,7 @@ package vipernet
 
 import (
 	"encoding/hex"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -20,9 +21,12 @@ func TestAppModule_Name(t *testing.T) {
 
 func TestAppModule_InitExportGenesis(t *testing.T) {
 	p := types.Params{
-		ClaimSubmissionWindow: 22,
-		SupportedBlockchains:  []string{"eth"},
-		ClaimExpiration:       55,
+		ClaimSubmissionWindow:      22,
+		SupportedBlockchains:       []string{"eth"},
+		SupportedGeoZones:          []string{"us-east"},
+		ClaimExpiration:            55,
+		BlockByteSize:              8000000,
+		ReportCardSubmissionWindow: 3,
 	}
 	genesisState := types.GenesisState{
 		Params: p,
@@ -35,11 +39,14 @@ func TestAppModule_InitExportGenesis(t *testing.T) {
 	pm.InitGenesis(ctx, data)
 	genesisbz := pm.ExportGenesis(ctx)
 	var genesis types.GenesisState
+	genesis.Params.BlockByteSize = 8000000
 	err = types.ModuleCdc.UnmarshalJSON(genesisbz, &genesis)
 	assert.Nil(t, err)
 	assert.Equal(t, genesis, genesisState)
+	fmt.Println("g:", genesis, "gs:", genesisState)
 	pm.InitGenesis(ctx, nil)
 	var genesis2 types.GenesisState
+	genesis2.Params.BlockByteSize = 8000000
 	genesis2bz := pm.ExportGenesis(ctx)
 	err = types.ModuleCdc.UnmarshalJSON(genesis2bz, &genesis2)
 	assert.Equal(t, genesis2, types.DefaultGenesisState())
@@ -78,20 +85,22 @@ func TestAppModuleBasic_DefaultGenesis(t *testing.T) {
 
 func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
 	_, _, _, k, _ := createTestInput(t, false)
-	pm := NewAppModule(k)
+	am := NewAppModule(k)
 	p := types.Params{
-		ClaimSubmissionWindow: 22,
-		SupportedBlockchains:  []string{hex.EncodeToString([]byte{01})},
-		ClaimExpiration:       55,
+		ClaimSubmissionWindow:      22,
+		SupportedBlockchains:       []string{hex.EncodeToString([]byte{01})},
+		ClaimExpiration:            55,
+		ReportCardSubmissionWindow: 3,
 	}
 	genesisState := types.GenesisState{
 		Params: p,
 		Claims: []types.MsgClaim(nil),
 	}
 	p2 := types.Params{
-		ClaimSubmissionWindow: 22,
-		SupportedBlockchains:  []string{"eth"},
-		ClaimExpiration:       55,
+		ClaimSubmissionWindow:      22,
+		SupportedBlockchains:       []string{"eth"},
+		ClaimExpiration:            55,
+		ReportCardSubmissionWindow: 3,
 	}
 	genesisState2 := types.GenesisState{
 		Params: p2,
@@ -101,6 +110,6 @@ func TestAppModuleBasic_ValidateGenesis(t *testing.T) {
 	assert.Nil(t, err)
 	invalidBz, err := types.ModuleCdc.MarshalJSON(genesisState2)
 	assert.Nil(t, err)
-	assert.True(t, nil == pm.ValidateGenesis(validBz))
-	assert.False(t, nil == pm.ValidateGenesis(invalidBz))
+	assert.True(t, nil == am.ValidateGenesis(validBz))
+	assert.False(t, nil == am.ValidateGenesis(invalidBz))
 }

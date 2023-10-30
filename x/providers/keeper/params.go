@@ -59,12 +59,12 @@ func (k Keeper) MaxChains(ctx sdk.Ctx) (res int64) {
 	return
 }
 
-func (k Keeper) MinNumServicers(ctx sdk.Ctx) (res int64) {
+func (k Keeper) MinNumServicers(ctx sdk.Ctx) (res int32) {
 	k.Paramstore.Get(ctx, types.KeyMinNumServicers, &res)
 	return
 }
 
-func (k Keeper) MaxNumServicers(ctx sdk.Ctx) (res int64) {
+func (k Keeper) MaxNumServicers(ctx sdk.Ctx) (res int32) {
 	k.Paramstore.Get(ctx, types.KeyMaxNumServicers, &res)
 	return
 }

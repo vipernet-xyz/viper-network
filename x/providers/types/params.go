@@ -16,13 +16,13 @@ const (
 	DefaultParamspace                        = ModuleName
 	DefaultUnstakingTime                     = time.Hour * 24 * 7 * 3
 	DefaultMaxProviders                int64 = math.MaxInt64
-	DefaultMinStake                    int64 = 0
+	DefaultMinStake                    int64 = 10000
 	DefaultBaseRelaysPerVIPR           int64 = 200000
 	DefaultStabilityModulation         int64 = 0
 	DefaultParticipationRateOn         bool  = false
 	DefaultMaxChains                   int64 = 15
-	DefaultMinNumServicers                   = int64(3)
-	DefaultMaxNumServicers                   = int64(25)
+	DefaultMinNumServicers                   = int32(3)
+	DefaultMaxNumServicers                   = int32(25)
 	DefaultMaxFreeTierRelaysPerSession       = int64(5000)
 )
 
@@ -51,8 +51,8 @@ type Params struct {
 	StabilityModulation         int64         `json:"stability_modulation" yaml:"stability_modulation"`     // the stability adjustment from the governance
 	ParticipationRate           bool          `json:"participation_rate_on" yaml:"participation_rate_on"`   // the participation rate affects the amount minted based on staked ratio
 	MaxChains                   int64         `json:"maximum_chains" yaml:"maximum_chains"`                 // the maximum number of chains an provider can stake for
-	MinNumServicers             int64         `json:"minimum_number_servicers"`
-	MaxNumServicers             int64         `json:"maximum_number_servicers"`
+	MinNumServicers             int32         `json:"minimum_number_servicers"`
+	MaxNumServicers             int32         `json:"maximum_number_servicers"`
 	MaxFreeTierRelaysPerSession int64         `json:"maximum_free_tier_relays_per_session"`
 }
 

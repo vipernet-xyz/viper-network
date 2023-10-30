@@ -27,6 +27,7 @@ func TestKeeper_GetSetClaim(t *testing.T) {
 	mockCtx.On("BlockHeight").Return(int64(1))
 	mockCtx.On("PrevCtx", header.SessionBlockHeight).Return(ctx, nil)
 	mockCtx.On("BlockHash", header.SessionBlockHeight).Return(types.Hash([]byte("fake")), nil)
+	mockCtx.On("Logger").Return(ctx.Logger())
 	err = keeper.SetClaim(mockCtx, claim)
 	assert.Nil(t, err)
 	c, found := keeper.GetClaim(mockCtx, sdk.Address(npk.Address()), header, types.RelayEvidence)
@@ -142,14 +143,14 @@ func TestKeeper_DeleteExpiredClaims(t *testing.T) {
 	mockCtx.On("KVStore", keys["params"]).Return(ctx.KVStore(keys["params"]))
 	mockCtx.On("PrevCtx", header.SessionBlockHeight).Return(ctx, nil)
 	mockCtx.On("PrevCtx", header2.SessionBlockHeight).Return(ctx, nil)
-	mockCtx.On("BlockHeight").Return(int64(1))
-	mockCtx.On("BlockHeight").Return(int64(2501)) // NOTE minimum height to start expiring from block 1
+	mockCtx.On("BlockHeight").Return(int64(2500)) // Use a round number for easier calculations
 
 	claims := []types.MsgClaim{expiredClaim, notExpired}
 	keeper.SetClaims(mockCtx, claims)
 	keeper.DeleteExpiredClaims(mockCtx)
 	c1 := keeper.GetAllClaims(mockCtx)
-	notExpired.ExpirationHeight = 2501
+	expectedExpiration := int64(2500) + (24 * 4) // Compute the expected expiration height
+	notExpired.ExpirationHeight = expectedExpiration
 	assert.Contains(t, c1, notExpired, "does not contain notExpired claim")
 	assert.NotContains(t, c1, expiredClaim, "contains expired claim")
 }

@@ -20,13 +20,13 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
-	"github.com/vipernet-xyz/viper-network/x/authentication"
-	"github.com/vipernet-xyz/viper-network/x/governance"
-	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	auth "github.com/vipernet-xyz/viper-network/x/authentication"
+	gov "github.com/vipernet-xyz/viper-network/x/governance"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
-	"github.com/vipernet-xyz/viper-network/x/servicers"
+	servicers "github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
@@ -45,8 +45,8 @@ import (
 
 var (
 	ModuleBasics = module.NewBasicManager(
-		authentication.AppModuleBasic{},
-		governance.AppModuleBasic{},
+		auth.AppModuleBasic{},
+		gov.AppModuleBasic{},
 	)
 )
 
@@ -71,32 +71,23 @@ func NewTestKeybase() keys.Keybase {
 // create a codec used only for testing
 func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
-	authentication.RegisterCodec(cdc)
-	governance.RegisterCodec(cdc)
+	auth.RegisterCodec(cdc)
+	gov.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	return cdc
 }
 
 // : deadcode unused
-func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Validator, []providersTypes.Provider, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
+func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Validator, []providersTypes.Provider, []auth.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
 	sdk.VbCCache = sdk.NewCache(1)
 	initPower := int64(100000000000)
 	nAccs := int64(5)
 	kb := NewTestKeybase()
 	_, err := kb.Create("test")
 	assert.Nil(t, err)
-	cb, err := kb.GetCoinbase()
-	assert.Nil(t, err)
-	addr := tmtypes.Address(cb.GetAddress())
-	pk, err := kb.ExportPrivateKeyObject(cb.GetAddress(), "test")
-	assert.Nil(t, err)
-	types.InitPVKeyFile(privval.FilePVKey{
-		Address: addr,
-		PubKey:  cb.PublicKey,
-		PrivKey: pk,
-	})
-	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
+
+	keyAcc := sdk.NewKVStoreKey(auth.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 	servicersKey := sdk.NewKVStoreKey(servicersTypes.StoreKey)
@@ -128,7 +119,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 		},
 	)
 	ctx = ctx.WithBlockHeader(abci.Header{
-		Height: 976,
+		Height: 977,
 		Time:   time.Time{},
 		LastBlockId: abci.BlockID{
 			Hash: types.Hash([]byte("fake")),
@@ -137,55 +128,69 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 	cdc := makeTestCodec()
 
 	maccPerms := map[string][]string{
-		authentication.FeeCollectorName: nil,
-		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Staking, authentication.Minter},
-		servicersTypes.StakedPoolName:   {authentication.Burner, authentication.Staking},
-		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Staking},
+		auth.FeeCollectorName:         nil,
+		providersTypes.StakedPoolName: {auth.Burner, auth.Staking, auth.Minter},
+		servicersTypes.StakedPoolName: {auth.Burner, auth.Staking},
+		govTypes.DAOAccountName:       {auth.Burner, auth.Staking},
 	}
 
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		modAccAddrs[authentication.NewModuleAddress(acc).String()] = true
+		modAccAddrs[auth.NewModuleAddress(acc).String()] = true
 	}
 	valTokens := sdk.TokensFromConsensusPower(initPower)
 
 	ethereum := hex.EncodeToString([]byte{01})
-
+	US := hex.EncodeToString([]byte{01})
 	hb := types.HostedBlockchains{
 		M: map[string]types.HostedBlockchain{ethereum: {
 			ID:  ethereum,
 			URL: "https://www.google.com:443",
 		}},
 	}
-	gz := types.HostedGeoZones{
-		M: map[string]types.GeoZone{"0001": {
-			ID: "0001",
+
+	hg := types.HostedGeoZones{
+		M: map[string]types.GeoZone{US: {
+			ID: US,
 		}},
 	}
-	types.InitConfig(&hb, &gz, log.NewTMLogger(os.Stdout), sdk.DefaultTestingViperConfig())
-	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
-	servicersSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
-	providerSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
+
+	cb, err := kb.GetCoinbase()
+	assert.Nil(t, err)
+	addr := tmtypes.Address(cb.GetAddress())
+	pk, err := kb.ExportPrivateKeyObject(cb.GetAddress(), "test")
+	assert.Nil(t, err)
+	types.CleanViperNodes()
+	types.AddViperNodeByFilePVKey(privval.FilePVKey{
+		Address: addr,
+		PubKey:  cb.PublicKey,
+		PrivKey: pk,
+	}, ctx.Logger())
+	types.InitConfig(&hb, &hg, log.NewTMLogger(os.Stdout), sdk.DefaultTestingViperConfig())
+
+	authSubspace := sdk.NewSubspace(auth.DefaultParamspace)
+	nodesSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
+	appSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(types.DefaultParamspace)
-	ak := authentication.NewKeeper(cdc, keyAcc, authSubspace, maccPerms)
-	nk := servicersKeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, servicersTypes.ModuleName)
-	providerk := providersKeeper.NewKeeper(cdc, providersKey, nk, ak, nil, providerSubspace, providersTypes.ModuleName)
-	providerk.SetProvider(ctx, getTestProvider())
-	keeper := NewKeeper(viperKey, cdc, ak, nk, providerk, &hb, &gz, viperSubspace)
-	providerk.ViperKeeper = keeper
+	ak := auth.NewKeeper(cdc, keyAcc, authSubspace, maccPerms)
+	nk := servicersKeeper.NewKeeper(cdc, servicersKey, ak, nodesSubspace, servicersTypes.ModuleName)
+	appk := providersKeeper.NewKeeper(cdc, providersKey, nk, ak, nil, appSubspace, providersTypes.ModuleName)
+	appk.SetProvider(ctx, getTestProvider())
+	keeper := NewKeeper(viperKey, cdc, ak, nk, appk, &hb, &hg, viperSubspace)
+	appk.ViperKeeper = keeper
 	assert.Nil(t, err)
 	moduleManager := module.NewManager(
-		authentication.NewAppModule(ak),
+		auth.NewAppModule(ak),
 		servicers.NewAppModule(nk),
-		providers.NewAppModule(providerk),
+		providers.NewAppModule(appk),
 	)
 	genesisState := ModuleBasics.DefaultGenesis()
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	ap := createTestProviders(ctx, int(nAccs), sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64)), providerk, ak)
+	ap := createTestApps(ctx, int(nAccs), sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64)), appk, ak)
 	vals := createTestValidators(ctx, int(nAccs), sdk.ZeroInt(), &nk, ak, kb)
-	providerk.SetParams(ctx, providersTypes.DefaultParams())
+	appk.SetParams(ctx, providersTypes.DefaultParams())
 	nk.SetParams(ctx, servicersTypes.DefaultParams())
 	defaultViperParams := types.DefaultParams()
 	defaultViperParams.SupportedBlockchains = []string{getTestSupportedBlockchain()}
@@ -193,10 +198,15 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 	return ctx, vals, ap, accs, keeper, keys, kb
 }
 
+func createTestInputWithLean(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Validator, []providersTypes.Provider, []auth.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
+	ctx, vals, ap, accs, keeper, keys, kb := createTestInput(t, isCheckTx)
+	return ctx, vals, ap, accs, keeper, keys, kb
+}
+
 var (
-	testProvider           providersTypes.Provider
-	testProviderPrivateKey crypto.PrivateKey
-	testSupportedChain     string
+	testApp            providersTypes.Provider
+	testAppPrivateKey  crypto.PrivateKey
+	testSupportedChain string
 )
 
 func getTestSupportedBlockchain() string {
@@ -207,16 +217,16 @@ func getTestSupportedBlockchain() string {
 }
 
 func getTestProviderPrivateKey() crypto.PrivateKey {
-	if testProviderPrivateKey == nil {
-		testProviderPrivateKey = getRandomPrivateKey()
+	if testAppPrivateKey == nil {
+		testAppPrivateKey = getRandomPrivateKey()
 	}
-	return testProviderPrivateKey
+	return testAppPrivateKey
 }
 
 func getTestProvider() providersTypes.Provider {
-	if testProvider.Address == nil {
+	if testApp.Address == nil {
 		pk := getTestProviderPrivateKey().PublicKey()
-		testProvider = providersTypes.Provider{
+		testApp = providersTypes.Provider{
 			Address:                 sdk.Address(pk.Address()),
 			PublicKey:               pk,
 			Jailed:                  false,
@@ -227,16 +237,16 @@ func getTestProvider() providersTypes.Provider {
 			UnstakingCompletionTime: time.Time{},
 		}
 	}
-	return testProvider
+	return testApp
 }
 
 // : unparam deadcode unused
-func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *authentication.Keeper) (accs []authentication.BaseAccount) {
+func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *auth.Keeper) (accs []auth.BaseAccount) {
 	for i := 0; i < numAccs; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey := privKey.PublicKey()
 		addr := sdk.Address(pubKey.Address())
-		acc := authentication.NewBaseAccountWithAddress(addr)
+		acc := auth.NewBaseAccountWithAddress(addr)
 		acc.Coins = initialCoins
 		acc.PubKey = pubKey
 		ak.SetAccount(ctx, &acc)
@@ -245,8 +255,9 @@ func createTestAccs(ctx sdk.Ctx, numAccs int, initialCoins sdk.Coins, ak *authen
 	return
 }
 
-func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *servicersKeeper.Keeper, ak authentication.Keeper, kb keys.Keybase) (accs servicersTypes.Validators) {
+func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *servicersKeeper.Keeper, ak auth.Keeper, kb keys.Keybase) (accs servicersTypes.Validators) {
 	ethereum := hex.EncodeToString([]byte{01})
+	US := hex.EncodeToString([]byte{01})
 	for i := 0; i < numAccs-1; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey := privKey.PublicKey()
@@ -254,10 +265,11 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 		privKey2 := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey2 := privKey2.PublicKey()
 		addr2 := sdk.Address(pubKey2.Address())
-		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, []string{"0001"}, addr2, servicersTypes.ReportCard{})
+		val := servicersTypes.NewValidator(addr, pubKey, []string{ethereum}, "https://www.google.com:443", valCoins, []string{US}, addr2, servicersTypes.ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0), TotalReliabilityScore: sdk.NewDec(0)})
 		// set the vals from the data
 		nk.SetValidator(ctx, val)
 		nk.SetStakedValidatorByChains(ctx, val)
+		nk.SetStakedValidatorByGeoZone(ctx, val)
 		// ensure there's a signing info entry for the val (used in slashing)
 		_, found := nk.GetValidatorSigningInfo(ctx, val.GetAddress())
 		if !found {
@@ -265,20 +277,22 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 				Address:     val.GetAddress(),
 				StartHeight: ctx.BlockHeight(),
 				JailedUntil: time.Unix(0, 0),
+				PausedUntil: time.Unix(0, 0),
 			}
 			nk.SetValidatorSigningInfo(ctx, val.GetAddress(), signingInfo)
 		}
 		accs = append(accs, val)
 	}
-	// add self servicer to it
+	// add self node to it
 	kp, er := kb.GetCoinbase()
 	if er != nil {
 		panic(er)
 	}
-	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, []string{"0001"}, kp.GetAddress(), servicersTypes.ReportCard{})
+	val := servicersTypes.NewValidator(sdk.Address(kp.GetAddress()), kp.PublicKey, []string{ethereum}, "https://www.google.com:443", valCoins, []string{US}, kp.GetAddress(), servicersTypes.ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0), TotalReliabilityScore: sdk.NewDec(0)})
 	// set the vals from the data
 	nk.SetValidator(ctx, val)
 	nk.SetStakedValidatorByChains(ctx, val)
+	nk.SetStakedValidatorByGeoZone(ctx, val)
 	// ensure there's a signing info entry for the val (used in slashing)
 	_, found := nk.GetValidatorSigningInfo(ctx, val.GetAddress())
 	if !found {
@@ -290,7 +304,7 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 		nk.SetValidatorSigningInfo(ctx, val.GetAddress(), signingInfo)
 	}
 	accs = append(accs, val)
-	// end self servicer logic
+	// end self node logic
 	stakedTokens := sdk.NewInt(int64(numAccs)).Mul(valCoins)
 	// take the staked amount and create the corresponding coins object
 	stakedCoins := sdk.NewCoins(sdk.NewCoin(nk.StakeDenom(ctx), stakedTokens))
@@ -315,19 +329,20 @@ func createTestValidators(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, nk *ser
 	return
 }
 
-func createTestProviders(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak providersKeeper.Keeper, sk authentication.Keeper) (accs providersTypes.Providers) {
+func createTestApps(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak providersKeeper.Keeper, sk auth.Keeper) (accs providersTypes.Providers) {
 	ethereum := hex.EncodeToString([]byte{01})
+	US := hex.EncodeToString([]byte{01})
 	for i := 0; i < numAccs; i++ {
 		privKey := crypto.Ed25519PrivateKey{}.GenPrivateKey()
 		pubKey := privKey.PublicKey()
 		addr := sdk.Address(pubKey.Address())
-		provider := providersTypes.NewProvider(addr, pubKey, []string{ethereum}, valCoins, []string{"0001"}, 5)
+		app := providersTypes.NewProvider(addr, pubKey, []string{ethereum}, valCoins, []string{US}, 5)
 		// set the vals from the data
 		// calculate relays
-		provider.MaxRelays = ak.CalculateProviderRelays(ctx, provider)
-		ak.SetProvider(ctx, provider)
-		ak.SetStakedProvider(ctx, provider)
-		accs = append(accs, provider)
+		app.MaxRelays = ak.CalculateProviderRelays(ctx, app)
+		ak.SetProvider(ctx, app)
+		ak.SetStakedProvider(ctx, app)
+		accs = append(accs, app)
 	}
 	stakedTokens := sdk.NewInt(int64(numAccs)).Mul(valCoins)
 	// take the staked amount and create the corresponding coins object
@@ -347,7 +362,7 @@ func createTestProviders(ctx sdk.Ctx, numAccs int, valCoins sdk.BigInt, ak provi
 	} else {
 		// if it is provided in the genesis file then ensure the two are equal
 		if !stakedPool.GetCoins().IsEqual(stakedCoins) {
-			panic(fmt.Sprintf("%s module account total does not equal the amount in each provider account", providersTypes.StakedPoolName))
+			panic(fmt.Sprintf("%s module account total does not equal the amount in each app account", providersTypes.StakedPoolName))
 		}
 	}
 	return
@@ -369,20 +384,25 @@ func getRandomValidatorAddress() sdk.Address {
 func simulateRelays(t *testing.T, k Keeper, ctx *sdk.Ctx, maxRelays int) (npk crypto.PublicKey, validHeader types.SessionHeader, keys simulateRelayKeys) {
 	npk = getRandomPubKey()
 	ethereum := hex.EncodeToString([]byte{01})
+	US := hex.EncodeToString([]byte{01})
 	clientKey := getRandomPrivateKey()
 	validHeader = types.SessionHeader{
 		ProviderPubKey:     getTestProvider().PublicKey.RawString(),
 		Chain:              ethereum,
+		GeoZone:            US,
+		NumServicers:       5,
 		SessionBlockHeight: 1,
 	}
 	logger := log.NewNopLogger()
 	types.InitConfig(&types.HostedBlockchains{
 		M: make(map[string]types.HostedBlockchain),
-	}, nil, logger, sdk.DefaultTestingViperConfig())
+	}, &types.HostedGeoZones{
+		M: make(map[string]types.GeoZone),
+	}, logger, sdk.DefaultTestingViperConfig())
 
 	// NOTE Add a minimum of 5 proofs to memInvoice to be able to create a merkle tree
 	for j := 0; j < maxRelays; j++ {
-		proof := createProof(getTestProviderPrivateKey(), clientKey, npk, ethereum, j)
+		proof := createProof(getTestProviderPrivateKey(), clientKey, npk, ethereum, US, j)
 		types.SetProof(validHeader, types.RelayEvidence, proof, sdk.NewInt(100000), types.GlobalEvidenceCache)
 	}
 	mockCtx := new(Ctx)
@@ -392,7 +412,8 @@ func simulateRelays(t *testing.T, k Keeper, ctx *sdk.Ctx, maxRelays int) (npk cr
 	keys = simulateRelayKeys{getTestProviderPrivateKey(), clientKey}
 	return
 }
-func createProof(private, client crypto.PrivateKey, npk crypto.PublicKey, chain string, entropy int) types.Proof {
+
+func createProof(private, client crypto.PrivateKey, npk crypto.PublicKey, chain string, geoZone string, entropy int) types.Proof {
 	aat := types.AAT{
 		Version:           "0.0.1",
 		ProviderPublicKey: private.PublicKey().RawString(),
@@ -412,6 +433,8 @@ func createProof(private, client crypto.PrivateKey, npk crypto.PublicKey, chain 
 		Blockchain:         chain,
 		Token:              aat,
 		Signature:          "",
+		GeoZone:            geoZone,
+		NumServicers:       5,
 	}
 	clientSig, er := client.Sign(proof.Hash())
 	if er != nil {
@@ -1123,9 +1146,4 @@ func (_m *Ctx) BlockHash(cdc *codec.Codec, _ int64) ([]byte, error) {
 	}
 
 	return r0, r1
-}
-
-func createTestInputWithLean(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Validator, []providersTypes.Provider, []authentication.BaseAccount, Keeper, map[string]*sdk.KVStoreKey, keys.Keybase) {
-	ctx, vals, ap, accs, keeper, keys, kb := createTestInput(t, isCheckTx)
-	return ctx, vals, ap, accs, keeper, keys, kb
 }

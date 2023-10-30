@@ -61,20 +61,24 @@ func TestViperNodeInitCaches(t *testing.T) {
 	CleanViperNodes()
 	key := GetRandomPrivateKey()
 	key2 := GetRandomPrivateKey()
+	key3 := GetRandomPrivateKey()
 	logger := log.NewNopLogger()
 	testingConfig := sdk.DefaultTestingViperConfig()
 	testingConfig.ViperConfig.LeanViper = true
 	AddViperNode(key, logger)
 	AddViperNode(key2, logger)
+	AddViperNode(key3, logger)
 	InitViperNodeCaches(testingConfig, logger)
 	assert.NotNil(t, GlobalSessionCache)
 	assert.NotNil(t, GlobalEvidenceCache)
-	assert.EqualValues(t, 2, len(GlobalViperNodes))
-	addresses := []sdk.Address{sdk.GetAddress(key.PublicKey()), sdk.GetAddress(key2.PublicKey())}
+	assert.NotNil(t, GlobalTestCache)
+	assert.EqualValues(t, 3, len(GlobalViperNodes))
+	addresses := []sdk.Address{sdk.GetAddress(key.PublicKey()), sdk.GetAddress(key2.PublicKey()), sdk.GetAddress(key3.PublicKey())}
 	for _, address := range addresses {
 		node, err := GetViperNodeByAddress(&address)
 		assert.Nil(t, err)
 		assert.NotNil(t, node.EvidenceStore)
 		assert.NotNil(t, node.SessionStore)
+		assert.NotNil(t, node.TestStore)
 	}
 }

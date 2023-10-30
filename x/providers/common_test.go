@@ -149,5 +149,7 @@ func getProvider() types.Provider {
 		Status:       sdk.Staked,
 		MaxRelays:    sdk.NewInt(100000000000),
 		Chains:       []string{"0001"},
+		GeoZones:     []string{"0001"},
+		NumServicers: 10,
 	}
 }

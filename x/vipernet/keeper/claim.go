@@ -185,7 +185,10 @@ func (k Keeper) SetClaim(ctx sdk.Ctx, msg vc.MsgClaim) error {
 		panic(err)
 	}
 	// set in the store
-	_ = store.Set(key, bz)
+	err = store.Set(key, bz)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

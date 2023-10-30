@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -33,6 +32,10 @@ func TestDefaultParams(t *testing.T) {
 				TokenRewardFactor:       DefaultTokenRewardFactor,
 				MaximumChains:           DefaultMaxChains,
 				MaxJailedBlocks:         DefaultMaxJailedBlocks,
+				MinPauseTime:            DefaultMinPauseTime,
+				MaxFishermen:            DefaultMaxFishermen,
+				FishermenCount:          DefaultFishermenCount,
+				SlashFractionNoActivity: DefaultSlashFractionNoActivity,
 			},
 		}}
 	for _, tt := range tests {
@@ -57,6 +60,10 @@ func TestParams_Equal(t *testing.T) {
 		DowntimeJailDuration     time.Duration
 		SlashFractionDoubleSign  types.BigDec
 		SlashFractionDowntime    types.BigDec
+		MinPauseTime             time.Duration
+		MaxFishermen             int64
+		FishermenCount           int64
+		SlashFractionNoActivity  types.BigDec
 	}
 	type args struct {
 		p2 Params
@@ -78,6 +85,10 @@ func TestParams_Equal(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.BigDec{},
 			SlashFractionDowntime:   types.BigDec{},
+			MinPauseTime:            0,
+			MaxFishermen:            0,
+			FishermenCount:          0,
+			SlashFractionNoActivity: types.BigDec{},
 		}, args{Params{
 			UnstakingTime:           0,
 			MaxValidators:           0,
@@ -88,7 +99,11 @@ func TestParams_Equal(t *testing.T) {
 			MinSignedPerWindow:      types.BigDec{},
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.BigDec{},
-			SlashFractionDowntime:   types.BigDec{}}}, true},
+			SlashFractionDowntime:   types.BigDec{},
+			MinPauseTime:            0,
+			MaxFishermen:            0,
+			FishermenCount:          0,
+			SlashFractionNoActivity: types.BigDec{}}}, true},
 		{"Default Test False", fields{
 			UnstakingTime:            0,
 			MaxValidators:            0,
@@ -101,6 +116,10 @@ func TestParams_Equal(t *testing.T) {
 			DowntimeJailDuration:     0,
 			SlashFractionDoubleSign:  types.BigDec{},
 			SlashFractionDowntime:    types.BigDec{},
+			MinPauseTime:             0,
+			MaxFishermen:             0,
+			FishermenCount:           0,
+			SlashFractionNoActivity:  types.BigDec{},
 		}, args{Params{
 			UnstakingTime:           0,
 			MaxValidators:           0,
@@ -111,7 +130,11 @@ func TestParams_Equal(t *testing.T) {
 			MinSignedPerWindow:      types.BigDec{},
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.BigDec{},
-			SlashFractionDowntime:   types.BigDec{}}}, false},
+			SlashFractionDowntime:   types.BigDec{},
+			MinPauseTime:            0,
+			MaxFishermen:            0,
+			FishermenCount:          0,
+			SlashFractionNoActivity: types.BigDec{}}}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -126,6 +149,10 @@ func TestParams_Equal(t *testing.T) {
 				DowntimeJailDuration:    tt.fields.DowntimeJailDuration,
 				SlashFractionDoubleSign: tt.fields.SlashFractionDoubleSign,
 				SlashFractionDowntime:   tt.fields.SlashFractionDowntime,
+				MinPauseTime:            tt.fields.MinPauseTime,
+				MaxFishermen:            tt.fields.MaxFishermen,
+				FishermenCount:          tt.fields.FishermenCount,
+				SlashFractionNoActivity: tt.fields.SlashFractionNoActivity,
 			}
 			if got := p.Equal(tt.args.p2); got != tt.want {
 				t.Errorf("Equal() = %v, want %v", got, tt.want)
@@ -136,21 +163,24 @@ func TestParams_Equal(t *testing.T) {
 
 func TestParams_Validate(t *testing.T) {
 	type fields struct {
-		UnstakingTime      time.Duration `json:"unstaking_time" yaml:"unstaking_time"` // duration of unstaking
-		MaxValidators      int64         `json:"max_validators" yaml:"max_validators"` // maximum number of validators
-		StakeDenom         string        `json:"stake_denom" yaml:"stake_denom"`       // bondable coin denomination
-		StakeMinimum       int64         `json:"stake_minimum" yaml:"stake_minimum"`   // minimum amount needed to stake
-		DaoAllocation      int64
-		ProviderAllocation float64
-		SessionBlock       int64 `json:"session_block" yaml:"session_block"`
-		ProposerAllocation int64 `json:"relays_to_tokens" yaml:"relays_to_tokens"`
-		// slashing params
+		UnstakingTime           time.Duration `json:"unstaking_time" yaml:"unstaking_time"` // duration of unstaking
+		MaxValidators           int64         `json:"max_validators" yaml:"max_validators"` // maximum number of validators
+		StakeDenom              string        `json:"stake_denom" yaml:"stake_denom"`       // bondable coin denomination
+		StakeMinimum            int64         `json:"stake_minimum" yaml:"stake_minimum"`   // minimum amount needed to stake
+		DaoAllocation           int64
+		ProviderAllocation      float64
+		SessionBlock            int64         `json:"session_block" yaml:"session_block"`
+		ProposerAllocation      int64         `json:"relays_to_tokens" yaml:"relays_to_tokens"`
 		MaxEvidenceAge          time.Duration `json:"max_evidence_age" yaml:"max_evidence_age"`
 		SignedBlocksWindow      int64         `json:"signed_blocks_window" yaml:"signed_blocks_window"`
 		MinSignedPerWindow      types.BigDec  `json:"min_signed_per_window" yaml:"min_signed_per_window"`
 		DowntimeJailDuration    time.Duration `json:"downtime_jail_duration" yaml:"downtime_jail_duration"`
 		SlashFractionDoubleSign types.BigDec  `json:"slash_fraction_double_sign" yaml:"slash_fraction_double_sign"`
 		SlashFractionDowntime   types.BigDec  `json:"slash_fraction_downtime" yaml:"slash_fraction_downtime"`
+		MinPauseTime            time.Duration `json:"min_pause_time" yaml:"min_pause_time"`
+		MaxFishermen            int64         `json:"max_fishermen"`
+		FishermenCount          int64         `json:"fishermen_count"`
+		SlashFractionNoActivity types.BigDec  `json:"slash_fraction_noactivity" yaml:"slash_fraction_noactivity"`
 	}
 	tests := []struct {
 		name    string
@@ -170,12 +200,16 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.BigDec{},
 			SlashFractionDowntime:   types.BigDec{},
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.BigDec{},
 		}, true},
 		{"Default Validation Test / Wrong StakeDenom", fields{
 			UnstakingTime:           0,
 			MaxValidators:           2,
 			StakeDenom:              "",
-			StakeMinimum:            1000000,
+			StakeMinimum:            10000000000,
 			SessionBlock:            1,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,
@@ -184,12 +218,16 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.ZeroDec(),
 			SlashFractionDowntime:   types.ZeroDec(),
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, true},
 		{"Default Validation Test / Wrong sessionblock", fields{
 			UnstakingTime:           0,
 			MaxValidators:           2,
 			StakeDenom:              "3",
-			StakeMinimum:            1000000,
+			StakeMinimum:            10000000000,
 			SessionBlock:            0,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,
@@ -198,12 +236,16 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.ZeroDec(),
 			SlashFractionDowntime:   types.ZeroDec(),
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, true},
 		{"Default Validation Test / Wrong max val", fields{
 			UnstakingTime:           0,
 			MaxValidators:           0,
 			StakeDenom:              "3",
-			StakeMinimum:            1000000,
+			StakeMinimum:            10000000000,
 			SessionBlock:            1,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,
@@ -212,6 +254,10 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.ZeroDec(),
 			SlashFractionDowntime:   types.ZeroDec(),
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          0,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, true},
 		{"Default Validation Test / Wrong stake minimun", fields{
 			UnstakingTime:           0,
@@ -226,12 +272,16 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.ZeroDec(),
 			SlashFractionDowntime:   types.ZeroDec(),
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, true},
 		{"Default Validation Test / Wrong reward percentage above", fields{
 			UnstakingTime:           0,
 			MaxValidators:           2,
 			StakeDenom:              "3",
-			StakeMinimum:            1000000,
+			StakeMinimum:            10000000000,
 			SessionBlock:            1,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,
@@ -240,12 +290,16 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.ZeroDec(),
 			SlashFractionDowntime:   types.ZeroDec(),
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, true},
 		{"Default Validation Test / Wrong dao allocation below", fields{
 			UnstakingTime:           0,
 			MaxValidators:           2,
 			StakeDenom:              "3",
-			StakeMinimum:            1000000,
+			StakeMinimum:            10000000000,
 			DaoAllocation:           -2,
 			ProviderAllocation:      -0.4,
 			SessionBlock:            1,
@@ -256,12 +310,16 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.ZeroDec(),
 			SlashFractionDowntime:   types.ZeroDec(),
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, true},
 		{"Default Validation Test / Wrong relays to token", fields{
 			UnstakingTime:           0,
 			MaxValidators:           2,
 			StakeDenom:              "3",
-			StakeMinimum:            1000000,
+			StakeMinimum:            10000000000,
 			SessionBlock:            1,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,
@@ -270,12 +328,16 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.ZeroDec(),
 			SlashFractionDowntime:   types.ZeroDec(),
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, true},
 		{"Default Validation Test / Valid", fields{
 			UnstakingTime:           0,
 			MaxValidators:           1000,
 			StakeDenom:              "3",
-			StakeMinimum:            1000000,
+			StakeMinimum:            10000000000,
 			SessionBlock:            30,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,
@@ -284,6 +346,10 @@ func TestParams_Validate(t *testing.T) {
 			DowntimeJailDuration:    0,
 			SlashFractionDoubleSign: types.BigDec{},
 			SlashFractionDowntime:   types.BigDec{},
+			MinPauseTime:            0,
+			MaxFishermen:            1,
+			FishermenCount:          1,
+			SlashFractionNoActivity: types.ZeroDec(),
 		}, false},
 	}
 	for _, tt := range tests {
@@ -302,6 +368,10 @@ func TestParams_Validate(t *testing.T) {
 				DowntimeJailDuration:    tt.fields.DowntimeJailDuration,
 				SlashFractionDoubleSign: tt.fields.SlashFractionDoubleSign,
 				SlashFractionDowntime:   tt.fields.SlashFractionDowntime,
+				MinPauseTime:            tt.fields.MinPauseTime,
+				MaxFishermen:            tt.fields.MaxFishermen,
+				FishermenCount:          tt.fields.FishermenCount,
+				SlashFractionNoActivity: tt.fields.SlashFractionNoActivity,
 			}
 			if err := p.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -392,108 +462,6 @@ func TestParams_ParamSetPairs(t *testing.T) {
 			}
 			if got := p.ParamSetPairs(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ParamSetPairs() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestParams_String(t *testing.T) {
-	type fields struct {
-		UnstakingTime           time.Duration
-		MaxValidators           int64
-		StakeDenom              string
-		StakeMinimum            int64
-		ProposerAllocation      int64
-		SessionBlockFrequency   int64
-		DaoAllocation           int64
-		ProviderAllocation      int64
-		MaxEvidenceAge          time.Duration
-		SignedBlocksWindow      int64
-		MinSignedPerWindow      types.BigDec
-		DowntimeJailDuration    time.Duration
-		SlashFractionDoubleSign types.BigDec
-		SlashFractionDowntime   types.BigDec
-		MaximumChains           int64
-		MaxJailedBlocks         int64
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   string
-	}{
-		{"String Test", fields{
-			UnstakingTime:           DefaultUnstakingTime,
-			MaxValidators:           DefaultMaxValidators,
-			StakeMinimum:            DefaultMinStake,
-			StakeDenom:              types.DefaultStakeDenom,
-			ProposerAllocation:      DefaultProposerAllocation,
-			MaxEvidenceAge:          DefaultMaxEvidenceAge,
-			SignedBlocksWindow:      DefaultSignedBlocksWindow,
-			MinSignedPerWindow:      DefaultMinSignedPerWindow,
-			DowntimeJailDuration:    DefaultDowntimeJailDuration,
-			SlashFractionDoubleSign: DefaultSlashFractionDoubleSign,
-			SlashFractionDowntime:   DefaultSlashFractionDowntime,
-			SessionBlockFrequency:   DefaultSessionBlocktime,
-			DaoAllocation:           DefaultDAOAllocation,
-			ProviderAllocation:      DefaultProviderAllocation,
-			MaximumChains:           DefaultMaxChains,
-			MaxJailedBlocks:         DefaultMaxJailedBlocks,
-		}, fmt.Sprintf(`Params:
-  Unstaking Time:          %s
-  Max Validators:          %d
-  Stake Coin Denom:        %s
-  Minimum Stake:     	   %d
-  MaxEvidenceAge:          %s
-  SignedBlocksWindow:      %d
-  MinSignedPerWindow:      %s
-  DowntimeJailDuration:    %s
-  SlashFractionDoubleSign: %s
-  SlashFractionDowntime:   %s
-  BlocksPerSession         %d
-  Proposer Allocation      %d
-  DAO allocation           %d
-  Provider allocation           %d
-  Maximum Chains           %d
-  Max Jailed Blocks        %d`,
-			DefaultUnstakingTime,
-			DefaultMaxValidators,
-			types.DefaultStakeDenom,
-			DefaultMinStake,
-			DefaultMaxEvidenceAge,
-			DefaultSignedBlocksWindow,
-			DefaultMinSignedPerWindow,
-			DefaultDowntimeJailDuration,
-			DefaultSlashFractionDoubleSign,
-			DefaultSlashFractionDowntime,
-			DefaultSessionBlocktime,
-			DefaultProposerAllocation,
-			DefaultDAOAllocation,
-			DefaultProviderAllocation,
-			DefaultMaxChains,
-			DefaultMaxJailedBlocks)},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			p := Params{
-				UnstakingTime:           tt.fields.UnstakingTime,
-				MaxValidators:           tt.fields.MaxValidators,
-				StakeDenom:              tt.fields.StakeDenom,
-				StakeMinimum:            tt.fields.StakeMinimum,
-				ProposerAllocation:      tt.fields.ProposerAllocation,
-				SessionBlockFrequency:   tt.fields.SessionBlockFrequency,
-				DAOAllocation:           tt.fields.DaoAllocation,
-				ProviderAllocation:      tt.fields.ProviderAllocation,
-				MaxEvidenceAge:          tt.fields.MaxEvidenceAge,
-				SignedBlocksWindow:      tt.fields.SignedBlocksWindow,
-				MinSignedPerWindow:      tt.fields.MinSignedPerWindow,
-				DowntimeJailDuration:    tt.fields.DowntimeJailDuration,
-				SlashFractionDoubleSign: tt.fields.SlashFractionDoubleSign,
-				SlashFractionDowntime:   tt.fields.SlashFractionDowntime,
-				MaximumChains:           tt.fields.MaximumChains,
-				MaxJailedBlocks:         tt.fields.MaxJailedBlocks,
-			}
-			if got := p.String(); got != tt.want {
-				t.Errorf("String() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -171,6 +171,10 @@ func (app *ViperCoreApp) ExportAppState(height int64, forZeroHeight bool, jailWh
 }
 
 func (app *ViperCoreApp) ExportState(height int64, chainID string) (string, error) {
+	ctx, err := app.NewContext(height)
+	if err != nil {
+		return "", err
+	}
 	j, err := app.ExportAppState(height, false, nil)
 	if err != nil {
 		return "", err
@@ -182,7 +186,7 @@ func (app *ViperCoreApp) ExportState(height int64, chainID string) (string, erro
 		ChainID: chainID,
 		ConsensusParams: &tmtypes.ConsensusParams{
 			Block: tmtypes.BlockParams{
-				MaxBytes:   8000000,
+				MaxBytes:   app.viperKeeper.BlockByteSize(ctx),
 				MaxGas:     -1,
 				TimeIotaMs: 1,
 			},

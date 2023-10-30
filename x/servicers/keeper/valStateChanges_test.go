@@ -589,16 +589,25 @@ func TestKeeper_ValidateValidatorStaking(t *testing.T) {
 		args   args
 		want   sdk.Error
 	}{
-		{"Test ValidateValidatorStaking", fields{keeper: keeper}, args{
-			ctx:       context,
-			validator: validator,
-			amount:    sdk.NewInt(1000000),
-		}, types.ErrNotEnoughCoins(types.ModuleName)},
+		{
+			name:   "Test ValidateValidatorStaking - Not Enough Coins",
+			fields: fields{keeper: keeper},
+			args: args{
+				ctx:       context,
+				validator: validator,
+				amount:    sdk.NewInt(1000000), // This should be greater than the balance in the account
+			},
+			want: types.ErrNotEnoughCoins(types.ModuleName),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k := tt.fields.keeper
 			codec.TestMode = -2
+
+			// Setting balance to a value less than the staking amount but greater than the minimum stake.
+			k.AccountKeeper.SetCoins(tt.args.ctx, tt.args.validator.Address, sdk.NewCoins(sdk.NewCoin(k.StakeDenom(tt.args.ctx), sdk.NewInt(500000))))
+
 			if got := k.ValidateValidatorStaking(tt.args.ctx, tt.args.validator, tt.args.amount, sdk.Address(tt.args.validator.PublicKey.Address())); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ValidateValidatorStaking() = %v, want %v", got, tt.want)
 			}

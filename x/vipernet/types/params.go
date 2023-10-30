@@ -75,6 +75,7 @@ func DefaultParams() Params {
 		MinimumNumberOfProofs:      DefaultMinimumNumberOfProofs,
 		MinimumSampleRelays:        DefaultMinimumSampleRelays,
 		BlockByteSize:              DefaultBlockByteSize,
+		SupportedGeoZones:          nil,
 		ReportCardSubmissionWindow: DefaultReportCardSubmissionWindow,
 	}
 }

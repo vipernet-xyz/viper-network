@@ -304,7 +304,6 @@ func (m *Manager) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) abci.ResponseE
 			validatorUpdates = moduleValUpdates
 		}
 
-		// Currently its only a non-empty struct in the pocket-core modules
 		consensusParamUpdate := m.Modules[moduleName].ConsensusParamsUpdate(ctx)
 		if !consensusParamUpdate.Equal(&abci.ConsensusParams{}) {
 			consensusUpdates = consensusParamUpdate
