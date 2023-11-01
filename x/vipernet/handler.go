@@ -124,7 +124,7 @@ func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmit
 	defer sdk.TimeTrack(time.Now())
 
 	// validate the report card submission message
-	if err := msg.ValidateBasic(); err != nil {
+	if err := k.ValidateSumbitReportCard(ctx, msg); err != nil {
 		return err.Result()
 	}
 

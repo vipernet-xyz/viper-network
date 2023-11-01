@@ -237,6 +237,7 @@ func TestProviderStateChange_EditAndValidateStakeProvider(t *testing.T) {
 	accountAmount := sdk.NewInt(1000000000000).Add(stakeAmount)
 	bumpStakeAmount := sdk.NewInt(1000000000000)
 	newChains := []string{"0021"}
+	newGeoZones := []string{"0003"}
 	provider := getUnstakedProvider()
 	provider.StakedTokens = sdk.ZeroInt()
 	// updatedStakeAmount
@@ -251,6 +252,14 @@ func TestProviderStateChange_EditAndValidateStakeProvider(t *testing.T) {
 	updateChainsProvider := provider
 	updateChainsProvider.StakedTokens = stakeAmount
 	updateChainsProvider.Chains = newChains
+	// updateGeoZones
+	updateGeoZonesProvider := provider
+	updateGeoZonesProvider.StakedTokens = stakeAmount
+	updateGeoZonesProvider.GeoZones = newGeoZones
+	//updateNumServicers
+	updateNumServicersProvider := provider
+	updateNumServicersProvider.StakedTokens = stakeAmount
+	updateNumServicersProvider.NumServicers = 7
 	//same provider no change no fail
 	updateNothingProvider := provider
 	updateNothingProvider.StakedTokens = stakeAmount

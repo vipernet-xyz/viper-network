@@ -17,8 +17,9 @@ func TestInitExportGenesis(t *testing.T) {
 		MinimumNumberOfProofs: int64(5),
 	}
 	genesisState := types.GenesisState{
-		Params: p,
-		Claims: []types.MsgClaim(nil),
+		Params:      p,
+		Claims:      []types.MsgClaim(nil),
+		ReportCards: []types.MsgSubmitReportCard(nil),
 	}
 	InitGenesis(ctx, k, genesisState)
 	assert.Equal(t, k.GetParams(ctx), p)

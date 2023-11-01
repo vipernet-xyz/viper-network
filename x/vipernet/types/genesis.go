@@ -2,9 +2,9 @@ package types
 
 // "GenesisState" - The state of the module from the beginning
 type GenesisState struct {
-	Params Params     `json:"params" yaml:"params"` // governance params
-	Claims []MsgClaim `json:"claims"`               // outstanding claims
-	//ReportCards []MsgSubmitReportCard `json:"report_cards"`
+	Params      Params                `json:"params" yaml:"params"` // governance params
+	Claims      []MsgClaim            `json:"claims"`               // outstanding claims
+	ReportCards []MsgSubmitReportCard `json:"report_cards"`
 }
 
 // "ValidateGenesis" - Returns an error on an invalid genesis object
@@ -17,6 +17,11 @@ func ValidateGenesis(gs GenesisState) error {
 	// validate each claim
 	for _, claim := range gs.Claims {
 		if err := claim.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+	for _, reportCard := range gs.ReportCards {
+		if err := reportCard.ValidateBasic(); err != nil {
 			return err
 		}
 	}

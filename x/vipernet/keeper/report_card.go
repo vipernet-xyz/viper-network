@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/tendermint/tendermint/rpc/client"
@@ -66,6 +67,79 @@ func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, no
 	if _, err := reportCardTx(node.PrivateKey, cliCtx, txBuilder, sessionHeader, servicerAddr, qosReport); err != nil {
 		ctx.Logger().Error(fmt.Sprintf("An error occurred executing the report card transaction: \n%s", err.Error()))
 	}
+}
+
+func (k Keeper) ValidateSumbitReportCard(ctx sdk.Ctx, submitReportcard vc.MsgSubmitReportCard) (err sdk.Error) {
+	// check to see if evidence type is included in the message
+	if submitReportcard.EvidenceType == 0 {
+		return vc.NewNoEvidenceTypeErr(vc.ModuleName)
+	}
+	// get the session context (state info at the beginning of the session)
+	sessionContext, er := ctx.PrevCtx(submitReportcard.SessionHeader.SessionBlockHeight)
+	if er != nil {
+		return sdk.ErrInternal(er.Error())
+	}
+	// ensure that session ended
+	sessionEndHeight := submitReportcard.SessionHeader.SessionBlockHeight + k.BlocksPerSession(sessionContext) - 1
+	if ctx.BlockHeight() <= sessionEndHeight {
+		return vc.NewInvalidBlockHeightError(vc.ModuleName)
+	}
+	node := vc.GetViperNode()
+	result, er := vc.GetResult(submitReportcard.SessionHeader, submitReportcard.EvidenceType, submitReportcard.ServicerAddress, node.TestStore)
+	if er != nil {
+		ctx.Logger().Error(fmt.Sprintf("An error occurred retrieving the result: \n%s", err.Error()))
+		return
+	}
+	if result.NumOfTestResults < k.MinimumSampleRelays(sessionContext) {
+		return vc.NewInvalidTestsError(vc.ModuleName)
+	}
+	// if is not a viper supported blockchain then return not supported error
+	if !k.IsViperSupportedBlockchain(sessionContext, submitReportcard.SessionHeader.Chain) {
+		return vc.NewChainNotSupportedErr(vc.ModuleName)
+	}
+	// get the node from the keeper (at the state of the start of the session)
+	_, found := k.GetNode(sessionContext, submitReportcard.FishermanAddress)
+	// if not found return not found error
+	if !found {
+		return vc.NewNodeNotFoundErr(vc.ModuleName)
+	}
+	// get the application (at the state of the start of the session)
+	app, found := k.GetProviderFromPublicKey(sessionContext, submitReportcard.SessionHeader.ProviderPubKey)
+	// if not found return not found error
+	if !found {
+		return vc.NewProviderNotFoundError(vc.ModuleName)
+	}
+	// get the session node count for the time of the session
+	sessionNodeCount := int(app.GetNumServicers())
+	// check cache
+	session, found := vc.GetSession(submitReportcard.SessionHeader, vc.GlobalSessionCache)
+	if !found {
+		// use the session end context to ensure that people who were jailed mid session do not get to submit claims
+		sessionEndCtx, er := ctx.PrevCtx(sessionEndHeight)
+		if er != nil {
+			return sdk.ErrInternal("could not get prev context: " + er.Error())
+		}
+		hash, er := sessionContext.BlockHash(k.Cdc, sessionContext.BlockHeight())
+		if er != nil {
+			return sdk.ErrInternal(er.Error())
+		}
+		// create a new session to validate
+		session, err = vc.NewSession(sessionContext, sessionEndCtx, k.posKeeper, submitReportcard.SessionHeader, hex.EncodeToString(hash))
+		if err != nil {
+			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", app.GetPublicKey().RawString(), submitReportcard.SessionHeader.Chain).Error())
+			return err
+		}
+	}
+	// validate the session
+	err = session.Validate(submitReportcard.ServicerAddress, app, sessionNodeCount)
+	if err != nil {
+		return err
+	}
+	// check if the proof is ready to be claimed, if it's already ready to be claimed, then it's too late to submit cause the secret is revealed
+	if k.ReportCardIsExpired(ctx, submitReportcard.SessionHeader.SessionBlockHeight) {
+		return vc.NewExpiredReportSubmissionError(vc.ModuleName)
+	}
+	return nil
 }
 
 // "SetReportCard" - Sets the report card in the state storage

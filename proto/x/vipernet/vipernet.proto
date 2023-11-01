@@ -192,5 +192,4 @@ message MsgSubmitReportCard {
     bytes servicer_address = 2 [(gogoproto.jsontag) = "servicer_addr", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
     bytes fisherman_address = 3 [(gogoproto.jsontag) = "fisherman_addr", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
     ViperQoSReport report = 4 [(gogoproto.jsontag) = "report", (gogoproto.nullable) = false];
-    int64 expirationHeight = 5 [(gogoproto.jsontag) = "expiration_height"];
 }

@@ -821,6 +821,7 @@ type MsgSubmitReportCard struct {
 	ServicerAddress  github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,2,opt,name=servicer_address,json=servicerAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"servicer_addr"`
 	FishermanAddress github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,3,opt,name=fisherman_address,json=fishermanAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"fisherman_addr"`
 	Report           ViperQoSReport                                      `protobuf:"bytes,4,opt,name=report,proto3" json:"report"`
+	EvidenceType     EvidenceType                                        `protobuf:"varint,5,opt,name=evidenceType,proto3,casttype=EvidenceType" json:"evidence_type"`
 }
 
 func (m *MsgSubmitReportCard) Reset()      { *m = MsgSubmitReportCard{} }
@@ -1663,6 +1664,9 @@ func (this *MsgSubmitReportCard) Equal(that interface{}) bool {
 	if !this.Report.Equal(&that1.Report) {
 		return false
 	}
+	if this.EvidenceType != that1.EvidenceType {
+		return false
+	}
 	return true
 }
 func (this *SessionHeader) GoString() string {
@@ -1950,6 +1954,7 @@ func (this *MsgSubmitReportCard) GoString() string {
 	s = append(s, "ServicerAddress: "+fmt.Sprintf("%#v", this.ServicerAddress)+",\n")
 	s = append(s, "FishermanAddress: "+fmt.Sprintf("%#v", this.FishermanAddress)+",\n")
 	s = append(s, "Report: "+strings.Replace(this.Report.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "EvidenceType: "+fmt.Sprintf("%#v", this.EvidenceType)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -2986,6 +2991,11 @@ func (m *MsgSubmitReportCard) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.EvidenceType != 0 {
+		i = encodeVarintVipernet(dAtA, i, uint64(m.EvidenceType))
+		i--
+		dAtA[i] = 0x28
+	}
 	{
 		size, err := m.Report.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
@@ -3478,6 +3488,9 @@ func (m *MsgSubmitReportCard) Size() (n int) {
 	}
 	l = m.Report.Size()
 	n += 1 + l + sovVipernet(uint64(l))
+	if m.EvidenceType != 0 {
+		n += 1 + sovVipernet(uint64(m.EvidenceType))
+	}
 	return n
 }
 
@@ -3769,6 +3782,7 @@ func (this *MsgSubmitReportCard) String() string {
 		`ServicerAddress:` + fmt.Sprintf("%v", this.ServicerAddress) + `,`,
 		`FishermanAddress:` + fmt.Sprintf("%v", this.FishermanAddress) + `,`,
 		`Report:` + strings.Replace(strings.Replace(this.Report.String(), "ViperQoSReport", "ViperQoSReport", 1), `&`, ``, 1) + `,`,
+		`EvidenceType:` + fmt.Sprintf("%v", this.EvidenceType) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -6945,6 +6959,25 @@ func (m *MsgSubmitReportCard) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EvidenceType", wireType)
+			}
+			m.EvidenceType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EvidenceType |= EvidenceType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipVipernet(dAtA[iNdEx:])

@@ -14,13 +14,15 @@ func InitGenesis(ctx sdk.Ctx, keeper keeper.Keeper, data types.GenesisState) []a
 	keeper.SetParams(ctx, data.Params)
 	// set the claim objects in store
 	keeper.SetClaims(ctx, data.Claims)
+	keeper.SetReportCards(ctx, data.ReportCards)
 	return []abci.ValidatorUpdate{}
 }
 
 // "ExportGenesis" - Exports the state in a genesis state object
 func ExportGenesis(ctx sdk.Ctx, k keeper.Keeper) types.GenesisState {
 	return types.GenesisState{
-		Params: k.GetParams(ctx),
-		Claims: k.GetAllClaims(ctx),
+		Params:      k.GetParams(ctx),
+		Claims:      k.GetAllClaims(ctx),
+		ReportCards: k.GetAllReportCards(ctx),
 	}
 }

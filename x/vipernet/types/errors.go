@@ -100,6 +100,8 @@ const (
 	CodeInvalidSampleError                 = 94
 	CodeEmptyGeoZoneError                  = 95
 	CodeUnsupportedGeoZoneProviderError    = 96
+	CodeInvalidTestsError                  = 97
+	CodeExpiredReportSubmissionError       = 98
 )
 
 var (
@@ -201,6 +203,8 @@ var (
 	ZeroTimeError                      = errors.New("Timestamp cannot be zero")
 	NegativeLatency                    = errors.New("Latency should be a positive duration")
 	EmptyGeoZoneError                  = errors.New("the geozone is of Length 0")
+	InvalidTestsError                  = errors.New("the tests provided are invalid or less than the minimum requirement")
+	ExpiredReportSubmissionError       = errors.New("the opportunity of window to submit the Report has closed because the secret has been revealed")
 )
 
 func NewSealedEvidenceError(codespace sdk.CodespaceType) sdk.Error {
@@ -224,6 +228,10 @@ func NewAddressInvalidLengthError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewExpiredProofsSubmissionError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeExpiredProofsSubmissionError, ExpiredProofsSubmissionError.Error())
+}
+
+func NewExpiredReportSubmissionError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeExpiredReportSubmissionError, ExpiredReportSubmissionError.Error())
 }
 
 func NewMerkleNodeNotFoundError(codespace sdk.CodespaceType) sdk.Error {
@@ -350,6 +358,10 @@ func NewInvalidChainParamsError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewInvalidProofsError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidProofsError, InvalidProofsError.Error())
+}
+
+func NewInvalidTestsError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidTestsError, InvalidTestsError.Error())
 }
 
 func NewNodeNotFoundErr(codespace sdk.CodespaceType) sdk.Error {
