@@ -62,7 +62,7 @@ func (k Keeper) IterateAndExecuteOverPrevStateVals(
 			ctx.Logger().Error(fmt.Errorf("validator record not found for address: %v, at height %d\n", address, ctx.BlockHeight()).Error())
 			continue
 		}
-		stop := fn(i, validator) // XXX is this safe will the validator unexposed fields be able to get written to?
+		stop := fn(i, validator)
 		if stop {
 			break
 		}

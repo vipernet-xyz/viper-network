@@ -28,7 +28,7 @@ type PosKeeper interface {
 	GetStakedValidatorsLimit(ctx sdk.Ctx, maxRetrieve int64) (validators []servicersexported.ValidatorI)
 	MaxFishermen(ctx sdk.Ctx) (res int64)
 	FishermenCount(ctx sdk.Ctx) (res int64)
-	PauseNode(ctx sdk.Ctx, addr sdk.Address)
+	PauseNode(ctx sdk.Ctx, addr sdk.Address) sdk.Error
 	BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address)
 	GetHistoricalInfo(ctx sdk.Ctx, height int64) (servicersTypes.HistoricalInfo, bool)
 	UnbondingTime(ctx sdk.Ctx) time.Duration

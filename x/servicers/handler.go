@@ -167,12 +167,15 @@ func handleMsgPause(ctx sdk.Ctx, msg types.MsgPause, k keeper.Keeper) sdk.Result
 	ctx.Logger().Info("Pause Node Message received from " + msg.ValidatorAddr.String())
 
 	// Validate the PauseNode message
-	addr, err := k.ValidatePauseNodeMessage(ctx, msg)
+	err := k.ValidatePauseNodeMessage(ctx, msg)
 	if err != nil {
 		return err.Result()
 	}
 
-	k.PauseNode(ctx, addr)
+	err = k.PauseNode(ctx, msg.ValidatorAddr)
+	if err != nil {
+		return err.Result()
+	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,

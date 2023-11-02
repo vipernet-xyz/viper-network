@@ -150,3 +150,36 @@ func Test_sortNoLongerStakedValidators(t *testing.T) {
 		})
 	}
 }
+
+func TestGetValidatorReportCard(t *testing.T) {
+	// Create a test context, store, and keeper
+	context, _, keeper := createTestInput(t, true)
+
+	// Create a staked validator with a report card
+	stakedValidator := getStakedValidator()
+	reportCard := types.ReportCard{
+		TotalSessions:          10,
+		TotalLatencyScore:      sdk.NewDecWithPrec(5, 1), // 0.5
+		TotalAvailabilityScore: sdk.NewDecWithPrec(8, 1), // 0.8
+		TotalReliabilityScore:  sdk.NewDecWithPrec(9, 1), // 0.9
+	}
+	stakedValidator.ReportCard = reportCard
+
+	// Set the validator with the report card in the store
+	keeper.SetValidatorReportCard(context, stakedValidator)
+
+	// Retrieve the report card for the validator
+	retrievedReportCard, found := keeper.GetValidatorReportCard(context, stakedValidator)
+	assert.True(t, found)
+
+	// Check that the retrieved report card matches the expected values
+	assert.Equal(t, reportCard.TotalSessions, retrievedReportCard.TotalSessions)
+	assert.True(t, reportCard.TotalLatencyScore.LT(sdk.OneDec()))      // Check that it's less than 1
+	assert.True(t, reportCard.TotalAvailabilityScore.LT(sdk.OneDec())) // Check that it's less than 1
+	assert.True(t, reportCard.TotalReliabilityScore.LT(sdk.OneDec()))  // Check that it's less than 1
+
+	// Try to retrieve a report card for a non-existing validator
+	nonExistingValidator := getStakedValidator()
+	_, found = keeper.GetValidatorReportCard(context, nonExistingValidator)
+	assert.False(t, found)
+}
