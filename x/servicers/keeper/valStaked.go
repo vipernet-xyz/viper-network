@@ -93,7 +93,7 @@ func (k Keeper) deleteValidatorForGeoZone(ctx sdk.Ctx, validator types.Validator
 			ctx.Logger().Error(fmt.Errorf("could not hex decode geozone for validator: %s with geozone: %s, at height %d", validator.Address, g, ctx.BlockHeight()).Error())
 			continue
 		}
-		_ = store.Delete(types.KeyForValidatorByNetworkID(validator.Address, gBz))
+		_ = store.Delete(types.KeyForValidatorByGeoZone(validator.Address, gBz))
 	}
 }
 

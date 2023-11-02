@@ -219,3 +219,19 @@ func TestProviderStaked_IterateAndExecuteOverStakedProviders(t *testing.T) {
 		})
 	}
 }
+
+func TestGetSetDeleteValidatorsByGeoZone(t *testing.T) {
+	sdk.VbCCache = sdk.NewCache(1)
+
+	stakedValidator := getStakedValidator()
+	context, _, keeper := createTestInput(t, true)
+	keeper.SetValidator(context, stakedValidator)
+
+	keeper.SetStakedValidatorByGeoZone(context, stakedValidator)
+	vals, _ := keeper.GetValidatorsByGeoZone(context, stakedValidator.GeoZone[0])
+	assert.Contains(t, vals, stakedValidator.Address)
+
+	keeper.deleteValidatorForGeoZone(context, stakedValidator)
+	vals, _ = keeper.GetValidatorsByGeoZone(context, stakedValidator.GeoZone[0])
+	assert.NotContains(t, vals, stakedValidator.Address)
+}
