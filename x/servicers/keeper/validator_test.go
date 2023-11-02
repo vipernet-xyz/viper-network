@@ -214,3 +214,23 @@ func TestKeeper_UpdateValidatorReportCard(t *testing.T) {
 	assert.Equal(t, sdk.NewDecWithPrec(7, 1), updatedValidator.ReportCard.TotalAvailabilityScore)
 	assert.Equal(t, sdk.NewDecWithPrec(6, 1), updatedValidator.ReportCard.TotalReliabilityScore)
 }
+
+func TestKeeper_DeleteValidatorReportCard(t *testing.T) {
+	// Create a context, keeper, and set up any initial conditions
+	context, _, keeper := createTestInput(t, true)
+
+	// Create a test validator
+	validator := getStakedValidator()
+	validator.Address = getRandomValidatorAddress()
+
+	// Set the validator with an empty report card
+	keeper.SetValidator(context, validator)
+
+	// Call the function to delete the validator's report card
+	err := keeper.deleteValidatorReportCard(context, validator)
+	require.NoError(t, err)
+
+	// Attempt to retrieve the deleted report card
+	_, found := keeper.GetValidatorReportCard(context, validator)
+	assert.False(t, found, "Report card should be deleted")
+}
