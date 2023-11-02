@@ -14,6 +14,7 @@ const (
 	EventTypeSlash                   = "slash"
 	EventTypeJail                    = "jail"
 	EventTypeLiveness                = "liveness"
+	EventTypePause                   = "paused"
 	AttributeKeyAddress              = "address"
 	AttributeKeyHeight               = "height"
 	AttributeKeyPower                = "power"

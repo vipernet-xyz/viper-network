@@ -42,6 +42,7 @@ const (
 	CodeValidatorAlreadyPaused      CodeType          = 130
 	CodeValidatorNotPaused          CodeType          = 131
 	CodeValidatorPaused             CodeType          = 132
+	CodeValidatorUnstaked           CodeType          = 133
 )
 
 func ErrTooManyChains(codespace sdk.CodespaceType) sdk.Error {
@@ -183,4 +184,8 @@ func ErrValidatorNotPaused(codespace sdk.CodespaceType) sdk.Error {
 
 func ErrValidatorPaused(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeValidatorPaused, "validator paused")
+}
+
+func ErrValidatorUnstaked(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeValidatorPaused, "validator unstaked")
 }

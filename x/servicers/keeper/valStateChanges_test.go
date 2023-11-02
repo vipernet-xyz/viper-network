@@ -52,6 +52,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 	accountAmount := sdk.NewInt(1000000000000).Add(stakeAmount)
 	bumpStakeAmount := sdk.NewInt(1000000000000)
 	newChains := []string{"0021"}
+	newGeoZone := []string{"0003"}
 	val := getUnstakedValidator()
 	val.StakedTokens = sdk.ZeroInt()
 	val.OutputAddress = val.Address
@@ -72,6 +73,10 @@ func TestValidatorStateChange_EditAndValidateStakeValidator(t *testing.T) {
 	updateServiceURL.StakedTokens = stakeAmount
 	updateServiceURL.Chains = newChains
 	updateServiceURL.ServiceURL = "https://newServiceUrl.com"
+	// updateGeoZones
+	updateGeoZonesVal := val
+	updateGeoZonesVal.StakedTokens = stakeAmount
+	updateGeoZonesVal.GeoZone = newGeoZone
 	// nil output addresss
 	nilOutputAddress := val
 	nilOutputAddress.OutputAddress = nil
@@ -222,6 +227,7 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 	accountAmount := sdk.NewInt(1000000000000).Add(stakeAmount)
 	bumpStakeAmount := sdk.NewInt(1000000000000)
 	newChains := []string{"0021"}
+	newGeoZone := []string{"0003"}
 	val := getUnstakedValidator()
 	val.StakedTokens = sdk.ZeroInt()
 	val.OutputAddress = val.Address
@@ -242,6 +248,10 @@ func TestValidatorStateChange_EditAndValidateStakeValidatorAfterNonCustodialUpgr
 	updateServiceURL.StakedTokens = stakeAmount
 	updateServiceURL.Chains = newChains
 	updateServiceURL.ServiceURL = "https://newServiceUrl.com"
+	// updateGeoZones
+	updateGeoZonesVal := val
+	updateGeoZonesVal.StakedTokens = stakeAmount
+	updateGeoZonesVal.GeoZone = newGeoZone
 	// nil output addresss
 	nilOutputAddress := val
 	nilOutputAddress.OutputAddress = nil
@@ -729,6 +739,167 @@ func TestKeeper_ValidateUnjailMessage(t *testing.T) {
 				JailedBlocksCounter: 0,
 			})
 			_, err := tt.args.k.ValidateUnjailMessage(tt.args.ctx, tt.args.msg)
+			assert.Equal(t, tt.want, err)
+		})
+	}
+}
+
+func TestKeeper_ValidatePauseNodeMessage(t *testing.T) {
+	type args struct {
+		ctx sdk.Ctx
+		k   Keeper
+		v   types.Validator
+		msg types.MsgPause
+	}
+
+	unauthSigner := getRandomValidatorAddress()
+	validator := getStakedValidator()
+	validator.Paused = false
+	validator.OutputAddress = getRandomValidatorAddress()
+
+	validatorNoOutput := validator
+	validatorNoOutput.Paused = false
+	validatorNoOutput.OutputAddress = nil
+
+	context, _, keeper := createTestInput(t, true)
+
+	msgPauseAuthorizedByValidator := types.MsgPause{
+		ValidatorAddr: validator.Address,
+		Signer:        validator.Address,
+	}
+
+	msgPauseAuthorizedByOutput := types.MsgPause{
+		ValidatorAddr: validator.Address,
+		Signer:        validator.OutputAddress,
+	}
+
+	msgPauseUnauthorizedSigner := types.MsgPause{
+		ValidatorAddr: validator.Address,
+		Signer:        unauthSigner,
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want sdk.Error
+	}{
+		{"Test ValidatePauseNodeMessage With Output Address & AuthorizedByValidator", args{
+			ctx: context,
+			k:   keeper,
+			v:   validator,
+			msg: msgPauseAuthorizedByValidator,
+		}, nil},
+		{"Test ValidatePauseNodeMessage With Output Address & AuthorizedByOutput", args{
+			ctx: context,
+			k:   keeper,
+			v:   validator,
+			msg: msgPauseAuthorizedByOutput,
+		}, nil},
+		{"Test ValidatePauseNodeMessage Without Output Address & AuthorizedByValidator", args{
+			ctx: context,
+			k:   keeper,
+			v:   validatorNoOutput,
+			msg: msgPauseAuthorizedByValidator,
+		}, nil},
+		{"Test ValidatePauseNodeMessage Without Output Address & AuthorizedByOutput", args{
+			ctx: context,
+			k:   keeper,
+			v:   validatorNoOutput,
+			msg: msgPauseAuthorizedByOutput,
+		}, types.ErrUnauthorizedSigner("pos")},
+		{"Test ValidatePauseNodeMessage Without Output Address & Unauthorized", args{
+			ctx: context,
+			k:   keeper,
+			v:   validatorNoOutput,
+			msg: msgPauseUnauthorizedSigner,
+		}, types.ErrUnauthorizedSigner("pos")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper.SetValidator(tt.args.ctx, tt.args.v)
+			err := tt.args.k.ValidatePauseNodeMessage(tt.args.ctx, tt.args.msg)
+			assert.Equal(t, tt.want, err)
+		})
+	}
+}
+
+func TestKeeper_ValidateUnpauseNodeMessage(t *testing.T) {
+	type args struct {
+		ctx sdk.Ctx
+		k   Keeper
+		v   types.Validator
+		msg types.MsgUnpause
+	}
+	unauthSigner := getRandomValidatorAddress()
+	validator := getStakedValidator()
+	validator.Paused = true
+	validator.OutputAddress = getRandomValidatorAddress()
+	validatorNoOutput := validator
+	validatorNoOutput.Paused = true
+	validatorNoOutput.OutputAddress = nil
+	context, _, keeper := createTestInput(t, true)
+	msgUnpauseAuthorizedByValidator := types.MsgUnpause{
+		ValidatorAddr: validator.Address,
+		Signer:        validator.Address,
+	}
+	msgUnpauseAuthorizedByOutput := types.MsgUnpause{
+		ValidatorAddr: validator.Address,
+		Signer:        validator.OutputAddress,
+	}
+	msgUnpauseUnauthorizedSigner := types.MsgUnpause{
+		ValidatorAddr: validator.Address,
+		Signer:        unauthSigner,
+	}
+	tests := []struct {
+		name string
+		args args
+		want error
+	}{
+		{"Test ValidateUnpauseNodeMessage With Output Address & AuthorizedByValidator", args{
+			ctx: context,
+			k:   keeper,
+			v:   validator,
+			msg: msgUnpauseAuthorizedByValidator,
+		}, nil},
+		{"Test ValidateUnpauseNodeMessage With Output Address & AuthorizedByOutput", args{
+			ctx: context,
+			k:   keeper,
+			v:   validator,
+			msg: msgUnpauseAuthorizedByOutput,
+		}, nil},
+		{"Test ValidateUnpauseNodeMessage Without Output Address & AuthorizedByValidator", args{
+			ctx: context,
+			k:   keeper,
+			v:   validatorNoOutput,
+			msg: msgUnpauseAuthorizedByValidator,
+		}, nil},
+		{"Test ValidateUnpauseNodeMessage Without Output Address & AuthorizedByOutput", args{
+			ctx: context,
+			k:   keeper,
+			v:   validatorNoOutput,
+			msg: msgUnpauseAuthorizedByOutput,
+		}, types.ErrUnauthorizedSigner("pos")},
+		{"Test ValidateUnpauseNodeMessage Without Output Address & Unauthorized", args{
+			ctx: context,
+			k:   keeper,
+			v:   validatorNoOutput,
+			msg: msgUnpauseUnauthorizedSigner,
+		}, types.ErrUnauthorizedSigner("pos")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper.SetValidator(tt.args.ctx, tt.args.v)
+			keeper.SetValidatorSigningInfo(tt.args.ctx, tt.args.v.Address, types.ValidatorSigningInfo{
+				Address:             tt.args.v.Address,
+				StartHeight:         0,
+				Index:               0,
+				JailedUntil:         time.Time{},
+				MissedBlocksCounter: 0,
+				JailedBlocksCounter: 0,
+			})
+			_, err := tt.args.k.ValidateUnpauseNodeMessage(tt.args.ctx, tt.args.msg)
 			assert.Equal(t, tt.want, err)
 		})
 	}

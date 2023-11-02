@@ -151,7 +151,6 @@ func (k Keeper) ValidateValidatorStaking(ctx sdk.Ctx, validatorNew types.Validat
 		if !valid {
 			return err
 		}
-		// edit stake in 6.X upgrade
 		if validatorCur.IsStaked() {
 			return k.ValidateEditStake(ctx, validatorCur, validatorNew, amount, signerAddress)
 		}
@@ -639,71 +638,67 @@ func (k Keeper) UnjailValidator(ctx sdk.Ctx, addr sdk.Address) {
 	k.Logger(ctx).Info(fmt.Sprintf("validator %s unjailed", addr))
 }
 
-// PauseNode - Pause a node
-func (k Keeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) {
+// PauseNode - Pause a validator
+func (k Keeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) sdk.Error {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
-		ctx.Logger().Error(fmt.Errorf("cannot find paused validator: %v at height: %d", addr, ctx.BlockHeight()).Error())
-		return
+		return types.ErrNoValidatorForAddress(k.Codespace())
 	}
 	if validator.Paused {
-		ctx.Logger().Debug(fmt.Errorf("cannot pause already paused validator, validator: %v a height: %d", validator, ctx.BlockHeight()).Error())
-		return
+		return types.ErrValidatorAlreadyPaused(k.Codespace())
 	}
 	if validator.IsUnstaked() {
-		ctx.Logger().Info(fmt.Errorf("cannot pause an unstaked validator, likely left in the set to update Tendermint Val Set: %v", validator).Error())
-		return
+		return types.ErrValidatorUnstaked(k.Codespace())
 	}
-	// clear caching for sesssions
+
+	// Clear caching for sessions
 	k.ClearSessionCache()
+
+	// Remove the validator from the staking set
 	k.deleteValidatorFromStakingSet(ctx, validator)
+
+	// Pause the validator
 	validator.Paused = true
 	k.SetValidator(ctx, validator)
-	logger := k.Logger(ctx)
-	logger.Debug(fmt.Sprintf("validator %s paused", addr))
+
+	// Emit a pause event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeJail,
+			types.EventTypePause,
 			sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
-			sdk.NewAttribute(types.AttributeKeyReason, types.AttributeValueMissingSignature),
 		),
 	)
+
+	return nil
 }
 
 // ValidatePauseNodeMessage - Check PauseNode message
-func (k Keeper) ValidatePauseNodeMessage(ctx sdk.Ctx, msg types.MsgPause) (addr sdk.Address, err sdk.Error) {
+func (k Keeper) ValidatePauseNodeMessage(ctx sdk.Ctx, msg types.MsgPause) sdk.Error {
 	validator, found := k.GetValidator(ctx, msg.ValidatorAddr)
 	if !found {
-		return nil, types.ErrNoValidatorForAddress(k.Codespace())
-	}
-	// Check msg Signature
-	err, valid := ValidateValidatorMsgSigner(validator, msg.Signer, k)
-	if !valid {
-		return nil, err
+		return types.ErrNoValidatorForAddress(k.Codespace())
 	}
 
-	// cannot pause if no self-delegation exists
-	selfDel := validator.GetTokens()
-	if selfDel == sdk.ZeroInt() {
-		return nil, types.ErrMissingSelfDelegation(k.Codespace())
+	// Check if the message signer is either the operator or the output address
+	if !validator.Address.Equals(msg.Signer) && !validator.OutputAddress.Equals(msg.Signer) {
+		return types.ErrUnauthorizedSigner(k.Codespace())
+	}
+
+	// Cannot pause if no self-delegation exists
+	if validator.GetTokens().IsZero() {
+		return types.ErrMissingSelfDelegation(k.Codespace())
 	}
 
 	if validator.GetTokens().LT(sdk.NewInt(k.MinimumStake(ctx))) {
-		k.SetWaitingValidator(ctx, validator) // defensive against potential issues
+		k.SetWaitingValidator(ctx, validator) // Defensive against potential issues
 	}
 
-	// cannot pause if already paused
+	// Cannot pause if already paused
 	if validator.IsPaused() {
-		return nil, types.ErrValidatorAlreadyPaused(k.Codespace())
-	}
-	addr = validator.GetAddress()
-
-	_, found = k.GetValidatorSigningInfo(ctx, addr)
-	if !found {
-		return nil, types.ErrNoValidatorForAddress(k.Codespace())
+		return types.ErrValidatorAlreadyPaused(k.Codespace())
 	}
 
-	return
+	return nil
 }
 
 // UnpausedNode - Remove a validator from jail
