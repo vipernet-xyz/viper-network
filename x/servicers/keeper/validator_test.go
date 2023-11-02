@@ -9,6 +9,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_GetValidators(t *testing.T) {
@@ -167,7 +168,6 @@ func TestGetValidatorReportCard(t *testing.T) {
 
 	// Set the validator with the report card in the store
 	keeper.SetValidatorReportCard(context, stakedValidator)
-
 	// Retrieve the report card for the validator
 	retrievedReportCard, found := keeper.GetValidatorReportCard(context, stakedValidator)
 	assert.True(t, found)
@@ -182,4 +182,35 @@ func TestGetValidatorReportCard(t *testing.T) {
 	nonExistingValidator := getStakedValidator()
 	_, found = keeper.GetValidatorReportCard(context, nonExistingValidator)
 	assert.False(t, found)
+}
+
+func TestKeeper_UpdateValidatorReportCard(t *testing.T) {
+	// Create a context, keeper, and set up any initial conditions
+	context, _, keeper := createTestInput(t, true)
+
+	// Create a test validator
+	validator := getStakedValidator()
+	validator.Address = getRandomValidatorAddress()
+
+	// Set the validator with an empty report card
+	keeper.SetValidator(context, validator)
+	// Create a sample session report
+	sessionReport := types.ReportCard{
+		TotalSessions:          10,
+		TotalLatencyScore:      sdk.NewDecWithPrec(8, 1),
+		TotalAvailabilityScore: sdk.NewDecWithPrec(7, 1),
+		TotalReliabilityScore:  sdk.NewDecWithPrec(6, 1),
+	}
+
+	// Call the function to update the validator's report card
+	keeper.UpdateValidatorReportCard(context, validator.Address, sessionReport)
+
+	// Retrieve the updated validator
+	updatedValidator, found := keeper.GetValidator(context, validator.Address)
+	require.True(t, found)
+	// Check if the report card has been updated correctly
+	assert.Equal(t, int64(10), updatedValidator.ReportCard.TotalSessions)
+	assert.Equal(t, sdk.NewDecWithPrec(8, 1), updatedValidator.ReportCard.TotalLatencyScore)
+	assert.Equal(t, sdk.NewDecWithPrec(7, 1), updatedValidator.ReportCard.TotalAvailabilityScore)
+	assert.Equal(t, sdk.NewDecWithPrec(6, 1), updatedValidator.ReportCard.TotalReliabilityScore)
 }

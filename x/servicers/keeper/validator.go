@@ -337,24 +337,15 @@ func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, session
 	// Increase the total sessions count
 	validator.ReportCard.TotalSessions += sessionReport.TotalSessions
 
-	newLatencyScore := validator.ReportCard.TotalLatencyScore.Add(sessionReport.TotalLatencyScore).Quo(sdk.NewDec(int64(validator.ReportCard.TotalSessions)))
-	if newLatencyScore.GT(sdk.NewDec(1)) {
-		newLatencyScore = sdk.NewDec(1)
-	}
-	validator.ReportCard.TotalLatencyScore = newLatencyScore
+	// Update the total scores with the session scores
+	validator.ReportCard.TotalLatencyScore = validator.ReportCard.TotalLatencyScore.Add(sessionReport.TotalLatencyScore)
+	validator.ReportCard.TotalAvailabilityScore = validator.ReportCard.TotalAvailabilityScore.Add(sessionReport.TotalAvailabilityScore)
+	validator.ReportCard.TotalReliabilityScore = validator.ReportCard.TotalReliabilityScore.Add(sessionReport.TotalReliabilityScore)
 
-	newAvailabilityScore := validator.ReportCard.TotalAvailabilityScore.Add(sessionReport.TotalAvailabilityScore).Quo(sdk.NewDec(int64(validator.ReportCard.TotalSessions)))
-	if newAvailabilityScore.GT(sdk.NewDec(1)) {
-		newAvailabilityScore = sdk.NewDec(1)
-	}
-	validator.ReportCard.TotalAvailabilityScore = newAvailabilityScore
-
-	// Update the reliability score similar to the above scores
-	newReliabilityScore := validator.ReportCard.TotalReliabilityScore.Add(sessionReport.TotalReliabilityScore).Quo(sdk.NewDec(int64(validator.ReportCard.TotalSessions)))
-	if newReliabilityScore.GT(sdk.NewDec(1)) {
-		newReliabilityScore = sdk.NewDec(1)
-	}
-	validator.ReportCard.TotalReliabilityScore = newReliabilityScore
+	// Ensure the scores are within the range [0, 1]
+	validator.ReportCard.TotalLatencyScore = sdk.MinDec(validator.ReportCard.TotalLatencyScore, sdk.NewDec(1))
+	validator.ReportCard.TotalAvailabilityScore = sdk.MinDec(validator.ReportCard.TotalAvailabilityScore, sdk.NewDec(1))
+	validator.ReportCard.TotalReliabilityScore = sdk.MinDec(validator.ReportCard.TotalReliabilityScore, sdk.NewDec(1))
 
 	// Save the updated validator data
 	k.SetValidator(ctx, validator)
