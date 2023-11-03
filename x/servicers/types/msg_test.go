@@ -863,3 +863,399 @@ func TestMsgUnjail_ValidateBasic(t *testing.T) {
 		})
 	}
 }
+
+func TestMsgPause_GetSignBytes(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	msg := MsgPause{
+		ValidatorAddr: validatorAddr,
+		Signer:        signerAddr,
+	}
+
+	encMsg, _ := ModuleCdc.MarshalJSON(&msg)
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   []byte
+	}{
+		{"Test GetSignBytes", fields{validatorAddr, signerAddr}, encMsg},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgPause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.GetSignBytes(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetSignBytes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgPause_GetSigners(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   []sdk.Address
+	}{
+		{"Test GetSigners", fields{validatorAddr, signerAddr}, []sdk.Address{signerAddr, validatorAddr}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgPause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.GetSigners(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetSigners() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgPause_Route(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{"Test Route", fields{validatorAddr, signerAddr}, ModuleName},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgPause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.Route(); got != tt.want {
+				t.Errorf("Route() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgPause_Type(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{"Test Type", fields{validatorAddr, validatorAddr}, MsgPauseName},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgPause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.ValidatorAddr,
+			}
+			if got := msg.Type(); got != tt.want {
+				t.Errorf("Type() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgPause_ValidateBasic(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   sdk.Error
+	}{
+		{"Test ValidateBasic OK", fields{validatorAddr, signerAddr}, nil},
+		{"Test ValidateBasic Bad Address", fields{nil, signerAddr}, ErrNoValidatorFound(DefaultCodespace)},
+		{"Test ValidateBasic Bad Signer", fields{validatorAddr, nil}, ErrNilSignerAddr(DefaultCodespace)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgPause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.ValidateBasic(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ValidateBasic() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgUnpause_GetSignBytes(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	msg := MsgUnpause{
+		ValidatorAddr: validatorAddr,
+		Signer:        signerAddr,
+	}
+
+	encMsg, _ := ModuleCdc.MarshalJSON(&msg)
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   []byte
+	}{
+		{"Test GetSignBytes", fields{validatorAddr, signerAddr}, encMsg},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgUnpause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.GetSignBytes(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetSignBytes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgUnpause_GetSigners(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   []sdk.Address
+	}{
+		{"Test GetSigners", fields{validatorAddr, signerAddr}, []sdk.Address{signerAddr, validatorAddr}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgUnpause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.GetSigners(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetSigners() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgUnpause_Route(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{"Test Route", fields{validatorAddr, signerAddr}, ModuleName},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgUnpause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.Route(); got != tt.want {
+				t.Errorf("Route() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgUnpause_Type(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{"Test Type", fields{validatorAddr, validatorAddr}, MsgUnpauseName},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgUnpause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.ValidatorAddr,
+			}
+			if got := msg.Type(); got != tt.want {
+				t.Errorf("Type() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMsgUnpause_ValidateBasic(t *testing.T) {
+	type fields struct {
+		ValidatorAddr sdk.Address
+		Signer        sdk.Address
+	}
+
+	var pub crypto.Ed25519PublicKey
+	_, err := rand.Read(pub[:])
+	if err != nil {
+		_ = err
+	}
+	validatorAddr := sdk.Address(pub.Address())
+	var pub2 crypto.Ed25519PublicKey
+	_, err = rand.Read(pub2[:])
+	if err != nil {
+		_ = err
+	}
+	signerAddr := sdk.Address(pub2.Address())
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   sdk.Error
+	}{
+		{"Test ValidateBasic OK", fields{validatorAddr, signerAddr}, nil},
+		{"Test ValidateBasic Bad Address", fields{nil, signerAddr}, ErrNoValidatorFound(DefaultCodespace)},
+		{"Test ValidateBasic Bad Signer", fields{validatorAddr, nil}, ErrNilSignerAddr(DefaultCodespace)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := MsgUnpause{
+				ValidatorAddr: tt.fields.ValidatorAddr,
+				Signer:        tt.fields.Signer,
+			}
+			if got := msg.ValidateBasic(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ValidateBasic() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

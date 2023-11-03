@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/vipernet-xyz/viper-network/types"
+	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
 func TestDefaultParams(t *testing.T) {
@@ -397,6 +398,12 @@ func TestParams_ParamSetPairs(t *testing.T) {
 		SlashFractionDowntime   types.BigDec
 		MaximumChains           int64
 		MaxJailedBlocks         int64
+		ServicerCountLock       bool
+		BurnActive              bool
+		MinPauseTime            time.Duration
+		MaxFishermen            int64
+		FishermenCount          int64
+		SlashFractionNoActivity sdk.BigDec
 	}
 
 	defParam := Params{
@@ -415,6 +422,12 @@ func TestParams_ParamSetPairs(t *testing.T) {
 		DAOAllocation:           DefaultDAOAllocation,
 		MaximumChains:           DefaultMaxChains,
 		MaxJailedBlocks:         DefaultMaxJailedBlocks,
+		ServicerCountLock:       DefaultServicerCountLock,
+		BurnActive:              DefaultBurnActive,
+		MinPauseTime:            DefaultMinPauseTime,
+		MaxFishermen:            DefaultMaxFishermen,
+		FishermenCount:          DefaultFishermenCount,
+		SlashFractionNoActivity: DefaultSlashFractionNoActivity,
 	}
 	defparamPairs := defParam.ParamSetPairs()
 
@@ -439,6 +452,12 @@ func TestParams_ParamSetPairs(t *testing.T) {
 			DAOAllocation:           DefaultDAOAllocation,
 			MaximumChains:           DefaultMaxChains,
 			MaxJailedBlocks:         DefaultMaxJailedBlocks,
+			ServicerCountLock:       DefaultServicerCountLock,
+			BurnActive:              DefaultBurnActive,
+			MinPauseTime:            DefaultMinPauseTime,
+			MaxFishermen:            DefaultMaxFishermen,
+			FishermenCount:          DefaultFishermenCount,
+			SlashFractionNoActivity: DefaultSlashFractionNoActivity,
 		}, defparamPairs},
 	}
 	for _, tt := range tests {
@@ -459,6 +478,12 @@ func TestParams_ParamSetPairs(t *testing.T) {
 				SlashFractionDowntime:   tt.fields.SlashFractionDowntime,
 				MaximumChains:           tt.fields.MaximumChains,
 				MaxJailedBlocks:         tt.fields.MaxJailedBlocks,
+				ServicerCountLock:       tt.fields.ServicerCountLock,
+				BurnActive:              tt.fields.BurnActive,
+				MinPauseTime:            tt.fields.MinPauseTime,
+				MaxFishermen:            tt.fields.MaxFishermen,
+				FishermenCount:          tt.fields.FishermenCount,
+				SlashFractionNoActivity: tt.fields.SlashFractionNoActivity,
 			}
 			if got := p.ParamSetPairs(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ParamSetPairs() = %v, want %v", got, tt.want)
