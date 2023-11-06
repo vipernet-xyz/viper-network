@@ -234,9 +234,7 @@ func Shuffle(proofs []Test, rng *rand.Rand) {
 	}
 }
 
-func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*ViperQoSReport, error) {
-	expectedLatency := CalculateExpectedLatency(globalRPCTimeout)
-
+func CalculateQoSForServicer(result *ServicerResults, blockHeight int64, latencyScore sdk.BigDec) (*ViperQoSReport, error) {
 	firstSampleTimestamp := time.Time{}
 	if len(result.Timestamps) > 0 {
 		firstSampleTimestamp = result.Timestamps[0]
@@ -244,16 +242,6 @@ func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*Viper
 
 	// Calculate availability score
 	_, scaledAvailabilityScore := CalculateAvailabilityScore(len(result.Availabilities), countTrue(result.Availabilities))
-	latencyScore := sdk.BigDec{}
-	if len(result.Latencies) > 0 {
-		/*
-			Let's say result.Latencies has three values: 10ms, 20ms, 30ms. Thus, the total latency is 60ms and the average latency is 20ms.
-			If the expected latency is 15ms, then the latency score would be 15/20 = 0.75
-		*/
-		totalLatency := sumDurations(result.Latencies)
-		averageLatency := totalLatency / time.Duration(len(result.Latencies))
-		latencyScore = sdk.MinDec(sdk.OneDec(), sdk.NewDecFromInt(sdk.NewInt(int64(expectedLatency))).Quo(sdk.NewDecFromInt(sdk.NewInt(int64(averageLatency)))))
-	}
 
 	// Calculate reliability score
 	reliabilityScore := CalculateReliabilityScore(len(result.Reliabilities), countTrue(result.Reliabilities))
@@ -262,9 +250,9 @@ func CalculateQoSForServicer(result *ServicerResults, blockHeight int64) (*Viper
 		FirstSampleTimestamp: firstSampleTimestamp,
 		BlockHeight:          blockHeight,
 		ServicerAddress:      result.ServicerAddress,
-		LatencyScore:         latencyScore,
 		AvailabilityScore:    scaledAvailabilityScore,
 		ReliabilityScore:     reliabilityScore,
+		LatencyScore:         latencyScore, // Set the latency score
 	}
 
 	return report, nil
@@ -298,13 +286,7 @@ func CalculateReliabilityScore(totalSamples int, matchedSamples int) sdk.BigDec 
 	return sdk.NewDec(int64(matchedSamples)).Quo(sdk.NewDec(int64(totalSamples)))
 }
 
-// returns the expected latency to a threshold.
-func CalculateExpectedLatency(timeoutGivenToRelay time.Duration) time.Duration {
-	expectedLatency := (timeoutGivenToRelay / 2)
-	return expectedLatency
-}
-
-func sumDurations(durations []time.Duration) time.Duration {
+func SumDurations(durations []time.Duration) time.Duration {
 	sum := time.Duration(0)
 	for _, d := range durations {
 		sum += d

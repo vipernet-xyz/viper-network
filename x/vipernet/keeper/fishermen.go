@@ -9,6 +9,7 @@ import (
 	"math"
 	"math/big"
 	"math/rand"
+	"sort"
 	"time"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -46,7 +47,6 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 }
 
 func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger) sdk.Error {
-	// Get session information from the relay
 	sessionHeader := vc.SessionHeader{
 		ProviderPubKey:     trigger.Proof.Token.ProviderPublicKey,
 		Chain:              trigger.Proof.Blockchain,
@@ -56,18 +56,15 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	}
 
 	latestSessionBlockHeight := k.GetLatestSessionBlockHeight(ctx)
-	// get the session context
 	sessionCtx, er := ctx.PrevCtx(latestSessionBlockHeight)
 	if er != nil {
 		return sdk.ErrInternal(er.Error())
 	}
-	// Retrieve the session
 	session, found := vc.GetSession(sessionHeader, vc.GlobalSessionCache)
 	if !found {
 		return sdk.ErrInternal("Session not found")
 	}
 
-	// Get actual servicers from the session
 	actualServicers := make([]exported.ValidatorI, len(session.SessionServicers))
 	for i, addr := range session.SessionServicers {
 		actualServicers[i], _ = k.GetNode(sessionCtx, addr)
@@ -80,44 +77,40 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	fishermanAddress = fisherman.GetAddress()
 	fishermanValidator, _ := k.GetSelfNode(ctx)
 
-	// Map to hold results for all servicers
 	results := make(map[string]*vc.ServicerResults)
 
-	// Initialize the results map
 	for _, servicer := range actualServicers {
 		servicerAddrStr := servicer.GetAddress().String()
 		results[servicerAddrStr] = &vc.ServicerResults{}
 	}
+
 	go func() {
 		ticker := time.NewTicker(time.Duration(10+rand.Intn(25)) * time.Second)
-		defer ticker.Stop() // Ensure to stop the ticker once done
+		defer ticker.Stop()
 
 		for {
 			select {
-			case <-ticker.C: // On each tick
-
-				// Check end conditions
+			case <-ticker.C:
 				if (ctx.BlockHeight()+int64(fishermanAddress[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
 					// Calculate and send QoS for each servicer after breaking the loop
+					latencyScores := CalculateLatencyScores(results) // Calculate latency scores based on comparisons
+
 					for _, servicer := range actualServicers {
 						servicerResult := results[servicer.GetAddress().String()]
 
-						// Get proofs for the current servicer
 						proofs, err := k.GetProofsForServicer(ctx, sessionHeader, servicer.GetAddress(), fisherman.TestStore)
 						if err != nil {
 							fmt.Errorf("Sample Relay Proofs could not be fetched for %s", servicer)
 						}
 
-						// Use time and block height as seed for random selection
 						seed := time.Now().UnixNano() + int64(ctx.BlockHeight())
 						rng := rand.New(rand.NewSource(seed))
-						subsetSize := int(float64(len(proofs)) * 0.20) // Take 20% of total relays
-
+						subsetSize := int(float64(len(proofs)) * 0.20)
 						if len(proofs) > int(subsetSize) {
 							vc.Shuffle(proofs, rng)
 							proofs = proofs[:subsetSize]
 						}
-						// Convert proofs into a Result structure for Merkle Root generation
+
 						resultForMerkle := &vc.Result{
 							SessionHeader:    sessionHeader,
 							ServicerAddr:     servicer.GetAddress(),
@@ -126,36 +119,32 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 							EvidenceType:     vc.FishermanTestEvidence,
 						}
 
-						// Generate Merkle Root using the Result structure
 						merkleRoot := resultForMerkle.GenerateSampleMerkleRoot(sessionHeader.SessionBlockHeight, fisherman.TestStore)
 
-						// Assuming your QoS report has a field for the Merkle Root
-						qos, err := vc.CalculateQoSForServicer(servicerResult, sessionHeader.SessionBlockHeight)
-						qos.SampleRoot = merkleRoot
+						qos, err := vc.CalculateQoSForServicer(servicerResult, sessionHeader.SessionBlockHeight, latencyScores[servicer.GetAddress().String()])
 						if err != nil {
 							fmt.Errorf("QoS Report could not be created for %s", servicer)
 						}
-						//Generate nonce
+
+						qos.SampleRoot = merkleRoot
+
 						nonce, err := rand1.Int(rand1.Reader, big.NewInt(math.MaxInt64))
 						if err != nil {
 							return
 						}
 						qos.Nonce = nonce.Int64()
 						signer, _ := vc.NewSigner(fishermanValidator)
-						// Sign the QoS report
 						qos.Signature, err = k.SignQoSReport(signer, qos)
 						if err != nil {
 							fmt.Errorf("QoS Report could not be signed")
 						}
 
-						// Send the QoS to the servicer.
 						k.SendReportCardTx(ctx, k, k.TmNode, fisherman, qos.ServicerAddress, sessionHeader, resultForMerkle.EvidenceType, *qos, vc.SendReportCardTx)
 					}
 
 					return
 				}
 
-				// Loop over each servicer in the session
 				for _, servicer := range actualServicers {
 					startTime := time.Now()
 					Blockchain := trigger.Proof.Blockchain
@@ -171,13 +160,11 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 					servicerResult.Availabilities = append(servicerResult.Availabilities, isAvailable)
 					servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
 
-					// If the last 5 results show the servicer missed signing 5 times consecutively, pause the node.
 					if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
 						k.posKeeper.BurnforNoActivity(ctx, servicer.GetAddress())
 						k.posKeeper.PauseNode(ctx, servicer.GetAddress())
 					}
 
-					// Store the test result after generating it
 					testResult := vc.TestResult{
 						ServicerAddress: servicer.GetAddress(),
 						Timestamp:       startTime,
@@ -226,12 +213,6 @@ func (k Keeper) GetProofsForServicer(ctx sdk.Ctx, header vc.SessionHeader, servi
 	return proofs, nil
 }
 
-func (k Keeper) sendQoSToServicer(ctx sdk.Ctx, servicer exported.ValidatorI, qos *vc.ViperQoSReport) error {
-	// Logic to send QoS to the servicer. This will be chain specific.
-	// For now, a placeholder. You would replace this with actual logic.
-	return nil
-}
-
 func init() {
 	gob.Register(vc.ViperQoSReport{})
 }
@@ -250,4 +231,94 @@ func (k Keeper) SignQoSReport(signer *vc.Signer, report *vc.ViperQoSReport) (str
 	}
 
 	return signer.Sign(buf.Bytes())
+}
+
+func CalculateLatencyScores(results map[string]*vc.ServicerResults) map[string]sdk.BigDec {
+	latencyScores := make(map[string]sdk.BigDec)
+
+	// Collect latencies and servicer addresses from results
+	var latencies []sdk.BigDec
+	var servicerAddresses []string
+
+	for servicerAddr, result := range results {
+		if len(result.Latencies) > 0 {
+			// Check if any latency value is nil or zero
+			if hasNilOrZeroValue(result.Latencies) {
+				latencies = append(latencies, sdk.ZeroDec())
+			} else {
+				// Calculate the average latency for each servicer
+				totalLatency := sdk.ZeroDec()
+
+				for _, latency := range result.Latencies {
+					totalLatency = totalLatency.Add(sdk.NewDec(int64(latency.Milliseconds())))
+				}
+
+				averageLatency := totalLatency.Quo(sdk.NewDec(int64(len(result.Latencies))))
+				latencies = append(latencies, averageLatency)
+			}
+
+			servicerAddresses = append(servicerAddresses, servicerAddr)
+		} else {
+			latencyScores[servicerAddr] = sdk.ZeroDec()
+		}
+	}
+
+	// Rank servicers by latency (lower latency gets a higher rank)
+	rankedLatencies := rankLatencies(latencies, servicerAddresses)
+
+	// Assign scores based on rankings
+	maxRank := len(rankedLatencies)
+
+	for servicerAddr, rank := range rankedLatencies {
+		if maxRank == 0 {
+			latencyScores[servicerAddr] = sdk.ZeroDec()
+		} else {
+			// Assign scores inversely proportional to rank
+			score := sdk.NewDec(int64(maxRank - rank + 1)).Quo(sdk.NewDec(int64(maxRank)))
+			fmt.Println("Servicer:", servicerAddr, "Score:", score)
+			latencyScores[servicerAddr] = score
+		}
+	}
+
+	return latencyScores
+}
+
+// Function to check if Latencies contain a nil or zero value
+func hasNilOrZeroValue(latencies []time.Duration) bool {
+	for _, latency := range latencies {
+		if latency == 0 || latency == 0*time.Second || latencies == nil {
+			return true
+		}
+	}
+	return false
+}
+
+func rankLatencies(latencies []sdk.BigDec, servicerNames []string) map[string]int {
+	ranks := make(map[string]int)
+	servicerRanks := make(map[string]int)
+
+	for i, servicerName := range servicerNames {
+		servicerRanks[servicerName] = i
+	}
+
+	sort.Slice(servicerNames, func(i, j int) bool {
+		nameI := servicerNames[i]
+		nameJ := servicerNames[j]
+		rankI, okI := servicerRanks[nameI]
+		rankJ, okJ := servicerRanks[nameJ]
+
+		if okI && okJ {
+			return latencies[rankI].LT(latencies[rankJ])
+		} else if okI {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	for i, servicerName := range servicerNames {
+		ranks[servicerName] = i + 1
+	}
+
+	return ranks
 }
