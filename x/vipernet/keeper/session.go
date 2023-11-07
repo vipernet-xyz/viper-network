@@ -102,6 +102,18 @@ func (k Keeper) IsViperSupportedBlockchain(ctx sdk.Ctx, chain string) bool {
 	return false
 }
 
+func (k Keeper) IsViperSupportedGeoZone(ctx sdk.Ctx, geoZone string) bool {
+	// loop through supported blockchains (network identifiers)
+	for _, g := range k.SupportedGeoZones(ctx) {
+		// if contains chain return true
+		if g == geoZone {
+			return true
+		}
+	}
+	// else return false
+	return false
+}
+
 func (Keeper) ClearSessionCache() {
 	types.ClearSessionCache(types.GlobalSessionCache)
 }

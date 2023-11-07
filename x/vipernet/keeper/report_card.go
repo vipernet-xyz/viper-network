@@ -29,6 +29,11 @@ func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, no
 		return
 	}
 
+	if !k.IsViperSupportedGeoZone(ctx, sessionHeader.Chain) {
+		ctx.Logger().Info(fmt.Sprintf("Report card for %s geozone isn't viper supported, so will not send.", sessionHeader.GeoZone))
+		return
+	}
+
 	// Check if the current session is still ongoing
 	if ctx.BlockHeight() <= sessionHeader.SessionBlockHeight+k.BlocksPerSession(ctx)-1 {
 		ctx.Logger().Info("The session is ongoing, so will not send the report card yet.")
@@ -96,6 +101,10 @@ func (k Keeper) ValidateSumbitReportCard(ctx sdk.Ctx, submitReportcard vc.MsgSub
 	// if is not a viper supported blockchain then return not supported error
 	if !k.IsViperSupportedBlockchain(sessionContext, submitReportcard.SessionHeader.Chain) {
 		return vc.NewChainNotSupportedErr(vc.ModuleName)
+	}
+
+	if !k.IsViperSupportedGeoZone(sessionContext, submitReportcard.SessionHeader.GeoZone) {
+		return vc.NewGeoZoneNotSupportedErr(vc.ModuleName)
 	}
 	// get the node from the keeper (at the state of the start of the session)
 	_, found := k.GetNode(sessionContext, submitReportcard.FishermanAddress)

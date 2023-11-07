@@ -57,6 +57,13 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, node *v
 			}
 			continue
 		}
+		if !k.IsViperSupportedGeoZone(sessionCtx.WithBlockHeight(evidence.SessionHeader.SessionBlockHeight), evidence.SessionHeader.Chain) {
+			ctx.Logger().Info(fmt.Sprintf("claim for %s Geozone isn't viper supported, so will not send. Deleting evidence\n", evidence.SessionHeader.GeoZone))
+			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType, node.EvidenceStore); err != nil {
+				ctx.Logger().Debug(err.Error())
+			}
+			continue
+		}
 		// check the current state to see if the unverified evidence has already been sent and processed (if so, then skip this evidence)
 		if _, found := k.GetClaim(ctx, address, evidence.SessionHeader, evidenceType); found {
 			continue
@@ -113,6 +120,9 @@ func (k Keeper) ValidateClaim(ctx sdk.Ctx, claim vc.MsgClaim) (err sdk.Error) {
 	// if is not a viper supported blockchain then return not supported error
 	if !k.IsViperSupportedBlockchain(sessionContext, claim.SessionHeader.Chain) {
 		return vc.NewChainNotSupportedErr(vc.ModuleName)
+	}
+	if !k.IsViperSupportedGeoZone(sessionContext, claim.SessionHeader.GeoZone) {
+		return vc.NewGeoZoneNotSupportedErr(vc.ModuleName)
 	}
 	// get the node from the keeper (at the state of the start of the session)
 	_, found := k.GetNode(sessionContext, claim.FromAddress)

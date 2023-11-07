@@ -102,6 +102,7 @@ const (
 	CodeUnsupportedGeoZoneProviderError    = 96
 	CodeInvalidTestsError                  = 97
 	CodeExpiredReportSubmissionError       = 98
+	CodeGeoZoneNotSupportedErr             = 99
 )
 
 var (
@@ -205,6 +206,7 @@ var (
 	EmptyGeoZoneError                  = errors.New("the geozone is of Length 0")
 	InvalidTestsError                  = errors.New("the tests provided are invalid or less than the minimum requirement")
 	ExpiredReportSubmissionError       = errors.New("the opportunity of window to submit the Report has closed because the secret has been revealed")
+	GeoZoneNotSupportedErr             = errors.New("the geozone is not viper supported")
 )
 
 func NewSealedEvidenceError(codespace sdk.CodespaceType) sdk.Error {
@@ -330,6 +332,10 @@ func NewDuplicatePublicKeyError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewChainNotSupportedErr(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeChainNotSupportedErr, ChainNotSupportedErr.Error())
+}
+
+func NewGeoZoneNotSupportedErr(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeGeoZoneNotSupportedErr, GeoZoneNotSupportedErr.Error())
 }
 
 func NewNoEvidenceTypeErr(codespace sdk.CodespaceType) sdk.Error {
