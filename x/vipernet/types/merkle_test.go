@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/vipernet-xyz/viper-network/types"
 	"github.com/willf/bloom"
 )
 
@@ -532,5 +533,104 @@ func Benchmark_sortAndStructure(b *testing.B) {
 				b.StopTimer()
 			}
 		})
+	}
+}
+
+func TestResult_GenerateSampleMerkleRoot(t *testing.T) {
+	// Clear the Result cache if needed
+	ClearResult(GlobalTestCache)
+
+	// Generate some test data
+	providerPrivateKey := GetRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
+	clientPrivateKey := GetRandomPrivateKey()
+	clientPublicKey := clientPrivateKey.PublicKey().RawString()
+	servicerPubKey := getRandomPubKey()
+	ethereum := hex.EncodeToString([]byte{01})
+	validAAT := AAT{
+		Version:           "0.0.1",
+		ProviderPublicKey: providerPubKey,
+		ClientPublicKey:   clientPublicKey,
+		ProviderSignature: "",
+	}
+	providerSig, er := providerPrivateKey.Sign(validAAT.Hash())
+	if er != nil {
+		t.Fatalf(er.Error())
+	}
+	validAAT.ProviderSignature = hex.EncodeToString(providerSig)
+
+	// Initialize a Result object with your test data
+	testResults := Tests{
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 150,
+			IsAvailable:     true,
+			IsReliable:      false,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 80,
+			IsAvailable:     false,
+			IsReliable:      true,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 220,
+			IsAvailable:     true,
+			IsReliable:      true,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 300,
+			IsAvailable:     false,
+			IsReliable:      false,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 90,
+			IsAvailable:     true,
+			IsReliable:      true,
+		},
+	}
+	result := Result{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     providerPubKey,
+			Chain:              ethereum,
+			SessionBlockHeight: 1,
+			GeoZone:            "0001",
+			NumServicers:       1,
+		},
+		ServicerAddr:     types.Address(servicerPubKey.Address()), // Set the servicer address
+		NumOfTestResults: int64(len(testResults)),                 // Set the number of test results
+		TestResults:      testResults,                             // Set the test results
+		EvidenceType:     FishermanTestEvidence,                   // Set the evidence type
+	}
+
+	// Generate the sample merkle root
+	root := result.GenerateSampleMerkleRoot(0, GlobalTestCache)
+
+	// Assert the properties of the generated root
+	assert.NotNil(t, root.Hash)
+	assert.NotEmpty(t, root.Hash)
+	assert.Nil(t, HashVerification(hex.EncodeToString(root.Hash)))
+	assert.True(t, root.isValidRange())
+	assert.Zero(t, root.Range.Lower)
+	assert.NotZero(t, root.Range.Upper)
+
+	// Create an iterator for Result cache
+	iter := ResultIterator(GlobalTestCache)
+
+	// Make sure it's stored in order
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		e := iter.Value()
+		assert.Equal(t, result, e)
+		newRoot := e.GenerateSampleMerkleRoot(0, GlobalTestCache)
+		assert.Equal(t, root, newRoot)
 	}
 }
