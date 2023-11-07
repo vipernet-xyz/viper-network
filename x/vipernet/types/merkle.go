@@ -393,7 +393,6 @@ func sortAndStructureResult(results []Test) (d []HashRange, sortedResults []Test
 	return hashRanges, results
 }
 
-// "structureProofs" - structure hash ranges when proofs are already sorted
 func structureResults(results []Test) (d []HashRange, sortedResults []Test) {
 	// get the # of proofs
 	numberOfResults := len(results)

@@ -12,6 +12,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/vipernet-xyz/viper-network/types"
+	github_com_vipernet_xyz_viper_network_types "github.com/vipernet-xyz/viper-network/types"
 	"github.com/willf/bloom"
 )
 
@@ -632,5 +633,79 @@ func TestResult_GenerateSampleMerkleRoot(t *testing.T) {
 		assert.Equal(t, result, e)
 		newRoot := e.GenerateSampleMerkleRoot(0, GlobalTestCache)
 		assert.Equal(t, root, newRoot)
+	}
+}
+
+func Test_sortAndStructureResult(t *testing.T) {
+	type args struct {
+		hr []HashRange
+		t  []Test
+	}
+	lol := make([]Test, 0)
+	rand.Seed(time.Now().UnixNano())
+	sum := 0
+	for i := 1; i < 100000; i++ {
+		sum += i
+		lol = append(lol, TestResult{
+			ServicerAddress: github_com_vipernet_xyz_viper_network_types.Address(RandStringBytes(20)),
+			Timestamp:       time.Now(),
+			Latency:         time.Duration(rand.Intn(100000)),
+			IsAvailable:     true,
+			IsReliable:      true,
+		})
+	}
+
+	// get the # of tests
+	numberOfTests := len(lol)
+
+	// initialize the hashRange
+	hashRanges := make([]HashRange, numberOfTests)
+
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"sortAndStructureResult Consistency Test", args{
+			hr: hashRanges,
+			t:  lol,
+		}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := true
+			for i := 0; i < 1; i++ {
+				gotSortedHR, gotTests := sortAndStructureResult(tt.args.t)
+				gotSortedHR2, gotTests2 := sortAndStructureResult(tt.args.t)
+				assert.Equal(t, len(gotSortedHR), len(gotSortedHR2))
+				assert.Equal(t, cap(gotSortedHR), cap(gotSortedHR2))
+				if !reflect.DeepEqual(gotSortedHR, gotSortedHR2) {
+					fmt.Println("HashRanges Not Equal")
+					assert.Equal(t, gotSortedHR, gotSortedHR2)
+					jgotSortedHR, _ := json.Marshal(gotSortedHR)
+					jgotSortedHR2, _ := json.Marshal(gotSortedHR2)
+					fmt.Println(string(jgotSortedHR))
+					fmt.Println(string(jgotSortedHR2))
+					t.FailNow()
+				}
+				if !reflect.DeepEqual(gotTests, gotTests2) {
+					t.FailNow()
+				}
+				gotSortedHR3, gotTests3 := structureResults(gotTests2)
+				if !reflect.DeepEqual(gotSortedHR3, gotSortedHR2) {
+					fmt.Println("HashRanges Not Equal")
+					assert.Equal(t, gotSortedHR3, gotSortedHR2)
+					jgotSortedHR3, _ := json.Marshal(gotSortedHR3)
+					jgotSortedHR2, _ := json.Marshal(gotSortedHR2)
+					fmt.Println(string(jgotSortedHR3))
+					fmt.Println(string(jgotSortedHR2))
+					t.FailNow()
+				}
+				if !reflect.DeepEqual(gotTests3, gotTests2) {
+					t.FailNow()
+				}
+			}
+			assert.True(t, result)
+		})
 	}
 }
