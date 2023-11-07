@@ -88,93 +88,90 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 		ticker := time.NewTicker(time.Duration(10+rand.Intn(25)) * time.Second)
 		defer ticker.Stop()
 
-		for {
-			select {
-			case <-ticker.C:
-				if (ctx.BlockHeight()+int64(fishermanAddress[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
-					// Calculate and send QoS for each servicer after breaking the loop
-					latencyScores := CalculateLatencyScores(results) // Calculate latency scores based on comparisons
-
-					for _, servicer := range actualServicers {
-						servicerResult := results[servicer.GetAddress().String()]
-
-						proofs, err := k.GetProofsForServicer(ctx, sessionHeader, servicer.GetAddress(), fisherman.TestStore)
-						if err != nil {
-							fmt.Errorf("Sample Relay Proofs could not be fetched for %s", servicer)
-						}
-
-						seed := time.Now().UnixNano() + int64(ctx.BlockHeight())
-						rng := rand.New(rand.NewSource(seed))
-						subsetSize := int(float64(len(proofs)) * 0.20)
-						if len(proofs) > int(subsetSize) {
-							vc.Shuffle(proofs, rng)
-							proofs = proofs[:subsetSize]
-						}
-
-						resultForMerkle := &vc.Result{
-							SessionHeader:    sessionHeader,
-							ServicerAddr:     servicer.GetAddress(),
-							NumOfTestResults: int64(len(proofs)),
-							TestResults:      proofs,
-							EvidenceType:     vc.FishermanTestEvidence,
-						}
-
-						merkleRoot := resultForMerkle.GenerateSampleMerkleRoot(sessionHeader.SessionBlockHeight, fisherman.TestStore)
-
-						qos, err := vc.CalculateQoSForServicer(servicerResult, sessionHeader.SessionBlockHeight, latencyScores[servicer.GetAddress().String()])
-						if err != nil {
-							fmt.Errorf("QoS Report could not be created for %s", servicer)
-						}
-
-						qos.SampleRoot = merkleRoot
-
-						nonce, err := rand1.Int(rand1.Reader, big.NewInt(math.MaxInt64))
-						if err != nil {
-							return
-						}
-						qos.Nonce = nonce.Int64()
-						signer, _ := vc.NewSigner(fishermanValidator)
-						qos.Signature, err = k.SignQoSReport(signer, qos)
-						if err != nil {
-							fmt.Errorf("QoS Report could not be signed")
-						}
-
-						k.SendReportCardTx(ctx, k, k.TmNode, fisherman, qos.ServicerAddress, sessionHeader, resultForMerkle.EvidenceType, *qos, vc.SendReportCardTx)
-					}
-
-					return
-				}
+		for range ticker.C {
+			if (ctx.BlockHeight()+int64(fishermanAddress[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
+				// Calculate and send QoS for each servicer after breaking the loop
+				latencyScores := CalculateLatencyScores(results) // Calculate latency scores based on comparisons
 
 				for _, servicer := range actualServicers {
-					startTime := time.Now()
-					Blockchain := trigger.Proof.Blockchain
-					resp, err := vc.SendSampleRelay(Blockchain, trigger, servicer, fishermanValidator)
-
-					latency := resp.Latency
-					isAvailable := err == nil && resp.Proof.Signature != ""
-					isReliable := resp.Reliability
-
 					servicerResult := results[servicer.GetAddress().String()]
-					servicerResult.Timestamps = append(servicerResult.Timestamps, startTime)
-					servicerResult.Latencies = append(servicerResult.Latencies, latency)
-					servicerResult.Availabilities = append(servicerResult.Availabilities, isAvailable)
-					servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
 
-					if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
-						k.posKeeper.BurnforNoActivity(ctx, servicer.GetAddress())
-						k.posKeeper.PauseNode(ctx, servicer.GetAddress())
+					proofs, err := k.GetProofsForServicer(ctx, sessionHeader, servicer.GetAddress(), fisherman.TestStore)
+					if err != nil {
+						fmt.Errorf("Sample Relay Proofs could not be fetched for %s", servicer)
 					}
 
-					testResult := vc.TestResult{
-						ServicerAddress: servicer.GetAddress(),
-						Timestamp:       startTime,
-						Latency:         latency,
-						IsAvailable:     isAvailable,
-						IsReliable:      isReliable,
+					seed := time.Now().UnixNano() + int64(ctx.BlockHeight())
+					rng := rand.New(rand.NewSource(seed))
+					subsetSize := int(float64(len(proofs)) * 0.20)
+					if len(proofs) > int(subsetSize) {
+						vc.Shuffle(proofs, rng)
+						proofs = proofs[:subsetSize]
 					}
 
-					testResult.Store(sessionHeader, fisherman.TestStore)
+					resultForMerkle := &vc.Result{
+						SessionHeader:    sessionHeader,
+						ServicerAddr:     servicer.GetAddress(),
+						NumOfTestResults: int64(len(proofs)),
+						TestResults:      proofs,
+						EvidenceType:     vc.FishermanTestEvidence,
+					}
+
+					merkleRoot := resultForMerkle.GenerateSampleMerkleRoot(sessionHeader.SessionBlockHeight, fisherman.TestStore)
+
+					qos, err := vc.CalculateQoSForServicer(servicerResult, sessionHeader.SessionBlockHeight, latencyScores[servicer.GetAddress().String()])
+					if err != nil {
+						fmt.Errorf("QoS Report could not be created for %s", servicer)
+					}
+
+					qos.SampleRoot = merkleRoot
+
+					nonce, err := rand1.Int(rand1.Reader, big.NewInt(math.MaxInt64))
+					if err != nil {
+						return
+					}
+					qos.Nonce = nonce.Int64()
+					signer, _ := vc.NewSigner(fishermanValidator)
+					qos.Signature, err = k.SignQoSReport(signer, qos)
+					if err != nil {
+						fmt.Errorf("QoS Report could not be signed")
+					}
+
+					k.SendReportCardTx(ctx, k, k.TmNode, fisherman, qos.ServicerAddress, sessionHeader, resultForMerkle.EvidenceType, *qos, vc.SendReportCardTx)
 				}
+
+				return
+			}
+
+			for _, servicer := range actualServicers {
+				startTime := time.Now()
+				Blockchain := trigger.Proof.Blockchain
+				resp, err := vc.SendSampleRelay(Blockchain, trigger, servicer, fishermanValidator)
+
+				latency := resp.Latency
+				isAvailable := err == nil && resp.Proof.Signature != ""
+				isReliable := resp.Reliability
+
+				servicerResult := results[servicer.GetAddress().String()]
+				servicerResult.Timestamps = append(servicerResult.Timestamps, startTime)
+				servicerResult.Latencies = append(servicerResult.Latencies, latency)
+				servicerResult.Availabilities = append(servicerResult.Availabilities, isAvailable)
+				servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
+
+				if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
+					k.posKeeper.BurnforNoActivity(ctx, servicer.GetAddress())
+					k.posKeeper.PauseNode(ctx, servicer.GetAddress())
+				}
+
+				testResult := vc.TestResult{
+					ServicerAddress: servicer.GetAddress(),
+					Timestamp:       startTime,
+					Latency:         latency,
+					IsAvailable:     isAvailable,
+					IsReliable:      isReliable,
+				}
+
+				testResult.Store(sessionHeader, fisherman.TestStore)
 			}
 		}
 	}()
@@ -198,7 +195,6 @@ func (k Keeper) GetProofsForServicer(ctx sdk.Ctx, header vc.SessionHeader, servi
 	if err != nil {
 		return nil, err
 	}
-	const maxResultSize = 1024
 	iterator, _ := testStore.Iterator()
 	for ; iterator.Valid(); iterator.Next() {
 		// Check if key starts with keyPrefix
