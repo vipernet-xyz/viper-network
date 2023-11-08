@@ -259,6 +259,9 @@ func (msg MsgSubmitReportCard) ValidateBasic() sdk.Error {
 		return sdk.ErrUnauthorized("Missing signature")
 	}
 
+	if err := AddressVerification(msg.ServicerAddress.String()); err != nil {
+		return NewInvalidHashError(ModuleName, err, msg.ServicerAddress.String())
+	}
 	return nil
 }
 

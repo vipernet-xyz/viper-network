@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/vipernet-xyz/viper-network/types"
 
@@ -320,4 +321,246 @@ func TestMsgProof_GetSignBytes(t *testing.T) {
 	assert.NotPanics(t, func() {
 		MsgProof{}.GetSignBytes()
 	})
+}
+
+func TestMsgSubmitReportCard_Route(t *testing.T) {
+	assert.Equal(t, MsgSubmitReportCard{}.Route(), RouterKey)
+}
+
+func TestMsgSubmitReportCard_Type(t *testing.T) {
+	assert.Equal(t, MsgSubmitReportCard{}.Type(), MsgClaimName)
+}
+
+func TestMsgSubmitReportCard_GetSigners(t *testing.T) {
+	addr := getRandomValidatorAddress()
+	faddr := getRandomValidatorAddress()
+	signers := MsgSubmitReportCard{
+		SessionHeader:    SessionHeader{},
+		ServicerAddress:  addr,
+		FishermanAddress: faddr,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          int64(1),
+			ServicerAddress:      addr,
+			LatencyScore:         types.NewDecWithPrec(12345, 6),
+			AvailabilityScore:    types.NewDecWithPrec(67890, 6),
+			ReliabilityScore:     types.NewDecWithPrec(54321, 6),
+			SampleRoot:           HashRange{Hash: []byte("sample_root_hash"), Range: Range{Lower: 0, Upper: 10}},
+			Nonce:                int64(42),
+			Signature:            "sample_signature",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}.GetSigners()
+	assert.True(t, reflect.DeepEqual(signers, []types.Address{faddr}))
+}
+
+func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
+	servicerAddress := getRandomValidatorAddress()
+	fishermanAddress := getRandomValidatorAddress()
+	latencyScore := types.NewDecWithPrec(12345, 6)
+	availabilityScore := types.NewDecWithPrec(67890, 6)
+	reliabilityScore := types.NewDecWithPrec(54321, 6)
+	sampleRoot := HashRange{Hash: Hash([]byte("sampleRoot")), Range: Range{Upper: 100}}
+
+	invalidReportMissingServicerAddress := MsgSubmitReportCard{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     "",
+			Chain:              "ethereum",
+			SessionBlockHeight: 1,
+		},
+		ServicerAddress:  types.Address{},
+		FishermanAddress: fishermanAddress,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          1,
+			ServicerAddress:      types.Address{},
+			LatencyScore:         latencyScore,
+			AvailabilityScore:    availabilityScore,
+			ReliabilityScore:     reliabilityScore,
+			SampleRoot:           sampleRoot,
+			Nonce:                42,
+			Signature:            "sample_signature",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}
+
+	invalidReportNegativeBlockHeight := MsgSubmitReportCard{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     "",
+			Chain:              "ethereum",
+			SessionBlockHeight: 1,
+		},
+		ServicerAddress:  servicerAddress,
+		FishermanAddress: fishermanAddress,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          -1,
+			ServicerAddress:      servicerAddress,
+			LatencyScore:         latencyScore,
+			AvailabilityScore:    availabilityScore,
+			ReliabilityScore:     reliabilityScore,
+			SampleRoot:           sampleRoot,
+			Nonce:                42,
+			Signature:            "sample_signature",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}
+
+	invalidReportNegativeScores := MsgSubmitReportCard{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     "",
+			Chain:              "ethereum",
+			SessionBlockHeight: 1,
+		},
+		ServicerAddress:  servicerAddress,
+		FishermanAddress: fishermanAddress,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          1,
+			ServicerAddress:      servicerAddress,
+			LatencyScore:         types.NewDecWithPrec(-1, 6),
+			AvailabilityScore:    types.NewDecWithPrec(-1, 6),
+			ReliabilityScore:     types.NewDecWithPrec(-1, 6),
+			SampleRoot:           sampleRoot,
+			Nonce:                42,
+			Signature:            "sample_signature",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}
+
+	invalidReportInvalidSampleRoot := MsgSubmitReportCard{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     "",
+			Chain:              "ethereum",
+			SessionBlockHeight: 1,
+		},
+		ServicerAddress:  servicerAddress,
+		FishermanAddress: fishermanAddress,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          1,
+			ServicerAddress:      servicerAddress,
+			LatencyScore:         latencyScore,
+			AvailabilityScore:    availabilityScore,
+			ReliabilityScore:     reliabilityScore,
+			SampleRoot:           HashRange{Hash: []byte("invalidSampleRoot")},
+			Nonce:                42,
+			Signature:            "sample_signature",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}
+
+	invalidReportNegativeNonce := MsgSubmitReportCard{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     "",
+			Chain:              "ethereum",
+			SessionBlockHeight: 1,
+		},
+		ServicerAddress:  servicerAddress,
+		FishermanAddress: fishermanAddress,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          1,
+			ServicerAddress:      servicerAddress,
+			LatencyScore:         latencyScore,
+			AvailabilityScore:    availabilityScore,
+			ReliabilityScore:     reliabilityScore,
+			SampleRoot:           sampleRoot,
+			Nonce:                -1,
+			Signature:            "sample_signature",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}
+
+	invalidReportMissingSignature := MsgSubmitReportCard{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     "",
+			Chain:              "ethereum",
+			SessionBlockHeight: 1,
+		},
+		ServicerAddress:  servicerAddress,
+		FishermanAddress: fishermanAddress,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          1,
+			ServicerAddress:      servicerAddress,
+			LatencyScore:         latencyScore,
+			AvailabilityScore:    availabilityScore,
+			ReliabilityScore:     reliabilityScore,
+			SampleRoot:           sampleRoot,
+			Nonce:                42,
+			Signature:            "",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}
+
+	validReport := MsgSubmitReportCard{
+		SessionHeader: SessionHeader{
+			ProviderPubKey:     "",
+			Chain:              "ethereum",
+			SessionBlockHeight: 1,
+		},
+		ServicerAddress:  servicerAddress,
+		FishermanAddress: fishermanAddress,
+		Report: ViperQoSReport{
+			FirstSampleTimestamp: time.Now(),
+			BlockHeight:          1,
+			ServicerAddress:      servicerAddress,
+			LatencyScore:         latencyScore,
+			AvailabilityScore:    availabilityScore,
+			ReliabilityScore:     reliabilityScore,
+			SampleRoot:           sampleRoot,
+			Nonce:                42,
+			Signature:            "sample_signature",
+		},
+		EvidenceType: FishermanTestEvidence,
+	}
+
+	tests := []struct {
+		name     string
+		msg      MsgSubmitReportCard
+		hasError bool
+	}{
+		{
+			name:     "Invalid Report, Missing Servicer Address",
+			msg:      invalidReportMissingServicerAddress,
+			hasError: true,
+		},
+		{
+			name:     "Invalid Report, Negative Block Height",
+			msg:      invalidReportNegativeBlockHeight,
+			hasError: true,
+		},
+		{
+			name:     "Invalid Report, Negative Scores",
+			msg:      invalidReportNegativeScores,
+			hasError: true,
+		},
+		{
+			name:     "Invalid Report, Invalid Sample Root",
+			msg:      invalidReportInvalidSampleRoot,
+			hasError: true,
+		},
+		{
+			name:     "Invalid Report, Negative Nonce",
+			msg:      invalidReportNegativeNonce,
+			hasError: true,
+		},
+		{
+			name:     "Invalid Report, Missing Signature",
+			msg:      invalidReportMissingSignature,
+			hasError: true,
+		},
+		{
+			name:     "Valid Report",
+			msg:      validReport,
+			hasError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.msg.ValidateBasic() != nil, tt.hasError)
+		})
+	}
 }
