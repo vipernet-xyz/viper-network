@@ -2,13 +2,73 @@ package keeper
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	sdk "github.com/vipernet-xyz/viper-network/types"
+	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
 	vc "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
+
+func TestHandleFishermanTrigger(t *testing.T) {
+	ctx, servicers, _, _, keeper, _, _ := createTestInput(t, false)
+	providerPrivateKey := getRandomPrivateKey()
+	providerPubKey := providerPrivateKey.PublicKey().RawString()
+	clientPrivateKey := getRandomPrivateKey()
+	numServicers := 5
+	var servicerAddrs []sdk.Address
+	for i := 0; i < int(numServicers) && i < len(servicers); i++ {
+		servicerAddrs = append(servicerAddrs, servicers[i].GetAddress())
+	}
+	fisherman := append(servicerAddrs, sdk.Address(getRandomPubKey().Address()))
+	// Create a FishermenTrigger
+	trigger := vc.FishermenTrigger{
+		Proof: types.RelayProof{
+			Entropy:            rand.Int63(),
+			SessionBlockHeight: ctx.BlockHeight(),
+			ServicerPubKey:     servicers[0].PublicKey.RawString(),
+			Blockchain:         "ethereum",
+			Token: types.AAT{
+				Version:           "0.0.1",
+				ProviderPublicKey: providerPubKey,
+				ClientPublicKey:   clientPrivateKey.PublicKey().RawString(),
+				ProviderSignature: "",
+			},
+			Signature:    "",
+			GeoZone:      "US",
+			NumServicers: 5,
+		},
+	}
+
+	// Set up a session
+	sessionHeader := vc.SessionHeader{
+		ProviderPubKey:     providerPubKey,
+		Chain:              "ethereum",
+		GeoZone:            "US",
+		NumServicers:       5,
+		SessionBlockHeight: ctx.BlockHeight(),
+	}
+	session := vc.Session{
+		SessionHeader:    sessionHeader,
+		SessionKey:       []byte("session_key"),
+		SessionServicers: servicerAddrs,
+		SessionFishermen: fisherman,
+	}
+
+	// Store the session using your keeper
+	vc.SetSession(session, vc.GlobalSessionCache)
+
+	// Call HandleFishermanTrigger
+	resp, err := keeper.HandleFishermanTrigger(ctx, trigger)
+
+	// Check the result
+	assert.Nil(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "fisherman triggered", resp.Response)
+	assert.NotEmpty(t, resp.Proof)
+}
 
 func TestCalculateLatencyScores(t *testing.T) {
 	// Create a sample dataset of servicer results

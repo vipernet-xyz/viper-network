@@ -2,7 +2,10 @@ package types
 
 import (
 	rand1 "crypto/rand"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"log"
 	math "math"
 	"math/big"
 	"math/rand"
@@ -292,4 +295,24 @@ func SumDurations(durations []time.Duration) time.Duration {
 		sum += d
 	}
 	return sum
+}
+
+// Bytes returns the bytes representation of the FishermenTrigger
+func (ft FishermenTrigger) Bytes() []byte {
+	// Marshal the FishermenTrigger into bytes
+	res, err := json.Marshal(ft)
+	if err != nil {
+		log.Fatal(fmt.Errorf("cannot marshal FishermenTrigger: %s", err.Error()))
+	}
+	return res
+}
+
+// "Requesthash" - The cryptographic merkleHash representation of the request
+func (ft FishermenTrigger) RequestHash() []byte {
+	return Hash(ft.Bytes())
+}
+
+// "RequestHashString" - The hex string representation of the request merkleHash
+func (ft FishermenTrigger) RequestHashString() string {
+	return hex.EncodeToString(ft.RequestHash())
 }

@@ -18,6 +18,14 @@ import (
 )
 
 func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger) (*vc.RelayResponse, sdk.Error) {
+	// Check if the trigger is empty, and if so, return the response without triggering sampling.
+	if triggerIsEmpty(trigger) {
+		resp := &vc.RelayResponse{
+			Response: "fisherman could not be triggered",
+		}
+		return resp, nil
+	}
+
 	// Start by creating the response.
 	resp := &vc.RelayResponse{
 		Response: "fisherman triggered",
@@ -36,6 +44,7 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 
 	// Attach the signature in hex to the response.
 	resp.Signature = hex.EncodeToString(sig)
+	resp.Proof = trigger.Proof
 
 	// If everything has gone well so far, call StartServicersSampling.
 	err := k.StartServicersSampling(ctx, trigger)
@@ -44,6 +53,17 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	}
 
 	return resp, nil
+}
+
+func triggerIsEmpty(trigger vc.FishermenTrigger) bool {
+	// Check if trigger fields are empty or zero values based on your trigger definition.
+	return trigger.Proof.SessionBlockHeight == 0 &&
+		trigger.Proof.NumServicers == 0 &&
+		trigger.Proof.Blockchain == "" &&
+		trigger.Proof.ServicerPubKey == "" &&
+		trigger.Proof.Token.ProviderPublicKey == "" &&
+		trigger.Proof.Token.ClientPublicKey == "" &&
+		trigger.Proof.Token.ProviderSignature == ""
 }
 
 func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger) sdk.Error {
@@ -61,16 +81,19 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 		return sdk.ErrInternal(er.Error())
 	}
 	session, found := vc.GetSession(sessionHeader, vc.GlobalSessionCache)
+	fmt.Println("ss:", session.SessionServicers)
 	if !found {
 		return sdk.ErrInternal("Session not found")
 	}
 
 	actualServicers := make([]exported.ValidatorI, len(session.SessionServicers))
+	node1, _ := k.GetNode(sessionCtx, session.SessionServicers[0])
+	fmt.Println("node 1:", node1)
 	for i, addr := range session.SessionServicers {
 		actualServicers[i], _ = k.GetNode(sessionCtx, addr)
 	}
 	blocksPerSession := k.posKeeper.BlocksPerSession(ctx)
-
+	fmt.Println("actual servicers:", actualServicers)
 	var fisherman *vc.ViperNode
 	var fishermanAddress sdk.Address
 	fisherman = vc.GetViperNode()
