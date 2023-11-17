@@ -1,6 +1,6 @@
 package keeper
 
-/*
+import (
 	"fmt"
 	"testing"
 
@@ -9,10 +9,11 @@ package keeper
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
-	"github.com/stretchr/testify/assert"*/
+	"github.com/stretchr/testify/assert"
+)
 
-/*
 type args struct {
 	consAddress sdk.Address
 }
@@ -212,12 +213,21 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 	context, _, keeper := createTestInput(t, true)
 	keeper.SetValidator(context, stakedValidator)
 	keeper.SetValidator(context, stakedValidatorNoOutput)
+	// Create a sample report card
+	reportCard := viperTypes.MsgSubmitReportCard{
+		Report: viperTypes.ViperQoSReport{
+			LatencyScore:      sdk.NewDecWithPrec(8, 1),
+			AvailabilityScore: sdk.NewDecWithPrec(7, 1),
+			ReliabilityScore:  sdk.NewDecWithPrec(9, 1),
+		},
+		FishermanAddress: getRandomValidatorAddress(),
+	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
 	}{
-		{"Test RelayReward", fields{keeper: keeper},
+		{"Test RewardForRelays", fields{keeper: keeper},
 			args{
 				ctx:               context,
 				validator:         stakedValidator.GetAddress(),
@@ -232,19 +242,23 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 			ctx := tt.args.ctx
 			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
 			p1 := p.(providersTypes.Provider)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(10000), tt.args.validator, p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(10000), tt.args.validator, p1)
 			acc := k.GetAccount(ctx, tt.args.Output)
 			acc1 := k.GetAccount(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
 			assert.False(t, acc.Coins.IsZero())
+			// Update the expected coin amount based on your actual calculations
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(8000000)))))
 			assert.False(t, acc1.Coins.IsZero())
+			// Update the expected coin amount based on your actual calculations
 			assert.True(t, acc1.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(500000)))))
 			acc = k.GetAccount(ctx, tt.args.validator)
 			assert.True(t, acc.Coins.IsZero())
+
 			// no output now
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(10000), tt.args.validatorNoOutput, p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(10000), tt.args.validatorNoOutput, p1)
 			acc = k.GetAccount(ctx, tt.args.OutputNoOutput)
 			assert.False(t, acc.Coins.IsZero())
+			// Update the expected coin amount based on your actual calculations
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(8000000)))))
 			acc2 := k.GetAccount(ctx, tt.args.validatorNoOutput)
 			assert.Equal(t, acc, acc2)
@@ -277,6 +291,14 @@ func TestKeeper_rewardFromRelaysNoEXP(t *testing.T) {
 	base := keeper.TokenRewardFactor(context)
 
 	keeper.SetValidator(context, stakedValidator)
+	reportCard := viperTypes.MsgSubmitReportCard{
+		Report: viperTypes.ViperQoSReport{
+			LatencyScore:      sdk.NewDecWithPrec(8, 1),
+			AvailabilityScore: sdk.NewDecWithPrec(7, 1),
+			ReliabilityScore:  sdk.NewDecWithPrec(9, 1),
+		},
+		FishermanAddress: getRandomValidatorAddress(),
+	}
 	tests := []struct {
 		name   string
 		fields fields
@@ -296,19 +318,19 @@ func TestKeeper_rewardFromRelaysNoEXP(t *testing.T) {
 			ctx := tt.args.ctx
 			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
 			p1 := p.(providersTypes.Provider)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p1)
 			acc := k.GetAccount(ctx, tt.args.validator1.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator2.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward.Mul(sdk.NewInt(2))))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator3.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(tt.args.relays), tt.args.validator3.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator3.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward.Mul(sdk.NewInt(3))))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator4.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(tt.args.relays), tt.args.validator4.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator4.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward.Mul(sdk.NewInt(4))))))
@@ -339,6 +361,14 @@ func TestKeeper_checkCheckCeiling(t *testing.T) {
 	base := keeper.TokenRewardFactor(context)
 
 	keeper.SetValidator(context, stakedValidator)
+	reportCard := viperTypes.MsgSubmitReportCard{
+		Report: viperTypes.ViperQoSReport{
+			LatencyScore:      sdk.NewDecWithPrec(8, 1),
+			AvailabilityScore: sdk.NewDecWithPrec(7, 1),
+			ReliabilityScore:  sdk.NewDecWithPrec(9, 1),
+		},
+		FishermanAddress: getRandomValidatorAddress(),
+	}
 	tests := []struct {
 		name   string
 		fields fields
@@ -358,11 +388,11 @@ func TestKeeper_checkCheckCeiling(t *testing.T) {
 			ctx := tt.args.ctx
 			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
 			p1 := p.(providersTypes.Provider)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(tt.args.relays), tt.args.validator1.GetAddress(), p1)
 			acc := k.GetAccount(ctx, tt.args.validator1.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(tt.args.relays), tt.args.validator2.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator2.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", tt.args.baseReward))))
@@ -390,7 +420,14 @@ func TestKeeper_rewardFromRelaysEXP(t *testing.T) {
 	stakedValidator := getStakedValidator()
 
 	keeper.SetValidator(context, stakedValidator)
-
+	reportCard := viperTypes.MsgSubmitReportCard{
+		Report: viperTypes.ViperQoSReport{
+			LatencyScore:      sdk.NewDecWithPrec(8, 1),
+			AvailabilityScore: sdk.NewDecWithPrec(7, 1),
+			ReliabilityScore:  sdk.NewDecWithPrec(9, 1),
+		},
+		FishermanAddress: getRandomValidatorAddress(),
+	}
 	tests := []struct {
 		name   string
 		fields fields
@@ -408,23 +445,22 @@ func TestKeeper_rewardFromRelaysEXP(t *testing.T) {
 			ctx := tt.args.ctx
 			p := k.providerKeeper.Provider(ctx, tt.args.ctx.BlockHeader().ApplicationAddress)
 			p1 := p.(providersTypes.Provider)
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator1.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(1000), tt.args.validator1.GetAddress(), p1)
 			acc := k.GetAccount(ctx, tt.args.validator1.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(800000)))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator2.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(1000), tt.args.validator2.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator2.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(1131372)))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator3.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(1000), tt.args.validator3.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator3.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(1385641)))))
-			k.RewardForRelays(tt.args.ctx, sdk.NewInt(1000), tt.args.validator4.GetAddress(), p1)
+			k.RewardForRelays(tt.args.ctx, reportCard, sdk.NewInt(1000), tt.args.validator4.GetAddress(), p1)
 			acc = k.GetAccount(ctx, tt.args.validator4.GetAddress())
 			assert.False(t, acc.Coins.IsZero())
 			assert.True(t, acc.Coins.IsEqual(sdk.NewCoins(sdk.NewCoin("uvipr", sdk.NewInt(1600000)))))
 		})
 	}
 }
-*/

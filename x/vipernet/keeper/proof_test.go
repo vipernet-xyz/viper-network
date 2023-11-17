@@ -64,7 +64,7 @@ func TestKeeper_ValidateProof(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, _, err = keeper.ValidateProof(mockCtx, proofMsg)
+	_, _, _, err = keeper.ValidateProof(mockCtx, proofMsg)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}

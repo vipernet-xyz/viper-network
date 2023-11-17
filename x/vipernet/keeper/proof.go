@@ -125,31 +125,31 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 	}
 }
 
-func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.Address, claim vc.MsgClaim, sdkError sdk.Error) {
+func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.Address, reportCard vc.MsgSubmitReportCard, claim vc.MsgClaim, sdkError sdk.Error) {
 	// get the public key from the claim
 	servicerAddr = proof.GetSigners()[0]
 
 	// Fetch the report card for the respective node and session
 	reportCard, Found := k.GetReportCard(ctx, servicerAddr, proof.GetLeaf().SessionHeader())
 	if !Found {
-		return servicerAddr, claim, vc.NewReportCardNotFoundError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewReportCardNotFoundError(vc.ModuleName)
 	}
 
 	// Verify the signature on the report card against the Fisherman's signature
 	if valid, _ := k.verifyReportCardSignature(ctx, reportCard, reportCard.Report.Signature); !valid {
-		return servicerAddr, claim, vc.NewInvalidSignatureError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewInvalidSignatureError(vc.ModuleName)
 	}
 
 	// get the claim for the address
 	claim, found := k.GetClaim(ctx, servicerAddr, proof.GetLeaf().SessionHeader(), proof.EvidenceType)
 	// if the claim is not found for this claim
 	if !found {
-		return servicerAddr, claim, vc.NewClaimNotFoundError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewClaimNotFoundError(vc.ModuleName)
 	}
 	// validate level count on claim by total relays
 	levelCount := len(proof.MerkleProof.HashRanges)
 	if levelCount != int(math.Ceil(math.Log2(float64(claim.TotalProofs)))) {
-		return servicerAddr, claim, vc.NewInvalidProofsError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewInvalidProofsError(vc.ModuleName)
 	}
 	var hasMatch bool
 	for _, m := range proof.MerkleProof.HashRanges {
@@ -159,48 +159,48 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 		}
 	}
 	if !hasMatch && proof.MerkleProof.Target.Range.Upper != claim.MerkleRoot.Range.Upper {
-		return servicerAddr, claim, vc.NewInvalidMerkleVerifyError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewInvalidMerkleVerifyError(vc.ModuleName)
 	}
 	// get the session context
 	sessionCtx, err := ctx.PrevCtx(claim.SessionHeader.SessionBlockHeight)
 	if err != nil {
-		return servicerAddr, claim, sdk.ErrInternal(err.Error())
+		return servicerAddr, reportCard, claim, sdk.ErrInternal(err.Error())
 	}
 	// validate the proof
 	ctx.Logger().Info(fmt.Sprintf("Generate psuedorandom proof with %d proofs, at session height of %d, for provider: %s", claim.TotalProofs, claim.SessionHeader.SessionBlockHeight, claim.SessionHeader.ProviderPubKey))
 	reqProof, err := k.getPseudorandomIndex(ctx, claim.TotalProofs, claim.SessionHeader, sessionCtx)
 	if err != nil {
-		return servicerAddr, claim, sdk.ErrInternal(err.Error())
+		return servicerAddr, reportCard, claim, sdk.ErrInternal(err.Error())
 	}
 	// if the required proof message index does not match the leaf servicer index
 	if reqProof != int64(proof.MerkleProof.TargetIndex) {
-		return servicerAddr, claim, vc.NewInvalidProofsError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewInvalidProofsError(vc.ModuleName)
 	}
 	// validate the merkle proofs
 	isValid, _ := proof.MerkleProof.Validate(claim.SessionHeader.SessionBlockHeight, claim.MerkleRoot, proof.GetLeaf(), levelCount)
 	// if is not valid for other reasons
 	if !isValid {
-		return servicerAddr, claim, vc.NewReplayAttackError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewReplayAttackError(vc.ModuleName)
 	}
 	// get the provider
 	provider, found := k.GetProviderFromPublicKey(sessionCtx, claim.SessionHeader.ProviderPubKey)
 	if !found {
-		return servicerAddr, claim, vc.NewProviderNotFoundError(vc.ModuleName)
+		return servicerAddr, reportCard, claim, vc.NewProviderNotFoundError(vc.ModuleName)
 	}
 	// validate the proof depending on the type of proof it is
 	er := proof.GetLeaf().Validate(provider.GetChains(), int(provider.GetNumServicers()), claim.SessionHeader.SessionBlockHeight)
 	if er != nil {
-		return nil, claim, er
+		return nil, reportCard, claim, er
 	}
 	// return the needed info to the handler
-	return servicerAddr, claim, nil
+	return servicerAddr, reportCard, claim, nil
 }
 
-func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) (tokens sdk.BigInt, err sdk.Error) {
+func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, reportCard vc.MsgSubmitReportCard, claim vc.MsgClaim) (tokens sdk.BigInt, err sdk.Error) {
 	//provider address
 	providerAddress := sdk.Address(claim.SessionHeader.ProviderPubKey)
-	provider := k.providerKeeper.Provider(ctx, providerAddress)
-	provider1 := provider.(providersType.Provider)
+	p := k.providerKeeper.Provider(ctx, providerAddress)
+	provider := p.(providersType.Provider)
 	// convert to value for switch consistency
 	l := proof.GetLeaf()
 	if reflect.ValueOf(l).Kind() == reflect.Ptr {
@@ -209,7 +209,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) 
 	switch l.(type) {
 	case vc.RelayProof:
 		ctx.Logger().Info(fmt.Sprintf("reward coins to %s, for %d relays", claim.FromAddress.String(), claim.TotalProofs))
-		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs, claim.FromAddress, provider1)
+		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs, claim.FromAddress, provider)
 		err := k.DeleteClaim(ctx, claim.FromAddress, claim.SessionHeader, vc.RelayEvidence)
 		if err != nil {
 			return tokens, sdk.ErrInternal(err.Error())
@@ -231,7 +231,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, claim vc.MsgClaim) 
 			return sdk.ZeroInt(), sdk.ErrInternal(err.Error())
 		}
 		// small reward for the challenge proof invalid data
-		tokens = k.AwardCoinsForRelays(ctx, claim.TotalProofs/100, claim.FromAddress, provider1)
+		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs/100, claim.FromAddress, provider)
 	}
 	return tokens, nil
 }

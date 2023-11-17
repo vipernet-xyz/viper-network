@@ -23,6 +23,7 @@ const (
 	DefaultProposerAllocation         = 5
 	DefaultDAOAllocation              = 10
 	DefaultProviderAllocation         = 5
+	DefaultFishermenAllocation        = 5
 	DefaultMaxChains                  = 15
 	DefaultMaxJailedBlocks            = 2000
 	DefaultServicerCountLock    bool  = false
@@ -48,6 +49,7 @@ var (
 	KeySessionBlock                = []byte("BlocksPerSession")
 	KeyDAOAllocation               = []byte("DAOAllocation")
 	KeyProviderAllocation          = []byte("ProviderAllocation")
+	KeyFishermenAllocation         = []byte("FishermenAllocation")
 	KeyProposerAllocation          = []byte("ProposerPercentage")
 	KeyMaxChains                   = []byte("MaximumChains")
 	KeyMaxJailedBlocks             = []byte("MaxJailedBlocks")
@@ -62,6 +64,12 @@ var (
 	KeyFishermenCount              = []byte("FishermenCount")
 	KeySlashFractionNoActivity     = []byte("SlashFractionNoActivity")
 	DefaultSlashFractionNoActivity = sdk.NewDec(1).Quo(sdk.NewDec(1000000))
+	KeyLatencyScoreWeight          = []byte("LatencyScoreWeight")
+	DefaultLatencyScoreWeight      = sdk.NewDecWithPrec(4, 1)
+	KeyAvailabilityScoreWeigh      = []byte("AvailabilityScoreWeigh")
+	DefaultAvailabilityScoreWeight = sdk.NewDecWithPrec(3, 1)
+	KeyReliabilityScoreWeight      = []byte("ReliabilityScoreWeight")
+	DefaultReliabilityScoreWeight  = sdk.NewDecWithPrec(3, 1)
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -77,6 +85,7 @@ type Params struct {
 	DAOAllocation           int64         `json:"dao_allocation" yaml:"dao_allocation"`
 	ProviderAllocation      int64         `json:"provider_allocation" yaml:"provider_allocation"`
 	ProposerAllocation      int64         `json:"proposer_allocation" yaml:"proposer_allocation"`
+	FishermenAllocation     int64         `json:"fisherman_allocation" yaml:"fisherman_allocation"`
 	MaximumChains           int64         `json:"maximum_chains" yaml:"maximum_chains"`
 	MaxJailedBlocks         int64         `json:"max_jailed_blocks" yaml:"max_jailed_blocks"`
 	MaxEvidenceAge          time.Duration `json:"max_evidence_age" yaml:"max_evidence_age"`                     // maximum age of tendermint evidence that is still valid (currently not implemented in Cosmos or Viper-Core)
@@ -91,6 +100,9 @@ type Params struct {
 	MaxFishermen            int64         `json:"max_fishermen"`
 	FishermenCount          int64         `json:"fishermen_count"`
 	SlashFractionNoActivity sdk.BigDec    `json:"slash_fraction_noactivity" yaml:"slash_fraction_noactivity"`
+	LatencyScoreWeight      sdk.BigDec    `json:"latency_score_weight" yaml:"latency_score_weight"`
+	AvailabilityScoreWeight sdk.BigDec    `json:"availability_score_weight" yaml:"availability_score_weight"`
+	ReliabilityScoreWeight  sdk.BigDec    `json:"reliability_score_weight" yaml:"reliability_score_weight"`
 }
 
 // Implements sdk.ParamSet
@@ -110,6 +122,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyDAOAllocation, Value: &p.DAOAllocation},
 		{Key: KeyProviderAllocation, Value: &p.ProviderAllocation},
 		{Key: KeyProposerAllocation, Value: &p.ProposerAllocation},
+		{Key: KeyFishermenAllocation, Value: &p.FishermenAllocation},
 		{Key: KeyTokenRewardFactor, Value: &p.TokenRewardFactor},
 		{Key: KeyMaxChains, Value: &p.MaximumChains},
 		{Key: KeyMaxJailedBlocks, Value: &p.MaxJailedBlocks},
@@ -119,6 +132,9 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyMaxFishermen, Value: p.MaxFishermen},
 		{Key: KeyFishermenCount, Value: p.FishermenCount},
 		{Key: KeySlashFractionNoActivity, Value: &p.SlashFractionNoActivity},
+		{Key: KeyLatencyScoreWeight, Value: &p.LatencyScoreWeight},
+		{Key: KeyAvailabilityScoreWeigh, Value: &p.AvailabilityScoreWeight},
+		{Key: KeyReliabilityScoreWeight, Value: &p.ReliabilityScoreWeight},
 	}
 }
 
@@ -147,6 +163,9 @@ func DefaultParams() Params {
 		MaxFishermen:            DefaultMaxFishermen,
 		FishermenCount:          DefaultFishermenCount,
 		SlashFractionNoActivity: DefaultSlashFractionNoActivity,
+		LatencyScoreWeight:      DefaultLatencyScoreWeight,
+		AvailabilityScoreWeight: DefaultAvailabilityScoreWeight,
+		ReliabilityScoreWeight:  DefaultReliabilityScoreWeight,
 	}
 }
 
@@ -173,7 +192,10 @@ func (p Params) Validate() error {
 	if p.ProposerAllocation < 0 {
 		return fmt.Errorf("the proposer allication must not be negative")
 	}
-	if p.ProposerAllocation+p.DAOAllocation+p.ProviderAllocation > 100 {
+	if p.FishermenAllocation < 0 {
+		return fmt.Errorf("the proposer allication must not be negative")
+	}
+	if p.ProposerAllocation+p.DAOAllocation+p.ProviderAllocation+p.FishermenAllocation > 100 {
 		return fmt.Errorf("the combo of proposer allocation, dao allocation and provider allocation must not be greater than 100")
 	}
 	if p.MaxFishermen < 1 {
@@ -181,6 +203,9 @@ func (p Params) Validate() error {
 	}
 	if p.FishermenCount < 1 {
 		return fmt.Errorf("fishermen count must be equal to or greater than 1")
+	}
+	if p.LatencyScoreWeight.RoundInt64()+p.AvailabilityScoreWeight.RoundInt64()+p.ReliabilityScoreWeight.RoundInt64() > 1 {
+		return fmt.Errorf("the combo of latency score weight, availability score weight and reliability score weight must not be greater than 1")
 	}
 	return nil
 }
@@ -207,6 +232,7 @@ func (p Params) String() string {
   Proposer Allocation      %d
   DAO allocation           %d
   Provider allocation      %d
+  Fisherman allocation     %d
   Maximum Chains           %d
   Max Jailed Blocks        %d
   Servicer Count Lock      %v 
@@ -214,7 +240,10 @@ func (p Params) String() string {
   MinPauseTime             %s
   Max Fishermen            %d
   Fishermen Count          %d
-  SlashFractionNoActivity: %s`,
+  SlashFractionNoActivity: %s
+  LatencyScoreWeight       %s
+  AvailabilityScoreWeight   %s
+  ReliabilityScoreWeight    %s`,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -229,6 +258,7 @@ func (p Params) String() string {
 		p.ProposerAllocation,
 		p.DAOAllocation,
 		p.ProviderAllocation,
+		p.FishermenAllocation,
 		p.MaximumChains,
 		p.MaxJailedBlocks,
 		p.ServicerCountLock,
@@ -236,5 +266,8 @@ func (p Params) String() string {
 		p.MinPauseTime,
 		p.MaxFishermen,
 		p.FishermenCount,
-		p.SlashFractionNoActivity)
+		p.SlashFractionNoActivity,
+		p.LatencyScoreWeight,
+		p.AvailabilityScoreWeight,
+		p.ReliabilityScoreWeight)
 }

@@ -198,5 +198,9 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("pos/SlashFractionNoActivity", addr)
 	acl.SetOwner("pos/ProposerPercentage", addr)
 	acl.SetOwner("pos/ProviderAllocation", addr)
+	acl.SetOwner("pos/FishermenAllocation", addr)
+	acl.SetOwner("pos/LatencyScoreWeight", addr)
+	acl.SetOwner("pos/AvailabilityScoreWeight", addr)
+	acl.SetOwner("pos/ReliabilityScoreWeight", addr)
 	return acl
 }

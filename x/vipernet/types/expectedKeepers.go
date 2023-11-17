@@ -13,7 +13,7 @@ import (
 )
 
 type PosKeeper interface {
-	RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt
+	RewardForRelays(ctx sdk.Ctx, reportCard MsgSubmitReportCard, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
 	Validator(ctx sdk.Ctx, addr sdk.Address) servicersexported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt

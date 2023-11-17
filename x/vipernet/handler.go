@@ -64,7 +64,7 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 	defer sdk.TimeTrack(time.Now())
 
 	// validate the claim claim
-	addr, claim, err := k.ValidateProof(ctx, proof)
+	addr, reportCard, claim, err := k.ValidateProof(ctx, proof)
 	if err != nil {
 		if err.Code() == types.CodeInvalidMerkleVerifyError && !claim.IsEmpty() {
 			// delete local evidence
@@ -84,7 +84,7 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 		return err.Result()
 	}
 	// valid claim message so execute according to type
-	tokens, err := k.ExecuteProof(ctx, proof, claim)
+	tokens, err := k.ExecuteProof(ctx, proof, reportCard, claim)
 	if err != nil {
 		return err.Result()
 	}

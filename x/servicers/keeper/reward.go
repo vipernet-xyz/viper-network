@@ -7,11 +7,10 @@ import (
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
-// RewardForRelays - Award coins to an address
-func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt {
-
+func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitReportCard, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt {
 	_, found := k.GetValidator(ctx, address)
 	if !found {
 		ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", address.String(), ctx.BlockHeight()).Error())
@@ -23,11 +22,24 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 		return sdk.ZeroInt()
 	}
 
-	var coins sdk.BigInt
+	// Assuming QoS scores are pre-calculated and equal to or below 1
+	latencyScore := reportCard.Report.LatencyScore
+	availabilityScore := reportCard.Report.AvailabilityScore
+	reliabilityScore := reportCard.Report.ReliabilityScore
 
-	coins = k.TokenRewardFactor(ctx).Mul(relays)
+	// Ensure scores are within the valid range
+	latencyScore = sdk.MinDec(latencyScore, sdk.OneDec())
+	availabilityScore = sdk.MinDec(availabilityScore, sdk.OneDec())
+	reliabilityScore = sdk.MinDec(reliabilityScore, sdk.OneDec())
+
+	// Calculate the weighted average of scores
+	totalScore := latencyScore.Mul(k.LatencyScoreWeight(ctx)).Add(availabilityScore.Mul(k.AvailabilityScoreWeight(ctx))).Add(reliabilityScore.Mul(k.ReliabilityScoreWeight(ctx)))
+
+	// Calculate the reward coins based on the total score and relays
+	coins := k.TokenRewardFactor(ctx).Mul(relays).Mul(sdk.BigInt(totalScore))
+
+	// Validate provider and mint rewards accordingly
 	_, err := k.providerKeeper.GetStakingKey(ctx, provider.GetAddress())
-
 	if err != nil {
 		toNode, toFeeCollector := k.NodeReward01(ctx, coins)
 		if toNode.IsPositive() {
@@ -35,6 +47,14 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 		}
 		if toFeeCollector.IsPositive() {
 			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
+		}
+		toFishermen := k.FishermenReward(ctx, coins)
+		if toFishermen.IsPositive() {
+			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
+		}
+		maxFreeTierRelays := sdk.NewInt(k.providerKeeper.MaxFreeTierRelaysPerSession(ctx))
+		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
+			k.burn(ctx, coins, provider)
 		}
 	} else {
 		toNode, toFeeCollector := k.NodeReward02(ctx, coins)
@@ -48,16 +68,19 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, relays sdk.BigInt, address sdk.Addr
 		if toProvider.IsPositive() {
 			k.mint(ctx, toProvider, provider.Address)
 		}
+		toFishermen := k.FishermenReward(ctx, coins)
+		if toFishermen.IsPositive() {
+			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
+		}
+		maxFreeTierRelays := sdk.NewInt(k.providerKeeper.MaxFreeTierRelaysPerSession(ctx))
+
+		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
+			k.burn(ctx, coins, provider)
+		}
 		return toNode
 	}
-	p := k.providerKeeper.Provider(ctx, provider.Address)
-	p1 := p.(providersTypes.Provider)
-	coins1 := relays.Quo((sdk.NewInt(k.providerKeeper.BaselineThroughputStakeRate(ctx)).Quo(sdk.NewInt(100))))
-	fiveThousand := sdk.NewInt(5000)
-	if k.BurnActive(ctx) && relays.GT(fiveThousand) {
-		k.burn(ctx, coins1, p1)
-	}
-	return sdk.BigInt{}
+
+	return sdk.ZeroInt()
 }
 
 // blockReward - Handles distribution of the collected fees
@@ -93,7 +116,6 @@ func (k Keeper) blockReward(ctx sdk.Ctx, previousProposer sdk.Address) {
 	if err != nil {
 		ctx.Logger().Error(fmt.Sprintf("unable to send %s cut of block reward to the proposer: %s, with error %s, at height %d", proposerCut.String(), previousProposer, err.Error(), ctx.BlockHeight()))
 	}
-	return
 }
 
 // "mint" - takes an amount and mints it to the servicer staking pool, then sends the coins to the address
@@ -118,38 +140,43 @@ func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Re
 
 func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, provider providersTypes.Provider) (sdk.Result, sdk.Error) {
 	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
-	burnErr := k.AccountKeeper.BurnCoins(ctx, providersTypes.StakedPoolName, coins)
-	if burnErr != nil {
-		ctx.Logger().Error(fmt.Sprintf("unable to burn tokens, at height %d: ", ctx.BlockHeight()) + burnErr.Error())
-		return burnErr.Result(), nil
+	if burnErr := k.AccountKeeper.BurnCoins(ctx, providersTypes.StakedPoolName, coins); burnErr != nil {
+		ctx.Logger().Error(fmt.Sprintf("unable to burn tokens, at height %d: %s", ctx.BlockHeight(), burnErr.Error()))
+		return sdk.Result{}, burnErr
 	}
-	// cannot decrease balance below zero
+
+	// Calculate tokens to burn
 	tokensToBurn := sdk.MinInt(amount, provider.StakedTokens)
 	tokensToBurn = sdk.MaxInt(tokensToBurn, sdk.ZeroInt()) // defensive.
+
+	// Update provider's staked tokens
 	provider, err := provider.RemoveStakedTokens(tokensToBurn)
 	if err != nil {
 		return sdk.Result{}, sdk.ErrInternal(err.Error())
 	}
-	//reset provider relays
+
+	// Reset provider relays
 	provider.MaxRelays = k.providerKeeper.CalculateProviderRelays(ctx, provider)
 
+	// Update provider in the store
 	k.providerKeeper.SetProvider(ctx, provider)
-	// if falls below minimum force burn all of the stake
-	if provider.GetTokens().LT(sdk.NewInt(k.providerKeeper.MinimumStake(ctx))) {
-		var err error
-		err = k.providerKeeper.ForceProviderUnstake(ctx, provider)
 
-		if err != nil {
-			k.Logger(ctx).Error("could not force unstake: " + err.Error() + "\nfor provider " + provider.Address.String())
-			return sdk.Result{}, nil
+	// If falls below minimum, force unstake
+	if provider.GetTokens().LT(sdk.NewInt(k.providerKeeper.MinimumStake(ctx))) {
+		if err := k.providerKeeper.ForceProviderUnstake(ctx, provider); err != nil {
+			logString := fmt.Sprintf("could not force unstake: %s for provider %s", err.Error(), provider.Address.String())
+			k.Logger(ctx).Error(logString)
+			return sdk.Result{}, sdk.ErrInternal(logString)
 		}
 	}
+
+	// Log the amount of tokens burned and provider's address
 	logString := fmt.Sprintf("an amount of %s tokens was burned from %s", amount.String(), provider.Address.String())
 	k.Logger(ctx).Info(logString)
+
 	return sdk.Result{
 		Log: logString,
 	}, nil
-
 }
 
 // MintRate = (total supply * inflation rate) / (30 day avg. of daily relays * 365 days)

@@ -84,4 +84,5 @@ type ProvidersKeeper interface {
 	BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64)
 	GetStakingKey(ctx sdk.Ctx, address sdk.Address) (string, error) // staking key
 	SetStakingKey(ctx sdk.Ctx, address sdk.Address, stakingKey crypto.PublicKey)
+	MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64)
 }
