@@ -103,6 +103,7 @@ const (
 	CodeInvalidTestsError                  = 97
 	CodeExpiredReportSubmissionError       = 98
 	CodeGeoZoneNotSupportedErr             = 99
+	CodeReportCardNotFoundError            = 100
 )
 
 var (
@@ -207,6 +208,7 @@ var (
 	InvalidTestsError                  = errors.New("the tests provided are invalid or less than the minimum requirement")
 	ExpiredReportSubmissionError       = errors.New("the opportunity of window to submit the Report has closed because the secret has been revealed")
 	GeoZoneNotSupportedErr             = errors.New("the geozone is not viper supported")
+	ReportCardNotFoundError            = errors.New("the report card for the servicer could not be found")
 )
 
 func NewSealedEvidenceError(codespace sdk.CodespaceType) sdk.Error {
@@ -543,4 +545,8 @@ func NewInvalidSampleError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewSampleNotHostedError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeSampleNotHostedError, SampleNotHostedError.Error())
+}
+
+func NewReportCardNotFoundError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeReportCardNotFoundError, ReportCardNotFoundError.Error())
 }

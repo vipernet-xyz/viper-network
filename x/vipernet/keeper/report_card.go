@@ -13,8 +13,6 @@ import (
 )
 
 func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, node *vc.ViperNode, servicerAddr sdk.Address, sessionHeader vc.SessionHeader, evidenceType vc.EvidenceType, qosReport vc.ViperQoSReport, reportCardTx func(pk crypto.PrivateKey, cliCtx util.CLIContext, txBuilder auth.TxBuilder, header vc.SessionHeader, servicerAddr sdk.Address, reportCard vc.ViperQoSReport) (*sdk.TxResponse, error)) {
-	// Get the private val key (main) account from the keybase
-	fishermanAddr := node.GetAddress()
 
 	// Use GetResult to fetch the result for the given session, servicer address and evidence type
 	result, err := vc.GetResult(sessionHeader, evidenceType, servicerAddr, node.TestStore)
@@ -41,7 +39,7 @@ func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, no
 	}
 
 	// Check the current state to see if the report card has already been sent and processed (if so, then return)
-	if rc, found := k.GetReportCard(ctx, qosReport.ServicerAddress, fishermanAddr, sessionHeader); found {
+	if rc, found := k.GetReportCard(ctx, qosReport.ServicerAddress, sessionHeader); found {
 		ctx.Logger().Info(fmt.Sprintf("Report card already found for session: %v", rc.SessionHeader))
 		return
 	}
@@ -157,7 +155,7 @@ func (k Keeper) SetReportCard(ctx sdk.Ctx, msg vc.MsgSubmitReportCard) error {
 	store := ctx.KVStore(k.storeKey)
 
 	// generate the store key for the report card. Here, I'm assuming a function `KeyForReportCard` similar to `KeyForClaim`.
-	key, err := vc.KeyForReportCard(ctx, msg.ServicerAddress, msg.FishermanAddress, msg.SessionHeader)
+	key, err := vc.KeyForReportCard(ctx, msg.ServicerAddress, msg.SessionHeader)
 	if err != nil {
 		return err
 	}
@@ -174,12 +172,12 @@ func (k Keeper) SetReportCard(ctx sdk.Ctx, msg vc.MsgSubmitReportCard) error {
 }
 
 // GetReportCard retrieves the ReportCard message from the store.
-func (k Keeper) GetReportCard(ctx sdk.Ctx, servicerAddr sdk.Address, fishermanAddr sdk.Address, header vc.SessionHeader) (msg vc.MsgSubmitReportCard, found bool) {
+func (k Keeper) GetReportCard(ctx sdk.Ctx, servicerAddr sdk.Address, header vc.SessionHeader) (msg vc.MsgSubmitReportCard, found bool) {
 	// Get the store.
 	store := ctx.KVStore(k.storeKey)
 
 	// Generate the key for the ReportCard.
-	key, err := vc.KeyForReportCard(ctx, servicerAddr, fishermanAddr, header)
+	key, err := vc.KeyForReportCard(ctx, servicerAddr, header)
 	if err != nil {
 		ctx.Logger().Error("Error generating key for report card:", err)
 		return vc.MsgSubmitReportCard{}, false
@@ -209,11 +207,11 @@ func (k Keeper) SetReportCards(ctx sdk.Ctx, reportCards []vc.MsgSubmitReportCard
 	}
 }
 
-func (k Keeper) GetReportCards(ctx sdk.Ctx, servicerAddress sdk.Address, fishermanAddress sdk.Address) (reportCards []vc.MsgSubmitReportCard, err error) {
+func (k Keeper) GetReportCards(ctx sdk.Ctx, servicerAddress sdk.Address) (reportCards []vc.MsgSubmitReportCard, err error) {
 	// retrieve the store
 	store := ctx.KVStore(k.storeKey)
 
-	key, err := vc.KeyForReportCards(servicerAddress, fishermanAddress)
+	key, err := vc.KeyForReportCards(servicerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +251,7 @@ func (k Keeper) DeleteReportCard(ctx sdk.Ctx, servicerAddr sdk.Address, fisherma
 	// retrieve the store
 	store := ctx.KVStore(k.storeKey)
 	// generate the key for the claim
-	key, err := vc.KeyForReportCard(ctx, servicerAddr, fishermanAddr, header)
+	key, err := vc.KeyForReportCard(ctx, servicerAddr, header)
 	if err != nil {
 		return err
 	}

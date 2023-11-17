@@ -49,7 +49,7 @@ func TestKeeper_GetSetReportCard(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Get the report card
-	queriedReportCard, found := keeper.GetReportCard(mockCtx, reportCard.ServicerAddress, reportCard.FishermanAddress, header)
+	queriedReportCard, found := keeper.GetReportCard(mockCtx, reportCard.ServicerAddress, header)
 	assert.True(t, found)
 
 	// Assertions to check the retrieved report card matches the original one
@@ -104,6 +104,6 @@ func TestKeeper_GetSetDeleteReportCards(t *testing.T) {
 	assert.Len(t, rc, 2)
 
 	_ = keeper.DeleteReportCard(mockCtx, servicerAddrs[0], fishermanAddrs[0], reportCards[0].SessionHeader)
-	_, err := keeper.GetReportCard(ctx, servicerAddrs[0], fishermanAddrs[0], reportCards[0].SessionHeader)
+	_, err := keeper.GetReportCard(ctx, servicerAddrs[0], reportCards[0].SessionHeader)
 	assert.NotNil(t, err)
 }

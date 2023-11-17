@@ -76,14 +76,9 @@ func KeyForTestResult(header SessionHeader, evidenceType EvidenceType, servicerA
 }
 
 // "KeyForReportCard" - Generates the key for the ViperQoSReport object for the state store
-func KeyForReportCard(ctx sdk.Ctx, servicerAddress sdk.Address, fishermanAddress sdk.Address, header SessionHeader) ([]byte, error) {
+func KeyForReportCard(ctx sdk.Ctx, servicerAddress sdk.Address, header SessionHeader) ([]byte, error) {
 	// Validate the servicer's address
 	if err := AddressVerification(servicerAddress.String()); err != nil {
-		return nil, err
-	}
-
-	// Validate the fisherman's address
-	if err := AddressVerification(fishermanAddress.String()); err != nil {
 		return nil, err
 	}
 
@@ -92,18 +87,16 @@ func KeyForReportCard(ctx sdk.Ctx, servicerAddress sdk.Address, fishermanAddress
 		return nil, err
 	}
 
-	// Construct the key by appending servicer's address, fisherman's address, and header's hash.
-	return append(append(append(ReportCardKey, servicerAddress.Bytes()...), fishermanAddress.Bytes()...), header.Hash()...), nil
+	// Construct the key by appending servicer's address and header's hash.
+	return append(append(ReportCardKey, servicerAddress.Bytes()...), header.Hash()...), nil
 }
 
-func KeyForReportCards(servicerAddress sdk.Address, fishermanAddress sdk.Address) ([]byte, error) {
-	// verify the address
+func KeyForReportCards(servicerAddress sdk.Address) ([]byte, error) {
+	// Verify the address
 	if err := AddressVerification(servicerAddress.String()); err != nil {
 		return nil, err
 	}
-	if err := AddressVerification(fishermanAddress.String()); err != nil {
-		return nil, err
-	}
-	// return the key bz
-	return append(append(ReportCardKey, servicerAddress.Bytes()...), fishermanAddress.Bytes()...), nil
+
+	// Return the key byte slice
+	return append(ReportCardKey, servicerAddress.Bytes()...), nil
 }

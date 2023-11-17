@@ -1,8 +1,12 @@
 package keeper
 
 import (
+	"bytes"
+	"crypto/ed25519"
+	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"reflect"
@@ -31,6 +35,19 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 	// for every claim of the mature set
 	for _, claim := range claims {
 		now := time.Now()
+
+		reportCard, found := k.GetReportCard(ctx, addr, claim.SessionHeader)
+		if !found {
+			ctx.Logger().Error(fmt.Sprintf("Report card not found for: %s, at sessionHeight: %d", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight))
+			continue
+		}
+
+		// Verify the signature on the report card against the Fisherman's signature
+		if valid, err := k.verifyReportCardSignature(ctx, reportCard, reportCard.Report.Signature); !valid {
+			ctx.Logger().Error(fmt.Sprintf("report card signature verification failed for: %s, at sessionHeight: %d. Error: %v", claim.SessionHeader.ProviderPubKey, claim.SessionHeader.SessionBlockHeight, err))
+			continue
+		}
+
 		// check to see if evidence is stored in cache
 		evidence, err := vc.GetEvidence(claim.SessionHeader, claim.EvidenceType, sdk.ZeroInt(), node.EvidenceStore)
 		if err != nil || evidence.Proofs == nil || len(evidence.Proofs) == 0 {
@@ -111,6 +128,18 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.Address, claim vc.MsgClaim, sdkError sdk.Error) {
 	// get the public key from the claim
 	servicerAddr = proof.GetSigners()[0]
+
+	// Fetch the report card for the respective node and session
+	reportCard, Found := k.GetReportCard(ctx, servicerAddr, proof.GetLeaf().SessionHeader())
+	if !Found {
+		return servicerAddr, claim, vc.NewReportCardNotFoundError(vc.ModuleName)
+	}
+
+	// Verify the signature on the report card against the Fisherman's signature
+	if valid, _ := k.verifyReportCardSignature(ctx, reportCard, reportCard.Report.Signature); !valid {
+		return servicerAddr, claim, vc.NewInvalidSignatureError(vc.ModuleName)
+	}
+
 	// get the claim for the address
 	claim, found := k.GetClaim(ctx, servicerAddr, proof.GetLeaf().SessionHeader(), proof.EvidenceType)
 	// if the claim is not found for this claim
@@ -268,4 +297,40 @@ func newTxBuilderAndCliCtx(ctx sdk.Ctx, msg sdk.ProtoMsg, n client.Client, key c
 		sdk.NewCoins(sdk.NewCoin(k.posKeeper.StakeDenom(ctx), fee)),
 	)
 	return
+}
+
+// verifyReportCardSignature verifies the signature on the report card against the Fisherman's signature
+func (k Keeper) verifyReportCardSignature(ctx sdk.Ctx, reportCard vc.MsgSubmitReportCard, fishermanSignature string) (bool, error) {
+	fisherman := k.posKeeper.Validator(ctx, reportCard.FishermanAddress)
+	fishermanPubKeyBytes, err := hex.DecodeString(fisherman.GetPublicKey().String())
+	if err != nil {
+		return false, fmt.Errorf("error decoding Fisherman's public key: %v", err)
+	}
+
+	// Decode Fisherman's signature
+	signatureBytes, err := hex.DecodeString(fishermanSignature)
+	if err != nil {
+		return false, fmt.Errorf("error decoding Fisherman's signature: %v", err)
+	}
+
+	// Create a bytes.Buffer to hold our encoded data
+	var buf bytes.Buffer
+	// Create a new GOB encoder that writes to the buffer
+	enc := gob.NewEncoder(&buf)
+
+	// Encode the report card
+	err = enc.Encode(reportCard)
+	if err != nil {
+		return false, fmt.Errorf("error encoding report card: %v", err)
+	}
+
+	// Calculate the hash of the encoded report card data
+	hashedData := vc.Hash(buf.Bytes())
+
+	// Verify the signature
+	if !ed25519.Verify(fishermanPubKeyBytes, hashedData, signatureBytes) {
+		return false, errors.New("Fisherman's signature verification failed")
+	}
+
+	return true, nil
 }
