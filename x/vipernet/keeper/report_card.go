@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"math"
 
 	"github.com/tendermint/tendermint/rpc/client"
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
@@ -56,6 +57,12 @@ func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, no
 	// Check if proof count is above minimum
 	if result.NumOfTestResults < k.MinimumSampleRelays(ctx) {
 		ctx.Logger().Info("Number of proofs is below the required minimum, will not send report card.")
+		return
+	}
+
+	// Validate against the root
+	if valid, err := k.validateReportCardAgainstRoot(ctx, qosReport, sessionHeader); !valid {
+		ctx.Logger().Error(fmt.Sprintf("Report card validation against root failed. Error: %v", err))
 		return
 	}
 
@@ -263,4 +270,38 @@ func (k Keeper) DeleteReportCard(ctx sdk.Ctx, servicerAddr sdk.Address, fisherma
 func (k Keeper) ReportCardIsExpired(ctx sdk.Ctx, sessionBlockHeight int64) bool {
 	expirationWindowInBlocks := k.ReportCardSubmissionWindow(ctx) * k.BlocksPerSession(ctx)
 	return ctx.BlockHeight() > expirationWindowInBlocks+sessionBlockHeight
+}
+
+// Function to validate the report card against the root
+func (k Keeper) validateReportCardAgainstRoot(ctx sdk.Ctx, reportCard vc.ViperQoSReport, sessionHeader vc.SessionHeader) (bool, error) {
+
+	node := vc.GetViperNode()
+
+	sessionCtx, _ := ctx.PrevCtx(sessionHeader.SessionBlockHeight)
+	// Retrieve the evidence object
+	result, err := vc.GetResult(sessionHeader, vc.FishermanTestEvidence, reportCard.ServicerAddress, node.TestStore)
+	if err != nil {
+		return false, fmt.Errorf("error retrieving evidence: %v", err)
+	}
+
+	// Get the Merkle proof object for the report card
+	index, err := k.getPseudorandomIndex(ctx, result.NumOfTestResults, sessionHeader, sessionCtx)
+	if err != nil {
+		return false, fmt.Errorf("error getting pseudorandom index: %v", err)
+	}
+
+	// Generate the Merkle proof object for the index
+	mProof, leaf := result.GenerateMerkleProof(sessionHeader.SessionBlockHeight, int(index))
+
+	// Validate the Merkle proof
+	levelCount := len(mProof.HashRanges)
+	if levelCount != int(math.Ceil(math.Log2(float64(result.NumOfTestResults)))) {
+		return false, fmt.Errorf("produced invalid proof for report card validation, level count")
+	}
+
+	if isValid, _ := mProof.ValidateTR(sessionHeader.SessionBlockHeight, reportCard.SampleRoot, leaf, levelCount); !isValid {
+		return false, fmt.Errorf("produced invalid proof for report card validation")
+	}
+
+	return true, nil
 }

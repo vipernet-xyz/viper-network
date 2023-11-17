@@ -127,6 +127,65 @@ func (mp MerkleProof) Validate(height int64, root HashRange, leaf Proof, numOfLe
 	return isValid, false
 }
 
+// "Validate" - Verifies the Proof from the leaf/cousin servicer data, the merkle root, and the Proof object
+func (mp MerkleProof) ValidateTR(height int64, root HashRange, leaf Test, numOfLevels int) (isValid bool, isReplayAttack bool) {
+	// ensure root lower is zero
+	if root.Range.Lower != 0 {
+		return
+	}
+	// check to see that target merkleHash is leaf merkleHash
+	if !bytes.Equal(mp.Target.Hash, merkleHash(leaf.Bytes())) {
+		return
+	}
+	// check to see that target upper == decimal representation of merkleHash
+	if mp.Target.Range.Upper != sumFromHash(mp.Target.Hash) {
+		return
+	}
+	// after this point - an invalid merkle proof due to an invalid range must be treated as a replay attack
+	// execute the for loop for each level
+	for i := 0; i < numOfLevels; i++ {
+		// check for valid range
+		if !mp.Target.isValidRange() {
+			return false, true
+		}
+		// get sibling from mp object
+		sibling := mp.HashRanges[i]
+		// check to see if sibling is within a valid range
+		if !sibling.isValidRange() {
+			return false, true
+		}
+		if mp.TargetIndex%2 == 1 { // odd target index
+			// target lower should be GTE sibling upper
+			if mp.Target.Range.Lower != sibling.Range.Upper {
+				return
+			}
+			// calculate the parent range and store it where the child used to be
+			mp.Target.Range.Lower = sibling.Range.Lower
+			// **upper stays the same**
+			// generate the parent merkleHash and store it where the child used to be
+			mp.Target.Hash = parentHash(height, sibling.Hash, mp.Target.Hash, mp.Target.Range, uint64(mp.TargetIndex-1), uint64(mp.TargetIndex))
+		} else { // even index
+			// target upper should be LTE sibling lower
+			if mp.Target.Range.Upper != sibling.Range.Lower {
+				return
+			}
+			// calculate the parent range and store it where the child used to be
+			mp.Target.Range.Upper = sibling.Range.Upper
+			// **lower stays the same**
+			// generate the parent merkleHash and store it where the child used to be
+			mp.Target.Hash = parentHash(height, mp.Target.Hash, sibling.Hash, mp.Target.Range, uint64(mp.TargetIndex), uint64(mp.TargetIndex+1))
+		}
+		// half the indices as we are going up one level
+		mp.TargetIndex /= 2
+	}
+	// ensure root == verification for leaf and cousin
+	isValid = root.Equal(mp.Target)
+	if !isValid {
+		return isValid, true
+	}
+	return isValid, false
+}
+
 // "sumFromHash" - get leaf sum from merkleHash
 func sumFromHash(hash []byte) uint64 {
 	return binary.LittleEndian.Uint64(hash[:8])

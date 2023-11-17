@@ -93,6 +93,14 @@ func (e *Evidence) GenerateMerkleProof(height int64, index int, maxRelays int64)
 	return
 }
 
+// "GenerateMerkleProof" - Generates the merkle Proof for an GOBEvidence
+func (r *Result) GenerateMerkleProof(height int64, index int) (test MerkleProof, leaf Test) {
+	// generate the merkle proof
+	test, leaf = GenerateTRProofs(height, r.TestResults, index)
+	// set the evidence in memory
+	return
+}
+
 // "Evidence" - A proof of work/burn for servicers.
 type evidence struct {
 	BloomBytes    []byte                   `json:"bloom_bytes"`
