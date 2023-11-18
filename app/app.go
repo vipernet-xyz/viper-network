@@ -73,6 +73,8 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.cdc,
 		app.Keys[servicersTypes.StoreKey],
 		app.accountKeeper,
+		app.providersKeeper,
+		app.governanceKeeper,
 		servicersSubspace,
 		servicersTypes.DefaultCodespace,
 	)

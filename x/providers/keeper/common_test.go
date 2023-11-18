@@ -14,6 +14,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/types/module"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/providers/exported"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
@@ -68,6 +69,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	tkeyParams := sdk.ParamsTKey
 	servicersKey := sdk.NewKVStoreKey(servicerstypes.StoreKey)
 	providersKey := sdk.NewKVStoreKey(types.StoreKey)
+	govKey := sdk.NewKVStoreKey(govTypes.StoreKey)
+	dKey := sdk.NewKVStoreKey("DiscountKey")
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
@@ -105,7 +108,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	servicersSubspace := sdk.NewSubspace(servicerstypes.DefaultParamspace)
 	appSubspace := sdk.NewSubspace(DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
-	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
+	govKeeper := govKeeper.NewKeeper(cdc, govKey, tkeyParams, dKey, govTypes.ModuleName, ak)
+	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, nil, govKeeper, servicersSubspace, "pos")
 	moduleManager := module.NewManager(
 		authentication.NewAppModule(ak),
 		servicers.NewAppModule(nk),

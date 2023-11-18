@@ -36,11 +36,12 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 	totalScore := latencyScore.Mul(k.LatencyScoreWeight(ctx)).Add(availabilityScore.Mul(k.AvailabilityScoreWeight(ctx))).Add(reliabilityScore.Mul(k.ReliabilityScoreWeight(ctx)))
 
 	// Calculate the reward coins based on the total score and relays
-	coins := k.TokenRewardFactor(ctx).Mul(relays).Mul(sdk.BigInt(totalScore))
+	trf, _ := sdk.NewDecFromStr(k.TokenRewardFactor(ctx).String())
+	r, _ := sdk.NewDecFromStr(relays.String())
+	coins := trf.Mul(r).Mul(totalScore).RoundInt()
 
 	// Validate provider and mint rewards accordingly
-	_, err := k.providerKeeper.GetStakingKey(ctx, provider.GetAddress())
-	if err != nil {
+	if !k.GovKeeper.HasDiscountKey(ctx, provider.GetAddress()) {
 		toNode, toFeeCollector := k.NodeReward01(ctx, coins)
 		if toNode.IsPositive() {
 			k.mint(ctx, toNode, address)
@@ -48,11 +49,15 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 		if toFeeCollector.IsPositive() {
 			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
 		}
+		toProvider := k.ProviderReward(ctx, coins)
+		if toProvider.IsPositive() {
+			k.mint(ctx, toProvider, k.GovKeeper.GetDAOAccount(ctx).GetAddress())
+		}
 		toFishermen := k.FishermenReward(ctx, coins)
 		if toFishermen.IsPositive() {
 			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
 		}
-		maxFreeTierRelays := sdk.NewInt(k.providerKeeper.MaxFreeTierRelaysPerSession(ctx))
+		maxFreeTierRelays := sdk.NewInt(k.ProviderKeeper.MaxFreeTierRelaysPerSession(ctx))
 		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
 			k.burn(ctx, coins, provider)
 		}
@@ -72,7 +77,7 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 		if toFishermen.IsPositive() {
 			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
 		}
-		maxFreeTierRelays := sdk.NewInt(k.providerKeeper.MaxFreeTierRelaysPerSession(ctx))
+		maxFreeTierRelays := sdk.NewInt(k.ProviderKeeper.MaxFreeTierRelaysPerSession(ctx))
 
 		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
 			k.burn(ctx, coins, provider)
@@ -156,14 +161,14 @@ func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, provider providersTypes.Pro
 	}
 
 	// Reset provider relays
-	provider.MaxRelays = k.providerKeeper.CalculateProviderRelays(ctx, provider)
+	provider.MaxRelays = k.ProviderKeeper.CalculateProviderRelays(ctx, provider)
 
 	// Update provider in the store
-	k.providerKeeper.SetProvider(ctx, provider)
+	k.ProviderKeeper.SetProvider(ctx, provider)
 
 	// If falls below minimum, force unstake
-	if provider.GetTokens().LT(sdk.NewInt(k.providerKeeper.MinimumStake(ctx))) {
-		if err := k.providerKeeper.ForceProviderUnstake(ctx, provider); err != nil {
+	if provider.GetTokens().LT(sdk.NewInt(k.ProviderKeeper.MinimumStake(ctx))) {
+		if err := k.ProviderKeeper.ForceProviderUnstake(ctx, provider); err != nil {
 			logString := fmt.Sprintf("could not force unstake: %s for provider %s", err.Error(), provider.Address.String())
 			k.Logger(ctx).Error(logString)
 			return sdk.Result{}, sdk.ErrInternal(logString)

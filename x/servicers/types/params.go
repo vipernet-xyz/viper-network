@@ -155,6 +155,7 @@ func DefaultParams() Params {
 		DAOAllocation:           DefaultDAOAllocation,
 		ProviderAllocation:      DefaultProviderAllocation,
 		ProposerAllocation:      DefaultProposerAllocation,
+		FishermenAllocation:     DefaultFishermenAllocation,
 		TokenRewardFactor:       DefaultTokenRewardFactor,
 		MaximumChains:           DefaultMaxChains,
 		MaxJailedBlocks:         DefaultMaxJailedBlocks,

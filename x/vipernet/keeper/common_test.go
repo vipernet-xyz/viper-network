@@ -22,6 +22,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	auth "github.com/vipernet-xyz/viper-network/x/authentication"
 	gov "github.com/vipernet-xyz/viper-network/x/governance"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
@@ -98,6 +99,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 	servicersKey := sdk.NewKVStoreKey(servicersTypes.StoreKey)
 	providersKey := sdk.NewKVStoreKey(providersTypes.StoreKey)
 	viperKey := sdk.NewKVStoreKey(types.StoreKey)
+	govKey := sdk.NewKVStoreKey(govTypes.StoreKey)
+	dKey := sdk.NewKVStoreKey("DiscountKey")
 
 	keys := make(map[string]*sdk.KVStoreKey)
 	keys["params"] = keyParams
@@ -178,7 +181,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 	appSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(types.DefaultParamspace)
 	ak := auth.NewKeeper(cdc, keyAcc, authSubspace, maccPerms)
-	nk := servicersKeeper.NewKeeper(cdc, servicersKey, ak, nodesSubspace, servicersTypes.ModuleName)
+	govKeeper := govKeeper.NewKeeper(cdc, govKey, tkeyParams, dKey, govTypes.ModuleName, ak)
+	nk := servicersKeeper.NewKeeper(cdc, servicersKey, ak, nil, govKeeper, nodesSubspace, servicersTypes.ModuleName)
 	appk := providersKeeper.NewKeeper(cdc, providersKey, nk, ak, nil, appSubspace, providersTypes.ModuleName)
 	appk.SetProvider(ctx, getTestProvider())
 	keeper := NewKeeper(viperKey, cdc, ak, nk, appk, &hb, &hg, viperSubspace)

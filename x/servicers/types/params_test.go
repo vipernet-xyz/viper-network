@@ -37,6 +37,9 @@ func TestDefaultParams(t *testing.T) {
 				MaxFishermen:            DefaultMaxFishermen,
 				FishermenCount:          DefaultFishermenCount,
 				SlashFractionNoActivity: DefaultSlashFractionNoActivity,
+				LatencyScoreWeight:      DefaultLatencyScoreWeight,
+				AvailabilityScoreWeight: DefaultAvailabilityScoreWeight,
+				ReliabilityScoreWeight:  DefaultReliabilityScoreWeight,
 			},
 		}}
 	for _, tt := range tests {
@@ -182,6 +185,9 @@ func TestParams_Validate(t *testing.T) {
 		MaxFishermen            int64         `json:"max_fishermen"`
 		FishermenCount          int64         `json:"fishermen_count"`
 		SlashFractionNoActivity types.BigDec  `json:"slash_fraction_noactivity" yaml:"slash_fraction_noactivity"`
+		LatencyScoreWeight      sdk.BigDec    `json:"latency_score_weight" yaml:"latency_score_weight"`
+		AvailabilityScoreWeight sdk.BigDec    `json:"availability_score_weight" yaml:"availability_score_weight"`
+		ReliabilityScoreWeight  sdk.BigDec    `json:"reliability_score_weight" yaml:"reliability_score_weight"`
 	}
 	tests := []struct {
 		name    string
@@ -205,6 +211,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.BigDec{},
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Wrong StakeDenom", fields{
 			UnstakingTime:           0,
@@ -223,6 +232,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Wrong sessionblock", fields{
 			UnstakingTime:           0,
@@ -241,6 +253,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Wrong max val", fields{
 			UnstakingTime:           0,
@@ -259,6 +274,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          0,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Wrong stake minimun", fields{
 			UnstakingTime:           0,
@@ -277,6 +295,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Wrong reward percentage above", fields{
 			UnstakingTime:           0,
@@ -295,6 +316,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Wrong dao allocation below", fields{
 			UnstakingTime:           0,
@@ -315,6 +339,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Wrong relays to token", fields{
 			UnstakingTime:           0,
@@ -333,6 +360,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, true},
 		{"Default Validation Test / Valid", fields{
 			UnstakingTime:           0,
@@ -351,6 +381,9 @@ func TestParams_Validate(t *testing.T) {
 			MaxFishermen:            1,
 			FishermenCount:          1,
 			SlashFractionNoActivity: types.ZeroDec(),
+			LatencyScoreWeight:      sdk.NewDecWithPrec(4, 1),
+			AvailabilityScoreWeight: sdk.NewDecWithPrec(3, 1),
+			ReliabilityScoreWeight:  sdk.NewDecWithPrec(3, 1),
 		}, false},
 	}
 	for _, tt := range tests {
@@ -373,6 +406,9 @@ func TestParams_Validate(t *testing.T) {
 				MaxFishermen:            tt.fields.MaxFishermen,
 				FishermenCount:          tt.fields.FishermenCount,
 				SlashFractionNoActivity: tt.fields.SlashFractionNoActivity,
+				LatencyScoreWeight:      tt.fields.LatencyScoreWeight,
+				AvailabilityScoreWeight: tt.fields.AvailabilityScoreWeight,
+				ReliabilityScoreWeight:  tt.fields.ReliabilityScoreWeight,
 			}
 			if err := p.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)

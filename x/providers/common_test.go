@@ -12,6 +12,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/providers/keeper"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
@@ -66,6 +68,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, keeper.Keeper, type
 	tkeyParams := sdk.ParamsTKey
 	servicersKey := sdk.NewKVStoreKey(servicerstypes.StoreKey)
 	providersKey := sdk.NewKVStoreKey(types.StoreKey)
+	govKey := sdk.NewKVStoreKey(govTypes.StoreKey)
+	dKey := sdk.NewKVStoreKey("DiscountKey")
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
@@ -99,7 +103,10 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, keeper.Keeper, type
 	servicersSubspace := sdk.NewSubspace(servicerstypes.DefaultParamspace)
 	providerSubspace := sdk.NewSubspace(types.DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
-	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
+	govKeeper := govKeeper.NewKeeper(cdc, govKey, tkeyParams, dKey, govTypes.ModuleName, ak)
+	nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, nil, govKeeper, servicersSubspace, "pos")
+	keeper := keeper.NewKeeper(cdc, providersKey, nk, ak, MockViperKeeper{}, providerSubspace, "providers")
+	nk.ProviderKeeper = keeper
 	moduleManager := module.NewManager(
 		authentication.NewAppModule(ak),
 		servicers.NewAppModule(nk),
@@ -109,7 +116,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, keeper.Keeper, type
 
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	_ = createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	keeper := keeper.NewKeeper(cdc, providersKey, nk, ak, MockViperKeeper{}, providerSubspace, "providers")
+
 	p := types.DefaultParams()
 	keeper.SetParams(ctx, p)
 	return ctx, keeper, ak, nk

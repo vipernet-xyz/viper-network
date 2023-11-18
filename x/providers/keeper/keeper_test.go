@@ -8,6 +8,8 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
@@ -53,6 +55,8 @@ func TestKeepers_NewKeeper(t *testing.T) {
 			tkeyParams := sdk.ParamsTKey
 			servicersKey := sdk.NewKVStoreKey(servicerstypes.StoreKey)
 			providersKey := sdk.NewKVStoreKey(types.StoreKey)
+			govKey := sdk.NewKVStoreKey(govTypes.StoreKey)
+			dKey := sdk.NewKVStoreKey("DiscountKey")
 
 			db := dbm.NewMemDB()
 			ms := store.NewCommitMultiStore(db, false, 5000000)
@@ -95,7 +99,8 @@ func TestKeepers_NewKeeper(t *testing.T) {
 			servicersSubspace := sdk.NewSubspace(servicerstypes.DefaultParamspace)
 			providerSubspace := sdk.NewSubspace(DefaultParamspace)
 			ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
-			nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, servicersSubspace, "pos")
+			govKeeper := govKeeper.NewKeeper(cdc, govKey, tkeyParams, dKey, govTypes.ModuleName, ak)
+			nk := servicerskeeper.NewKeeper(cdc, servicersKey, ak, nil, govKeeper, servicersSubspace, "pos")
 			moduleManager := module.NewManager(
 				authentication.NewAppModule(ak),
 				servicers.NewAppModule(nk),

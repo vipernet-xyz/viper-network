@@ -15,7 +15,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 
@@ -68,6 +69,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	keyPOS := sdk.NewKVStoreKey(types.ModuleName)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
+	govKey := sdk.NewKVStoreKey(govTypes.StoreKey)
+	dKey := sdk.NewKVStoreKey("DiscountKey")
 
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
@@ -91,7 +94,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
 		types.StakedPoolName:            {authentication.Burner, authentication.Staking, authentication.Minter},
-		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Staking, authentication.Minter},
+		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking, authentication.Minter},
 	}
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
@@ -112,8 +115,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-
-	keeper := keeper.NewKeeper(cdc, keyPOS, ak, posSubspace, sdk.CodespaceType("pos"))
+	govKeeper := govKeeper.NewKeeper(cdc, govKey, tkeyParams, dKey, govTypes.ModuleName, ak)
+	keeper := keeper.NewKeeper(cdc, keyPOS, ak, nil, govKeeper, posSubspace, sdk.CodespaceType("pos"))
 
 	params := types.DefaultParams()
 	keeper.SetParams(ctx, params)

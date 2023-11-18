@@ -87,8 +87,6 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	}
 
 	actualServicers := make([]exported.ValidatorI, len(session.SessionServicers))
-	node1, _ := k.GetNode(sessionCtx, session.SessionServicers[0])
-	fmt.Println("node 1:", node1)
 	for i, addr := range session.SessionServicers {
 		actualServicers[i], _ = k.GetNode(sessionCtx, addr)
 	}

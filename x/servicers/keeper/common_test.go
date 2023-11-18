@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"math/rand"
 	"testing"
 	"time"
@@ -10,6 +11,7 @@ import (
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/governance"
+	providers "github.com/vipernet-xyz/viper-network/x/providers"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 
 	"github.com/stretchr/testify/require"
@@ -23,12 +25,17 @@ import (
 	"github.com/vipernet-xyz/viper-network/store"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
+	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
+	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
+	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
 var (
 	ModuleBasics = module.NewBasicManager(
 		authentication.AppModuleBasic{},
+		providers.AppModuleBasic{},
 		governance.AppModuleBasic{},
 	)
 )
@@ -39,6 +46,7 @@ func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)
 	governance.RegisterCodec(cdc)
+	providersTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	return cdc
@@ -56,17 +64,22 @@ var _ types.ViperKeeper = MockViperKeeper{}
 func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Account, Keeper) {
 	initPower := int64(100000000000)
 	nAccs := int64(4)
-
 	keyAcc := sdk.NewKVStoreKey(authentication.StoreKey)
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 	keyPOS := sdk.NewKVStoreKey(types.ModuleName)
+	providersKey := sdk.NewKVStoreKey(providersTypes.StoreKey)
+	govKey := sdk.NewKVStoreKey(govTypes.StoreKey)
+	dKey := sdk.NewKVStoreKey("DiscountKey")
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyPOS, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(govKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
+	ms.MountStoreWithDB(dKey, sdk.StoreTypeDB, db)
 	err := ms.LoadLatestVersion()
 	require.Nil(t, err)
 
@@ -82,8 +95,10 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
+		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Staking, authentication.Minter},
 		types.StakedPoolName:            {authentication.Burner, authentication.Staking, authentication.Minter},
 		types.ModuleName:                {authentication.Burner, authentication.Staking, authentication.Minter},
+		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
 	}
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
@@ -93,6 +108,15 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	posSubspace := sdk.NewSubspace(DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
+	providerSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
+	providerKeeper := providersKeeper.NewKeeper(cdc, providersKey, nil, ak, nil, providerSubspace, providersTypes.ModuleName)
+	govKeeper := govKeeper.NewKeeper(cdc, govKey, tkeyParams, dKey, govTypes.ModuleName, ak)
+	keeper := NewKeeper(cdc, keyPOS, ak, nil, govKeeper, posSubspace, "pos")
+	providerKeeper.POSKeeper = keeper
+	providerKeeper.ViperKeeper = MockViperKeeper{}
+	providerKeeper.SetProvider(ctx, getTestProvider())
+	keeper.ViperKeeper = MockViperKeeper{}
+	keeper.ProviderKeeper = providerKeeper
 	moduleManager := module.NewManager(
 		authentication.NewAppModule(ak),
 	)
@@ -100,8 +124,8 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	keeper := NewKeeper(cdc, keyPOS, ak, posSubspace, "pos")
-	keeper.ViperKeeper = MockViperKeeper{}
+	providerKeeper.SetParams(ctx, providersTypes.DefaultParams())
+	govKeeper.SetParams(ctx, govTypes.DefaultParams())
 	params := types.DefaultParams()
 	keeper.SetParams(ctx, params)
 	return ctx, accs, keeper
@@ -199,4 +223,53 @@ func modifyFn(i *int) func(index int64, Validator exported.ValidatorI) (stop boo
 		*i++
 		return
 	}
+}
+
+var (
+	testProvider           providersTypes.Provider
+	testProviderPrivateKey crypto.PrivateKey
+	testSupportedChain     string
+	testSupportedGeoZone   string
+)
+
+func getTestProviderPrivateKey() crypto.PrivateKey {
+	if testProviderPrivateKey == nil {
+		testProviderPrivateKey = getRandomPrivateKey()
+	}
+	return testProviderPrivateKey
+}
+func getRandomPrivateKey() crypto.Ed25519PrivateKey {
+	return crypto.Ed25519PrivateKey{}.GenPrivateKey().(crypto.Ed25519PrivateKey)
+}
+func getTestSupportedBlockchain() string {
+	if testSupportedChain == "" {
+		testSupportedChain = hex.EncodeToString([]byte{01})
+	}
+	return testSupportedChain
+}
+
+func getTestSupportedGeoZones() string {
+	if testSupportedGeoZone == "" {
+		testSupportedGeoZone = hex.EncodeToString([]byte{01})
+	}
+	return testSupportedGeoZone
+}
+
+func getTestProvider() providersTypes.Provider {
+	if testProvider.Address == nil {
+		pk := getTestProviderPrivateKey().PublicKey()
+		testProvider = providersTypes.Provider{
+			Address:                 sdk.Address(pk.Address()),
+			PublicKey:               pk,
+			Jailed:                  false,
+			Status:                  2,
+			Chains:                  []string{getTestSupportedBlockchain()},
+			GeoZones:                []string{getTestSupportedGeoZones()},
+			StakedTokens:            sdk.NewInt(100000000000),
+			MaxRelays:               sdk.NewInt(100000000000),
+			NumServicers:            5,
+			UnstakingCompletionTime: time.Time{},
+		}
+	}
+	return testProvider
 }

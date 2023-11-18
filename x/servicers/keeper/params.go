@@ -146,13 +146,14 @@ func (k Keeper) NodeReward02(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk
 	// the dao, proposer, and fishermen allocations go to the fee collector
 	daoAllocation := r.Mul(daoAllocationPercentage)
 	proposerAllocation := r.Mul(proposerAllocationPercentage)
-	fishermenAllocation := r.Mul(fishermenAllocationPercentage).TruncateInt()
+	fishermenAllocation := r.Mul(fishermenAllocationPercentage)
 	// truncate int ex 1.99 uvipr goes to 1 uvipr
 	feesCollected = daoAllocation.Add(proposerAllocation).TruncateInt()
 	//providerAllocation go to the provider
-	providerAllocation := r.Mul(providerAllocationPercentage).TruncateInt()
+	providerAllocation := r.Mul(providerAllocationPercentage)
+	ProvAndFish := providerAllocation.Add(fishermenAllocation).TruncateInt()
 	// the rest goes to the servicer
-	servicerReward = reward.Sub(feesCollected).Sub(providerAllocation).Sub(fishermenAllocation)
+	servicerReward = reward.Sub(feesCollected).Sub(ProvAndFish)
 	return
 }
 
@@ -160,8 +161,8 @@ func (k Keeper) ProviderReward(ctx sdk.Ctx, reward sdk.BigInt) (providerReward s
 	// convert reward to dec
 	r := reward.ToDec()
 	providerAllocationPercentage := sdk.NewDec(k.ProviderAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
-	providerAllocation := r.Mul(providerAllocationPercentage).TruncateInt()
-	providerReward = providerAllocation
+	providerAllocation := r.Mul(providerAllocationPercentage)
+	providerReward = providerAllocation.TruncateInt()
 	return
 }
 
@@ -169,8 +170,9 @@ func (k Keeper) FishermenReward(ctx sdk.Ctx, reward sdk.BigInt) (fishermenReward
 	// convert reward to dec
 	r := reward.ToDec()
 	fishermenAllocationPercentage := sdk.NewDec(k.FishermenAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
-	fishermenAllocation := r.Mul(fishermenAllocationPercentage).TruncateInt()
-	fishermenReward = fishermenAllocation
+	fishermenAllocation := r.Mul(fishermenAllocationPercentage)
+	// Convert the decimal result to BigInt
+	fishermenReward = fishermenAllocation.TruncateInt()
 	return
 }
 
