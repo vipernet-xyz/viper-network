@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -192,27 +193,39 @@ func TestKeeper_UpdateValidatorReportCard(t *testing.T) {
 	validator := getStakedValidator()
 	validator.Address = getRandomValidatorAddress()
 
-	// Set the validator with an empty report card
-	keeper.SetValidator(context, validator)
-	// Create a sample session report
-	sessionReport := types.ReportCard{
-		TotalSessions:          10,
-		TotalLatencyScore:      sdk.NewDecWithPrec(8, 1),
-		TotalAvailabilityScore: sdk.NewDecWithPrec(7, 1),
-		TotalReliabilityScore:  sdk.NewDecWithPrec(6, 1),
+	// Set the validator with an existing report card
+	existingReport := types.ReportCard{
+		TotalSessions:          5,
+		TotalLatencyScore:      sdk.NewDecWithPrec(6, 1),
+		TotalAvailabilityScore: sdk.NewDecWithPrec(5, 1),
+		TotalReliabilityScore:  sdk.NewDecWithPrec(3, 1),
 	}
+	validator.ReportCard = existingReport
+	keeper.SetValidator(context, validator)
 
+	// Create a sample session report
+	sessionReport := viperTypes.ViperQoSReport{
+		LatencyScore:      sdk.NewDecWithPrec(5, 1),
+		AvailabilityScore: sdk.NewDecWithPrec(4, 1),
+		ReliabilityScore:  sdk.NewDecWithPrec(2, 1),
+	}
 	// Call the function to update the validator's report card
 	keeper.UpdateValidatorReportCard(context, validator.Address, sessionReport)
 
 	// Retrieve the updated validator
 	updatedValidator, found := keeper.GetValidator(context, validator.Address)
 	require.True(t, found)
+
+	// Calculate the expected updated scores based on the formula
+	expectedLatencyScore := sdk.NewDecWithPrec(583000000000000000, 18)
+	expectedAvailabilityScore := sdk.NewDecWithPrec(483000000000000000, 18)
+	expectedReliabilityScore := sdk.NewDecWithPrec(283000000000000000, 18)
+
 	// Check if the report card has been updated correctly
-	assert.Equal(t, int64(10), updatedValidator.ReportCard.TotalSessions)
-	assert.Equal(t, sdk.NewDecWithPrec(8, 1), updatedValidator.ReportCard.TotalLatencyScore)
-	assert.Equal(t, sdk.NewDecWithPrec(7, 1), updatedValidator.ReportCard.TotalAvailabilityScore)
-	assert.Equal(t, sdk.NewDecWithPrec(6, 1), updatedValidator.ReportCard.TotalReliabilityScore)
+	assert.Equal(t, existingReport.TotalSessions+1, updatedValidator.ReportCard.TotalSessions)
+	assert.True(t, expectedLatencyScore.Equal(updatedValidator.ReportCard.TotalLatencyScore))
+	assert.True(t, expectedAvailabilityScore.Equal(updatedValidator.ReportCard.TotalAvailabilityScore))
+	assert.True(t, expectedReliabilityScore.Equal(updatedValidator.ReportCard.TotalReliabilityScore))
 }
 
 func TestKeeper_DeleteValidatorReportCard(t *testing.T) {

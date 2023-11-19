@@ -144,6 +144,13 @@ func (k Keeper) ValidateSumbitReportCard(ctx sdk.Ctx, submitReportcard vc.MsgSub
 			return err
 		}
 	}
+	// Validate against the root
+	valid, _ := k.validateReportCardAgainstRoot(ctx, submitReportcard.Report, submitReportcard.SessionHeader)
+	if !valid {
+		ctx.Logger().Error(fmt.Sprintf("Report card validation against root failed"))
+		return vc.NewInvalidRCMerkleVerifyError(vc.ModuleName)
+	}
+
 	// validate the session
 	err = session.Validate(submitReportcard.ServicerAddress, app, sessionNodeCount)
 	if err != nil {
@@ -154,6 +161,21 @@ func (k Keeper) ValidateSumbitReportCard(ctx sdk.Ctx, submitReportcard vc.MsgSub
 		return vc.NewExpiredReportSubmissionError(vc.ModuleName)
 	}
 	return nil
+}
+
+func (k Keeper) ExecuteReportCard(ctx sdk.Ctx, servicerAddr sdk.Address, reportCard vc.MsgSubmitReportCard) {
+
+	// Check if the report card has expired
+	if k.ReportCardIsExpired(ctx, reportCard.SessionHeader.SessionBlockHeight) {
+		ctx.Logger().Info(fmt.Sprintf("Report card for validator %s in session %v has expired", servicerAddr.String(), reportCard.SessionHeader))
+		return
+	}
+
+	// Update the report card
+	k.posKeeper.UpdateValidatorReportCard(ctx, servicerAddr, reportCard.Report)
+
+	// Delete the local copy of the report card
+	k.DeleteReportCard(ctx, servicerAddr, reportCard.FishermanAddress, reportCard.SessionHeader)
 }
 
 // "SetReportCard" - Sets the report card in the state storage
@@ -304,4 +326,9 @@ func (k Keeper) validateReportCardAgainstRoot(ctx sdk.Ctx, reportCard vc.ViperQo
 	}
 
 	return true, nil
+}
+
+func (k Keeper) HandleFishermanSlash(ctx sdk.Ctx, address sdk.Address) {
+	ctx.Logger().Error(fmt.Sprintf("Invalid Report Card Detected: By %s", address.String()))
+	k.posKeeper.SlashFisherman(ctx, address)
 }

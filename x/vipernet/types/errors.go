@@ -104,6 +104,7 @@ const (
 	CodeExpiredReportSubmissionError       = 98
 	CodeGeoZoneNotSupportedErr             = 99
 	CodeReportCardNotFoundError            = 100
+	CodeInvalidRCMerkleVerifyError         = 101
 )
 
 var (
@@ -209,6 +210,7 @@ var (
 	ExpiredReportSubmissionError       = errors.New("the opportunity of window to submit the Report has closed because the secret has been revealed")
 	GeoZoneNotSupportedErr             = errors.New("the geozone is not viper supported")
 	ReportCardNotFoundError            = errors.New("the report card for the servicer could not be found")
+	InvalidRCMerkleVerifyError         = errors.New("report card resulted in an invalid merkle Proof")
 )
 
 func NewSealedEvidenceError(codespace sdk.CodespaceType) sdk.Error {
@@ -549,4 +551,8 @@ func NewSampleNotHostedError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewReportCardNotFoundError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeReportCardNotFoundError, ReportCardNotFoundError.Error())
+}
+
+func NewInvalidRCMerkleVerifyError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidRCMerkleVerifyError, InvalidRCMerkleVerifyError.Error())
 }

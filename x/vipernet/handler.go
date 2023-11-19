@@ -100,6 +100,59 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }
 
+// "handleSubmitReportCardMsg" - General handler for the MsgSubmitReportCard message
+func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmitReportCard) sdk.Result {
+	defer sdk.TimeTrack(time.Now())
+
+	// validate the report card submission message
+	if err := k.ValidateSumbitReportCard(ctx, msg); err != nil {
+		if err.Code() == types.CodeInvalidRCMerkleVerifyError && !msg.IsEmpty() {
+			// Process self and set report card with max score of 1
+			processResult(ctx, msg.FishermanAddress, msg.SessionHeader, msg.EvidenceType, msg.Report)
+			var report types.ViperQoSReport
+			report.LatencyScore = sdk.NewDec(1)
+			report.AvailabilityScore = sdk.NewDec(1)
+			report.ReliabilityScore = sdk.NewDec(1)
+
+			var qos types.MsgSubmitReportCard
+			qos.SessionHeader = msg.SessionHeader
+			qos.ServicerAddress = msg.ServicerAddress
+			qos.FishermanAddress = msg.FishermanAddress
+			qos.Report = report
+			qos.EvidenceType = msg.EvidenceType
+			// Set report card with max score of 1
+			k.SetReportCard(ctx, qos)
+
+			// Slash the fisherman for the invalid report card
+			k.HandleFishermanSlash(ctx, msg.FishermanAddress)
+
+		}
+		return err.Result()
+	}
+
+	// Set the valid report card
+	err := k.SetReportCard(ctx, msg)
+	if err != nil {
+		return sdk.ErrInternal(err.Error()).Result()
+	}
+
+	// Execute the report card
+	k.ExecuteReportCard(ctx, msg.ServicerAddress, msg)
+
+	// Process self
+	processResult(ctx, msg.FishermanAddress, msg.SessionHeader, msg.EvidenceType, msg.Report)
+
+	// create the event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeSubmitReportCard,
+			sdk.NewAttribute(types.AttributeKeyValidator, msg.ServicerAddress.String()),
+		),
+	})
+
+	return sdk.Result{Events: ctx.EventManager().Events()}
+}
+
 func processSelf(ctx sdk.Ctx, signer sdk.Address, header types.SessionHeader, evidenceType types.EvidenceType, tokens sdk.BigInt) {
 	node, ok := types.GlobalViperNodes[signer.String()]
 	if !ok {
@@ -119,27 +172,45 @@ func processSelf(ctx sdk.Ctx, signer sdk.Address, header types.SessionHeader, ev
 	}
 }
 
-// "handleSubmitReportCardMsg" - General handler for the MsgSubmitReportCard message
-func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmitReportCard) sdk.Result {
-	defer sdk.TimeTrack(time.Now())
-
-	// validate the report card submission message
-	if err := k.ValidateSumbitReportCard(ctx, msg); err != nil {
-		return err.Result()
+func processResult(ctx sdk.Ctx, signer sdk.Address, header types.SessionHeader, evidenceType types.EvidenceType, reportCard types.ViperQoSReport) {
+	node, ok := types.GlobalViperNodes[signer.String()]
+	if !ok {
+		return
 	}
-
-	err := k.SetReportCard(ctx, msg)
+	testStore := node.TestStore
+	err := types.DeleteResult(header, evidenceType, testStore)
 	if err != nil {
-		return sdk.ErrInternal(err.Error()).Result()
+		ctx.Logger().Error("Unable to delete result: " + err.Error())
 	}
 
-	// create the event
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			types.EventTypeSubmitReportCard,
-			sdk.NewAttribute(types.AttributeKeyValidator, msg.ServicerAddress.String()),
-		),
-	})
+	if !reportCard.ServicerAddress.Empty() {
+		// Convert BigDec to float64
+		latencyScoreFloat64 := bigDecToFloat64(reportCard.LatencyScore)
+		availabilityScoreFloat64 := bigDecToFloat64(reportCard.AvailabilityScore)
+		reliabilityScoreFloat64 := bigDecToFloat64(reportCard.ReliabilityScore)
 
-	return sdk.Result{Events: ctx.EventManager().Events()}
+		// Assuming you want to add a metric based on the report card
+		if types.GlobalViperConfig.LeanViper {
+			go types.GlobalServiceMetric().AddReportCardMetric(
+				header.Chain,
+				latencyScoreFloat64,
+				availabilityScoreFloat64,
+				reliabilityScoreFloat64,
+				&reportCard.ServicerAddress,
+			)
+		} else {
+			types.GlobalServiceMetric().AddReportCardMetric(
+				header.Chain,
+				latencyScoreFloat64,
+				availabilityScoreFloat64,
+				reliabilityScoreFloat64,
+				&reportCard.ServicerAddress,
+			)
+		}
+	}
+}
+
+func bigDecToFloat64(value sdk.BigDec) float64 {
+	roundedScore := value.RoundInt()
+	return float64(roundedScore.Int64())
 }

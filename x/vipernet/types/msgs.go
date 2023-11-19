@@ -279,3 +279,8 @@ func (msg MsgSubmitReportCard) GetSigners() []sdk.Address {
 func (msg MsgSubmitReportCard) GetRecipient() sdk.Address {
 	return nil
 }
+
+// "IsEmpty" - Returns true if the EvidenceType == 0, this should only happen on initialization and MsgClaim{} calls
+func (msg MsgSubmitReportCard) IsEmpty() bool {
+	return msg.EvidenceType == 0
+}

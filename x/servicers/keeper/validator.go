@@ -8,6 +8,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
 )
 
 func (k Keeper) MarshalValidator(ctx sdk.Ctx, validator types.Validator) ([]byte, error) {
@@ -327,7 +328,7 @@ func (k Keeper) GetValidatorReportCard(ctx sdk.Ctx, validator types.Validator) (
 	return validator.ReportCard, true
 }
 
-func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, sessionReport types.ReportCard) {
+func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, qosReport viperTypes.ViperQoSReport) {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
 		ctx.Logger().Error(fmt.Sprintf("validator not found for address: %X\n", addr))
@@ -335,23 +336,35 @@ func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, session
 	}
 
 	// Increase the total sessions count
-	validator.ReportCard.TotalSessions += sessionReport.TotalSessions
+	validator.ReportCard.TotalSessions++
 
 	// Update the total scores with the session scores
-	validator.ReportCard.TotalLatencyScore = validator.ReportCard.TotalLatencyScore.Add(sessionReport.TotalLatencyScore)
-	validator.ReportCard.TotalAvailabilityScore = validator.ReportCard.TotalAvailabilityScore.Add(sessionReport.TotalAvailabilityScore)
-	validator.ReportCard.TotalReliabilityScore = validator.ReportCard.TotalReliabilityScore.Add(sessionReport.TotalReliabilityScore)
-
-	// Ensure the scores are within the range [0, 1]
-	validator.ReportCard.TotalLatencyScore = sdk.MinDec(validator.ReportCard.TotalLatencyScore, sdk.NewDec(1))
-	validator.ReportCard.TotalAvailabilityScore = sdk.MinDec(validator.ReportCard.TotalAvailabilityScore, sdk.NewDec(1))
-	validator.ReportCard.TotalReliabilityScore = sdk.MinDec(validator.ReportCard.TotalReliabilityScore, sdk.NewDec(1))
+	validator.ReportCard.TotalLatencyScore = updateScore(validator.ReportCard.TotalLatencyScore, qosReport.LatencyScore, validator.ReportCard.TotalSessions)
+	validator.ReportCard.TotalAvailabilityScore = updateScore(validator.ReportCard.TotalAvailabilityScore, qosReport.AvailabilityScore, validator.ReportCard.TotalSessions)
+	validator.ReportCard.TotalReliabilityScore = updateScore(validator.ReportCard.TotalReliabilityScore, qosReport.ReliabilityScore, validator.ReportCard.TotalSessions)
 
 	// Save the updated validator data
 	k.SetValidator(ctx, validator)
 
 	// Set the new report card
 	k.SetValidatorReportCard(ctx, validator)
+}
+
+func updateScore(currentScore sdk.BigDec, newScore sdk.BigDec, totalSessions int64) sdk.BigDec {
+	// Weight for the new score
+	weight := sdk.OneDec().Quo(sdk.NewDec(totalSessions))
+
+	// Calculate the updated score
+	updatedScore := currentScore.Mul(sdk.OneDec().Sub(weight)).Add(newScore.Mul(weight))
+
+	// Scale the score by 1000 and round to get 3 decimal places
+	roundedScore := updatedScore.Mul(sdk.NewDec(1000)).RoundInt()
+
+	// Convert the rounded score back to decimal
+	roundedDecimal := sdk.NewDecFromInt(roundedScore).Quo(sdk.NewDec(1000))
+
+	// Ensure the updated score is within the range [0, 1]
+	return sdk.MinDec(roundedDecimal, sdk.OneDec())
 }
 
 // DeleteReportCard deletes the report card of a servicer when they are unstaked

@@ -5,4 +5,5 @@ const (
 	EventTypeProof            = MsgProofName // an event for emitting a proof message
 	EventTypeSubmitReportCard = MsgSubmitReportCardName
 	AttributeKeyValidator     = "validator" // a validator attribute
+	AttributeKeyFisherman     = "fisherman"
 )

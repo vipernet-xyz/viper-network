@@ -32,6 +32,8 @@ type PosKeeper interface {
 	BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address)
 	GetHistoricalInfo(ctx sdk.Ctx, height int64) (servicersTypes.HistoricalInfo, bool)
 	UnbondingTime(ctx sdk.Ctx) time.Duration
+	UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, sessionReport ViperQoSReport)
+	SlashFisherman(ctx sdk.Ctx, address sdk.Address)
 }
 
 type ProvidersKeeper interface {

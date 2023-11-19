@@ -31,11 +31,17 @@ const (
 	SessionsCountName       = "sessions_count_for_"
 	SessionsCountHelp       = "the number of unique sessions generated for: "
 	UVIPRCountName          = "tokens_earned_for_"
-	UVIPRCountHelp          = "the number of tokens earned in uVIPR for : "
+	UVIPRCountHelp          = "the number of tokens earned in uVIPR for: "
 	AvgClaimTimeName        = "avg_claim_time_for_"
 	AvgClaimTimeHelp        = "the average time in ms to generate the work needed for claim tx:"
 	AvgProofTimeName        = "avg_proof_time_for_"
 	AvgProofTimeHelp        = "the average time in ms to generate the work needed for claim tx:"
+	LatencyHistName         = "latency_score_for_"
+	LatencyHistHelp         = "the latency score for: "
+	AvailabilityHistName    = "availability_score_for_"
+	AvailabilityHistHelp    = "the availability score for: "
+	ReliabilityHistName     = "reliability_score_for_"
+	ReliabilityHistHelp     = "the reliability score for: "
 )
 
 type ServiceMetrics struct {
@@ -262,6 +268,27 @@ func (sm *ServiceMetrics) AddUVIPREarnedFor(networkID string, uviprEarned float6
 	sm.NonNativeChains[networkID] = nnc
 }
 
+// Function to add report card metric
+func (sm *ServiceMetrics) AddReportCardMetric(networkID string, LatencyScore, AvailabilityScore, ReliabilityScore float64, nodeAddress *sdk.Address) {
+	sm.l.Lock()
+	defer sm.l.Unlock()
+
+	nnc, ok := sm.NonNativeChains[networkID]
+	if !ok {
+		sm.tmLogger.Error("unable to find corresponding networkID in service metrics: ", networkID)
+		sm.NonNativeChains[networkID] = NewServiceMetricsFor(networkID)
+		return
+	}
+
+	labels := sm.getValidatorLabel(nodeAddress)
+
+	nnc.LatencyScore.With(labels...).Observe(LatencyScore)
+	nnc.AvailabilityScore.With(labels...).Observe(AvailabilityScore)
+	nnc.ReliabilityScore.With(labels...).Observe(ReliabilityScore)
+
+	sm.NonNativeChains[networkID] = nnc
+}
+
 func KeyForServiceMetrics() []byte {
 	return []byte(ServiceMetricsKey)
 }
@@ -291,6 +318,10 @@ type ServiceMetric struct {
 	AverageProofTime metrics.Histogram `json:"avg_proof_time"`
 	TotalSessions    metrics.Counter   `json:"total_sessions"`
 	UVIPREarned      metrics.Counter   `json:"uvipr_earned"`
+	// New metric for report card
+	LatencyScore      metrics.Histogram `json:"avg_latency_score"`
+	AvailabilityScore metrics.Histogram `json:"avg_availability_score"`
+	ReliabilityScore  metrics.Histogram `json:"avg_reliability_score"`
 }
 
 func NewServiceMetricsFor(networkID string) ServiceMetric {
@@ -356,14 +387,47 @@ func NewServiceMetricsFor(networkID string) ServiceMetric {
 		ConstLabels: nil,
 		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
 	}, append(labels, "validator_address"))
+	// Avg latency score histogram metric
+	LatencyScore := prometheus.NewHistogramFrom(stdPrometheus.HistogramOpts{
+		Namespace:   ModuleName,
+		Subsystem:   ServiceMetricsNamespace,
+		Name:        LatencyHistName + networkID,
+		Help:        LatencyHistHelp + networkID,
+		ConstLabels: nil,
+		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
+	}, append(labels, "validator_address"))
+
+	// Avg availability score histogram metric
+	AvailabilityScore := prometheus.NewHistogramFrom(stdPrometheus.HistogramOpts{
+		Namespace:   ModuleName,
+		Subsystem:   ServiceMetricsNamespace,
+		Name:        AvailabilityHistName + networkID,
+		Help:        AvailabilityHistHelp + networkID,
+		ConstLabels: nil,
+		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
+	}, append(labels, "validator_address"))
+
+	// Avg reliability score histogram metric
+	ReliabilityScore := prometheus.NewHistogramFrom(stdPrometheus.HistogramOpts{
+		Namespace:   ModuleName,
+		Subsystem:   ServiceMetricsNamespace,
+		Name:        ReliabilityHistName + networkID,
+		Help:        ReliabilityHistHelp + networkID,
+		ConstLabels: nil,
+		Buckets:     stdPrometheus.LinearBuckets(1, 20, 20),
+	}, append(labels, "validator_address"))
+
 	return ServiceMetric{
-		RelayCount:       relayCounter,
-		ChallengeCount:   challengeCounter,
-		ErrCount:         errCounter,
-		AverageRelayTime: avgRelayTime,
-		TotalSessions:    totalSessions,
-		UVIPREarned:      uVIPREarned,
-		AverageClaimTime: avgClaimTime,
-		AverageProofTime: avgProofTime,
+		RelayCount:        relayCounter,
+		ChallengeCount:    challengeCounter,
+		ErrCount:          errCounter,
+		AverageRelayTime:  avgRelayTime,
+		TotalSessions:     totalSessions,
+		UVIPREarned:       uVIPREarned,
+		AverageClaimTime:  avgClaimTime,
+		AverageProofTime:  avgProofTime,
+		LatencyScore:      LatencyScore,
+		AvailabilityScore: AvailabilityScore,
+		ReliabilityScore:  ReliabilityScore,
 	}
 }

@@ -20,6 +20,28 @@ func (k Keeper) BurnForChallenge(ctx sdk.Ctx, challenges sdk.BigInt, address sdk
 	k.simpleSlash(ctx, address, coins)
 }
 
+func (k Keeper) SlashFisherman(ctx sdk.Ctx, address sdk.Address) {
+	// Calculate the amount to be burned, which is 2% of the fisherman's stake
+	val, found := k.GetValidator(ctx, address)
+
+	if !found {
+		ctx.Logger().Error(fmt.Sprintf("Validator not found for address: %s", address.String()))
+		return
+	}
+
+	// Calculate the amount to be burned, which is 2% of the validator's staked tokens
+	burnAmount := val.StakedTokens.Mul(sdk.NewInt(2)).Quo(sdk.NewInt(100))
+
+	// Burn the calculated amount from the fisherman's stake
+	k.simpleSlash(ctx, address, burnAmount)
+
+	// Jail the fisherman
+	k.JailValidator(ctx, address)
+
+	// Log the slashing event
+	ctx.Logger().Info(fmt.Sprintf("Fisherman %s slashed for submitting invalid report card. Burned %v and jailed.", address.String(), burnAmount))
+}
+
 func (k Keeper) BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address) {
 	// Assuming the address provided is the validator's delegator address. If it's a ConsensusAddr, you might need to convert it first.
 	validator, found := k.GetValidator(ctx, addr)
