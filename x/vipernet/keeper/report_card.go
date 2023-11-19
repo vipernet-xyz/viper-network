@@ -174,7 +174,7 @@ func (k Keeper) ExecuteReportCard(ctx sdk.Ctx, servicerAddr sdk.Address, reportC
 	// Update the report card
 	k.posKeeper.UpdateValidatorReportCard(ctx, servicerAddr, reportCard.Report)
 
-	// Delete the local copy of the report card
+	// Delete the report card
 	k.DeleteReportCard(ctx, servicerAddr, reportCard.FishermanAddress, reportCard.SessionHeader)
 }
 

@@ -122,9 +122,15 @@ func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmit
 			qos.EvidenceType = msg.EvidenceType
 			// Set report card with max score of 1
 			k.SetReportCard(ctx, qos)
-
+			if err != nil {
+				return sdk.ErrInternal(err.Error()).Result()
+			}
+			// Execute the report card
+			k.ExecuteReportCard(ctx, msg.ServicerAddress, qos)
 			// Slash the fisherman for the invalid report card
 			k.HandleFishermanSlash(ctx, msg.FishermanAddress)
+			// Process self
+			processResult(ctx, msg.FishermanAddress, msg.SessionHeader, msg.EvidenceType, msg.Report)
 
 		}
 		return err.Result()
