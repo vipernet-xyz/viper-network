@@ -9,6 +9,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
+	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
 // "Session" - The relationship between an application and the viper network
@@ -153,6 +154,18 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 	sessionServicers = make(SessionServicers, sessionServicersCount)
 	var servicer exported.ValidatorI
 
+	// Map to store the performance scores of validators
+	scoresMap := make(map[string]int64)
+
+	// Populate the scoresMap with scores from the report cards
+	for _, validatorAddr := range validatorsInBoth {
+		validator, found := keeper.GetValidator(ctx, validatorAddr)
+		if found && validator.ReportCard != (servicerTypes.ReportCard{}) {
+			score := servicerTypes.ScoresToPower(validator.ReportCard)
+			scoresMap[validatorAddr.String()] = score
+		}
+	}
+
 	// Unique address map to avoid re-checking a pseudorandomly selected servicer
 	m := make(map[string]struct{})
 	// Only select the servicersAddrs if not jailed and contain both chain and geo zone
@@ -162,8 +175,8 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 			return nil, NewInsufficientServicersError(ModuleName)
 		}
 
-		// Generate the random index
-		index := PseudorandomSelection(sdk.NewInt(int64(len(validatorsInBoth))), sessionKey)
+		// Generate the random index based on report card scores
+		index := PseudorandomSelectionWithWeights(scoresMap, sessionKey)
 		// MerkleHash the session key to provide new entropy
 		sessionKey = Hash(sessionKey)
 		// Get the servicer from the array

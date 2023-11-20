@@ -23,17 +23,18 @@ type PosKeeper interface {
 	GetStakedValidators(ctx sdk.Ctx) (validators []servicersexported.ValidatorI)
 	BlocksPerSession(ctx sdk.Ctx) (res int64)
 	StakeDenom(ctx sdk.Ctx) (res string)
+	GetValidator(ctx sdk.Ctx, addr sdk.Address) (validator servicersTypes.Validator, found bool)
 	GetValidatorsByChain(ctx sdk.Ctx, networkID string) (validators []sdk.Address, total int)
 	GetValidatorsByGeoZone(ctx sdk.Ctx, geoZone string) (validators []sdk.Address, count int)
 	GetStakedValidatorsLimit(ctx sdk.Ctx, maxRetrieve int64) (validators []servicersexported.ValidatorI)
 	MaxFishermen(ctx sdk.Ctx) (res int64)
 	FishermenCount(ctx sdk.Ctx) (res int64)
 	PauseNode(ctx sdk.Ctx, addr sdk.Address) sdk.Error
-	BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address)
+	BurnforNoActivity(ctx sdk.Ctx, height int64, addr sdk.Address)
 	GetHistoricalInfo(ctx sdk.Ctx, height int64) (servicersTypes.HistoricalInfo, bool)
 	UnbondingTime(ctx sdk.Ctx) time.Duration
 	UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, sessionReport ViperQoSReport)
-	SlashFisherman(ctx sdk.Ctx, address sdk.Address)
+	SlashFisherman(ctx sdk.Ctx, height int64, address sdk.Address)
 }
 
 type ProvidersKeeper interface {

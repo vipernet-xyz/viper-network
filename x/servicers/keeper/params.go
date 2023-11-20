@@ -237,6 +237,11 @@ func (k Keeper) ReliabilityScoreWeight(ctx sdk.Ctx) (res sdk.BigDec) {
 	return
 }
 
+func (k Keeper) SlashFractionFisherman(ctx sdk.Ctx) (res sdk.BigDec) {
+	k.Paramstore.Get(ctx, types.KeySlashFractionFisherman, &res)
+	return
+}
+
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -267,6 +272,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		LatencyScoreWeight:      k.LatencyScoreWeight(ctx),
 		AvailabilityScoreWeight: k.AvailabilityScoreWeight(ctx),
 		ReliabilityScoreWeight:  k.ReliabilityScoreWeight(ctx),
+		SlashFractionFisherman:  k.SlashFractionFisherman(ctx),
 	}
 }
 

@@ -166,25 +166,27 @@ func AddressFromLastValidatorPowerKey(key []byte) []byte {
 	return key[2:] // remove prefix bytes and address length
 }
 
-// ScoresToPower - convert report card scores to potential consensus-engine power
 func ScoresToPower(reportCard ReportCard) int64 {
 	if reportCard.TotalSessions == 0 {
-		return 0
+		return sdk.NewIntWithDecimal(1, 1).Int64()
 	}
 
-	totalSessionsDec := sdk.NewDec(reportCard.TotalSessions)
+	avgLatencyScore := reportCard.TotalLatencyScore
+	avgAvailabilityScore := reportCard.TotalAvailabilityScore
+	avgReliabilityScore := reportCard.TotalReliabilityScore
 
-	avgLatencyScore := reportCard.TotalLatencyScore.Quo(totalSessionsDec)
-	avgAvailabilityScore := reportCard.TotalAvailabilityScore.Quo(totalSessionsDec)
-	avgReliabilityScore := reportCard.TotalReliabilityScore.Quo(totalSessionsDec) // Assuming you have this field
+	// Adjust the weights based on your preference
+	latencyWeight := sdk.NewDecWithPrec(5, 1)
+	availabilityWeight := sdk.NewDecWithPrec(2, 1)
+	reliabilityWeight := sdk.NewDecWithPrec(3, 1)
 
-	totalScore := avgLatencyScore.Mul(sdk.NewDecWithPrec(5, 1)).Add(
-		avgAvailabilityScore.Mul(sdk.NewDecWithPrec(2, 1)).Add(
-			avgReliabilityScore.Mul(sdk.NewDecWithPrec(3, 1))))
+	totalScore := avgLatencyScore.Mul(latencyWeight).Add(
+		avgAvailabilityScore.Mul(availabilityWeight).Add(
+			avgReliabilityScore.Mul(reliabilityWeight)))
 
-	powerReductionDec := sdk.NewDecFromInt(sdk.PowerReduction)
+	powerReduction := sdk.NewDecWithPrec(1, 3)
 
-	reducedPower := totalScore.Quo(powerReductionDec).BigInt().Int64()
+	reducedPower := totalScore.Quo(powerReduction).BigInt().Int64()
 
 	return reducedPower
 }

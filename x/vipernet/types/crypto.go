@@ -167,3 +167,17 @@ func PseudorandomSelection(max sdk.BigInt, hash []byte) (index sdk.BigInt) {
 	// mod the selection
 	return intHash.Mod(max)
 }
+
+// PseudorandomSelectionWithWeights selects an index based on weighted random selection using scoresMap
+func PseudorandomSelectionWithWeights(scoresMap map[string]int64, hash []byte) (index sdk.BigInt) {
+	totalWeight := int64(0)
+	for _, weight := range scoresMap {
+		totalWeight += weight
+	}
+
+	// MerkleHash for show and convert back to decimal
+	intHash := sdk.NewIntFromBigInt(new(big.Int).SetBytes(hash[:8]))
+
+	// mod the selection based on totalWeight
+	return intHash.ModRaw(totalWeight)
+}

@@ -328,7 +328,7 @@ func (k Keeper) validateReportCardAgainstRoot(ctx sdk.Ctx, reportCard vc.ViperQo
 	return true, nil
 }
 
-func (k Keeper) HandleFishermanSlash(ctx sdk.Ctx, address sdk.Address) {
+func (k Keeper) HandleFishermanSlash(ctx sdk.Ctx, height int64, address sdk.Address) {
 	ctx.Logger().Error(fmt.Sprintf("Invalid Report Card Detected: By %s", address.String()))
-	k.posKeeper.SlashFisherman(ctx, address)
+	k.posKeeper.SlashFisherman(ctx, height, address)
 }

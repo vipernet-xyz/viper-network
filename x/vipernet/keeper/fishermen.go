@@ -180,7 +180,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 				servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
 
 				if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
-					k.posKeeper.BurnforNoActivity(ctx, servicer.GetAddress())
+					k.posKeeper.BurnforNoActivity(ctx, ctx.BlockHeight(), servicer.GetAddress())
 					k.posKeeper.PauseNode(ctx, servicer.GetAddress())
 				}
 

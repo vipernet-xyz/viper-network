@@ -20,7 +20,7 @@ func (k Keeper) BurnForChallenge(ctx sdk.Ctx, challenges sdk.BigInt, address sdk
 	k.simpleSlash(ctx, address, coins)
 }
 
-func (k Keeper) SlashFisherman(ctx sdk.Ctx, address sdk.Address) {
+func (k Keeper) SlashFisherman(ctx sdk.Ctx, height int64, address sdk.Address) {
 	// Calculate the amount to be burned, which is 2% of the fisherman's stake
 	val, found := k.GetValidator(ctx, address)
 
@@ -28,21 +28,19 @@ func (k Keeper) SlashFisherman(ctx sdk.Ctx, address sdk.Address) {
 		ctx.Logger().Error(fmt.Sprintf("Validator not found for address: %s", address.String()))
 		return
 	}
-
-	// Calculate the amount to be burned, which is 2% of the validator's staked tokens
-	burnAmount := val.StakedTokens.Mul(sdk.NewInt(2)).Quo(sdk.NewInt(100))
+	fraction := k.SlashFractionFisherman(ctx)
 
 	// Burn the calculated amount from the fisherman's stake
-	k.simpleSlash(ctx, address, burnAmount)
+	k.slash(ctx, address, height, val.ConsensusPower(), fraction)
 
 	// Jail the fisherman
 	k.JailValidator(ctx, address)
 
 	// Log the slashing event
-	ctx.Logger().Info(fmt.Sprintf("Fisherman %s slashed for submitting invalid report card. Burned %v and jailed.", address.String(), burnAmount))
+	ctx.Logger().Info(fmt.Sprintf("Fisherman %s slashed for submitting invalid report card. Burned and jailed.", address.String()))
 }
 
-func (k Keeper) BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address) {
+func (k Keeper) BurnforNoActivity(ctx sdk.Ctx, height int64, addr sdk.Address) {
 	// Assuming the address provided is the validator's delegator address. If it's a ConsensusAddr, you might need to convert it first.
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
@@ -53,7 +51,7 @@ func (k Keeper) BurnforNoActivity(ctx sdk.Ctx, addr sdk.Address) {
 	fraction := k.SlashFractionNoActivity(ctx)
 
 	// Slash the validator for inactivity
-	k.slash(ctx, validator.GetAddress(), ctx.BlockHeight(), validator.GetConsensusPower(), fraction)
+	k.slash(ctx, addr, height, validator.GetConsensusPower(), fraction)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

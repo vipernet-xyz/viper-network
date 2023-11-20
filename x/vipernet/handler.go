@@ -128,7 +128,7 @@ func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmit
 			// Execute the report card
 			k.ExecuteReportCard(ctx, msg.ServicerAddress, qos)
 			// Slash the fisherman for the invalid report card
-			k.HandleFishermanSlash(ctx, msg.FishermanAddress)
+			k.HandleFishermanSlash(ctx, ctx.BlockHeight(), msg.FishermanAddress)
 			// Process self
 			processResult(ctx, msg.FishermanAddress, msg.SessionHeader, msg.EvidenceType, msg.Report)
 

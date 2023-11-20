@@ -70,6 +70,8 @@ var (
 	DefaultAvailabilityScoreWeight = sdk.NewDecWithPrec(3, 1)
 	KeyReliabilityScoreWeight      = []byte("ReliabilityScoreWeight")
 	DefaultReliabilityScoreWeight  = sdk.NewDecWithPrec(3, 1)
+	KeySlashFractionFisherman      = []byte("SlashFractionFisherman")
+	DefaultSlashFractionFisherman  = sdk.NewDec(2).Quo(sdk.NewDec(100))
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -103,6 +105,7 @@ type Params struct {
 	LatencyScoreWeight      sdk.BigDec    `json:"latency_score_weight" yaml:"latency_score_weight"`
 	AvailabilityScoreWeight sdk.BigDec    `json:"availability_score_weight" yaml:"availability_score_weight"`
 	ReliabilityScoreWeight  sdk.BigDec    `json:"reliability_score_weight" yaml:"reliability_score_weight"`
+	SlashFractionFisherman  sdk.BigDec    `json:"slash_fraction_fisherman" yaml:"slash_fraction_fisherman"`
 }
 
 // Implements sdk.ParamSet
@@ -135,6 +138,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyLatencyScoreWeight, Value: &p.LatencyScoreWeight},
 		{Key: KeyAvailabilityScoreWeigh, Value: &p.AvailabilityScoreWeight},
 		{Key: KeyReliabilityScoreWeight, Value: &p.ReliabilityScoreWeight},
+		{Key: KeySlashFractionFisherman, Value: &p.SlashFractionFisherman},
 	}
 }
 
@@ -167,6 +171,7 @@ func DefaultParams() Params {
 		LatencyScoreWeight:      DefaultLatencyScoreWeight,
 		AvailabilityScoreWeight: DefaultAvailabilityScoreWeight,
 		ReliabilityScoreWeight:  DefaultReliabilityScoreWeight,
+		SlashFractionFisherman:  DefaultSlashFractionFisherman,
 	}
 }
 
@@ -243,8 +248,9 @@ func (p Params) String() string {
   Fishermen Count          %d
   SlashFractionNoActivity: %s
   LatencyScoreWeight       %s
-  AvailabilityScoreWeight   %s
-  ReliabilityScoreWeight    %s`,
+  AvailabilityScoreWeight  %s
+  ReliabilityScoreWeight   %s
+  SlashFractionFisherman   %s`,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -270,5 +276,6 @@ func (p Params) String() string {
 		p.SlashFractionNoActivity,
 		p.LatencyScoreWeight,
 		p.AvailabilityScoreWeight,
-		p.ReliabilityScoreWeight)
+		p.ReliabilityScoreWeight,
+		p.SlashFractionFisherman)
 }
