@@ -47,7 +47,7 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	resp.Proof = trigger.Proof
 
 	// If everything has gone well so far, call StartServicersSampling.
-	err := k.StartServicersSampling(ctx, trigger)
+	err := k.StartServicersSampling(ctx, trigger, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func triggerIsEmpty(trigger vc.FishermenTrigger) bool {
 		trigger.Proof.Token.ProviderSignature == ""
 }
 
-func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger) sdk.Error {
+func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger, endBlockSignal chan struct{}) sdk.Error {
 	sessionHeader := vc.SessionHeader{
 		ProviderPubKey:     trigger.Proof.Token.ProviderPublicKey,
 		Chain:              trigger.Proof.Blockchain,
@@ -90,12 +90,8 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	for i, addr := range session.SessionServicers {
 		actualServicers[i], _ = k.GetNode(sessionCtx, addr)
 	}
-	blocksPerSession := k.posKeeper.BlocksPerSession(ctx)
 	fmt.Println("actual servicers:", actualServicers)
 	var fisherman *vc.ViperNode
-	var fishermanAddress sdk.Address
-	fisherman = vc.GetViperNode()
-	fishermanAddress = fisherman.GetAddress()
 	fishermanValidator, _ := k.GetSelfNode(ctx)
 
 	results := make(map[string]*vc.ServicerResults)
@@ -109,11 +105,11 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 		ticker := time.NewTicker(time.Duration(10+rand.Intn(25)) * time.Second)
 		defer ticker.Stop()
 
-		for range ticker.C {
-			if (ctx.BlockHeight()+int64(fishermanAddress[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
-				// Calculate and send QoS for each servicer after breaking the loop
-				latencyScores := CalculateLatencyScores(results) // Calculate latency scores based on comparisons
+		for {
+			select {
+			case <-endBlockSignal:
 
+				latencyScores := CalculateLatencyScores(results)
 				for _, servicer := range actualServicers {
 					servicerResult := results[servicer.GetAddress().String()]
 
@@ -160,39 +156,40 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 
 					k.SendReportCardTx(ctx, k, k.TmNode, fisherman, qos.ServicerAddress, sessionHeader, resultForMerkle.EvidenceType, *qos, vc.SendReportCardTx)
 				}
-
 				return
-			}
 
-			for _, servicer := range actualServicers {
-				startTime := time.Now()
-				Blockchain := trigger.Proof.Blockchain
-				resp, err := vc.SendSampleRelay(Blockchain, trigger, servicer, fishermanValidator)
+			case <-ticker.C:
 
-				latency := resp.Latency
-				isAvailable := err == nil && resp.Proof.Signature != ""
-				isReliable := resp.Reliability
+				for _, servicer := range actualServicers {
+					startTime := time.Now()
+					Blockchain := trigger.Proof.Blockchain
+					resp, err := vc.SendSampleRelay(Blockchain, trigger, servicer, fishermanValidator)
 
-				servicerResult := results[servicer.GetAddress().String()]
-				servicerResult.Timestamps = append(servicerResult.Timestamps, startTime)
-				servicerResult.Latencies = append(servicerResult.Latencies, latency)
-				servicerResult.Availabilities = append(servicerResult.Availabilities, isAvailable)
-				servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
+					latency := resp.Latency
+					isAvailable := err == nil && resp.Proof.Signature != ""
+					isReliable := resp.Reliability
 
-				if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
-					k.posKeeper.BurnforNoActivity(ctx, ctx.BlockHeight(), servicer.GetAddress())
-					k.posKeeper.PauseNode(ctx, servicer.GetAddress())
+					servicerResult := results[servicer.GetAddress().String()]
+					servicerResult.Timestamps = append(servicerResult.Timestamps, startTime)
+					servicerResult.Latencies = append(servicerResult.Latencies, latency)
+					servicerResult.Availabilities = append(servicerResult.Availabilities, isAvailable)
+					servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
+
+					if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
+						k.posKeeper.BurnforNoActivity(ctx, ctx.BlockHeight(), servicer.GetAddress())
+						k.posKeeper.PauseNode(ctx, servicer.GetAddress())
+					}
+
+					testResult := vc.TestResult{
+						ServicerAddress: servicer.GetAddress(),
+						Timestamp:       startTime,
+						Latency:         latency,
+						IsAvailable:     isAvailable,
+						IsReliable:      isReliable,
+					}
+
+					testResult.Store(sessionHeader, fisherman.TestStore)
 				}
-
-				testResult := vc.TestResult{
-					ServicerAddress: servicer.GetAddress(),
-					Timestamp:       startTime,
-					Latency:         latency,
-					IsAvailable:     isAvailable,
-					IsReliable:      isReliable,
-				}
-
-				testResult.Store(sessionHeader, fisherman.TestStore)
 			}
 		}
 	}()
