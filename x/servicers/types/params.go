@@ -66,7 +66,7 @@ var (
 	DefaultSlashFractionNoActivity = sdk.NewDec(1).Quo(sdk.NewDec(1000000))
 	KeyLatencyScoreWeight          = []byte("LatencyScoreWeight")
 	DefaultLatencyScoreWeight      = sdk.NewDecWithPrec(4, 1)
-	KeyAvailabilityScoreWeigh      = []byte("AvailabilityScoreWeigh")
+	KeyAvailabilityScoreWeight     = []byte("AvailabilityScoreWeigh")
 	DefaultAvailabilityScoreWeight = sdk.NewDecWithPrec(3, 1)
 	KeyReliabilityScoreWeight      = []byte("ReliabilityScoreWeight")
 	DefaultReliabilityScoreWeight  = sdk.NewDecWithPrec(3, 1)
@@ -136,7 +136,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyFishermenCount, Value: p.FishermenCount},
 		{Key: KeySlashFractionNoActivity, Value: &p.SlashFractionNoActivity},
 		{Key: KeyLatencyScoreWeight, Value: &p.LatencyScoreWeight},
-		{Key: KeyAvailabilityScoreWeigh, Value: &p.AvailabilityScoreWeight},
+		{Key: KeyAvailabilityScoreWeight, Value: &p.AvailabilityScoreWeight},
 		{Key: KeyReliabilityScoreWeight, Value: &p.ReliabilityScoreWeight},
 		{Key: KeySlashFractionFisherman, Value: &p.SlashFractionFisherman},
 	}

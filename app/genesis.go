@@ -108,7 +108,7 @@ func newDefaultGenesisState() []byte {
 			ServiceURL:              sdk.PlaceholderServiceURL,
 			StakedTokens:            sdk.NewInt(10000000000000),
 			UnstakingCompletionTime: time.Time{},
-			ReportCard:              servicersTypes.ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0)}})
+			ReportCard:              servicersTypes.ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0), TotalReliabilityScore: sdk.NewDec(0)}})
 	res = types.ModuleCdc.MustMarshalJSON(posGenesisState)
 	defaultGenesis[servicersTypes.ModuleName] = res
 	// set default governance in genesis

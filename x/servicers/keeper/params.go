@@ -228,7 +228,7 @@ func (k Keeper) LatencyScoreWeight(ctx sdk.Ctx) (res sdk.BigDec) {
 }
 
 func (k Keeper) AvailabilityScoreWeight(ctx sdk.Ctx) (res sdk.BigDec) {
-	k.Paramstore.Get(ctx, types.KeyAvailabilityScoreWeigh, &res)
+	k.Paramstore.Get(ctx, types.KeyAvailabilityScoreWeight, &res)
 	return
 }
 
