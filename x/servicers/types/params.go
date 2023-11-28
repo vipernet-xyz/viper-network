@@ -66,7 +66,7 @@ var (
 	DefaultSlashFractionNoActivity = sdk.NewDec(1).Quo(sdk.NewDec(1000000))
 	KeyLatencyScoreWeight          = []byte("LatencyScoreWeight")
 	DefaultLatencyScoreWeight      = sdk.NewDecWithPrec(4, 1)
-	KeyAvailabilityScoreWeight     = []byte("AvailabilityScoreWeigh")
+	KeyAvailabilityScoreWeight     = []byte("AvailabilityScoreWeight")
 	DefaultAvailabilityScoreWeight = sdk.NewDecWithPrec(3, 1)
 	KeyReliabilityScoreWeight      = []byte("ReliabilityScoreWeight")
 	DefaultReliabilityScoreWeight  = sdk.NewDecWithPrec(3, 1)

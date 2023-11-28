@@ -116,8 +116,14 @@ func (pm AppModule) ExportGenesis(ctx sdk.Ctx) json.RawMessage {
 
 // BeginBlock module begin-block
 func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
+	// Activate additional parameters if needed
 	ActivateAdditionalParameters(ctx, am)
+
+	// Call BeginBlocker from the keeper
 	keeper.BeginBlocker(ctx, req, am.keeper)
+
+	// Track historical info
+	am.keeper.TrackHistoricalInfo(ctx)
 }
 
 // ActivateAdditionalParameters activate additional parameters on their respective upgrade heights

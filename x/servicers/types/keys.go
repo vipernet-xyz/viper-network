@@ -163,7 +163,7 @@ func GetHistoricalInfoKey(height int64) []byte {
 // AddressFromLastValidatorPowerKey creates the validator operator address from LastValidatorPowerKey
 func AddressFromLastValidatorPowerKey(key []byte) []byte {
 	kv.AssertKeyAtLeastLength(key, 3)
-	return key[2:] // remove prefix bytes and address length
+	return key[1:]
 }
 
 func ScoresToPower(reportCard ReportCard) int64 {
