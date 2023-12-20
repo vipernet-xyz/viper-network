@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/binary"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -171,22 +172,21 @@ func ScoresToPower(reportCard ReportCard) int64 {
 		return sdk.NewIntWithDecimal(1, 1).Int64()
 	}
 
-	avgLatencyScore := reportCard.TotalLatencyScore
-	avgAvailabilityScore := reportCard.TotalAvailabilityScore
-	avgReliabilityScore := reportCard.TotalReliabilityScore
+	LatencyScore := reportCard.TotalLatencyScore
+	AvailabilityScore := reportCard.TotalAvailabilityScore
+	ReliabilityScore := reportCard.TotalReliabilityScore
 
 	// Adjust the weights based on your preference
 	latencyWeight := sdk.NewDecWithPrec(5, 1)
 	availabilityWeight := sdk.NewDecWithPrec(2, 1)
 	reliabilityWeight := sdk.NewDecWithPrec(3, 1)
 
-	totalScore := avgLatencyScore.Mul(latencyWeight).Add(
-		avgAvailabilityScore.Mul(availabilityWeight).Add(
-			avgReliabilityScore.Mul(reliabilityWeight)))
+	totalScore := LatencyScore.Mul(latencyWeight).Add(
+		AvailabilityScore.Mul(availabilityWeight).Add(
+			ReliabilityScore.Mul(reliabilityWeight)))
 
-	powerReduction := sdk.NewDecWithPrec(1, 3)
-
-	reducedPower := totalScore.Quo(powerReduction).BigInt().Int64()
+	fmt.Println("score:", totalScore)
+	reducedPower := totalScore.BigInt().Int64()
 
 	return reducedPower
 }

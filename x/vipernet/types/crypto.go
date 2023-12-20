@@ -179,5 +179,11 @@ func PseudorandomSelectionWithWeights(scoresMap map[string]int64, hash []byte) (
 	intHash := sdk.NewIntFromBigInt(new(big.Int).SetBytes(hash[:8]))
 
 	// mod the selection based on totalWeight
-	return intHash.ModRaw(totalWeight)
+	index = intHash.ModRaw(totalWeight)
+
+	// Ensure the index is within the range of the number of nodes
+	numNodes := int64(len(scoresMap))
+	index = index.ModRaw(numNodes)
+
+	return index
 }

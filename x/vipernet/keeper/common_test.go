@@ -187,6 +187,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []servicersTypes.Va
 	appk.SetProvider(ctx, getTestProvider())
 	keeper := NewKeeper(viperKey, cdc, ak, nk, appk, &hb, &hg, viperSubspace)
 	appk.ViperKeeper = keeper
+	nk.ProviderKeeper = appk
 	assert.Nil(t, err)
 	moduleManager := module.NewManager(
 		auth.NewAppModule(ak),

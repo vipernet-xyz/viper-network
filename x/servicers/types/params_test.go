@@ -30,6 +30,7 @@ func TestDefaultParams(t *testing.T) {
 				DAOAllocation:           DefaultDAOAllocation,
 				ProviderAllocation:      DefaultProviderAllocation,
 				ProposerAllocation:      DefaultProposerAllocation,
+				FishermenAllocation:     DefaultFishermenAllocation,
 				TokenRewardFactor:       DefaultTokenRewardFactor,
 				MaximumChains:           DefaultMaxChains,
 				MaxJailedBlocks:         DefaultMaxJailedBlocks,
@@ -40,6 +41,7 @@ func TestDefaultParams(t *testing.T) {
 				LatencyScoreWeight:      DefaultLatencyScoreWeight,
 				AvailabilityScoreWeight: DefaultAvailabilityScoreWeight,
 				ReliabilityScoreWeight:  DefaultReliabilityScoreWeight,
+				SlashFractionFisherman:  DefaultSlashFractionFisherman,
 			},
 		}}
 	for _, tt := range tests {

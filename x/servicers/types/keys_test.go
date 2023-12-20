@@ -334,17 +334,22 @@ func TestScoresToPower(t *testing.T) {
 	}
 
 	// Calculate the expected power based on the provided sample scores
-	totalSessions := reportCard.TotalSessions
-	avgLatencyScore := reportCard.TotalLatencyScore.Quo(sdk.NewDec(totalSessions))
-	avgAvailabilityScore := reportCard.TotalAvailabilityScore.Quo(sdk.NewDec(totalSessions))
-	avgReliabilityScore := reportCard.TotalReliabilityScore.Quo(sdk.NewDec(totalSessions))
+	//totalSessions := reportCard.TotalSessions
+	LatencyScore := reportCard.TotalLatencyScore
+	AvailabilityScore := reportCard.TotalAvailabilityScore
+	ReliabilityScore := reportCard.TotalReliabilityScore
 
-	totalScore := avgLatencyScore.Mul(sdk.NewDecWithPrec(5, 1)).Add(
-		avgAvailabilityScore.Mul(sdk.NewDecWithPrec(2, 1)).Add(
-			avgReliabilityScore.Mul(sdk.NewDecWithPrec(3, 1))))
+	// Adjust the weights based on your preference
+	latencyWeight := sdk.NewDecWithPrec(5, 1)
+	availabilityWeight := sdk.NewDecWithPrec(2, 1)
+	reliabilityWeight := sdk.NewDecWithPrec(3, 1)
 
-	powerReductionDec := sdk.NewDecFromInt(sdk.PowerReduction)
-	expectedPower := totalScore.Quo(powerReductionDec).BigInt().Int64()
+	totalScore := LatencyScore.Mul(latencyWeight).Add(
+		AvailabilityScore.Mul(availabilityWeight).Add(
+			ReliabilityScore.Mul(reliabilityWeight)))
+
+	// Calculate the expected power without converting to integer
+	expectedPower := totalScore.BigInt().Int64()
 
 	// Call the function to calculate the power
 	power := ScoresToPower(reportCard)
@@ -352,10 +357,8 @@ func TestScoresToPower(t *testing.T) {
 	// Use the `assert` package to compare the calculated power with the expected value
 	assert.Equal(t, expectedPower, power)
 }
+
 func TestKeyForValidatorInReportCardSet(t *testing.T) {
-	type args struct {
-		validator Validator
-	}
 	var pub crypto.Ed25519PublicKey
 	_, err := rand.Read(pub[:])
 	if err != nil {
@@ -363,31 +366,34 @@ func TestKeyForValidatorInReportCardSet(t *testing.T) {
 	}
 	geozone := []string{"0001"}
 	validator := NewValidator(types.Address(pub.Address()), pub, []string{"0001"}, "https://www.google.com:443", types.ZeroInt(), geozone, types.Address(pub.Address()), ReportCard{})
-	operAddrInvr := types.CopyBytes(validator.Address.Bytes())
+
+	expectedKey := calculateExpectedKey(validator)
+
+	got := KeyForValidatorInReportCardSet(validator)
+
+	if !reflect.DeepEqual(got, expectedKey) {
+		t.Errorf("KeyForValidatorInReportCardSet() = %v, want %v", got, expectedKey)
+	}
+}
+
+func calculateExpectedKey(validator Validator) []byte {
+	reportPower := ScoresToPower(validator.ReportCard)
+	reportPowerBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(reportPowerBytes, uint64(reportPower))
+
+	powerBytes := reportPowerBytes
+	powerBytesLen := len(powerBytes) // 8
+
+	// key is of format prefix || powerbytes || addrBytes
+	key := make([]byte, 1+powerBytesLen+sdk.AddrLen)
+
+	key[0] = ReportCardKey[0] // Make sure you have a unique prefix for the report card set
+	copy(key[1:powerBytesLen+1], powerBytes)
+	operAddrInvr := sdk.CopyBytes(validator.Address)
 	for i, b := range operAddrInvr {
 		operAddrInvr[i] = ^b
 	}
-	powerBytes := []byte{0, 0, 0, 0, 0, 0, 0, 0}
-	powerBytesLen := len(powerBytes) // 8
+	copy(key[powerBytesLen+1:], operAddrInvr)
 
-	expectedKey := make([]byte, 1+powerBytesLen+len(operAddrInvr))
-
-	expectedKey[0] = ReportCardKey[0] // Make sure you have a unique prefix for the report card set
-	copy(expectedKey[1:powerBytesLen+1], powerBytes)
-	copy(expectedKey[powerBytesLen+1:], operAddrInvr)
-
-	tests := []struct {
-		name string
-		args args
-		want []byte
-	}{
-		{"NewValidator", args{validator: validator}, expectedKey},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := KeyForValidatorInReportCardSet(tt.args.validator); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("KeyForValidatorInReportCardSet() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	return key
 }
