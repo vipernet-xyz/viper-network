@@ -55,12 +55,12 @@ func (e *Evidence) GenerateMerkleRoot(height int64, maxRelays int64, storage *Ca
 // "GenerateMerkleRoot" - Generates the merkle root for an GOBEvidence object
 func (r *Result) GenerateSampleMerkleRoot(height int64, storage *CacheStorage) (root HashRange) {
 	// seal the evidence in cache/db
-	ev, ok := SealResult(*r, storage)
+	re, ok := SealResult(*r, storage)
 	if !ok {
 		return HashRange{}
 	}
 	// generate the root object
-	root, _ = GenerateSampleRoot(height, ev.TestResults)
+	root, _ = GenerateSampleRoot(height, re.TestResults)
 	return
 }
 
