@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/privval"
 
 	types2 "github.com/vipernet-xyz/viper-network/codec/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/tendermint/tendermint/rpc/client/http"
 	"github.com/tendermint/tendermint/rpc/client/local"
@@ -29,11 +29,11 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
+	viper "github.com/vipernet-xyz/viper-network/x/viper-main"
 
 	"github.com/stretchr/testify/assert"
 	tmCfg "github.com/tendermint/tendermint/config"
@@ -203,7 +203,7 @@ func inMemTendermintNodeWithValidators(genesisState []byte, validatorsPk []crypt
 	if err != nil {
 		panic(err)
 	}
-	genDocProvider := func() (*types.GenesisDoc, error) {
+	genDocRequestor := func() (*types.GenesisDoc, error) {
 		return &types.GenesisDoc{
 			GenesisTime: time.Time{},
 			ChainID:     "viper-test",
@@ -259,7 +259,7 @@ func inMemTendermintNodeWithValidators(genesisState []byte, validatorsPk []crypt
 		}
 	}
 
-	dbProvider := func(*node.DBContext) (dbm.DB, error) {
+	dbRequestor := func(*node.DBContext) (dbm.DB, error) {
 		return db, nil
 	}
 	app := GetApp(c.Logger, db, traceWriter)
@@ -271,9 +271,9 @@ func inMemTendermintNodeWithValidators(genesisState []byte, validatorsPk []crypt
 		&nodeKey,
 		proxy.NewLocalClientCreator(app),
 		sdk.NewTransactionIndexer(txDB),
-		genDocProvider,
-		dbProvider,
-		node.DefaultMetricsProvider(c.TmConfig.Instrumentation),
+		genDocRequestor,
+		dbRequestor,
+		node.DefaultMetricsRequestor(c.TmConfig.Instrumentation),
 		c.Logger.With("module", "node"),
 	)
 	if err != nil {
@@ -351,7 +351,7 @@ func memCodec() *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			providers.AppModuleBasic{},
+			requestors.AppModuleBasic{},
 			authentication.AppModuleBasic{},
 			governance.AppModuleBasic{},
 			servicers.AppModuleBasic{},
@@ -367,7 +367,7 @@ func memCodecMod(upgrade bool) *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			providers.AppModuleBasic{},
+			requestors.AppModuleBasic{},
 			authentication.AppModuleBasic{},
 			governance.AppModuleBasic{},
 			servicers.AppModuleBasic{},
@@ -470,7 +470,7 @@ func oneAppTwoNodeGenesis() []byte {
 	pubKey := kp1.PublicKey
 	pubKey2 := kp2.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
@@ -491,11 +491,11 @@ func oneAppTwoNodeGenesis() []byte {
 	defaultGenesis[servicersTypes.ModuleName] = res
 
 	// setup application
-	rawApps := defaultGenesis[providersTypes.ModuleName]
-	var providersGenesisState providersTypes.GenesisState
-	memCodec().MustUnmarshalJSON(rawApps, &providersGenesisState)
+	rawApps := defaultGenesis[requestorsTypes.ModuleName]
+	var requestorsGenesisState requestorsTypes.GenesisState
+	memCodec().MustUnmarshalJSON(rawApps, &requestorsGenesisState)
 	// app 1
-	providersGenesisState.Providers = append(providersGenesisState.Providers, providersTypes.Provider{
+	requestorsGenesisState.Requestors = append(requestorsGenesisState.Requestors, requestorsTypes.Requestor{
 		Address:                 kp2.GetAddress(),
 		PublicKey:               kp2.PublicKey,
 		Jailed:                  false,
@@ -505,8 +505,8 @@ func oneAppTwoNodeGenesis() []byte {
 		MaxRelays:               sdk.NewInt(100000),
 		UnstakingCompletionTime: time.Time{},
 	})
-	res2 := memCodec().MustMarshalJSON(providersGenesisState)
-	defaultGenesis[providersTypes.ModuleName] = res2
+	res2 := memCodec().MustMarshalJSON(requestorsGenesisState)
+	defaultGenesis[requestorsTypes.ModuleName] = res2
 	// set coinbase as account holding coins
 	rawAccounts := defaultGenesis[authentication.ModuleName]
 	var authGenState authentication.GenesisState
@@ -558,16 +558,16 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 	if testACL == nil {
 		acl := govTypes.ACL{}
 		acl = make([]govTypes.ACLPair, 0)
-		acl.SetOwner("provider/MinimumProviderStake", kp.GetAddress())
-		acl.SetOwner("provider/ProviderUnstakingTime", kp.GetAddress())
-		acl.SetOwner("provider/BaseRelaysPerVIPR", kp.GetAddress())
-		acl.SetOwner("provider/MaxProviders", kp.GetAddress())
-		acl.SetOwner("provider/MaximumChains", kp.GetAddress())
-		acl.SetOwner("provider/ParticipationRate", kp.GetAddress())
-		acl.SetOwner("provider/StabilityModulation", kp.GetAddress())
-		acl.SetOwner("provider/MinNumServicers", kp.GetAddress())
-		acl.SetOwner("providers/MaxFreeTierRelaysPerSession", kp.GetAddress())
-		acl.SetOwner("provider/MaxNumServicers", kp.GetAddress())
+		acl.SetOwner("requestor/MinimumRequestorStake", kp.GetAddress())
+		acl.SetOwner("requestor/RequestorUnstakingTime", kp.GetAddress())
+		acl.SetOwner("requestor/BaseRelaysPerVIPR", kp.GetAddress())
+		acl.SetOwner("requestor/MaxRequestors", kp.GetAddress())
+		acl.SetOwner("requestor/MaximumChains", kp.GetAddress())
+		acl.SetOwner("requestor/ParticipationRate", kp.GetAddress())
+		acl.SetOwner("requestor/StabilityModulation", kp.GetAddress())
+		acl.SetOwner("requestor/MinNumServicers", kp.GetAddress())
+		acl.SetOwner("requestors/MaxFreeTierRelaysPerSession", kp.GetAddress())
+		acl.SetOwner("requestor/MaxNumServicers", kp.GetAddress())
 		acl.SetOwner("authentication/MaxMemoCharacters", kp.GetAddress())
 		acl.SetOwner("authentication/TxSigLimit", kp.GetAddress())
 		acl.SetOwner("authentication/FeeMultipliers", kp.GetAddress())
@@ -588,7 +588,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/MinSignedPerWindow", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
-		acl.SetOwner("pos/ProviderAllocation", kp.GetAddress())
+		acl.SetOwner("pos/RequestorAllocation", kp.GetAddress())
 		acl.SetOwner("pos/TokenRewardFactor", kp.GetAddress())
 		acl.SetOwner("pos/SignedBlocksWindow", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDoubleSign", kp.GetAddress())
@@ -625,7 +625,7 @@ func twoValTwoNodeGenesisState8() (genbz []byte, vals []servicersTypes.Validator
 	pubKey3 := kp3.PublicKey
 	pubkey4 := kp4.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
@@ -738,7 +738,7 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []servicersTypes.Validator)
 	pubKey3 := kp3.PublicKey
 	pubkey4 := kp4.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
@@ -828,7 +828,7 @@ func twoValTwoNodeGenesisState() (genbz []byte, vals []servicersTypes.Validator)
 	return j, posGenesisState.Validators
 }
 
-func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators servicersTypes.Validators, app providersTypes.Provider) {
+func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators servicersTypes.Validators, app requestorsTypes.Requestor) {
 	kb := getInMemoryKeybase()
 	// create keypairs
 	kp1, err := kb.GetCoinbase()
@@ -856,7 +856,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	pubKey4 := kys[3].PublicKey()
 	pubKey5 := kys[4].PublicKey()
 	defaultGenesis := module.NewBasicManager(
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
@@ -910,11 +910,11 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	res := memCodec().MustMarshalJSON(posGenesisState)
 	defaultGenesis[servicersTypes.ModuleName] = res
 	// setup applications
-	rawApps := defaultGenesis[providersTypes.ModuleName]
-	var providersGenesisState providersTypes.GenesisState
-	memCodec().MustUnmarshalJSON(rawApps, &providersGenesisState)
+	rawApps := defaultGenesis[requestorsTypes.ModuleName]
+	var requestorsGenesisState requestorsTypes.GenesisState
+	memCodec().MustUnmarshalJSON(rawApps, &requestorsGenesisState)
 	// app 1
-	providersGenesisState.Providers = append(providersGenesisState.Providers, providersTypes.Provider{
+	requestorsGenesisState.Requestors = append(requestorsGenesisState.Requestors, requestorsTypes.Requestor{
 		Address:                 kp2.GetAddress(),
 		PublicKey:               kp2.PublicKey,
 		Jailed:                  false,
@@ -924,8 +924,8 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 		MaxRelays:               sdk.NewInt(100000),
 		UnstakingCompletionTime: time.Time{},
 	})
-	res2 := memCodec().MustMarshalJSON(providersGenesisState)
-	defaultGenesis[providersTypes.ModuleName] = res2
+	res2 := memCodec().MustMarshalJSON(requestorsGenesisState)
+	defaultGenesis[requestorsTypes.ModuleName] = res2
 	// accounts
 	rawAccounts := defaultGenesis[authentication.ModuleName]
 	var authGenState authentication.GenesisState
@@ -959,7 +959,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	// end genesis setup
 	GenState = defaultGenesis
 	j, _ := memCodec().MarshalJSONIndent(defaultGenesis, "", "    ")
-	return j, kys, posGenesisState.Validators, providersGenesisState.Providers[0]
+	return j, kys, posGenesisState.Validators, requestorsGenesisState.Requestors[0]
 }
 
 //

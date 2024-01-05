@@ -8,7 +8,7 @@ import (
 type GenesisState struct {
 	Params                   Params                          `json:"params" yaml:"params"`
 	PrevStateTotalPower      sdk.BigInt                      `json:"prevState_total_power" yaml:"prevState_total_power"`
-	PrevStateValidatorPowers []PrevStatePowerMprovidering    `json:"prevState_validator_powers" yaml:"prevState_validator_powers"`
+	PrevStateValidatorPowers []PrevStatePowerMrequestoring   `json:"prevState_validator_powers" yaml:"prevState_validator_powers"`
 	Validators               []Validator                     `json:"validators" yaml:"validators"`
 	Exported                 bool                            `json:"exported" yaml:"exported"`
 	SigningInfos             map[string]ValidatorSigningInfo `json:"signing_infos" yaml:"signing_infos"`
@@ -17,7 +17,7 @@ type GenesisState struct {
 }
 
 // PrevState validator power, needed for validator set update logic
-type PrevStatePowerMprovidering struct {
+type PrevStatePowerMrequestoring struct {
 	Address sdk.Address
 	Power   int64
 }

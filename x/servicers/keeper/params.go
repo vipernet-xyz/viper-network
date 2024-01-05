@@ -120,12 +120,12 @@ func (k Keeper) NodeReward01(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk
 	// convert reward to dec
 	r := reward.ToDec()
 	// get the dao, proposer, and fishermen % ex DAO .05 or 5% Proposer .01 or 1%  App .05 or 5% Fishermen .02 or 2%
-	daoAllocationPercentage := sdk.NewDec(k.DAOAllocation(ctx)).QuoInt64(int64(100))           // dec percentage
-	proposerAllocationPercentage := sdk.NewDec(k.ProposerAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
-	providerAllocationPercentage := sdk.NewDec(k.ProviderAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
+	daoAllocationPercentage := sdk.NewDec(k.DAOAllocation(ctx)).QuoInt64(int64(100))             // dec percentage
+	proposerAllocationPercentage := sdk.NewDec(k.ProposerAllocation(ctx)).QuoInt64(int64(100))   // dec percentage
+	requestorAllocationPercentage := sdk.NewDec(k.RequestorAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
 	fishermenAllocationPercentage := sdk.NewDec(k.FishermenAllocation(ctx)).QuoInt64(int64(100))
 	// the dao, proposer, and fishermen allocations go to the fee collector
-	daoAllocation := r.Mul(daoAllocationPercentage.Add(providerAllocationPercentage))
+	daoAllocation := r.Mul(daoAllocationPercentage.Add(requestorAllocationPercentage))
 	proposerAllocation := r.Mul(proposerAllocationPercentage)
 	fishermenAllocation := r.Mul(fishermenAllocationPercentage).TruncateInt()
 	// truncate int ex 1.99 uvipr goes to 1 uvipr
@@ -139,9 +139,9 @@ func (k Keeper) NodeReward02(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk
 	// convert reward to dec
 	r := reward.ToDec()
 	// get the dao, proposer, and fishermen % ex DAO .08 or 8% Proposer .01 or 1%  App .02 or 2% Fishermen .01 or 1%
-	daoAllocationPercentage := sdk.NewDec(k.DAOAllocation(ctx)).QuoInt64(int64(100))           // dec percentage
-	proposerAllocationPercentage := sdk.NewDec(k.ProposerAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
-	providerAllocationPercentage := sdk.NewDec(k.ProviderAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
+	daoAllocationPercentage := sdk.NewDec(k.DAOAllocation(ctx)).QuoInt64(int64(100))             // dec percentage
+	proposerAllocationPercentage := sdk.NewDec(k.ProposerAllocation(ctx)).QuoInt64(int64(100))   // dec percentage
+	requestorAllocationPercentage := sdk.NewDec(k.RequestorAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
 	fishermenAllocationPercentage := sdk.NewDec(k.FishermenAllocation(ctx)).QuoInt64(int64(100))
 	// the dao, proposer, and fishermen allocations go to the fee collector
 	daoAllocation := r.Mul(daoAllocationPercentage)
@@ -149,20 +149,20 @@ func (k Keeper) NodeReward02(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk
 	fishermenAllocation := r.Mul(fishermenAllocationPercentage)
 	// truncate int ex 1.99 uvipr goes to 1 uvipr
 	feesCollected = daoAllocation.Add(proposerAllocation).TruncateInt()
-	//providerAllocation go to the provider
-	providerAllocation := r.Mul(providerAllocationPercentage)
-	ProvAndFish := providerAllocation.Add(fishermenAllocation).TruncateInt()
+	//requestorAllocation go to the requestor
+	requestorAllocation := r.Mul(requestorAllocationPercentage)
+	ProvAndFish := requestorAllocation.Add(fishermenAllocation).TruncateInt()
 	// the rest goes to the servicer
 	servicerReward = reward.Sub(feesCollected).Sub(ProvAndFish)
 	return
 }
 
-func (k Keeper) ProviderReward(ctx sdk.Ctx, reward sdk.BigInt) (providerReward sdk.BigInt) {
+func (k Keeper) RequestorReward(ctx sdk.Ctx, reward sdk.BigInt) (requestorReward sdk.BigInt) {
 	// convert reward to dec
 	r := reward.ToDec()
-	providerAllocationPercentage := sdk.NewDec(k.ProviderAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
-	providerAllocation := r.Mul(providerAllocationPercentage)
-	providerReward = providerAllocation.TruncateInt()
+	requestorAllocationPercentage := sdk.NewDec(k.RequestorAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
+	requestorAllocation := r.Mul(requestorAllocationPercentage)
+	requestorReward = requestorAllocation.TruncateInt()
 	return
 }
 
@@ -182,9 +182,9 @@ func (k Keeper) DAOAllocation(ctx sdk.Ctx) (res int64) {
 	return
 }
 
-// ProviderAllocation - Retrieve Provider Allocation
-func (k Keeper) ProviderAllocation(ctx sdk.Ctx) (res int64) {
-	k.Paramstore.Get(ctx, types.KeyProviderAllocation, &res)
+// RequestorAllocation - Retrieve Requestor Allocation
+func (k Keeper) RequestorAllocation(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyRequestorAllocation, &res)
 	return
 }
 
@@ -252,7 +252,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		StakeMinimum:            k.MinimumStake(ctx),
 		SessionBlockFrequency:   k.BlocksPerSession(ctx),
 		DAOAllocation:           k.DAOAllocation(ctx),
-		ProviderAllocation:      k.ProviderAllocation(ctx),
+		RequestorAllocation:     k.RequestorAllocation(ctx),
 		ProposerAllocation:      k.ProposerAllocation(ctx),
 		FishermenAllocation:     k.FishermenAllocation(ctx),
 		MaximumChains:           k.MaxChains(ctx),

@@ -28,7 +28,7 @@ func (k Keeper) UpdateTendermintValidators(ctx sdk.Ctx) (updates []abci.Validato
 	}
 	maxValidators := k.MaxValidators(ctx)
 	totalPower := sdk.ZeroInt()
-	// Retrieve the prevState validator set addresses mprovidered to their respective staking power
+	// Retrieve the prevState validator set addresses mrequestored to their respective staking power
 	prevStatePowerMap := k.getPrevStatePowerMap(ctx)
 	// Iterate over staked validators, highest power to lowest.
 	iterator, _ := sdk.KVStoreReversePrefixIterator(store, types.StakedValidatorsKey)

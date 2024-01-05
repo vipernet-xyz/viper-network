@@ -15,7 +15,7 @@ import (
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	"github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -287,7 +287,7 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth types.BasicAut
 
 	// Add headers if needed
 	if len(headers) == 0 {
-		req.Header.Set("Content-Type", "provider/json")
+		req.Header.Set("Content-Type", "requestor/json")
 	} else {
 		for k, v := range headers {
 			req.Header.Set(k, v)

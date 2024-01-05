@@ -17,11 +17,11 @@ import (
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	types3 "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
+	types3 "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	types2 "github.com/vipernet-xyz/viper-network/x/servicers/types"
-	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	"github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tendermint/tendermint/node"
@@ -200,14 +200,14 @@ func TestQueryValidators(t *testing.T) {
 		})
 	}
 }
-func TestQueryProviders(t *testing.T) {
+func TestQueryRequestors(t *testing.T) {
 	tt := []struct {
 		name         string
 		memoryNodeFn func(t *testing.T, genesisState []byte) (tendermint *node.Node, keybase keys.Keybase, cleanup func())
 		*upgrades
 	}{
-		{name: "query providers from amino account with amino codec", memoryNodeFn: NewInMemoryTendermintNodeAmino, upgrades: &upgrades{codecUpgrade: codecUpgrade{false, 7000}}},
-		{name: "query providers from proto account with proto cdec", memoryNodeFn: NewInMemoryTendermintNodeProto, upgrades: &upgrades{codecUpgrade: codecUpgrade{true, 2}}},
+		{name: "query requestors from amino account with amino codec", memoryNodeFn: NewInMemoryTendermintNodeAmino, upgrades: &upgrades{codecUpgrade: codecUpgrade{false, 7000}}},
+		{name: "query requestors from proto account with proto cdec", memoryNodeFn: NewInMemoryTendermintNodeProto, upgrades: &upgrades{codecUpgrade: codecUpgrade{true, 2}}},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
@@ -226,12 +226,12 @@ func TestQueryProviders(t *testing.T) {
 
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = requestors.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for tx
-			got, err := VCA.QueryProviders(VCA.LastBlockHeight(), types3.QueryProvidersWithOpts{
+			got, err := VCA.QueryRequestors(VCA.LastBlockHeight(), types3.QueryRequestorsWithOpts{
 				Page:  1,
 				Limit: 1,
 			})
@@ -241,7 +241,7 @@ func TestQueryProviders(t *testing.T) {
 				t.Fatalf("couldn't convert arg to slice")
 			}
 			assert.Equal(t, 1, slice.Len())
-			got, err = VCA.QueryProviders(VCA.LastBlockHeight(), types3.QueryProvidersWithOpts{
+			got, err = VCA.QueryRequestors(VCA.LastBlockHeight(), types3.QueryRequestorsWithOpts{
 				Page:  2,
 				Limit: 1,
 			})
@@ -251,7 +251,7 @@ func TestQueryProviders(t *testing.T) {
 				t.Fatalf("couldn't convert arg to slice")
 			}
 			assert.Equal(t, 1, slice.Len())
-			got, err = VCA.QueryProviders(VCA.LastBlockHeight(), types3.QueryProvidersWithOpts{
+			got, err = VCA.QueryRequestors(VCA.LastBlockHeight(), types3.QueryRequestorsWithOpts{
 				Page:  1,
 				Limit: 2,
 			})
@@ -647,12 +647,12 @@ func TestQueryStakedApp(t *testing.T) {
 			var geozones = []string{"0001"}
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = requestors.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for  tx
-			got, err := VCA.QueryProvider(kp.GetAddress().String(), VCA.LastBlockHeight())
+			got, err := VCA.QueryRequestor(kp.GetAddress().String(), VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			assert.NotNil(t, got)
 			assert.Equal(t, sdk.Staked, got.Status)
@@ -674,19 +674,19 @@ func TestRelayGenerator(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	var providerPrivateKey crypto.Ed25519PrivateKey
-	copy(providerPrivateKey[:], apkBz)
+	var requestorPrivateKey crypto.Ed25519PrivateKey
+	copy(requestorPrivateKey[:], apkBz)
 	aat := types.AAT{
 		Version:           "0.0.1",
-		ProviderPublicKey: providerPrivateKey.PublicKey().RawString(),
-		ClientPublicKey:   providerPrivateKey.PublicKey().RawString(),
-		ProviderSignature: "",
+		RequestorPublicKey: requestorPrivateKey.PublicKey().RawString(),
+		ClientPublicKey:   requestorPrivateKey.PublicKey().RawString(),
+		RequestorSignature: "",
 	}
-	sig, err := providerPrivateKey.Sign(aat.Hash())
+	sig, err := requestorPrivateKey.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
-	aat.ProviderSignature = hex.EncodeToString(sig)
+	aat.RequestorSignature = hex.EncodeToString(sig)
 	payload := types.Payload{
 		Data: query,
 	}
@@ -703,7 +703,7 @@ func TestRelayGenerator(t *testing.T) {
 		},
 	}
 	relay.Proof.RequestHash = relay.RequestHashString()
-	sig, err = providerPrivateKey.Sign(relay.Proof.Hash())
+	sig, err = requestorPrivateKey.Sign(relay.Proof.Hash())
 	if err != nil {
 		panic(err)
 	}
@@ -750,15 +750,15 @@ func TestQueryRelay(t *testing.T) {
 			// setup AAT
 			aat := types.AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: appPrivateKey.PublicKey().RawString(),
+				RequestorPublicKey: appPrivateKey.PublicKey().RawString(),
 				ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
-				ProviderSignature: "",
+				RequestorSignature: "",
 			}
 			sig, err := appPrivateKey.Sign(aat.Hash())
 			if err != nil {
 				panic(err)
 			}
-			aat.ProviderSignature = hex.EncodeToString(sig)
+			aat.RequestorSignature = hex.EncodeToString(sig)
 			payload := types.Payload{
 				Data:    expectedRequest,
 				Headers: map[string]string{headerKey: headerVal},
@@ -796,7 +796,7 @@ func TestQueryRelay(t *testing.T) {
 			select {
 			case <-evtChan:
 				inv, err := types.GetEvidence(types.SessionHeader{
-					ProviderPubKey:     aat.ProviderPublicKey,
+					RequestorPubKey:     aat.RequestorPublicKey,
 					Chain:              relay.Proof.Blockchain,
 					SessionBlockHeight: relay.Proof.SessionBlockHeight,
 				}, types.RelayEvidence, sdk.NewInt(10000), types.GlobalEvidenceCache)
@@ -829,11 +829,11 @@ func TestQueryDispatch(t *testing.T) {
 			}
 			genBz, _, validators, app := fiveValidatorsOneAppGenesis()
 			_, kb, cleanup := tc.memoryNodeFn(t, genBz)
-			providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+			requestorPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 			assert.Nil(t, err)
 			// Setup HandleDispatch Request
 			key := types.SessionHeader{
-				ProviderPubKey:     providerPrivateKey.PublicKey().RawString(),
+				RequestorPubKey:     requestorPrivateKey.PublicKey().RawString(),
 				Chain:              sdk.PlaceholderHash,
 				SessionBlockHeight: 1,
 			}

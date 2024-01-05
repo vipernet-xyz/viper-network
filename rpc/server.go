@@ -107,9 +107,9 @@ func GetRoutes() Routes {
 		Route{Name: "QueryAccountTxs", Method: "POST", Path: "/v1/query/accounttxs", HandlerFunc: AccountTxs},
 		Route{Name: "QueryACL", Method: "POST", Path: "/v1/query/acl", HandlerFunc: ACL},
 		Route{Name: "QueryAllParams", Method: "POST", Path: "/v1/query/allparams", HandlerFunc: AllParams},
-		Route{Name: "QueryProvider", Method: "POST", Path: "/v1/query/app", HandlerFunc: App},
-		Route{Name: "QueryProviderParams", Method: "POST", Path: "/v1/query/providerparams", HandlerFunc: ProviderParams},
-		Route{Name: "QueryProviders", Method: "POST", Path: "/v1/query/providers", HandlerFunc: Providers},
+		Route{Name: "QueryRequestor", Method: "POST", Path: "/v1/query/app", HandlerFunc: App},
+		Route{Name: "QueryRequestorParams", Method: "POST", Path: "/v1/query/requestorparams", HandlerFunc: RequestorParams},
+		Route{Name: "QueryRequestors", Method: "POST", Path: "/v1/query/requestors", HandlerFunc: Requestors},
 		Route{Name: "QueryBalance", Method: "POST", Path: "/v1/query/balance", HandlerFunc: Balance},
 		Route{Name: "QueryBlock", Method: "POST", Path: "/v1/query/block", HandlerFunc: Block},
 		Route{Name: "QueryBlockTxs", Method: "POST", Path: "/v1/query/blocktxs", HandlerFunc: BlockTxs},
@@ -154,7 +154,7 @@ func WriteResponse(w http.ResponseWriter, jsn, path, ip string) {
 		WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		fmt.Println(err.Error())
 	} else {
-		w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
+		w.Header().Set("Content-Type", "requestor/json; charset=UTF-8")
 		_, err := w.Write(b)
 		if err != nil {
 			fmt.Println(fmt.Errorf("error in RPC Handler WriteResponse: %v", err))
@@ -163,7 +163,7 @@ func WriteResponse(w http.ResponseWriter, jsn, path, ip string) {
 }
 
 func WriteRaw(w http.ResponseWriter, jsn, path, ip string) {
-	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "requestor/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte(jsn))
 	if err != nil {
@@ -172,7 +172,7 @@ func WriteRaw(w http.ResponseWriter, jsn, path, ip string) {
 }
 
 func WriteJSONResponse(w http.ResponseWriter, jsn, path, ip string) {
-	w.Header().Set("Content-Type", "provider/json; charset=utf-8")
+	w.Header().Set("Content-Type", "requestor/json; charset=utf-8")
 	var raw map[string]interface{}
 	if err := json.Unmarshal([]byte(jsn), &raw); err != nil {
 		WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -188,7 +188,7 @@ func WriteJSONResponse(w http.ResponseWriter, jsn, path, ip string) {
 }
 
 func WriteJSONResponseWithCode(w http.ResponseWriter, jsn, path, ip string, code int) {
-	w.Header().Set("Content-Type", "provider/json; charset=utf-8")
+	w.Header().Set("Content-Type", "requestor/json; charset=utf-8")
 	var raw map[string]interface{}
 	if err := json.Unmarshal([]byte(jsn), &raw); err != nil {
 		WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -204,7 +204,7 @@ func WriteJSONResponseWithCode(w http.ResponseWriter, jsn, path, ip string, code
 }
 
 func WriteErrorResponse(w http.ResponseWriter, errorCode int, errorMsg string) {
-	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "requestor/json; charset=UTF-8")
 	w.WriteHeader(errorCode)
 	err := json.NewEncoder(w).Encode(&rpcError{
 		Code:    errorCode,

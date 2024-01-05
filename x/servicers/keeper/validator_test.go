@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

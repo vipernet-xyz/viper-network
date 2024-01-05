@@ -254,8 +254,8 @@ Will prompt the user for the <fromAddr> account passphrase.`,
 
 var governanceGenDiscountKey = &cobra.Command{
 	Use:   "gendiscountkey <fromAddr> <toAddr> <chainID> <fees>",
-	Short: "DAO generates a discount key for a provider",
-	Long:  `Only the DAO owner can use this to generate a unique discount key for a specific provider for network usage discounts.`,
+	Short: "DAO generates a discount key for a requestor",
+	Long:  `Only the DAO owner can use this to generate a unique discount key for a specific requestor for network usage discounts.`,
 	Args:  cobra.ExactArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)

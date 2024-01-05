@@ -129,14 +129,14 @@ func (Context) NewStream(gocontext.Context, *grpc.StreamDesc, string, ...grpc.Ca
 	return nil, fmt.Errorf("streaming rpc not supported")
 }
 
-// gRPCCodec checks if Context's Codec is codec.GRPCCodecProvider
+// gRPCCodec checks if Context's Codec is codec.GRPCCodecRequestor
 // otherwise it returns fallBackCodec.
 func (ctx Context) gRPCCodec() encoding.Codec {
 	if ctx.Codec == nil {
 		return fallBackCodec.GRPCCodec()
 	}
 
-	pc, ok := ctx.Codec.(codec.GRPCCodecProvider)
+	pc, ok := ctx.Codec.(codec.GRPCCodecRequestor)
 	if !ok {
 		return fallBackCodec.GRPCCodec()
 	}

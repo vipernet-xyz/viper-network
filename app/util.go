@@ -12,11 +12,11 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/authentication/types"
-	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
+	viperKeeper "github.com/vipernet-xyz/viper-network/x/viper-main/keeper"
 )
 
-func GenerateAAT(providerPubKey, clientPubKey string, key crypto.PrivateKey) (aatjson []byte, err error) {
-	aat, er := viperKeeper.AATGeneration(providerPubKey, clientPubKey, key)
+func GenerateAAT(requestorPubKey, clientPubKey string, key crypto.PrivateKey) (aatjson []byte, err error) {
+	aat, er := viperKeeper.AATGeneration(requestorPubKey, clientPubKey, key)
 	if er != nil {
 		return nil, er
 	}

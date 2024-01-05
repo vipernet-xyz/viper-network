@@ -11,7 +11,7 @@ import (
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/types/module"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 
 	"github.com/stretchr/testify/require"
@@ -27,15 +27,15 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	govKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestorsKeeper "github.com/vipernet-xyz/viper-network/x/requestors/keeper"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
 var (
 	ModuleBasics = module.NewBasicManager(
 		authentication.AppModuleBasic{},
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		governance.AppModuleBasic{},
 	)
 )
@@ -46,7 +46,7 @@ func makeTestCodec() *codec.Codec {
 	var cdc = codec.NewCodec(types2.NewInterfaceRegistry())
 	authentication.RegisterCodec(cdc)
 	governance.RegisterCodec(cdc)
-	providersTypes.RegisterCodec(cdc)
+	requestorsTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	crypto.RegisterAmino(cdc.AminoCodec().Amino)
 	return cdc
@@ -68,14 +68,14 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	keyParams := sdk.ParamsKey
 	tkeyParams := sdk.ParamsTKey
 	keyPOS := sdk.NewKVStoreKey(types.ModuleName)
-	providersKey := sdk.NewKVStoreKey(providersTypes.StoreKey)
+	requestorsKey := sdk.NewKVStoreKey(requestorsTypes.StoreKey)
 	govKey := sdk.NewKVStoreKey(govTypes.StoreKey)
 	dKey := sdk.NewKVStoreKey("DiscountKey")
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, false, 5000000)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyPOS, sdk.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(providersKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(requestorsKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(govKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
@@ -95,7 +95,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 
 	maccPerms := map[string][]string{
 		authentication.FeeCollectorName: nil,
-		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Staking, authentication.Minter},
+		requestorsTypes.StakedPoolName:  {authentication.Burner, authentication.Staking, authentication.Minter},
 		types.StakedPoolName:            {authentication.Burner, authentication.Staking, authentication.Minter},
 		types.ModuleName:                {authentication.Burner, authentication.Staking, authentication.Minter},
 		govTypes.DAOAccountName:         {authentication.Burner, authentication.Staking},
@@ -108,15 +108,15 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	accSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	posSubspace := sdk.NewSubspace(DefaultParamspace)
 	ak := authentication.NewKeeper(cdc, keyAcc, accSubspace, maccPerms)
-	providerSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
-	providerKeeper := providersKeeper.NewKeeper(cdc, providersKey, nil, ak, nil, providerSubspace, providersTypes.ModuleName)
+	requestorSubspace := sdk.NewSubspace(requestorsTypes.DefaultParamspace)
+	requestorKeeper := requestorsKeeper.NewKeeper(cdc, requestorsKey, nil, ak, nil, requestorSubspace, requestorsTypes.ModuleName)
 	govKeeper := govKeeper.NewKeeper(cdc, govKey, tkeyParams, dKey, govTypes.ModuleName, ak)
 	keeper := NewKeeper(cdc, keyPOS, ak, nil, govKeeper, posSubspace, "pos")
-	providerKeeper.POSKeeper = keeper
-	providerKeeper.ViperKeeper = MockViperKeeper{}
-	providerKeeper.SetProvider(ctx, getTestProvider())
+	requestorKeeper.POSKeeper = keeper
+	requestorKeeper.ViperKeeper = MockViperKeeper{}
+	requestorKeeper.SetRequestor(ctx, getTestRequestor())
 	keeper.ViperKeeper = MockViperKeeper{}
-	keeper.ProviderKeeper = providerKeeper
+	keeper.RequestorKeeper = requestorKeeper
 	moduleManager := module.NewManager(
 		authentication.NewAppModule(ak),
 	)
@@ -124,7 +124,7 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, []authentication.Ac
 	moduleManager.InitGenesis(ctx, genesisState)
 	initialCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultStakeDenom, valTokens))
 	accs := createTestAccs(ctx, int(nAccs), initialCoins, &ak)
-	providerKeeper.SetParams(ctx, providersTypes.DefaultParams())
+	requestorKeeper.SetParams(ctx, requestorsTypes.DefaultParams())
 	govKeeper.SetParams(ctx, govTypes.DefaultParams())
 	params := types.DefaultParams()
 	keeper.SetParams(ctx, params)
@@ -226,17 +226,17 @@ func modifyFn(i *int) func(index int64, Validator exported.ValidatorI) (stop boo
 }
 
 var (
-	testProvider           providersTypes.Provider
-	testProviderPrivateKey crypto.PrivateKey
-	testSupportedChain     string
-	testSupportedGeoZone   string
+	testRequestor           requestorsTypes.Requestor
+	testRequestorPrivateKey crypto.PrivateKey
+	testSupportedChain      string
+	testSupportedGeoZone    string
 )
 
-func getTestProviderPrivateKey() crypto.PrivateKey {
-	if testProviderPrivateKey == nil {
-		testProviderPrivateKey = getRandomPrivateKey()
+func getTestRequestorPrivateKey() crypto.PrivateKey {
+	if testRequestorPrivateKey == nil {
+		testRequestorPrivateKey = getRandomPrivateKey()
 	}
-	return testProviderPrivateKey
+	return testRequestorPrivateKey
 }
 func getRandomPrivateKey() crypto.Ed25519PrivateKey {
 	return crypto.Ed25519PrivateKey{}.GenPrivateKey().(crypto.Ed25519PrivateKey)
@@ -255,10 +255,10 @@ func getTestSupportedGeoZones() string {
 	return testSupportedGeoZone
 }
 
-func getTestProvider() providersTypes.Provider {
-	if testProvider.Address == nil {
-		pk := getTestProviderPrivateKey().PublicKey()
-		testProvider = providersTypes.Provider{
+func getTestRequestor() requestorsTypes.Requestor {
+	if testRequestor.Address == nil {
+		pk := getTestRequestorPrivateKey().PublicKey()
+		testRequestor = requestorsTypes.Requestor{
 			Address:                 sdk.Address(pk.Address()),
 			PublicKey:               pk,
 			Jailed:                  false,
@@ -271,5 +271,5 @@ func getTestProvider() providersTypes.Provider {
 			UnstakingCompletionTime: time.Time{},
 		}
 	}
-	return testProvider
+	return testRequestor
 }

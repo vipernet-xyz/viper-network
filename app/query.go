@@ -14,9 +14,9 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	"github.com/vipernet-xyz/viper-network/x/governance/types"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	core_types "github.com/tendermint/tendermint/rpc/core/types"
 )
@@ -388,17 +388,17 @@ func (app ViperCoreApp) QueryParam(height int64, paramkey string) (r SingleParam
 	return
 }
 
-func (app ViperCoreApp) QueryProviders(height int64, opts providersTypes.QueryProvidersWithOpts) (res Page, err error) {
+func (app ViperCoreApp) QueryRequestors(height int64, opts requestorsTypes.QueryRequestorsWithOpts) (res Page, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
 	opts.Page, opts.Limit = checkPagination(opts.Page, opts.Limit)
-	applications := app.providersKeeper.GetAllProvidersWithOpts(ctx, opts)
-	return paginate(opts.Page, opts.Limit, applications, int(app.providersKeeper.GetParams(ctx).MaxProviders))
+	applications := app.requestorsKeeper.GetAllRequestorsWithOpts(ctx, opts)
+	return paginate(opts.Page, opts.Limit, applications, int(app.requestorsKeeper.GetParams(ctx).MaxRequestors))
 }
 
-func (app ViperCoreApp) QueryProvider(addr string, height int64) (res providersTypes.Provider, err error) {
+func (app ViperCoreApp) QueryRequestor(addr string, height int64) (res requestorsTypes.Requestor, err error) {
 	a, err := sdk.AddressFromHex(addr)
 	if err != nil {
 		return res, err
@@ -407,28 +407,28 @@ func (app ViperCoreApp) QueryProvider(addr string, height int64) (res providersT
 	if err != nil {
 		return
 	}
-	res, found := app.providersKeeper.GetProvider(ctx, a)
+	res, found := app.requestorsKeeper.GetRequestor(ctx, a)
 	if !found {
-		err = providersTypes.ErrNoProviderFound(providersTypes.ModuleName)
+		err = requestorsTypes.ErrNoRequestorFound(requestorsTypes.ModuleName)
 		return
 	}
 	return
 }
 
-func (app ViperCoreApp) QueryTotalProviderCoins(height int64) (staked sdk.BigInt, err error) {
+func (app ViperCoreApp) QueryTotalRequestorCoins(height int64) (staked sdk.BigInt, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	return app.providersKeeper.GetStakedTokens(ctx), nil
+	return app.requestorsKeeper.GetStakedTokens(ctx), nil
 }
 
-func (app ViperCoreApp) QueryProviderParams(height int64) (res providersTypes.Params, err error) {
+func (app ViperCoreApp) QueryRequestorParams(height int64) (res requestorsTypes.Params, err error) {
 	ctx, err := app.NewContext(height)
 	if err != nil {
 		return
 	}
-	return app.providersKeeper.GetParams(ctx), nil
+	return app.requestorsKeeper.GetParams(ctx), nil
 }
 
 func (app ViperCoreApp) QueryValidatorByChain(height int64, chain string) (amount int64, err error) {
@@ -467,13 +467,13 @@ func (app ViperCoreApp) QueryViperSupportedGeoZones(height int64) (res []string,
 	return sb, nil
 }
 
-func (app ViperCoreApp) QueryClaim(address, providerPubkey, chain, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
+func (app ViperCoreApp) QueryClaim(address, requestorPubkey, chain, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
 	a, err := sdk.AddressFromHex(address)
 	if err != nil {
 		return nil, err
 	}
 	header := viperTypes.SessionHeader{
-		ProviderPubKey:     providerPubkey,
+		RequestorPubKey:    requestorPubkey,
 		Chain:              chain,
 		SessionBlockHeight: sessionBlockHeight,
 	}

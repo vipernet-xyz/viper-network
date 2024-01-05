@@ -135,11 +135,11 @@ type (
 		UnmarshalAminoJSON([]byte) error
 	}
 
-	// GRPCCodecProvider is implemented by the Codec
+	// GRPCCodecRequestor is implemented by the Codec
 	// implementations which return a gRPC encoding.Codec.
 	// And it is used to decode requests and encode responses
 	// passed through gRPC.
-	GRPCCodecProvider interface {
+	GRPCCodecRequestor interface {
 		GRPCCodec() encoding.Codec
 	}
 )

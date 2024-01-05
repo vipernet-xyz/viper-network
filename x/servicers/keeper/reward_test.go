@@ -6,8 +6,8 @@ import (
 	"github.com/vipernet-xyz/viper-network/codec"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,9 +43,9 @@ func TestSetAndGetProposer(t *testing.T) {
 	}
 }
 
-func TestSetandGetProvider(t *testing.T) {
-	provider := getStakedProvider()
-	consAddress := provider.GetAddress()
+func TestSetandGetRequestor(t *testing.T) {
+	requestor := getStakedRequestor()
+	consAddress := requestor.GetAddress()
 
 	tests := []struct {
 		name            string
@@ -53,7 +53,7 @@ func TestSetandGetProvider(t *testing.T) {
 		expectedAddress sdk.Address
 	}{
 		{
-			name:            "can set the provider",
+			name:            "can set the requestor",
 			args:            args{consAddress: consAddress},
 			expectedAddress: consAddress,
 		},
@@ -63,8 +63,8 @@ func TestSetandGetProvider(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			context, _, keeper := createTestInput(t, true)
 
-			keeper.SetProviderKey(context, test.args.consAddress)
-			receivedAddress := keeper.GetProvider(context)
+			keeper.SetRequestorKey(context, test.args.consAddress)
+			receivedAddress := keeper.GetRequestor(context)
 			assert.True(t, test.expectedAddress.Equals(receivedAddress), "addresses do not match ")
 		})
 	}
@@ -124,15 +124,15 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 	type args struct {
 		ctx              sdk.Ctx
 		previousProposer sdk.Address
-		provider         sdk.Address
+		requestor        sdk.Address
 		Output           sdk.Address
 		aOutput          sdk.Address
 		Amount           sdk.BigInt
 	}
 	stakedValidator := getStakedValidator()
-	stakedProvider := getStakedProvider()
+	stakedRequestor := getStakedRequestor()
 	stakedValidator.OutputAddress = getRandomValidatorAddress()
-	stakedProvider.Address = getRandomApplicationAddress()
+	stakedRequestor.Address = getRandomApplicationAddress()
 	codec.TestMode = -3
 	amount := sdk.NewInt(10000)
 	fees := sdk.NewCoins(sdk.NewCoin("uvipr", amount))
@@ -151,9 +151,9 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 			args{
 				ctx:              context,
 				previousProposer: stakedValidator.GetAddress(),
-				provider:         stakedProvider.GetAddress(),
+				requestor:        stakedRequestor.GetAddress(),
 				Output:           stakedValidator.OutputAddress,
-				aOutput:          stakedProvider.Address,
+				aOutput:          stakedRequestor.Address,
 			}},
 	}
 	for _, tt := range tests {
@@ -175,9 +175,9 @@ func getRandomApplicationAddress() sdk.Address {
 	return sdk.Address(getRandomPubKey().Address())
 }
 
-func GetProvider() providersTypes.Provider {
+func GetRequestor() requestorsTypes.Requestor {
 	pub := getRandomPubKey()
-	return providersTypes.Provider{
+	return requestorsTypes.Requestor{
 		Address:      sdk.Address(pub.Address()),
 		StakedTokens: sdk.NewInt(100000000000),
 		PublicKey:    pub,
@@ -189,8 +189,8 @@ func GetProvider() providersTypes.Provider {
 		NumServicers: 5,
 	}
 }
-func getStakedProvider() providersTypes.Provider {
-	return GetProvider()
+func getStakedRequestor() requestorsTypes.Requestor {
+	return GetRequestor()
 }
 
 func TestKeeper_rewardFromRelays(t *testing.T) {
@@ -250,7 +250,7 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k := tt.fields.keeper
 			ctx := tt.args.ctx
-			p := getStakedProvider()
+			p := getStakedRequestor()
 
 			// Reward for relays with output
 			relays := sdk.NewInt(10000)

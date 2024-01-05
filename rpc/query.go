@@ -11,14 +11,14 @@ import (
 	types4 "github.com/vipernet-xyz/viper-network/rpc/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	types2 "github.com/vipernet-xyz/viper-network/x/authentication/types"
-	types3 "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	types3 "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/bytes"
 	"github.com/tendermint/tendermint/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 
 	"github.com/julienschmidt/httprouter"
@@ -77,9 +77,9 @@ type HeightAndValidatorOptsParams struct {
 	Opts   servicerTypes.QueryValidatorsParams `json:"opts"`
 }
 
-type HeightAndProviderOptsParams struct {
-	Height int64                                 `json:"height"`
-	Opts   providersTypes.QueryProvidersWithOpts `json:"opts"`
+type HeightAndRequestorOptsParams struct {
+	Height int64                                   `json:"height"`
+	Opts   requestorsTypes.QueryRequestorsWithOpts `json:"opts"`
 }
 
 type PaginateAddrParams struct {
@@ -441,7 +441,7 @@ func Servicers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "requestor/json; charset=UTF-8")
 	_, err = w.Write(j)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
@@ -600,12 +600,12 @@ func QueryValidatorsByGeoZone(w http.ResponseWriter, r *http.Request, ps httprou
 }
 
 type QueryNodeReceiptParam struct {
-	Address        string `json:"address"`
-	Blockchain     string `json:"blockchain"`
-	ProviderPubkey string `json:"provider_pubkey"`
-	SBlockHeight   int64  `json:"session_block_height"`
-	Height         int64  `json:"height"`
-	ReceiptType    string `json:"receipt_type"`
+	Address         string `json:"address"`
+	Blockchain      string `json:"blockchain"`
+	RequestorPubkey string `json:"requestor_pubkey"`
+	SBlockHeight    int64  `json:"session_block_height"`
+	Height          int64  `json:"height"`
+	ReceiptType     string `json:"receipt_type"`
 }
 
 func NodeClaim(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -617,7 +617,7 @@ func NodeClaim(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Height == 0 {
 		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.VCA.QueryClaim(params.Address, params.ProviderPubkey, params.Blockchain, params.ReceiptType, params.SBlockHeight, params.Height)
+	res, err := app.VCA.QueryClaim(params.Address, params.RequestorPubkey, params.Blockchain, params.ReceiptType, params.SBlockHeight, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -652,8 +652,8 @@ func NodeClaims(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
 }
 
-func Providers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var params = HeightAndProviderOptsParams{}
+func Requestors(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	var params = HeightAndRequestorOptsParams{}
 	if err := PopModel(w, r, ps, &params); err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -667,7 +667,7 @@ func Providers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Opts.Limit == 0 {
 		params.Opts.Limit = 1000
 	}
-	res, err := app.VCA.QueryProviders(params.Height, params.Opts)
+	res, err := app.VCA.QueryRequestors(params.Height, params.Opts)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -677,7 +677,7 @@ func Providers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	w.Header().Set("Content-Type", "provider/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "requestor/json; charset=UTF-8")
 	_, err = w.Write(j)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
@@ -693,7 +693,7 @@ func App(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Height == 0 {
 		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.VCA.QueryProvider(params.Address, params.Height)
+	res, err := app.VCA.QueryRequestor(params.Address, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -706,7 +706,7 @@ func App(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
 }
 
-func ProviderParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func RequestorParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var params = HeightParams{Height: 0}
 	if err := PopModel(w, r, ps, &params); err != nil {
 		WriteErrorResponse(w, 400, err.Error())
@@ -715,7 +715,7 @@ func ProviderParams(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	if params.Height == 0 {
 		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.VCA.QueryProviderParams(params.Height)
+	res, err := app.VCA.QueryRequestorParams(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -795,7 +795,7 @@ func Supply(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	providersStaked, err := app.VCA.QueryTotalProviderCoins(params.Height)
+	requestorsStaked, err := app.VCA.QueryTotalRequestorCoins(params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
@@ -805,11 +805,11 @@ func Supply(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	totalStaked := servicersStake.Add(providersStaked).Add(dao)
+	totalStaked := servicersStake.Add(requestorsStaked).Add(dao)
 	totalUnstaked := total.Sub(totalStaked)
 	res, err := json.MarshalIndent(&querySupplyResponse{
 		NodeStaked:    servicersStake.String(),
-		AppStaked:     providersStaked.String(),
+		AppStaked:     requestorsStaked.String(),
 		Dao:           dao.String(),
 		TotalStaked:   totalStaked.BigInt().String(),
 		TotalUnstaked: totalUnstaked.BigInt().String(),

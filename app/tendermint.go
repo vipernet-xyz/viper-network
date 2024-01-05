@@ -148,7 +148,7 @@ func NewClient(c config, creator AppCreator) (*node.Node, *ViperCoreApp, error) 
 
 func OpenApplicationDB(config sdk.Config) (dbm.DB, error) {
 	dataDir := filepath.Join(config.TendermintConfig.RootDir, GlobalConfig.TendermintConfig.DBPath)
-	return sdk.NewLevelDB(sdk.ProviderDBName, dataDir, config.TendermintConfig.LevelDBOptions.ToGoLevelDBOpts())
+	return sdk.NewLevelDB(sdk.RequestorDBName, dataDir, config.TendermintConfig.LevelDBOptions.ToGoLevelDBOpts())
 }
 
 func OpenTxIndexerDB(config sdk.Config) (dbm.DB, error) {

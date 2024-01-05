@@ -29,13 +29,13 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer"
-	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viper "github.com/vipernet-xyz/viper-network/x/viper-main"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/stretchr/testify/assert"
 	tmCfg "github.com/tendermint/tendermint/config"
@@ -139,7 +139,7 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 	if err != nil {
 		panic(err)
 	}
-	genDocProvider := func() (*types.GenesisDoc, error) {
+	genDocRequestor := func() (*types.GenesisDoc, error) {
 		return &types.GenesisDoc{
 			GenesisTime: time.Time{},
 			ChainID:     "viper-test",
@@ -187,7 +187,7 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 		return p
 	}
 	//upgradePrivVal(c.TmConfig)
-	dbProvider := func(*node.DBContext) (dbm.DB, error) {
+	dbRequestor := func(*node.DBContext) (dbm.DB, error) {
 		return db, nil
 	}
 	txDB := dbm.NewMemDB()
@@ -199,9 +199,9 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 		&nodeKey,
 		proxy.NewLocalClientCreator(baseapp),
 		sdk.NewTransactionIndexer(txDB),
-		genDocProvider,
-		dbProvider,
-		node.DefaultMetricsProvider(c.TmConfig.Instrumentation),
+		genDocRequestor,
+		dbRequestor,
+		node.DefaultMetricsRequestor(c.TmConfig.Instrumentation),
 		c.Logger.With("module", "node"),
 	)
 	if err != nil {
@@ -218,7 +218,7 @@ func memCodec() *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			providers.AppModuleBasic{},
+			requestors.AppModuleBasic{},
 			authentication.AppModuleBasic{},
 			governance.AppModuleBasic{},
 			servicers.AppModuleBasic{},
@@ -234,7 +234,7 @@ func memCodecMod(upgrade bool) *codec.Codec {
 	if memCDC == nil {
 		memCDC = codec.NewCodec(types2.NewInterfaceRegistry())
 		module.NewBasicManager(
-			providers.AppModuleBasic{},
+			requestors.AppModuleBasic{},
 			authentication.AppModuleBasic{},
 			governance.AppModuleBasic{},
 			servicers.AppModuleBasic{},
@@ -307,7 +307,7 @@ func oneValTwoNodeGenesisState() []byte {
 	pubKey := kp1.PublicKey
 	pubKey2 := kp2.PublicKey
 	defaultGenesis := module.NewBasicManager(
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
@@ -385,29 +385,29 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 		acl.SetOwner("pos/SlashFractionDoubleSign", kp.GetAddress())
 		acl.SetOwner("pos/SlashFractionDowntime", kp.GetAddress())
 		acl.SetOwner("authentication/FeeMultipliers", kp.GetAddress())
-		acl.SetOwner("provider/MinProviderStake", kp.GetAddress())
+		acl.SetOwner("requestor/MinRequestorStake", kp.GetAddress())
 		acl.SetOwner("vipernet/ClaimExpiration", kp.GetAddress())
 		acl.SetOwner("vipernet/MinimumNumberOfProofs", kp.GetAddress())
 		acl.SetOwner("vipernet/ReplayAttackBurnMultiplier", kp.GetAddress())
 		acl.SetOwner("pos/MaxValidators", kp.GetAddress())
 		acl.SetOwner("pos/ProposerPercentage", kp.GetAddress())
-		acl.SetOwner("provider/StabilityAdjustment", kp.GetAddress())
-		acl.SetOwner("provider/ProviderUnstakingTime", kp.GetAddress())
-		acl.SetOwner("provider/ParticipationRateOn", kp.GetAddress())
+		acl.SetOwner("requestor/StabilityAdjustment", kp.GetAddress())
+		acl.SetOwner("requestor/RequestorUnstakingTime", kp.GetAddress())
+		acl.SetOwner("requestor/ParticipationRateOn", kp.GetAddress())
 		acl.SetOwner("pos/MaxEvidenceAge", kp.GetAddress())
 		acl.SetOwner("pos/MinSignedPerWindow", kp.GetAddress())
 		acl.SetOwner("pos/StakeMinimum", kp.GetAddress())
 		acl.SetOwner("pos/UnstakingTime", kp.GetAddress())
 		acl.SetOwner("pos/TokenRewardFactor", kp.GetAddress())
-		acl.SetOwner("provider/BaseRelaysPerVIPR", kp.GetAddress())
+		acl.SetOwner("requestor/BaseRelaysPerVIPR", kp.GetAddress())
 		acl.SetOwner("vipernet/ClaimSubmissionWindow", kp.GetAddress())
 		acl.SetOwner("pos/DAOAllocation", kp.GetAddress())
 		acl.SetOwner("pos/SignedBlocksWindow", kp.GetAddress())
 		acl.SetOwner("pos/BlocksPerSession", kp.GetAddress())
-		acl.SetOwner("provider/MaxProviders", kp.GetAddress())
+		acl.SetOwner("requestor/MaxRequestors", kp.GetAddress())
 		acl.SetOwner("governance/daoOwner", kp.GetAddress())
 		acl.SetOwner("governance/upgrade", kp.GetAddress())
-		acl.SetOwner("provider/MaximumChains", kp.GetAddress())
+		acl.SetOwner("requestor/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaximumChains", kp.GetAddress())
 		acl.SetOwner("pos/MaxJailedBlocks", kp.GetAddress())
 
@@ -416,7 +416,7 @@ func createTestACL(kp keys.KeyPair) govTypes.ACL {
 	return testACL
 }
 
-func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators servicersTypes.Validators, provider providersTypes.Provider) {
+func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, validators servicersTypes.Validators, requestor requestorsTypes.Requestor) {
 	kb := getInMemoryKeybase()
 	// create keypairs
 	kp1, err := kb.GetCoinbase()
@@ -444,7 +444,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	pubKey4 := kys[3].PublicKey()
 	pubKey5 := kys[4].PublicKey()
 	defaultGenesis := module.NewBasicManager(
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
@@ -497,12 +497,12 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	// marshal into json
 	res := memCodec().MustMarshalJSON(posGenesisState)
 	defaultGenesis[servicersTypes.ModuleName] = res
-	// setup providers
-	rawApps := defaultGenesis[providersTypes.ModuleName]
-	var providersGenesisState providersTypes.GenesisState
-	memCodec().MustUnmarshalJSON(rawApps, &providersGenesisState)
-	// provider 1
-	providersGenesisState.Providers = append(providersGenesisState.Providers, providersTypes.Provider{
+	// setup requestors
+	rawApps := defaultGenesis[requestorsTypes.ModuleName]
+	var requestorsGenesisState requestorsTypes.GenesisState
+	memCodec().MustUnmarshalJSON(rawApps, &requestorsGenesisState)
+	// requestor 1
+	requestorsGenesisState.Requestors = append(requestorsGenesisState.Requestors, requestorsTypes.Requestor{
 		Address:                 kp2.GetAddress(),
 		PublicKey:               kp2.PublicKey,
 		Jailed:                  false,
@@ -512,8 +512,8 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 		MaxRelays:               sdk.NewInt(100000),
 		UnstakingCompletionTime: time.Time{},
 	})
-	res2 := memCodec().MustMarshalJSON(providersGenesisState)
-	defaultGenesis[providersTypes.ModuleName] = res2
+	res2 := memCodec().MustMarshalJSON(requestorsGenesisState)
+	defaultGenesis[requestorsTypes.ModuleName] = res2
 	// accounts
 	rawAccounts := defaultGenesis[authentication.ModuleName]
 	var authenticationGenState authentication.GenesisState
@@ -547,7 +547,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	// end genesis setup
 	app.GenState = defaultGenesis
 	j, _ := memCodec().MarshalJSONIndent(defaultGenesis, "", "    ")
-	return j, kys, posGenesisState.Validators, providersGenesisState.Providers[0]
+	return j, kys, posGenesisState.Validators, requestorsGenesisState.Requestors[0]
 }
 
 type config struct {

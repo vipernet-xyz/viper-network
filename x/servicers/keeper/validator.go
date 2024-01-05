@@ -8,7 +8,7 @@ import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
 func (k Keeper) MarshalValidator(ctx sdk.Ctx, validator types.Validator) ([]byte, error) {
@@ -187,7 +187,7 @@ func (k Keeper) IterateAndExecuteOverVals(
 	}
 }
 
-// Validator - wrproviderer for GetValidator call
+// Validator - wrrequestorer for GetValidator call
 func (k Keeper) Validator(ctx sdk.Ctx, address sdk.Address) exported.ValidatorI {
 	val, found := k.GetValidator(ctx, address)
 	if !found {

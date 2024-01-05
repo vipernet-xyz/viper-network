@@ -108,7 +108,7 @@ func Test_NewQuerier(t *testing.T) {
 			want1: nil,
 		},
 		{
-			name: "Test query provider",
+			name: "Test query requestor",
 			args: args{
 				ctx:  context,
 				req:  abci.RequestQuery{Data: jsondata, Path: "unstaking_validators"},

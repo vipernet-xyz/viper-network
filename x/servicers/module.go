@@ -48,7 +48,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return ValidateGenesis(data)
 }
 
-// AppModule implements an provider module for the staking module.
+// AppModule implements an requestor module for the staking module.
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper

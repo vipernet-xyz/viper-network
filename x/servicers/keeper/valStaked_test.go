@@ -189,32 +189,32 @@ func TestGetValsIterator(t *testing.T) {
 		})
 	}
 }
-func TestProviderStaked_IterateAndExecuteOverStakedProviders(t *testing.T) {
+func TestRequestorStaked_IterateAndExecuteOverStakedRequestors(t *testing.T) {
 	stakedValidator := getStakedValidator()
 	secondStakedValidator := getStakedValidator()
 	tests := []struct {
-		name      string
-		provider  types.Validator
-		providers []types.Validator
-		want      int
+		name       string
+		requestor  types.Validator
+		requestors []types.Validator
+		want       int
 	}{
 		{
-			name:      "iterates over providers",
-			providers: []types.Validator{stakedValidator, secondStakedValidator},
-			want:      2,
+			name:       "iterates over requestors",
+			requestors: []types.Validator{stakedValidator, secondStakedValidator},
+			want:       2,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			context, _, keeper := createTestInput(t, true)
-			for _, provider := range tt.providers {
-				keeper.SetValidator(context, provider)
+			for _, requestor := range tt.requestors {
+				keeper.SetValidator(context, requestor)
 			}
 			got := 0
 			fn := modifyFn(&got)
 			keeper.IterateAndExecuteOverStakedVals(context, fn)
 			if got != tt.want {
-				t.Errorf("providerStaked.IterateAndExecuteOverProviders() = got %v, want %v", got, tt.want)
+				t.Errorf("requestorStaked.IterateAndExecuteOverRequestors() = got %v, want %v", got, tt.want)
 			}
 		})
 	}

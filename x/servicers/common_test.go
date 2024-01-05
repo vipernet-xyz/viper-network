@@ -195,9 +195,9 @@ func getGenesisStateForTest(ctx sdk.Ctx, keeper keeper.Keeper, defaultparams boo
 	}
 	prevStateTotalPower := keeper.PrevStateValidatorsPower(ctx)
 	validators := keeper.GetAllValidators(ctx)
-	var prevStateValidatorPowers []types.PrevStatePowerMprovidering
+	var prevStateValidatorPowers []types.PrevStatePowerMrequestoring
 	keeper.IterateAndExecuteOverPrevStateValsByPower(ctx, func(addr sdk.Address, power int64) (stop bool) {
-		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMprovidering{Address: addr, Power: power})
+		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMrequestoring{Address: addr, Power: power})
 		return false
 	})
 	signingInfos := make(map[string]types.ValidatorSigningInfo)

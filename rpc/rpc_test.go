@@ -23,7 +23,7 @@ import (
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 
 	"github.com/vipernet-xyz/viper-network/x/authentication"
-	types3 "github.com/vipernet-xyz/viper-network/x/providers/types"
+	types3 "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 
 	"github.com/julienschmidt/httprouter"
@@ -33,7 +33,7 @@ import (
 	"github.com/vipernet-xyz/viper-network/types"
 	authTypes "github.com/vipernet-xyz/viper-network/x/authentication/types"
 	types2 "github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -408,7 +408,7 @@ func TestRPC_QueryNode(t *testing.T) {
 	stopCli()
 }
 
-func TestRPC_QueryProvider(t *testing.T) {
+func TestRPC_QueryRequestor(t *testing.T) {
 	codec.UpgradeHeight = 7000
 	gBZ, _, _, app := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, gBZ)
@@ -443,15 +443,15 @@ func TestRPC_QueryProvider(t *testing.T) {
 	stopCli()
 }
 
-func TestRPC_QueryProviders(t *testing.T) {
+func TestRPC_QueryRequestors(t *testing.T) {
 	codec.UpgradeHeight = 7000
 	gBZ, _, _, app := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, gBZ)
 	_, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 	<-evtChan // Wait for block
-	var params = HeightAndProviderOptsParams{
+	var params = HeightAndRequestorOptsParams{
 		Height: 0,
-		Opts: types3.QueryProvidersWithOpts{
+		Opts: types3.QueryRequestorsWithOpts{
 			StakingStatus: types.Staked,
 			Page:          1,
 			Limit:         10000,
@@ -459,15 +459,15 @@ func TestRPC_QueryProviders(t *testing.T) {
 	}
 	q := newQueryRequest("apps", newBody(params))
 	rec := httptest.NewRecorder()
-	Providers(rec, q, httprouter.Params{})
+	Requestors(rec, q, httprouter.Params{})
 	body := rec.Body.String()
 	address := app.GetAddress().String()
 	assert.True(t, strings.Contains(body, address))
 
 	<-evtChan // Wait for block
-	params = HeightAndProviderOptsParams{
+	params = HeightAndRequestorOptsParams{
 		Height: 2,
-		Opts: types3.QueryProvidersWithOpts{
+		Opts: types3.QueryRequestorsWithOpts{
 			StakingStatus: types.Staked,
 			Page:          1,
 			Limit:         10000,
@@ -475,7 +475,7 @@ func TestRPC_QueryProviders(t *testing.T) {
 	}
 	q = newQueryRequest("apps", newBody(params))
 	rec = httptest.NewRecorder()
-	Providers(rec, q, httprouter.Params{})
+	Requestors(rec, q, httprouter.Params{})
 	body = rec.Body.String()
 	address = app.GetAddress().String()
 	assert.True(t, strings.Contains(body, address))
@@ -517,7 +517,7 @@ func TestRPC_QueryNodeParams(t *testing.T) {
 	stopCli()
 }
 
-func TestRPC_QueryProviderParams(t *testing.T) {
+func TestRPC_QueryRequestorParams(t *testing.T) {
 	codec.UpgradeHeight = 7000
 	gBZ, _, _, _ := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, gBZ)
@@ -528,7 +528,7 @@ func TestRPC_QueryProviderParams(t *testing.T) {
 	}
 	q := newQueryRequest("appparams", newBody(params))
 	rec := httptest.NewRecorder()
-	ProviderParams(rec, q, httprouter.Params{})
+	RequestorParams(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp)
@@ -540,7 +540,7 @@ func TestRPC_QueryProviderParams(t *testing.T) {
 	}
 	q = newQueryRequest("appparams", newBody(params))
 	rec = httptest.NewRecorder()
-	ProviderParams(rec, q, httprouter.Params{})
+	RequestorParams(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp)
@@ -908,20 +908,20 @@ func TestRPC_Relay(t *testing.T) {
 		BodyString(expectedRequest).
 		Reply(200).
 		BodyString(expectedResponse)
-	providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+	requestorPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 	assert.Nil(t, err)
 	// setup AAT
 	aat := viperTypes.AAT{
 		Version:           "0.0.1",
-		ProviderPublicKey: providerPrivateKey.PublicKey().RawString(),
-		ClientPublicKey:   providerPrivateKey.PublicKey().RawString(),
-		ProviderSignature: "",
+		RequestorPublicKey: requestorPrivateKey.PublicKey().RawString(),
+		ClientPublicKey:   requestorPrivateKey.PublicKey().RawString(),
+		RequestorSignature: "",
 	}
-	sig, err := providerPrivateKey.Sign(aat.Hash())
+	sig, err := requestorPrivateKey.Sign(aat.Hash())
 	if err != nil {
 		panic(err)
 	}
-	aat.ProviderSignature = hex.EncodeToString(sig)
+	aat.RequestorSignature = hex.EncodeToString(sig)
 	payload := viperTypes.Payload{
 		Data:   expectedRequest,
 		Method: "POST",
@@ -940,7 +940,7 @@ func TestRPC_Relay(t *testing.T) {
 		},
 	}
 	relay.Proof.RequestHash = relay.RequestHashString()
-	sig, err = providerPrivateKey.Sign(relay.Proof.Hash())
+	sig, err = requestorPrivateKey.Sign(relay.Proof.Hash())
 	if err != nil {
 		panic(err)
 	}
@@ -958,7 +958,7 @@ func TestRPC_Relay(t *testing.T) {
 		},
 	}
 	relay2.Proof.RequestHash = relay2.RequestHashString()
-	sig2, err := providerPrivateKey.Sign(relay2.Proof.Hash())
+	sig2, err := requestorPrivateKey.Sign(relay2.Proof.Hash())
 	if err != nil {
 		panic(err)
 	}
@@ -1002,11 +1002,11 @@ func TestRPC_Dispatch(t *testing.T) {
 	kb := getInMemoryKeybase()
 	genBZ, _, validators, app := fiveValidatorsOneAppGenesis()
 	_, _, cleanup := NewInMemoryTendermintNode(t, genBZ)
-	providerPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
+	requestorPrivateKey, err := kb.ExportPrivateKeyObject(app.Address, "test")
 	assert.Nil(t, err)
 	// Setup HandleDispatch Request
 	key := viperTypes.SessionHeader{
-		ProviderPubKey:     providerPrivateKey.PublicKey().RawString(),
+		RequestorPubKey:     requestorPrivateKey.PublicKey().RawString(),
 		Chain:              dummyChainsHash,
 		SessionBlockHeight: 1,
 	}
@@ -1018,7 +1018,7 @@ func TestRPC_Dispatch(t *testing.T) {
 	Dispatch(rec, q, httprouter.Params{})
 	resp := getJSONResponse(rec)
 	rawResp := string(resp)
-	assert.Regexp(t, key.ProviderPubKey, rawResp)
+	assert.Regexp(t, key.RequestorPubKey, rawResp)
 	assert.Regexp(t, key.Chain, rawResp)
 
 	for _, validator := range validators {
@@ -1031,7 +1031,7 @@ func TestRPC_Dispatch(t *testing.T) {
 	Dispatch(rec, q, httprouter.Params{})
 	resp = getJSONResponse(rec)
 	rawResp = string(resp)
-	assert.Regexp(t, key.ProviderPubKey, rawResp)
+	assert.Regexp(t, key.RequestorPubKey, rawResp)
 	assert.Regexp(t, key.Chain, rawResp)
 
 	for _, validator := range validators {
@@ -1153,7 +1153,7 @@ func TestRPC_QueryNodeClaim(t *testing.T) {
 	var params = QueryNodeReceiptParam{
 		Address:        cb.GetAddress().String(),
 		Blockchain:     "0001",
-		ProviderPubkey: cb.PublicKey.RawString(),
+		RequestorPubkey: cb.PublicKey.RawString(),
 		SBlockHeight:   1,
 		Height:         0,
 		ReceiptType:    "relay",
@@ -1167,7 +1167,7 @@ func TestRPC_QueryNodeClaim(t *testing.T) {
 	params = QueryNodeReceiptParam{
 		Address:        cb.GetAddress().String(),
 		Blockchain:     "0001",
-		ProviderPubkey: cb.PublicKey.RawString(),
+		RequestorPubkey: cb.PublicKey.RawString(),
 		SBlockHeight:   1,
 		Height:         0,
 		ReceiptType:    "relay",
@@ -1316,12 +1316,12 @@ func getJSONResponse(rec *httptest.ResponseRecorder) []byte {
 }
 
 func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (challenge viperTypes.ChallengeProofInvalidData) {
-	providerPrivateKey := privateKeys[1]
+	requestorPrivateKey := privateKeys[1]
 	servicerPrivKey1 := privateKeys[4]
 	servicerPrivKey2 := privateKeys[2]
 	servicerPrivKey3 := privateKeys[3]
 	clientPrivateKey := servicerPrivKey3
-	providerPubKey := providerPrivateKey.PublicKey().RawString()
+	requestorPubKey := requestorPrivateKey.PublicKey().RawString()
 	servicerPubKey := servicerPrivKey1.PublicKey().RawString()
 	servicerPubKey2 := servicerPrivKey2.PublicKey().RawString()
 	servicerPubKey3 := servicerPrivKey3.PublicKey().RawString()
@@ -1338,17 +1338,17 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
 			Version:           "0.0.1",
-			ProviderPublicKey: providerPubKey,
+			RequestorPublicKey: requestorPubKey,
 			ClientPublicKey:   clientPubKey,
-			ProviderSignature: "",
+			RequestorSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
+	appSignature, er := requestorPrivateKey.Sign(validProof.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof.Token.ProviderSignature = hex.EncodeToString(appSignature)
+	validProof.Token.RequestorSignature = hex.EncodeToString(appSignature)
 	clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -1363,17 +1363,17 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
 			Version:           "0.0.1",
-			ProviderPublicKey: providerPubKey,
+			RequestorPublicKey: requestorPubKey,
 			ClientPublicKey:   clientPubKey,
-			ProviderSignature: "",
+			RequestorSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er = providerPrivateKey.Sign(validProof2.Token.Hash())
+	appSignature, er = requestorPrivateKey.Sign(validProof2.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof2.Token.ProviderSignature = hex.EncodeToString(appSignature)
+	validProof2.Token.RequestorSignature = hex.EncodeToString(appSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof2.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
@@ -1388,17 +1388,17 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey) (chal
 		Blockchain:         PlaceholderHash,
 		Token: viperTypes.AAT{
 			Version:           "0.0.1",
-			ProviderPublicKey: providerPubKey,
+			RequestorPublicKey: requestorPubKey,
 			ClientPublicKey:   clientPubKey,
-			ProviderSignature: "",
+			RequestorSignature: "",
 		},
 		Signature: "",
 	}
-	appSignature, er = providerPrivateKey.Sign(validProof3.Token.Hash())
+	appSignature, er = requestorPrivateKey.Sign(validProof3.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
-	validProof3.Token.ProviderSignature = hex.EncodeToString(appSignature)
+	validProof3.Token.RequestorSignature = hex.EncodeToString(appSignature)
 	clientSignature, er = clientPrivateKey.Sign(validProof3.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())

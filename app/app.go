@@ -23,18 +23,18 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
+	requestorsKeeper "github.com/vipernet-xyz/viper-network/x/requestors/keeper"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	"github.com/vipernet-xyz/viper-network/x/transfer"
 	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
-	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
-	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viper "github.com/vipernet-xyz/viper-network/x/viper-main"
+	viperKeeper "github.com/vipernet-xyz/viper-network/x/viper-main/keeper"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
 const (
@@ -47,7 +47,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	// setup subspaces
 	authSubspace := sdk.NewSubspace(authentication.DefaultParamspace)
 	servicersSubspace := sdk.NewSubspace(servicersTypes.DefaultParamspace)
-	providersSubspace := sdk.NewSubspace(providersTypes.DefaultParamspace)
+	requestorsSubspace := sdk.NewSubspace(requestorsTypes.DefaultParamspace)
 	transferSubspace := sdk.NewSubspace(transferTypes.DefaultParamspace)
 	viperSubspace := sdk.NewSubspace(viperTypes.DefaultParamspace)
 	ibcSubspace := sdk.NewSubspace(ibcexported.DefaultParamspace)
@@ -73,20 +73,20 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.cdc,
 		app.Keys[servicersTypes.StoreKey],
 		app.accountKeeper,
-		app.providersKeeper,
+		app.requestorsKeeper,
 		app.governanceKeeper,
 		servicersSubspace,
 		servicersTypes.DefaultCodespace,
 	)
-	// The providers keeper handles viper core applications
-	app.providersKeeper = providersKeeper.NewKeeper(
+	// The requestors keeper handles viper core applications
+	app.requestorsKeeper = requestorsKeeper.NewKeeper(
 		app.cdc,
-		app.Keys[providersTypes.StoreKey],
+		app.Keys[requestorsTypes.StoreKey],
 		app.servicersKeeper,
 		app.accountKeeper,
 		app.viperKeeper,
-		providersSubspace,
-		providersTypes.DefaultCodespace,
+		requestorsSubspace,
+		requestorsTypes.DefaultCodespace,
 	)
 
 	app.IBCKeeper = ibckeeper.NewKeeper(
@@ -115,7 +115,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.cdc,
 		app.accountKeeper,
 		app.servicersKeeper,
-		app.providersKeeper,
+		app.requestorsKeeper,
 		hostedChains,
 		hostedGeoZone,
 		viperSubspace,
@@ -128,7 +128,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		app.Keys[viperTypes.StoreKey],
 		governanceTypes.DefaultCodespace,
 		app.accountKeeper,
-		capabilitySubspace, authSubspace, servicersSubspace, providersSubspace, transferSubspace, ibcSubspace, viperSubspace,
+		capabilitySubspace, authSubspace, servicersSubspace, requestorsSubspace, transferSubspace, ibcSubspace, viperSubspace,
 	)
 
 	transferModule := transfer.NewAppModule(app.transferKeeper)
@@ -141,7 +141,7 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 	app.viperKeeper.TmNode = tmClient
 	// give viper keeper to servicers module for easy cache clearing
 	app.servicersKeeper.ViperKeeper = app.viperKeeper
-	app.providersKeeper.ViperKeeper = app.viperKeeper
+	app.requestorsKeeper.ViperKeeper = app.viperKeeper
 	app.accountKeeper.POSKeeper = app.servicersKeeper
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
@@ -151,21 +151,21 @@ func NewViperCoreApp(genState GenesisState, keybase keys.Keybase, tmClient clien
 		capability.NewAppModule(*app.capabilityKeeper),
 		authentication.NewAppModule(app.accountKeeper),
 		servicers.NewAppModule(app.servicersKeeper),
-		providers.NewAppModule(app.providersKeeper),
+		requestors.NewAppModule(app.requestorsKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		viper.NewAppModule(app.viperKeeper),
 		governance.NewAppModule(app.governanceKeeper),
 	)
 	// setup the order of begin and end blockers
-	app.mm.SetOrderBeginBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
-	app.mm.SetOrderEndBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, providersTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
+	app.mm.SetOrderBeginBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, requestorsTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
+	app.mm.SetOrderEndBlockers(capabilityTypes.ModuleName, servicersTypes.ModuleName, requestorsTypes.ModuleName, transferTypes.ModuleName, ibcexported.ModuleName, viperTypes.ModuleName, governanceTypes.ModuleName)
 	// setup the order of Genesis
 	app.mm.SetOrderInitGenesis(
 		capabilityTypes.ModuleName,
 		authentication.ModuleName,
 		servicersTypes.ModuleName,
-		providersTypes.ModuleName,
+		requestorsTypes.ModuleName,
 		transferTypes.ModuleName,
 		ibcexported.ModuleName,
 		viperTypes.ModuleName,

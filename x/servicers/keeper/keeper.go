@@ -16,14 +16,14 @@ var _ types.ValidatorSet = Keeper{}
 
 // Keeper of the staking store
 type Keeper struct {
-	storeKey       sdk.StoreKey
-	Cdc            *codec.Codec
-	Bcdc           codec.BinaryCodec
-	AccountKeeper  types.AuthKeeper
-	GovKeeper      types.GovernanceKeeper
-	ViperKeeper    types.ViperKeeper // todo combine all modules
-	Paramstore     sdk.Subspace
-	ProviderKeeper types.ProvidersKeeper
+	storeKey        sdk.StoreKey
+	Cdc             *codec.Codec
+	Bcdc            codec.BinaryCodec
+	AccountKeeper   types.AuthKeeper
+	GovKeeper       types.GovernanceKeeper
+	ViperKeeper     types.ViperKeeper // todo combine all modules
+	Paramstore      sdk.Subspace
+	RequestorKeeper types.RequestorsKeeper
 	// codespace
 	codespace sdk.CodespaceType
 	// Cache
@@ -31,7 +31,7 @@ type Keeper struct {
 }
 
 // NewKeeper creates a new staking Keeper instance
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper types.AuthKeeper, providersKeeper types.ProvidersKeeper,
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper types.AuthKeeper, requestorsKeeper types.RequestorsKeeper,
 	governanceKeeper types.GovernanceKeeper, paramstore sdk.Subspace, codespace sdk.CodespaceType) Keeper {
 	// ensure staked module accounts are set
 	if addr := accountKeeper.GetModuleAddress(types.StakedPoolName); addr == nil {
@@ -40,14 +40,14 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper types.AuthKeepe
 	cache := sdk.NewCache(int(types.ValidatorCacheSize))
 
 	return Keeper{
-		storeKey:       key,
-		AccountKeeper:  accountKeeper,
-		ProviderKeeper: providersKeeper,
-		GovKeeper:      governanceKeeper,
-		Paramstore:     paramstore.WithKeyTable(ParamKeyTable()),
-		codespace:      codespace,
-		validatorCache: cache,
-		Cdc:            cdc,
+		storeKey:        key,
+		AccountKeeper:   accountKeeper,
+		RequestorKeeper: requestorsKeeper,
+		GovKeeper:       governanceKeeper,
+		Paramstore:      paramstore.WithKeyTable(ParamKeyTable()),
+		codespace:       codespace,
+		validatorCache:  cache,
+		Cdc:             cdc,
 	}
 }
 

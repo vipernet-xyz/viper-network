@@ -14,7 +14,7 @@ import (
 )
 
 // InitGenesis sets up the module based on the genesis state
-// First TM block is at height 1, so state updates providerlied from
+// First TM block is at height 1, so state updates requestorlied from
 // genesis.json are in block 0.
 func InitGenesis(ctx sdk.Ctx, keeper keeper.Keeper, supplyKeeper types.AuthKeeper, data types.GenesisState) (res []abci.ValidatorUpdate) {
 	// zero out a staked tokens variable for traking the number of staked tokens
@@ -129,9 +129,9 @@ func ExportGenesis(ctx sdk.Ctx, keeper keeper.Keeper) types.GenesisState {
 	params := keeper.GetParams(ctx)
 	prevStateTotalPower := keeper.PrevStateValidatorsPower(ctx)
 	validators := keeper.GetAllValidators(ctx)
-	var prevStateValidatorPowers []types.PrevStatePowerMprovidering
+	var prevStateValidatorPowers []types.PrevStatePowerMrequestoring
 	keeper.IterateAndExecuteOverPrevStateValsByPower(ctx, func(addr sdk.Address, power int64) (stop bool) {
-		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMprovidering{Address: addr, Power: power})
+		prevStateValidatorPowers = append(prevStateValidatorPowers, types.PrevStatePowerMrequestoring{Address: addr, Power: power})
 		return false
 	})
 	signingInfos := make(map[string]types.ValidatorSigningInfo)

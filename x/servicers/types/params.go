@@ -22,7 +22,7 @@ const (
 	DefaultSessionBlocktime           = 4
 	DefaultProposerAllocation         = 5
 	DefaultDAOAllocation              = 10
-	DefaultProviderAllocation         = 5
+	DefaultRequestorAllocation        = 5
 	DefaultFishermenAllocation        = 5
 	DefaultMaxChains                  = 15
 	DefaultMaxJailedBlocks            = 2000
@@ -48,7 +48,7 @@ var (
 	KeyTokenRewardFactor           = []byte("TokenRewardFactor")
 	KeySessionBlock                = []byte("BlocksPerSession")
 	KeyDAOAllocation               = []byte("DAOAllocation")
-	KeyProviderAllocation          = []byte("ProviderAllocation")
+	KeyRequestorAllocation         = []byte("RequestorAllocation")
 	KeyFishermenAllocation         = []byte("FishermenAllocation")
 	KeyProposerAllocation          = []byte("ProposerPercentage")
 	KeyMaxChains                   = []byte("MaximumChains")
@@ -85,7 +85,7 @@ type Params struct {
 	StakeMinimum            int64         `json:"stake_minimum" yaml:"stake_minimum"`                     // minimum amount of `uvipr` needed to stake in the network as a servicer
 	SessionBlockFrequency   int64         `json:"session_block_frequency" yaml:"session_block_frequency"` // how many blocks are in a session (viper network unit)
 	DAOAllocation           int64         `json:"dao_allocation" yaml:"dao_allocation"`
-	ProviderAllocation      int64         `json:"provider_allocation" yaml:"provider_allocation"`
+	RequestorAllocation     int64         `json:"requestor_allocation" yaml:"requestor_allocation"`
 	ProposerAllocation      int64         `json:"proposer_allocation" yaml:"proposer_allocation"`
 	FishermenAllocation     int64         `json:"fisherman_allocation" yaml:"fisherman_allocation"`
 	MaximumChains           int64         `json:"maximum_chains" yaml:"maximum_chains"`
@@ -123,7 +123,7 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeySlashFractionDowntime, Value: &p.SlashFractionDowntime},
 		{Key: KeySessionBlock, Value: &p.SessionBlockFrequency},
 		{Key: KeyDAOAllocation, Value: &p.DAOAllocation},
-		{Key: KeyProviderAllocation, Value: &p.ProviderAllocation},
+		{Key: KeyRequestorAllocation, Value: &p.RequestorAllocation},
 		{Key: KeyProposerAllocation, Value: &p.ProposerAllocation},
 		{Key: KeyFishermenAllocation, Value: &p.FishermenAllocation},
 		{Key: KeyTokenRewardFactor, Value: &p.TokenRewardFactor},
@@ -157,7 +157,7 @@ func DefaultParams() Params {
 		SlashFractionDowntime:   DefaultSlashFractionDowntime,
 		SessionBlockFrequency:   DefaultSessionBlocktime,
 		DAOAllocation:           DefaultDAOAllocation,
-		ProviderAllocation:      DefaultProviderAllocation,
+		RequestorAllocation:     DefaultRequestorAllocation,
 		ProposerAllocation:      DefaultProposerAllocation,
 		FishermenAllocation:     DefaultFishermenAllocation,
 		TokenRewardFactor:       DefaultTokenRewardFactor,
@@ -192,8 +192,8 @@ func (p Params) Validate() error {
 	if p.DAOAllocation < 0 {
 		return fmt.Errorf("the dao allocation must not be negative")
 	}
-	if p.ProviderAllocation < 0 {
-		return fmt.Errorf("the provider allocation must not be negative")
+	if p.RequestorAllocation < 0 {
+		return fmt.Errorf("the requestor allocation must not be negative")
 	}
 	if p.ProposerAllocation < 0 {
 		return fmt.Errorf("the proposer allication must not be negative")
@@ -201,8 +201,8 @@ func (p Params) Validate() error {
 	if p.FishermenAllocation < 0 {
 		return fmt.Errorf("the proposer allication must not be negative")
 	}
-	if p.ProposerAllocation+p.DAOAllocation+p.ProviderAllocation+p.FishermenAllocation > 100 {
-		return fmt.Errorf("the combo of proposer allocation, dao allocation and provider allocation must not be greater than 100")
+	if p.ProposerAllocation+p.DAOAllocation+p.RequestorAllocation+p.FishermenAllocation > 100 {
+		return fmt.Errorf("the combo of proposer allocation, dao allocation and requestor allocation must not be greater than 100")
 	}
 	if p.MaxFishermen < 1 {
 		return fmt.Errorf("max fishermen must be equal to or greater than 1")
@@ -237,7 +237,7 @@ func (p Params) String() string {
   BlocksPerSession         %d
   Proposer Allocation      %d
   DAO allocation           %d
-  Provider allocation      %d
+  Requestor allocation      %d
   Fisherman allocation     %d
   Maximum Chains           %d
   Max Jailed Blocks        %d
@@ -264,7 +264,7 @@ func (p Params) String() string {
 		p.SessionBlockFrequency,
 		p.ProposerAllocation,
 		p.DAOAllocation,
-		p.ProviderAllocation,
+		p.RequestorAllocation,
 		p.FishermenAllocation,
 		p.MaximumChains,
 		p.MaxJailedBlocks,

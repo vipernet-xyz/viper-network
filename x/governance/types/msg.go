@@ -125,7 +125,7 @@ func (msg MsgDAOTransfer) ValidateBasic() sdk.Error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// MsgGenerateDiscountKey structure for generating a discount key for a provider
+// MsgGenerateDiscountKey structure for generating a discount key for a requestor
 //type MsgGenerateDiscountKey struct {
 //	FromAddress sdk.Address `json:"from_address"`
 //	ToAddress   sdk.Address `json:"to_address"`

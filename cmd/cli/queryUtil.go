@@ -10,7 +10,7 @@ import (
 	"time"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
-	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	"github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
 	"github.com/vipernet-xyz/viper-network/rpc"
@@ -24,7 +24,7 @@ var (
 	GetDAOOwnerPath,
 	GetHeightPath,
 	GetAccountPath,
-	GetProviderPath,
+	GetRequestorPath,
 	GetTxPath,
 	GetBlockPath,
 	GetSupportedChainsPath,
@@ -33,8 +33,8 @@ var (
 	GetNodeParamsPath,
 	GetServicersPath,
 	GetSigningInfoPath,
-	GetProvidersPath,
-	GetProviderParamsPath,
+	GetRequestorsPath,
+	GetRequestorParamsPath,
 	GetViperParamsPath,
 	GetNodeClaimsPath,
 	GetNodeClaimPath,
@@ -67,8 +67,8 @@ func init() {
 			GetAccountPath = route.Path
 		case "QueryAccounts":
 			GetAccountsPath = route.Path
-		case "QueryProvider":
-			GetProviderPath = route.Path
+		case "QueryRequestor":
+			GetRequestorPath = route.Path
 		case "QueryTX":
 			GetTxPath = route.Path
 		case "QueryBlock":
@@ -85,10 +85,10 @@ func init() {
 			GetServicersPath = route.Path
 		case "QuerySigningInfo":
 			GetSigningInfoPath = route.Path
-		case "QueryProviders":
-			GetProvidersPath = route.Path
-		case "QueryProviderParams":
-			GetProviderParamsPath = route.Path
+		case "QueryRequestors":
+			GetRequestorsPath = route.Path
+		case "QueryRequestorParams":
+			GetRequestorParamsPath = route.Path
 		case "QueryViperParams":
 			GetViperParamsPath = route.Path
 		case "QueryBlockTxs":
@@ -122,7 +122,7 @@ func QueryRPC(path string, jsonArgs []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Content-Type", "provider/json")
+	req.Header.Set("Content-Type", "requestor/json")
 	client := &http.Client{
 		Timeout: types.GetRPCTimeout() * time.Millisecond,
 	}
@@ -159,7 +159,7 @@ func QuerySecuredRPC(path string, jsonArgs []byte, token sdk.AuthToken) (string,
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Content-Type", "provider/json")
+	req.Header.Set("Content-Type", "requestor/json")
 	q := req.URL.Query()
 	q.Add("authtoken", token.Value)
 	req.URL.RawQuery = q.Encode()

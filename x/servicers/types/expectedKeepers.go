@@ -3,8 +3,8 @@ package types
 import (
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	authexported "github.com/vipernet-xyz/viper-network/x/authentication/exported"
-	providerexported "github.com/vipernet-xyz/viper-network/x/providers/exported"
-	providersType "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestorexported "github.com/vipernet-xyz/viper-network/x/requestors/exported"
+	requestorsType "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	posexported "github.com/vipernet-xyz/viper-network/x/servicers/exported"
 )
 
@@ -70,17 +70,17 @@ type ValidatorSet interface {
 	ServicerCountLock(ctx sdk.Ctx) (isOn bool)
 }
 
-type ProvidersKeeper interface {
-	CalculateProviderRelays(ctx sdk.Ctx, provider providersType.Provider) sdk.BigInt
+type RequestorsKeeper interface {
+	CalculateRequestorRelays(ctx sdk.Ctx, requestor requestorsType.Requestor) sdk.BigInt
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
-	Provider(ctx sdk.Ctx, addr sdk.Address) providerexported.ProviderI
-	AllProviders(ctx sdk.Ctx) (providers []providerexported.ProviderI)
+	Requestor(ctx sdk.Ctx, addr sdk.Address) requestorexported.RequestorI
+	AllRequestors(ctx sdk.Ctx) (requestors []requestorexported.RequestorI)
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
-	JailProvider(ctx sdk.Ctx, addr sdk.Address)
-	ForceProviderUnstake(ctx sdk.Ctx, provider providersType.Provider) sdk.Error
-	LegacyForceProviderUnstake(ctx sdk.Ctx, provider providersType.Provider) sdk.Error
+	JailRequestor(ctx sdk.Ctx, addr sdk.Address)
+	ForceRequestorUnstake(ctx sdk.Ctx, requestor requestorsType.Requestor) sdk.Error
+	LegacyForceRequestorUnstake(ctx sdk.Ctx, requestor requestorsType.Requestor) sdk.Error
 	MinimumStake(ctx sdk.Ctx) (res int64)
-	SetProvider(ctx sdk.Ctx, provider providersType.Provider)
+	SetRequestor(ctx sdk.Ctx, requestor requestorsType.Requestor)
 	BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64)
 	MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64)
 }

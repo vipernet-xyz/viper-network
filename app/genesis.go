@@ -16,13 +16,13 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/capability"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	transfer "github.com/vipernet-xyz/viper-network/x/transfer"
-	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
-	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viper "github.com/vipernet-xyz/viper-network/x/viper-main"
+	"github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
 var mainnetGenesis = `{ }`
@@ -50,7 +50,7 @@ func newDefaultGenesisState() []byte {
 	pubKey := cb.PublicKey
 	defaultGenesis := module.NewBasicManager(
 		capability.AppModuleBasic{},
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		authentication.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		governance.AppModuleBasic{},
@@ -69,11 +69,11 @@ func newDefaultGenesisState() []byte {
 	})
 	res := Codec().MustMarshalJSON(accountGenesis)
 	defaultGenesis[authentication.ModuleName] = res
-	// set address as provider too
-	rawApps := defaultGenesis[providersTypes.ModuleName]
-	var providersGenesis providersTypes.GenesisState
-	types.ModuleCdc.MustUnmarshalJSON(rawApps, &providersGenesis)
-	providersGenesis.Providers = append(providersGenesis.Providers, providersTypes.Provider{
+	// set address as requestor too
+	rawApps := defaultGenesis[requestorsTypes.ModuleName]
+	var requestorsGenesis requestorsTypes.GenesisState
+	types.ModuleCdc.MustUnmarshalJSON(rawApps, &requestorsGenesis)
+	requestorsGenesis.Requestors = append(requestorsGenesis.Requestors, requestorsTypes.Requestor{
 		Address:                 cb.GetAddress(),
 		PublicKey:               cb.PublicKey,
 		Jailed:                  false,
@@ -85,8 +85,8 @@ func newDefaultGenesisState() []byte {
 		MaxRelays:               sdk.NewInt(10000000000000),
 		UnstakingCompletionTime: time.Time{},
 	})
-	res = Codec().MustMarshalJSON(providersGenesis)
-	defaultGenesis[providersTypes.ModuleName] = res
+	res = Codec().MustMarshalJSON(requestorsGenesis)
+	defaultGenesis[requestorsTypes.ModuleName] = res
 	rawViper := defaultGenesis[types.ModuleName]
 	var viperGenesis types.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawViper, &viperGenesis)
@@ -150,16 +150,16 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	addr := sdk.Address(kp.Address())
 	acl := governanceTypes.ACL{}
 	acl = make([]governanceTypes.ACLPair, 0)
-	acl.SetOwner("provider/MinimumProviderStake", addr)
-	acl.SetOwner("provider/ProviderUnstakingTime", addr)
-	acl.SetOwner("provider/BaseRelaysPerVIPR", addr)
-	acl.SetOwner("provider/MaxProviders", addr)
-	acl.SetOwner("provider/MaximumChains", addr)
-	acl.SetOwner("provider/ParticipationRate", addr)
-	acl.SetOwner("provider/StabilityModulation", addr)
-	acl.SetOwner("provider/MinNumServicers", addr)
-	acl.SetOwner("provider/MaxNumServicers", addr)
-	acl.SetOwner("provider/MaxFreeTierRelaysPerSession", addr)
+	acl.SetOwner("requestor/MinimumRequestorStake", addr)
+	acl.SetOwner("requestor/RequestorUnstakingTime", addr)
+	acl.SetOwner("requestor/BaseRelaysPerVIPR", addr)
+	acl.SetOwner("requestor/MaxRequestors", addr)
+	acl.SetOwner("requestor/MaximumChains", addr)
+	acl.SetOwner("requestor/ParticipationRate", addr)
+	acl.SetOwner("requestor/StabilityModulation", addr)
+	acl.SetOwner("requestor/MinNumServicers", addr)
+	acl.SetOwner("requestor/MaxNumServicers", addr)
+	acl.SetOwner("requestor/MaxFreeTierRelaysPerSession", addr)
 	acl.SetOwner("authentication/MaxMemoCharacters", addr)
 	acl.SetOwner("authentication/TxSigLimit", addr)
 	acl.SetOwner("authentication/FeeMultipliers", addr)
@@ -176,7 +176,7 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("vipernet/ReportCardSubmissionWindow", addr)
 	acl.SetOwner("pos/BlocksPerSession", addr)
 	acl.SetOwner("pos/DAOAllocation", addr)
-	acl.SetOwner("pos/ProviderAllocation", addr)
+	acl.SetOwner("pos/RequestorAllocation", addr)
 	acl.SetOwner("pos/DowntimeJailDuration", addr)
 	acl.SetOwner("pos/MaxEvidenceAge", addr)
 	acl.SetOwner("pos/MaximumChains", addr)
@@ -197,7 +197,7 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("pos/FishermenCount", addr)
 	acl.SetOwner("pos/SlashFractionNoActivity", addr)
 	acl.SetOwner("pos/ProposerPercentage", addr)
-	acl.SetOwner("pos/ProviderAllocation", addr)
+	acl.SetOwner("pos/RequestorAllocation", addr)
 	acl.SetOwner("pos/FishermenAllocation", addr)
 	acl.SetOwner("pos/LatencyScoreWeight", addr)
 	acl.SetOwner("pos/AvailabilityScoreWeight", addr)

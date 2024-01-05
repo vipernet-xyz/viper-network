@@ -14,9 +14,9 @@ import (
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	"github.com/vipernet-xyz/viper-network/crypto/keys"
 	"github.com/vipernet-xyz/viper-network/rpc"
-	providersType "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestorsType "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	"github.com/tendermint/tendermint/libs/rand"
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -298,7 +298,7 @@ func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount s
 	if amount.LTE(sdk.NewInt(0)) {
 		return nil, sdk.ErrInternal("must stake above zero")
 	}
-	msg := providersType.MsgStake{
+	msg := requestorsType.MsgStake{
 		PubKey:       kp.PublicKey,
 		Chains:       chains,
 		Value:        amount,
@@ -328,7 +328,7 @@ func UnstakeClient(fromAddr, passphrase, chainID string, fees int64, legacyCodec
 	if err != nil {
 		return nil, err
 	}
-	msg := providersType.MsgBeginUnstake{
+	msg := requestorsType.MsgBeginUnstake{
 		Address: fa,
 	}
 	err = msg.ValidateBasic()
@@ -568,9 +568,9 @@ func GenerateAndSendDiscountKey(fromAddr, toAddr, passphrase, chainID string, fe
 }
 
 // This function would generate a unique key for discounts.
-func generateUniqueDiscountKey(providerAddr string) string {
-	// Concatenate provider address and current time
-	baseString := fmt.Sprintf("%s-%d", providerAddr, time.Now().UnixNano())
+func generateUniqueDiscountKey(requestorAddr string) string {
+	// Concatenate requestor address and current time
+	baseString := fmt.Sprintf("%s-%d", requestorAddr, time.Now().UnixNano())
 
 	// Add a nonce for additional randomness
 	nonce := generateNonce(16) // 16 bytes random data

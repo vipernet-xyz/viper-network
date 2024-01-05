@@ -44,13 +44,13 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication"
 	"github.com/vipernet-xyz/viper-network/x/capability"
 	"github.com/vipernet-xyz/viper-network/x/governance"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	transfer "github.com/vipernet-xyz/viper-network/x/transfer"
-	viper "github.com/vipernet-xyz/viper-network/x/vipernet"
-	"github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viper "github.com/vipernet-xyz/viper-network/x/viper-main"
+	"github.com/vipernet-xyz/viper-network/x/viper-main/types"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -251,7 +251,7 @@ func UpdateConfig(datadir string) {
 		Version: "v1",
 	}
 	GlobalConfig.ViperConfig.ValidatorCacheSize = sdk.DefaultValidatorCacheSize
-	GlobalConfig.ViperConfig.ProviderCacheSize = sdk.DefaultProviderCacheSize
+	GlobalConfig.ViperConfig.RequestorCacheSize = sdk.DefaultRequestorCacheSize
 	GlobalConfig.ViperConfig.CtxCacheSize = sdk.DefaultCtxCacheSize
 	GlobalConfig.ViperConfig.RPCTimeout = sdk.DefaultRPCTimeout
 	GlobalConfig.ViperConfig.IavlCacheSize = sdk.DefaultIavlCacheSize
@@ -482,8 +482,8 @@ func InitViperCoreConfig(chains *types.HostedBlockchains, geozone *types.HostedG
 	sdk.InitCtxCache(GlobalConfig.ViperConfig.CtxCacheSize)
 	logger.Info("Initializing pos config")
 	servicerTypes.InitConfig(GlobalConfig.ViperConfig.ValidatorCacheSize)
-	logger.Info("Initializing provider config")
-	providersTypes.InitConfig(GlobalConfig.ViperConfig.ProviderCacheSize)
+	logger.Info("Initializing requestor config")
+	requestorsTypes.InitConfig(GlobalConfig.ViperConfig.RequestorCacheSize)
 }
 
 func ShutdownViperCore() {
@@ -807,7 +807,7 @@ func MakeCodec() {
 	module.NewBasicManager(
 		capability.AppModuleBasic{},
 		authentication.AppModuleBasic{},
-		providers.AppModuleBasic{},
+		requestors.AppModuleBasic{},
 		governance.AppModuleBasic{},
 		servicers.AppModuleBasic{},
 		ibc.AppModuleBasic{},

@@ -28,7 +28,7 @@ func TestDefaultParams(t *testing.T) {
 				SlashFractionDowntime:   DefaultSlashFractionDowntime,
 				SessionBlockFrequency:   DefaultSessionBlocktime,
 				DAOAllocation:           DefaultDAOAllocation,
-				ProviderAllocation:      DefaultProviderAllocation,
+				RequestorAllocation:     DefaultRequestorAllocation,
 				ProposerAllocation:      DefaultProposerAllocation,
 				FishermenAllocation:     DefaultFishermenAllocation,
 				TokenRewardFactor:       DefaultTokenRewardFactor,
@@ -174,7 +174,7 @@ func TestParams_Validate(t *testing.T) {
 		StakeDenom              string        `json:"stake_denom" yaml:"stake_denom"`       // bondable coin denomination
 		StakeMinimum            int64         `json:"stake_minimum" yaml:"stake_minimum"`   // minimum amount needed to stake
 		DaoAllocation           int64
-		ProviderAllocation      float64
+		RequestorAllocation     float64
 		SessionBlock            int64         `json:"session_block" yaml:"session_block"`
 		ProposerAllocation      int64         `json:"relays_to_tokens" yaml:"relays_to_tokens"`
 		MaxEvidenceAge          time.Duration `json:"max_evidence_age" yaml:"max_evidence_age"`
@@ -328,7 +328,7 @@ func TestParams_Validate(t *testing.T) {
 			StakeDenom:              "3",
 			StakeMinimum:            10000000000,
 			DaoAllocation:           -2,
-			ProviderAllocation:      -0.4,
+			RequestorAllocation:     -0.4,
 			SessionBlock:            1,
 			ProposerAllocation:      0,
 			MaxEvidenceAge:          0,

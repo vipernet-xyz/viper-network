@@ -331,7 +331,7 @@ message Evidence {
 //----------------------------------------
 // Service Definition
 
-service ABCIProvider {
+service ABCIRequestor {
 	rpc Echo(RequestEcho) returns (ResponseEcho);
 	rpc Flush(RequestFlush) returns (ResponseFlush);
 	rpc Info(RequestInfo) returns (ResponseInfo);

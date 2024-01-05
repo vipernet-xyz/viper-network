@@ -18,15 +18,15 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	governanceKeeper "github.com/vipernet-xyz/viper-network/x/governance/keeper"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providersKeeper "github.com/vipernet-xyz/viper-network/x/providers/keeper"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestorsKeeper "github.com/vipernet-xyz/viper-network/x/requestors/keeper"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	servicersKeeper "github.com/vipernet-xyz/viper-network/x/servicers/keeper"
 
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	transferKeeper "github.com/vipernet-xyz/viper-network/x/transfer/keeper"
 	transferTypes "github.com/vipernet-xyz/viper-network/x/transfer/types"
-	viperKeeper "github.com/vipernet-xyz/viper-network/x/vipernet/keeper"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperKeeper "github.com/vipernet-xyz/viper-network/x/viper-main/keeper"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -49,7 +49,7 @@ type ViperCoreApp struct {
 	// Keepers for each module
 	capabilityKeeper     *capabilityKeeper.Keeper
 	accountKeeper        authentication.Keeper
-	providersKeeper      providersKeeper.Keeper
+	requestorsKeeper     requestorsKeeper.Keeper
 	servicersKeeper      servicersKeeper.Keeper
 	transferKeeper       transferKeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
@@ -70,9 +70,9 @@ func NewViperBaseApp(logger log.Logger, db db.DB, cache bool, iavlCacheSize int6
 	// set version of the baseapp
 	bApp.SetAppVersion(AppVersion)
 	// setup the key value store Keys
-	k := sdk.NewKVStoreKeys(bam.MainStoreKey, capabilityTypes.StoreKey, authentication.StoreKey, servicersTypes.StoreKey, providersTypes.StoreKey, transferTypes.StoreKey, ibcExported.StoreKey, viperTypes.StoreKey, governance.StoreKey)
+	k := sdk.NewKVStoreKeys(bam.MainStoreKey, capabilityTypes.StoreKey, authentication.StoreKey, servicersTypes.StoreKey, requestorsTypes.StoreKey, transferTypes.StoreKey, ibcExported.StoreKey, viperTypes.StoreKey, governance.StoreKey)
 	// setup the transient store KeysibcExported.StoreKey, transferTypes.StoreKey)
-	tkeys := sdk.NewTransientStoreKeys(capabilityTypes.TStoreKey, servicersTypes.TStoreKey, providersTypes.TStoreKey, transferTypes.TStoreKey, ibcExported.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(capabilityTypes.TStoreKey, servicersTypes.TStoreKey, requestorsTypes.TStoreKey, transferTypes.TStoreKey, ibcExported.TStoreKey, viperTypes.TStoreKey, governance.TStoreKey)
 
 	memkeys := sdk.NewMemoryStoreKeys(capabilityTypes.MemStoreKey)
 	// add params Keys too
@@ -221,10 +221,10 @@ var (
 		capabilityTypes.ModuleName:      nil,
 		authentication.FeeCollectorName: {authentication.Burner, authentication.Minter, authentication.Staking},
 		servicersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
-		providersTypes.StakedPoolName:   {authentication.Burner, authentication.Minter, authentication.Staking},
+		requestorsTypes.StakedPoolName:  {authentication.Burner, authentication.Minter, authentication.Staking},
 		governanceTypes.DAOAccountName:  {authentication.Burner, authentication.Minter, authentication.Staking},
 		servicersTypes.ModuleName:       {authentication.Burner, authentication.Minter, authentication.Staking},
-		providersTypes.ModuleName:       nil,
+		requestorsTypes.ModuleName:      nil,
 		transferTypes.ModuleName:        {authentication.Burner, authentication.Minter},
 	}
 )

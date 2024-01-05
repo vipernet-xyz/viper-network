@@ -20,11 +20,11 @@ import (
 	"github.com/vipernet-xyz/viper-network/x/authentication/types"
 	"github.com/vipernet-xyz/viper-network/x/governance"
 	govTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providers "github.com/vipernet-xyz/viper-network/x/providers"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestors "github.com/vipernet-xyz/viper-network/x/requestors"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
 func TestMain(m *testing.M) {
@@ -58,36 +58,36 @@ func TestUnstakeApp(t *testing.T) {
 			var geozones = []string{"0001"}
 			<-evtChan // Wait for block
 			memCli, _, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = requestors.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for tx
-			got, err := VCA.QueryProviders(VCA.LastBlockHeight(), providersTypes.QueryProvidersWithOpts{
+			got, err := VCA.QueryRequestors(VCA.LastBlockHeight(), requestorsTypes.QueryRequestorsWithOpts{
 				Page:  1,
 				Limit: 1})
 			assert.Nil(t, err)
-			res := got.Result.(providersTypes.Providers)
+			res := got.Result.(requestorsTypes.Requestors)
 			assert.Equal(t, 1, len(res))
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			_, _ = providers.UnstakeTx(memCodec(), memCli, kb, kp.GetAddress(), "test", tc.codecUpgrade.upgradeMod)
+			_, _ = requestors.UnstakeTx(memCodec(), memCli, kb, kp.GetAddress(), "test", tc.codecUpgrade.upgradeMod)
 
 			<-evtChan // Wait for tx
-			got, err = VCA.QueryProviders(VCA.LastBlockHeight(), providersTypes.QueryProvidersWithOpts{
+			got, err = VCA.QueryRequestors(VCA.LastBlockHeight(), requestorsTypes.QueryRequestorsWithOpts{
 				Page:          1,
 				Limit:         1,
 				StakingStatus: 1,
 			})
 			assert.Nil(t, err)
-			res = got.Result.(providersTypes.Providers)
+			res = got.Result.(requestorsTypes.Requestors)
 			assert.Equal(t, 1, len(res))
-			got, err = VCA.QueryProviders(VCA.LastBlockHeight(), providersTypes.QueryProvidersWithOpts{
+			got, err = VCA.QueryRequestors(VCA.LastBlockHeight(), requestorsTypes.QueryRequestorsWithOpts{
 				Page:          1,
 				Limit:         1,
 				StakingStatus: 2,
 			})
 			assert.Nil(t, err)
-			res = got.Result.(providersTypes.Providers)
+			res = got.Result.(requestorsTypes.Requestors)
 			assert.Equal(t, 1, len(res)) // default genesis application
 
 			cleanup()
@@ -122,17 +122,17 @@ func TestStakeApp(t *testing.T) {
 
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
+			tx, err = requestors.StakeTx(memCodec(), memCli, kb, chains, geozones, 5, sdk.NewInt(1000000), kp, "test", tc.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 
 			<-evtChan // Wait for tx
-			got, err := VCA.QueryProviders(VCA.LastBlockHeight(), providersTypes.QueryProvidersWithOpts{
+			got, err := VCA.QueryRequestors(VCA.LastBlockHeight(), requestorsTypes.QueryRequestorsWithOpts{
 				Page:  1,
 				Limit: 2,
 			})
 			assert.Nil(t, err)
-			res := got.Result.(providersTypes.Providers)
+			res := got.Result.(requestorsTypes.Requestors)
 			assert.Equal(t, 2, len(res))
 
 			stopCli()
@@ -174,14 +174,14 @@ func TestEditStakeApp(t *testing.T) {
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
 			balance, err := VCA.QueryBalance(kp.GetAddress().String(), VCA.LastBlockHeight())
 			assert.Nil(t, err)
-			n, err := VCA.QueryProvider(kp.GetAddress().String(), VCA.LastBlockHeight())
+			n, err := VCA.QueryRequestor(kp.GetAddress().String(), VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			var newBalance = balance.Sub(sdk.NewInt(100000)).Add(n.StakedTokens)
-			tx, err = providers.StakeTx(memCodec(), memCli, kb, newChains, newGeoZones, 5, newBalance, kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
+			tx, err = requestors.StakeTx(memCodec(), memCli, kb, newChains, newGeoZones, 5, newBalance, kp, "test", tc.upgrades.codecUpgrade.upgradeMod)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			<-evtChan // Wait for tx
-			appUpdated, err := VCA.QueryProvider(kp.GetAddress().String(), VCA.LastBlockHeight())
+			appUpdated, err := VCA.QueryRequestor(kp.GetAddress().String(), VCA.LastBlockHeight())
 			assert.Nil(t, err)
 			// assert not the same as the old node
 			assert.NotEqual(t, appUpdated, n)
@@ -643,14 +643,14 @@ func TestChangeParamsSimpleTx(t *testing.T) {
 			_, _, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 			<-evtChan // Wait for block
 			memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventTx)
-			tx, err := governance.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "provider/StabilityAdjustment", 100, "test", 1000000, false)
+			tx, err := governance.ChangeParamsTx(memCodec(), memCli, kb, cb.GetAddress(), "requestor/StabilityAdjustment", 100, "test", 1000000, false)
 			assert.Nil(t, err)
 			assert.NotNil(t, tx)
 			select {
 			case _ = <-evtChan:
 				//fmt.Println(res)
 				assert.Nil(t, err)
-				o, _ := VCA.QueryParam(VCA.LastBlockHeight(), "provider/StabilityAdjustment")
+				o, _ := VCA.QueryParam(VCA.LastBlockHeight(), "requestor/StabilityAdjustment")
 				assert.Equal(t, "100", o.Value)
 				cleanup()
 				stopCli()
@@ -861,15 +861,15 @@ func TestClaimAminoTx(t *testing.T) {
 				// setup AAT
 				aat := viperTypes.AAT{
 					Version:           "0.0.1",
-					ProviderPublicKey: appPrivateKey.PublicKey().RawString(),
+					RequestorPublicKey: appPrivateKey.PublicKey().RawString(),
 					ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
-					ProviderSignature: "",
+					RequestorSignature: "",
 				}
 				sig, err := appPrivateKey.Sign(aat.Hash())
 				if err != nil {
 					panic(err)
 				}
-				aat.ProviderSignature = hex.EncodeToString(sig)
+				aat.RequestorSignature = hex.EncodeToString(sig)
 				proof := viperTypes.RelayProof{
 					Entropy:            int64(rand.Int()),
 					RequestHash:        hex.EncodeToString(viperTypes.Hash([]byte("fake"))),
@@ -885,7 +885,7 @@ func TestClaimAminoTx(t *testing.T) {
 				}
 				proof.Signature = hex.EncodeToString(sig)
 				viperTypes.SetProof(viperTypes.SessionHeader{
-					ProviderPubKey:     appPrivateKey.PublicKey().RawString(),
+					RequestorPubKey:     appPrivateKey.PublicKey().RawString(),
 					Chain:              sdk.PlaceholderHash,
 					SessionBlockHeight: 1,
 				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000), viperTypes.GlobalEvidenceCache)
@@ -935,15 +935,15 @@ func TestClaimProtoTx(t *testing.T) {
 				// setup AAT
 				aat := viperTypes.AAT{
 					Version:           "0.0.1",
-					ProviderPublicKey: appPrivateKey.PublicKey().RawString(),
+					RequestorPublicKey: appPrivateKey.PublicKey().RawString(),
 					ClientPublicKey:   appPrivateKey.PublicKey().RawString(),
-					ProviderSignature: "",
+					RequestorSignature: "",
 				}
 				sig, err := appPrivateKey.Sign(aat.Hash())
 				if err != nil {
 					panic(err)
 				}
-				aat.ProviderSignature = hex.EncodeToString(sig)
+				aat.RequestorSignature = hex.EncodeToString(sig)
 				proof := viperTypes.RelayProof{
 					Entropy:            int64(rand.Int()),
 					RequestHash:        hex.EncodeToString(viperTypes.Hash([]byte("fake"))),
@@ -959,7 +959,7 @@ func TestClaimProtoTx(t *testing.T) {
 				}
 				proof.Signature = hex.EncodeToString(sig)
 				viperTypes.SetProof(viperTypes.SessionHeader{
-					ProviderPubKey:     appPrivateKey.PublicKey().RawString(),
+					RequestorPubKey:     appPrivateKey.PublicKey().RawString(),
 					Chain:              sdk.PlaceholderHash,
 					SessionBlockHeight: 1,
 				}, viperTypes.RelayEvidence, proof, sdk.NewInt(1000000), viperTypes.GlobalEvidenceCache)
@@ -1058,12 +1058,12 @@ func TestProtoClaimTxChallenge(t *testing.T) {
 
 func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOfChallenges int) (challenge []viperTypes.ChallengeProofInvalidData) {
 
-	providerPrivateKey := privateKeys[1]
+	requestorPrivateKey := privateKeys[1]
 	servicerPrivKey1 := privateKeys[4]
 	servicerPrivKey2 := privateKeys[2]
 	servicerPrivKey3 := privateKeys[3]
 	clientPrivateKey := servicerPrivKey3
-	providerPubKey := providerPrivateKey.PublicKey().RawString()
+	requestorPubKey := requestorPrivateKey.PublicKey().RawString()
 	servicerPubKey := servicerPrivKey1.PublicKey().RawString()
 	servicerPubKey2 := servicerPrivKey2.PublicKey().RawString()
 	servicerPubKey3 := servicerPrivKey3.PublicKey().RawString()
@@ -1081,17 +1081,17 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 			Blockchain:         sdk.PlaceholderHash,
 			Token: viperTypes.AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: providerPubKey,
+				RequestorPublicKey: requestorPubKey,
 				ClientPublicKey:   clientPubKey,
-				ProviderSignature: "",
+				RequestorSignature: "",
 			},
 			Signature: "",
 		}
-		appSignature, er := providerPrivateKey.Sign(validProof.Token.Hash())
+		appSignature, er := requestorPrivateKey.Sign(validProof.Token.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())
 		}
-		validProof.Token.ProviderSignature = hex.EncodeToString(appSignature)
+		validProof.Token.RequestorSignature = hex.EncodeToString(appSignature)
 		clientSignature, er := clientPrivateKey.Sign(validProof.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())
@@ -1106,17 +1106,17 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 			Blockchain:         sdk.PlaceholderHash,
 			Token: viperTypes.AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: providerPubKey,
+				RequestorPublicKey: requestorPubKey,
 				ClientPublicKey:   clientPubKey,
-				ProviderSignature: "",
+				RequestorSignature: "",
 			},
 			Signature: "",
 		}
-		appSignature, er = providerPrivateKey.Sign(validProof2.Token.Hash())
+		appSignature, er = requestorPrivateKey.Sign(validProof2.Token.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())
 		}
-		validProof2.Token.ProviderSignature = hex.EncodeToString(appSignature)
+		validProof2.Token.RequestorSignature = hex.EncodeToString(appSignature)
 		clientSignature, er = clientPrivateKey.Sign(validProof2.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())
@@ -1131,17 +1131,17 @@ func NewValidChallengeProof(t *testing.T, privateKeys []crypto.PrivateKey, numOf
 			Blockchain:         sdk.PlaceholderHash,
 			Token: viperTypes.AAT{
 				Version:           "0.0.1",
-				ProviderPublicKey: providerPubKey,
+				RequestorPublicKey: requestorPubKey,
 				ClientPublicKey:   clientPubKey,
-				ProviderSignature: "",
+				RequestorSignature: "",
 			},
 			Signature: "",
 		}
-		appSignature, er = providerPrivateKey.Sign(validProof3.Token.Hash())
+		appSignature, er = requestorPrivateKey.Sign(validProof3.Token.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())
 		}
-		validProof3.Token.ProviderSignature = hex.EncodeToString(appSignature)
+		validProof3.Token.RequestorSignature = hex.EncodeToString(appSignature)
 		clientSignature, er = clientPrivateKey.Sign(validProof3.Hash())
 		if er != nil {
 			t.Fatalf(er.Error())

@@ -8,7 +8,7 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/rpc"
 	"github.com/vipernet-xyz/viper-network/types"
-	types2 "github.com/vipernet-xyz/viper-network/x/providers/types"
+	types2 "github.com/vipernet-xyz/viper-network/x/requestors/types"
 
 	"github.com/vipernet-xyz/viper-network/app"
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
@@ -492,8 +492,8 @@ func init() {
 }
 
 var queryClients = &cobra.Command{
-	Use:   "providers [--staking-status=<servicerStakingStatus>] [--clientPage=<clientPage>] [--servicerLimit=<servicerLimit>] [<height>]",
-	Short: "Gets providers",
+	Use:   "requestors [--staking-status=<servicerStakingStatus>] [--clientPage=<clientPage>] [--servicerLimit=<servicerLimit>] [<height>]",
+	Short: "Gets requestors",
 	Long:  `Retrieves the list of all clients known at the specified <height>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
@@ -508,7 +508,7 @@ var queryClients = &cobra.Command{
 				return
 			}
 		}
-		opts := types2.QueryProvidersWithOpts{
+		opts := types2.QueryRequestorsWithOpts{
 			Blockchain: blockchain,
 			Page:       clientPage,
 			Limit:      clientLimit,
@@ -523,7 +523,7 @@ var queryClients = &cobra.Command{
 				fmt.Println(fmt.Errorf("unkown staking status <staked or unstaking>"))
 			}
 		}
-		params := rpc.HeightAndProviderOptsParams{
+		params := rpc.HeightAndRequestorOptsParams{
 			Height: int64(height),
 			Opts:   opts,
 		}
@@ -532,7 +532,7 @@ var queryClients = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		res, err := QueryRPC(GetProvidersPath, j)
+		res, err := QueryRPC(GetRequestorsPath, j)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -568,7 +568,7 @@ var queryClient = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		res, err := QueryRPC(GetProviderPath, j)
+		res, err := QueryRPC(GetRequestorPath, j)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -602,7 +602,7 @@ var queryClientParams = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		res, err := QueryRPC(GetProviderParamsPath, j)
+		res, err := QueryRPC(GetRequestorParamsPath, j)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -649,7 +649,7 @@ var queryServicerClaims = &cobra.Command{
 }
 
 var queryServicerClaim = &cobra.Command{
-	Use:   "servicer-claim <address> <providerPubKey> <claimType=(relay | challenge)> <relayChainID> <sessionHeight> [<height>]`",
+	Use:   "servicer-claim <address> <requestorPubKey> <claimType=(relay | challenge)> <relayChainID> <sessionHeight> [<height>]`",
 	Short: "Gets servicer pending claim for work completed",
 	Long:  `Gets servicer pending claim for verified proof of work submitted for a specific session`,
 	Args:  cobra.MinimumNArgs(5),
@@ -672,12 +672,12 @@ var queryServicerClaim = &cobra.Command{
 			return
 		}
 		params := rpc.QueryNodeReceiptParam{
-			Address:        args[0],
-			Blockchain:     args[3],
-			ProviderPubkey: args[1],
-			SBlockHeight:   int64(sessionheight),
-			Height:         int64(height),
-			ReceiptType:    args[2],
+			Address:         args[0],
+			Blockchain:      args[3],
+			RequestorPubkey: args[1],
+			SBlockHeight:    int64(sessionheight),
+			Height:          int64(height),
+			ReceiptType:     args[2],
 		}
 		j, err := json.Marshal(params)
 		if err != nil {

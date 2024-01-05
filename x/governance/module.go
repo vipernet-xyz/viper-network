@@ -42,7 +42,7 @@ func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 // ValidateGenesis module validate genesis
 func (AppModuleBasic) ValidateGenesis(_ json.RawMessage) error { return nil }
 
-// AppModule implements an provider module for the staking module.
+// AppModule implements an requestor module for the staking module.
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper

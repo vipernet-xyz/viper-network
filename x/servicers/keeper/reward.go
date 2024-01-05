@@ -5,12 +5,12 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	providersTypes "github.com/vipernet-xyz/viper-network/x/providers/types"
+	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
-	viperTypes "github.com/vipernet-xyz/viper-network/x/vipernet/types"
+	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
-func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitReportCard, relays sdk.BigInt, address sdk.Address, provider providersTypes.Provider) sdk.BigInt {
+func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitReportCard, relays sdk.BigInt, address sdk.Address, requestor requestorsTypes.Requestor) sdk.BigInt {
 	_, found := k.GetValidator(ctx, address)
 	if !found {
 		ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", address.String(), ctx.BlockHeight()).Error())
@@ -39,8 +39,8 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 	r, _ := sdk.NewDecFromStr(relays.String())
 	coins := trf.Mul(r).Mul(totalScore).RoundInt()
 
-	// Validate provider and mint rewards accordingly
-	if !k.GovKeeper.HasDiscountKey(ctx, provider.GetAddress()) {
+	// Validate requestor and mint rewards accordingly
+	if !k.GovKeeper.HasDiscountKey(ctx, requestor.GetAddress()) {
 		toNode, toFeeCollector := k.NodeReward01(ctx, coins)
 		if toNode.IsPositive() {
 			k.mint(ctx, toNode, address)
@@ -48,17 +48,17 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 		if toFeeCollector.IsPositive() {
 			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
 		}
-		toProvider := k.ProviderReward(ctx, coins)
-		if toProvider.IsPositive() {
-			k.mint(ctx, toProvider, k.GovKeeper.GetDAOAccount(ctx).GetAddress())
+		toRequestor := k.RequestorReward(ctx, coins)
+		if toRequestor.IsPositive() {
+			k.mint(ctx, toRequestor, k.GovKeeper.GetDAOAccount(ctx).GetAddress())
 		}
 		toFishermen := k.FishermenReward(ctx, coins)
 		if toFishermen.IsPositive() {
 			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
 		}
-		maxFreeTierRelays := sdk.NewInt(k.ProviderKeeper.MaxFreeTierRelaysPerSession(ctx))
+		maxFreeTierRelays := sdk.NewInt(k.RequestorKeeper.MaxFreeTierRelaysPerSession(ctx))
 		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
-			k.burn(ctx, coins, provider)
+			k.burn(ctx, coins, requestor)
 		}
 	} else {
 		toNode, toFeeCollector := k.NodeReward02(ctx, coins)
@@ -68,18 +68,18 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 		if toFeeCollector.IsPositive() {
 			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
 		}
-		toProvider := k.ProviderReward(ctx, coins)
-		if toProvider.IsPositive() {
-			k.mint(ctx, toProvider, provider.Address)
+		toRequestor := k.RequestorReward(ctx, coins)
+		if toRequestor.IsPositive() {
+			k.mint(ctx, toRequestor, requestor.Address)
 		}
 		toFishermen := k.FishermenReward(ctx, coins)
 		if toFishermen.IsPositive() {
 			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
 		}
-		maxFreeTierRelays := sdk.NewInt(k.ProviderKeeper.MaxFreeTierRelaysPerSession(ctx))
+		maxFreeTierRelays := sdk.NewInt(k.RequestorKeeper.MaxFreeTierRelaysPerSession(ctx))
 
 		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
-			k.burn(ctx, coins, provider)
+			k.burn(ctx, coins, requestor)
 		}
 		return toNode
 	}
@@ -142,40 +142,40 @@ func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Re
 	}
 }
 
-func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, provider providersTypes.Provider) (sdk.Result, sdk.Error) {
+func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.Requestor) (sdk.Result, sdk.Error) {
 	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
-	if burnErr := k.AccountKeeper.BurnCoins(ctx, providersTypes.StakedPoolName, coins); burnErr != nil {
+	if burnErr := k.AccountKeeper.BurnCoins(ctx, requestorsTypes.StakedPoolName, coins); burnErr != nil {
 		ctx.Logger().Error(fmt.Sprintf("unable to burn tokens, at height %d: %s", ctx.BlockHeight(), burnErr.Error()))
 		return sdk.Result{}, burnErr
 	}
 
 	// Calculate tokens to burn
-	tokensToBurn := sdk.MinInt(amount, provider.StakedTokens)
+	tokensToBurn := sdk.MinInt(amount, requestor.StakedTokens)
 	tokensToBurn = sdk.MaxInt(tokensToBurn, sdk.ZeroInt()) // defensive.
 
-	// Update provider's staked tokens
-	provider, err := provider.RemoveStakedTokens(tokensToBurn)
+	// Update requestor's staked tokens
+	requestor, err := requestor.RemoveStakedTokens(tokensToBurn)
 	if err != nil {
 		return sdk.Result{}, sdk.ErrInternal(err.Error())
 	}
 
-	// Reset provider relays
-	provider.MaxRelays = k.ProviderKeeper.CalculateProviderRelays(ctx, provider)
+	// Reset requestor relays
+	requestor.MaxRelays = k.RequestorKeeper.CalculateRequestorRelays(ctx, requestor)
 
-	// Update provider in the store
-	k.ProviderKeeper.SetProvider(ctx, provider)
+	// Update requestor in the store
+	k.RequestorKeeper.SetRequestor(ctx, requestor)
 
 	// If falls below minimum, force unstake
-	if provider.GetTokens().LT(sdk.NewInt(k.ProviderKeeper.MinimumStake(ctx))) {
-		if err := k.ProviderKeeper.ForceProviderUnstake(ctx, provider); err != nil {
-			logString := fmt.Sprintf("could not force unstake: %s for provider %s", err.Error(), provider.Address.String())
+	if requestor.GetTokens().LT(sdk.NewInt(k.RequestorKeeper.MinimumStake(ctx))) {
+		if err := k.RequestorKeeper.ForceRequestorUnstake(ctx, requestor); err != nil {
+			logString := fmt.Sprintf("could not force unstake: %s for requestor %s", err.Error(), requestor.Address.String())
 			k.Logger(ctx).Error(logString)
 			return sdk.Result{}, sdk.ErrInternal(logString)
 		}
 	}
 
-	// Log the amount of tokens burned and provider's address
-	logString := fmt.Sprintf("an amount of %s tokens was burned from %s", amount.String(), provider.Address.String())
+	// Log the amount of tokens burned and requestor's address
+	logString := fmt.Sprintf("an amount of %s tokens was burned from %s", amount.String(), requestor.Address.String())
 	k.Logger(ctx).Info(logString)
 
 	return sdk.Result{
@@ -209,12 +209,12 @@ func (k Keeper) SetPreviousProposer(ctx sdk.Ctx, consAddr sdk.Address) {
 	_ = store.Set(types.ProposerKey, b)
 }
 
-// GetProviderKey - Retrieve the provider key
-func (k Keeper) GetProvider(ctx sdk.Ctx) (addr sdk.Address) {
+// GetRequestorKey - Retrieve the requestor key
+func (k Keeper) GetRequestor(ctx sdk.Ctx) (addr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
-	b, _ := store.Get(providersTypes.AllProvidersKey)
+	b, _ := store.Get(requestorsTypes.AllRequestorsKey)
 	if b == nil {
-		k.Logger(ctx).Error("Provider not set")
+		k.Logger(ctx).Error("Requestor not set")
 		return nil
 		//os.Exit(1)
 	}
@@ -223,12 +223,12 @@ func (k Keeper) GetProvider(ctx sdk.Ctx) (addr sdk.Address) {
 
 }
 
-// SetProviderKey -  Store provider public key for this block
-func (k Keeper) SetProviderKey(ctx sdk.Ctx, consAddr sdk.Address) {
+// SetRequestorKey -  Store requestor public key for this block
+func (k Keeper) SetRequestorKey(ctx sdk.Ctx, consAddr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
 	b, err := k.Cdc.MarshalBinaryLengthPrefixed(&consAddr)
 	if err != nil {
 		panic(err)
 	}
-	_ = store.Set(providersTypes.AllProvidersKey, b)
+	_ = store.Set(requestorsTypes.AllRequestorsKey, b)
 }

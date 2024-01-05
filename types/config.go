@@ -37,7 +37,7 @@ type ViperConfig struct {
 	RemoteCLIURL               string `json:"remote_cli_url"`
 	UserAgent                  string `json:"user_agent"`
 	ValidatorCacheSize         int64  `json:"validator_cache_size"`
-	ProviderCacheSize          int64  `json:"application_cache_size"`
+	RequestorCacheSize         int64  `json:"application_cache_size"`
 	RPCTimeout                 int64  `json:"rpc_timeout"`
 	PrometheusAddr             string `json:"viper_prometheus_port"`
 	PrometheusMaxOpenfiles     int    `json:"prometheus_max_open_files"`
@@ -101,7 +101,7 @@ const (
 	DefaultTxIndexTags                 = "tx.hash,tx.height,message.sender,transfer.recipient"
 	ConfigDirName                      = "config"
 	ConfigFileName                     = "config.json"
-	ProviderDBName                     = "application"
+	RequestorDBName                    = "application"
 	TransactionIndexerDBName           = "txindexer"
 	PlaceholderHash                    = "0001"
 	PlaceholderGeoZone                 = "0000"
@@ -110,7 +110,7 @@ const (
 	DefaultRemoteCLIURL                = "http://localhost:8081"
 	DefaultUserAgent                   = ""
 	DefaultValidatorCacheSize          = 40000
-	DefaultProviderCacheSize           = DefaultValidatorCacheSize / 4
+	DefaultRequestorCacheSize          = DefaultValidatorCacheSize / 4
 	DefaultViperPrometheusListenAddr   = "8083"
 	DefaultPrometheusMaxOpenFile       = 3
 	DefaultRPCTimeout                  = 30000
@@ -149,7 +149,7 @@ func DefaultConfig(dataDir string) Config {
 			RemoteCLIURL:             DefaultRemoteCLIURL,
 			UserAgent:                DefaultUserAgent,
 			ValidatorCacheSize:       DefaultValidatorCacheSize,
-			ProviderCacheSize:        DefaultProviderCacheSize,
+			RequestorCacheSize:       DefaultRequestorCacheSize,
 			RPCTimeout:               DefaultRPCTimeout,
 			PrometheusAddr:           DefaultViperPrometheusListenAddr,
 			PrometheusMaxOpenfiles:   DefaultPrometheusMaxOpenFile,
