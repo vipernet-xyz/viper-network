@@ -739,7 +739,7 @@ func (k Keeper) ValidateUnpauseNodeMessage(ctx sdk.Ctx, msg types.MsgUnpause) (a
 		return nil, types.ErrNoValidatorForAddress(k.Codespace())
 	}
 
-	//Check msg Signature (assuming you want to check the signer's authenticity)
+	//Check msg Signature
 	err, valid := ValidateValidatorMsgSigner(validator, msg.Signer, k)
 	if !valid {
 		return nil, err

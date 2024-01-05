@@ -35,7 +35,7 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 	randIndex := rand.Intn(len(relayPool.Payloads))
 	samplePayload := relayPool.Payloads[randIndex]
 
-	//Create a RelayMeta and RelayProof, assuming you can derive the required details for these
+	//Create a RelayMeta and RelayProof
 	relayMeta := &RelayMeta{
 		BlockHeight: trigger.Proof.SessionBlockHeight,
 	}
@@ -62,7 +62,6 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 		return nil, err
 	}
 	relayer := NewRelayer(*signer, *sender)
-	// Assuming a function like getSignedProofBytes exists in the current scope
 	signedProofBytes, err := relayer.getSignedProofBytes(&RelayProof{
 		RequestHash:        reqHash,
 		Entropy:            entropy.Int64(),

@@ -134,13 +134,13 @@ func UpdateGeoZones(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		}
 		m := make(map[string]types.GeoZone)
 		for _, zone := range hostedGeoZoneSlice {
-			if err := servicersTypes.ValidateGeoZone(zone.ID); err != nil { // assuming you have a similar validation function
+			if err := servicersTypes.ValidateGeoZone(zone.ID); err != nil {
 				WriteErrorResponse(w, 400, fmt.Sprintf("invalid ID: %s in geo zone identifier in json", zone.ID))
 				return
 			}
 			m[zone.ID] = zone
 		}
-		result, err := app.VCA.SetHostedGeoZone(m) // assuming you have a similar setter function
+		result, err := app.VCA.SetHostedGeoZone(m)
 		if err != nil {
 			WriteErrorResponse(w, 400, err.Error())
 		} else {

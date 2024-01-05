@@ -195,7 +195,6 @@ func processResult(ctx sdk.Ctx, signer sdk.Address, header types.SessionHeader, 
 		availabilityScoreFloat64 := bigDecToFloat64(reportCard.AvailabilityScore)
 		reliabilityScoreFloat64 := bigDecToFloat64(reportCard.ReliabilityScore)
 
-		// Assuming you want to add a metric based on the report card
 		if types.GlobalViperConfig.LeanViper {
 			go types.GlobalServiceMetric().AddReportCardMetric(
 				header.Chain,

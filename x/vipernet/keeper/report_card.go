@@ -183,7 +183,7 @@ func (k Keeper) SetReportCard(ctx sdk.Ctx, msg vc.MsgSubmitReportCard) error {
 	// retrieve the store
 	store := ctx.KVStore(k.storeKey)
 
-	// generate the store key for the report card. Here, I'm assuming a function `KeyForReportCard` similar to `KeyForClaim`.
+	// generate the store key for the report card
 	key, err := vc.KeyForReportCard(ctx, msg.ServicerAddress, msg.SessionHeader)
 	if err != nil {
 		return err

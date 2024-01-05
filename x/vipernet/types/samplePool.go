@@ -13,7 +13,7 @@ import (
 // SamplePool - An object that represents a sample pool for a blockchain
 type SamplePool struct {
 	Blockchain string         `json:"blockchain"`
-	Payloads   []RelayPayload `json:"payloads"` // Assuming RelayPayload is your payload structure
+	Payloads   []RelayPayload `json:"payloads"`
 }
 
 // SamplePools - An object that represents the sample pools hosted

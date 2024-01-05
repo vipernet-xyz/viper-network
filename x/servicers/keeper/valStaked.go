@@ -175,7 +175,6 @@ func (k Keeper) GetValidatorsByGeoZone(ctx sdk.Ctx, geoZone string) (validators 
 	l, exist := sdk.VbGZCache.Get(sdk.GetCacheKey(int(ctx.BlockHeight()), geoZone))
 
 	if !exist {
-		// Assuming the geozone is a hex-encoded string, you can decode it
 		gBz, err := hex.DecodeString(geoZone)
 		if err != nil {
 			ctx.Logger().Error(fmt.Errorf("could not hex decode geozone when GetValidatorsByGeozone: with geoZone: %s, at height: %d", geoZone, ctx.BlockHeight()).Error())

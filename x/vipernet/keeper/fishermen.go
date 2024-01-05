@@ -81,7 +81,6 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger,
 		return sdk.ErrInternal(er.Error())
 	}
 	session, found := vc.GetSession(sessionHeader, vc.GlobalSessionCache)
-	fmt.Println("ss:", session.SessionServicers)
 	if !found {
 		return sdk.ErrInternal("Session not found")
 	}
@@ -289,7 +288,6 @@ func CalculateLatencyScores(results map[string]*vc.ServicerResults) map[string]s
 		} else {
 			// Assign scores inversely proportional to rank
 			score := sdk.NewDec(int64(maxRank - rank + 1)).Quo(sdk.NewDec(int64(maxRank)))
-			fmt.Println("Servicer:", servicerAddr, "Score:", score)
 			latencyScores[servicerAddr] = score
 		}
 	}

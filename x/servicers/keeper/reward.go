@@ -22,7 +22,6 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 		return sdk.ZeroInt()
 	}
 
-	// Assuming QoS scores are pre-calculated and equal to or below 1
 	latencyScore := reportCard.Report.LatencyScore
 	availabilityScore := reportCard.Report.AvailabilityScore
 	reliabilityScore := reportCard.Report.ReliabilityScore

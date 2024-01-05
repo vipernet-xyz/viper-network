@@ -41,7 +41,7 @@ func (k Keeper) SlashFisherman(ctx sdk.Ctx, height int64, address sdk.Address) {
 }
 
 func (k Keeper) BurnforNoActivity(ctx sdk.Ctx, height int64, addr sdk.Address) {
-	// Assuming the address provided is the validator's delegator address. If it's a ConsensusAddr, you might need to convert it first.
+
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
 		ctx.Logger().Error("Validator not found: " + addr.String() + fmt.Sprintf(" at height: %d", ctx.BlockHeight()))
