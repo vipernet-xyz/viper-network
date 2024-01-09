@@ -16,7 +16,7 @@ import (
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
-func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI) (*Output, error) {
+func SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI) (*Output, error) {
 
 	// First, we will ensure SampleRelayPools is loaded
 	err := LoadSampleRelayPool()
@@ -37,7 +37,7 @@ func SendSampleRelay(Blockchain string, trigger FishermenTrigger, servicer expor
 
 	//Create a RelayMeta and RelayProof
 	relayMeta := &RelayMeta{
-		BlockHeight: trigger.Proof.SessionBlockHeight,
+		BlockHeight: blockHeight,
 	}
 
 	//Hash the request
