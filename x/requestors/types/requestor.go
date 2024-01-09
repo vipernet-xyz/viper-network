@@ -55,11 +55,13 @@ func (a Requestor) ConsensusPower() int64 {
 // RemoveStakedTokens removes tokens from a requestor
 func (a Requestor) RemoveStakedTokens(tokens sdk.BigInt) (Requestor, error) {
 	if tokens.IsNegative() {
-		return Requestor{}, fmt.Errorf("should not happen: trying to remove negative tokens %v", tokens)
+		return Requestor{}, fmt.Errorf("negative token amount: %v", tokens)
 	}
+
 	if a.StakedTokens.LT(tokens) {
-		return Requestor{}, fmt.Errorf("should not happen: only have %v tokens, trying to remove %v", a.StakedTokens, tokens)
+		return Requestor{}, fmt.Errorf("insufficient staked tokens: have %v, trying to remove %v", a.StakedTokens, tokens)
 	}
+
 	a.StakedTokens = a.StakedTokens.Sub(tokens)
 	return a, nil
 }

@@ -88,6 +88,7 @@ func (k Keeper) BurnCoins(ctx sdk.Ctx, moduleName string, amt sdk.Coins) sdk.Err
 
 	// create the account if it doesn't yet exist
 	acc := k.GetModuleAccount(ctx, moduleName)
+	fmt.Println("bac:", acc.GetAddress())
 	if acc == nil {
 		return sdk.ErrUnknownAddress(fmt.Sprintf("module account %s does not exist", moduleName))
 	}
@@ -151,7 +152,7 @@ func (k Keeper) SubtractCoins(ctx sdk.Ctx, addr sdk.Address, amt sdk.Coins) (sdk
 		oldCoins = acc.GetCoins()
 		spendableCoins = acc.SpendableCoins(ctx.BlockHeader().Time)
 	}
-
+	//fmt.Println("acc:", acc.GetAddress())
 	// For non-vesting accounts, spendable coins will simply be the original coins.
 	// So the check here is sufficient instead of subtracting from oldCoins.
 	_, hasNeg := spendableCoins.SafeSub(amt)

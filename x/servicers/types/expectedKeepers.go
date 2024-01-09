@@ -30,6 +30,8 @@ type AuthKeeper interface {
 	MintCoins(ctx sdk.Ctx, moduleName string, amt sdk.Coins) sdk.Error
 	// burn coins
 	BurnCoins(ctx sdk.Ctx, name string, amt sdk.Coins) sdk.Error
+	//subtract coins
+	SubtractCoins(ctx sdk.Ctx, addr sdk.Address, amt sdk.Coins) (sdk.Coins, sdk.Error)
 	// iterate accounts
 	IterateAccounts(ctx sdk.Ctx, process func(authexported.Account) (stop bool))
 	// get coins
@@ -81,6 +83,7 @@ type RequestorsKeeper interface {
 	LegacyForceRequestorUnstake(ctx sdk.Ctx, requestor requestorsType.Requestor) sdk.Error
 	MinimumStake(ctx sdk.Ctx) (res int64)
 	SetRequestor(ctx sdk.Ctx, requestor requestorsType.Requestor)
+	GetRequestor(ctx sdk.Ctx, addr sdk.Address) (requestor requestorsType.Requestor, found bool)
 	BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64)
 	MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64)
 }

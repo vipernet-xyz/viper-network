@@ -116,6 +116,62 @@ func TestMint(t *testing.T) {
 	}
 }
 
+func TestBurn(t *testing.T) {
+	requestor := getStakedRequestor()
+
+	tests := []struct {
+		name      string
+		amount    sdk.BigInt
+		expected  string
+		requestor requestorsTypes.Requestor
+		panics    bool
+	}{
+		{
+			name:      "burns a coin",
+			amount:    sdk.NewInt(90),
+			expected:  "an amount of ",
+			requestor: requestor,
+			panics:    false,
+		},
+		{
+			name:      "errors invalid amount of coins",
+			amount:    sdk.NewInt(-1),
+			expected:  "negative coin amount: -1",
+			requestor: requestor,
+			panics:    true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, keeper := createTestInput(t, true)
+
+			// Set the requestor in the keeper
+			keeper.RequestorKeeper.SetRequestor(ctx, test.requestor)
+
+			switch test.panics {
+			case true:
+				defer func() {
+					if r := recover(); r != nil {
+						err, ok := r.(error)
+						assert.True(t, ok, "panic value is not an error")
+						assert.Contains(t, err.Error(), test.expected, "error does not match")
+					}
+				}()
+				_, _ = keeper.burn(ctx, test.amount, test.requestor)
+			default:
+				result, err := keeper.burn(ctx, test.amount, test.requestor)
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				assert.Contains(t, result.Log, test.expected, "does not contain message")
+				updatedRequestor, _ := keeper.RequestorKeeper.GetRequestor(ctx, test.requestor.Address)
+				expectedTokens := sdk.MaxInt(sdk.NewInt(0), requestor.StakedTokens.Sub(test.amount))
+				assert.True(t, expectedTokens.Equal(updatedRequestor.StakedTokens), "tokens should match")
+			}
+		})
+	}
+}
+
 func TestKeeper_rewardFromFees(t *testing.T) {
 	type fields struct {
 		keeper Keeper
@@ -132,7 +188,7 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 	stakedValidator := getStakedValidator()
 	stakedRequestor := getStakedRequestor()
 	stakedValidator.OutputAddress = getRandomValidatorAddress()
-	stakedRequestor.Address = getRandomApplicationAddress()
+	stakedRequestor.Address = getRandomRequestorAddress()
 	codec.TestMode = -3
 	amount := sdk.NewInt(10000)
 	fees := sdk.NewCoins(sdk.NewCoin("uvipr", amount))
@@ -171,7 +227,7 @@ func TestKeeper_rewardFromFees(t *testing.T) {
 
 }
 
-func getRandomApplicationAddress() sdk.Address {
+func getRandomRequestorAddress() sdk.Address {
 	return sdk.Address(getRandomPubKey().Address())
 }
 

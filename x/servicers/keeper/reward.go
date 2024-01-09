@@ -142,28 +142,21 @@ func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Re
 	}
 }
 
-func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.Requestor) (sdk.Result, sdk.Error) {
-	coins := sdk.NewCoins(sdk.NewCoin(k.StakeDenom(ctx), amount))
-	if burnErr := k.AccountKeeper.BurnCoins(ctx, requestorsTypes.StakedPoolName, coins); burnErr != nil {
+// MintRate = (total supply * inflation rate) / (30 day avg. of daily relays * 365 days)
+
+// "burn" - takes an amount and burns it
+func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.Requestor) (sdk.Result, error) {
+	// Burn coins from requestor account
+	r, burnErr := requestor.RemoveStakedTokens(amount)
+	if burnErr != nil {
 		ctx.Logger().Error(fmt.Sprintf("unable to burn tokens, at height %d: %s", ctx.BlockHeight(), burnErr.Error()))
 		return sdk.Result{}, burnErr
 	}
-
-	// Calculate tokens to burn
-	tokensToBurn := sdk.MinInt(amount, requestor.StakedTokens)
-	tokensToBurn = sdk.MaxInt(tokensToBurn, sdk.ZeroInt()) // defensive.
-
-	// Update requestor's staked tokens
-	requestor, err := requestor.RemoveStakedTokens(tokensToBurn)
-	if err != nil {
-		return sdk.Result{}, sdk.ErrInternal(err.Error())
-	}
-
 	// Reset requestor relays
-	requestor.MaxRelays = k.RequestorKeeper.CalculateRequestorRelays(ctx, requestor)
+	r.MaxRelays = k.RequestorKeeper.CalculateRequestorRelays(ctx, requestor)
 
 	// Update requestor in the store
-	k.RequestorKeeper.SetRequestor(ctx, requestor)
+	k.RequestorKeeper.SetRequestor(ctx, r)
 
 	// If falls below minimum, force unstake
 	if requestor.GetTokens().LT(sdk.NewInt(k.RequestorKeeper.MinimumStake(ctx))) {
@@ -182,8 +175,6 @@ func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.R
 		Log: logString,
 	}, nil
 }
-
-// MintRate = (total supply * inflation rate) / (30 day avg. of daily relays * 365 days)
 
 // GetPreviousProposer - Retrieve the proposer public key for this block
 func (k Keeper) GetPreviousProposer(ctx sdk.Ctx) (addr sdk.Address) {
