@@ -2,7 +2,6 @@ package vipernet
 
 import (
 	"encoding/hex"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -43,7 +42,6 @@ func TestAppModule_InitExportGenesis(t *testing.T) {
 	err = types.ModuleCdc.UnmarshalJSON(genesisbz, &genesis)
 	assert.Nil(t, err)
 	assert.Equal(t, genesis, genesisState)
-	fmt.Println("g:", genesis, "gs:", genesisState)
 	pm.InitGenesis(ctx, nil)
 	var genesis2 types.GenesisState
 	genesis2.Params.BlockByteSize = 8000000
