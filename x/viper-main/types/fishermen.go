@@ -16,17 +16,17 @@ import (
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
-func SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI) (*Output, error) {
+func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI) (*Output, error) {
 
 	// First, we will ensure SampleRelayPools is loaded
-	err := LoadSampleRelayPool()
+	pools, err := LoadSampleRelayPool()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to load SampleRelayPools: %v", err)
+		return nil, fmt.Errorf("failed to load SampleRelayPools: %v", err)
 	}
 
 	start := time.Now()
 	//Get the appropriate relay pool for the blockchain
-	relayPool, exists := SampleRelayPools[Blockchain]
+	relayPool, exists := pools[Blockchain]
 	if !exists {
 		return nil, fmt.Errorf("no relay pool found for blockchain: %s", Blockchain)
 	}
@@ -55,14 +55,7 @@ func SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrig
 		return nil, err
 	}
 
-	rpcURL := fishermanValidator.GetServiceURL()
-	sender := NewSender(rpcURL)
-	signer, err := NewSigner(fishermanValidator)
-	if err != nil {
-		return nil, err
-	}
-	relayer := NewRelayer(*signer, *sender)
-	signedProofBytes, err := relayer.getSignedProofBytes(&RelayProof{
+	signedProofBytes, err := r.getSignedProofBytes(&RelayProof{
 		RequestHash:        reqHash,
 		Entropy:            entropy.Int64(),
 		SessionBlockHeight: relayMeta.BlockHeight,
@@ -93,7 +86,7 @@ func SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrig
 		},
 	}
 	// Send the relay to the servicer and measure its latency
-	relayOutput, err := sender.Relay(servicer.GetServiceURL(), relay)
+	relayOutput, err := r.sender.Relay(servicer.GetServiceURL(), relay)
 	servicerLatency := time.Since(start)
 
 	if err != nil {
@@ -107,14 +100,14 @@ func SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrig
 	if samplePayload.Method == "GET" {
 		c := make(chan struct{}, 1)
 		go func() {
-			localResp, err = sender.localRelay(fishermanValidator.GetServiceURL(), relay)
+			localResp, err = r.sender.localRelay(fishermanValidator.GetServiceURL(), relay)
 			c <- struct{}{}
 		}()
 
 		select {
 		case <-c:
 			if err != nil {
-				return nil, fmt.Errorf("Failed to execute relay internally within fisherman: %s", err.Error())
+				return nil, fmt.Errorf("failed to execute relay internally within fisherman: %s", err.Error())
 			}
 
 			if relayOutput.Response != localResp.Response {

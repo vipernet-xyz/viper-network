@@ -160,9 +160,14 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger,
 			case <-ticker.C:
 
 				for _, servicer := range actualServicers {
+					rpcURL := fishermanValidator.GetServiceURL()
+					sender := vc.NewSender(rpcURL)
+					signer, err := vc.NewSigner(fishermanValidator)
+
+					relayer := vc.NewRelayer(*signer, *sender)
 					startTime := time.Now()
 					Blockchain := trigger.Proof.Blockchain
-					resp, err := vc.SendSampleRelay(ctx.BlockHeight(), Blockchain, trigger, servicer, fishermanValidator)
+					resp, err := relayer.SendSampleRelay(ctx.BlockHeight(), Blockchain, trigger, servicer, fishermanValidator)
 
 					latency := resp.Latency
 					isAvailable := err == nil && resp.Proof.Signature != ""

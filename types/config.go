@@ -126,6 +126,8 @@ const (
 	DefaultGenerateTokenOnStart        = true
 	DefaultLeanViper                   = false
 	DefaultLeanViperUserKeyFileName    = "lean_nodes_keys.json"
+	DefaultSamplePoolName              = "samplepool.json"
+	DefaultSamplePoolHotReload         = false
 )
 
 func DefaultConfig(dataDir string) Config {
@@ -165,6 +167,8 @@ func DefaultConfig(dataDir string) Config {
 			LeanViper:                DefaultLeanViper,
 			LeanViperUserKeyFileName: DefaultLeanViperUserKeyFileName,
 			GeoZonesHotReload:        DefaultGeoZoneHotReload,
+			SamplePoolName:           DefaultSamplePoolName,
+			SamplePoolHotReload:      DefaultSamplePoolHotReload,
 		},
 	}
 	c.TendermintConfig.LevelDBOptions = config.DefaultLevelDBOpts()

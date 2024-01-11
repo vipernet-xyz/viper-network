@@ -5,9 +5,11 @@ import (
 	"crypto/cipher"
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -65,10 +67,19 @@ func getAESGCMValues(password, saltBytes []byte) ([]byte, cipher.AEAD, error) {
 func (s *Signer) Sign(payload []byte) (string, error) {
 	decodedKey, err := hex.DecodeString(s.privateKey)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error decoding private key: %v", err)
 	}
 
-	return hex.EncodeToString(ed25519.Sign(decodedKey, payload)), nil
+	if len(decodedKey) != ed25519.PrivateKeySize {
+		return "", fmt.Errorf("invalid private key length")
+	}
+
+	signature := ed25519.Sign(decodedKey, payload)
+	if len(signature) != ed25519.SignatureSize {
+		return "", fmt.Errorf("invalid signature length")
+	}
+
+	return hex.EncodeToString(signature), nil
 }
 
 // SignBytes returns a signed request as raw bytes
@@ -94,6 +105,25 @@ func (s *Signer) GetPublicKey() string {
 // GetPrivateKey returns private key value
 func (s *Signer) GetPrivateKey() string {
 	return s.privateKey
+}
+
+// NewRandomSigner returns a Signer with random keys
+func NewRandomSigner() (*Signer, error) {
+	publicKey, privateKey, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	address, err := GetAddressFromDecodedPublickey(publicKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Signer{
+		address:    address,
+		publicKey:  hex.EncodeToString(publicKey),
+		privateKey: hex.EncodeToString(privateKey),
+	}, nil
 }
 
 // Account holds an account's data
@@ -176,4 +206,15 @@ func NewSigner(validator exported.ValidatorI) (*Signer, error) {
 		publicKey:  validator.GetPublicKey().String(),
 		privateKey: selfValidator.PrivateKey.String(),
 	}, nil
+}
+
+func GetAddressFromDecodedPublickey(decodedKey []byte) (string, error) {
+	hasher := sha256.New()
+
+	_, err := hasher.Write(decodedKey)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hasher.Sum(nil))[0:40], nil
 }

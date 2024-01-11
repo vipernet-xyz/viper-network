@@ -1441,7 +1441,7 @@ func HotReloadSamplePools(samplePools *types.SamplePools) {
 }
 
 func NewSamplePools(generate bool) *types.SamplePools {
-	var samplePoolsPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + "samplepool.json"
+	var samplePoolsPath = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.SamplePoolName
 	var jsonFile *os.File
 	var bz []byte
 
@@ -1546,41 +1546,72 @@ func DeleteHostedSamplePool() {
 	}
 }
 
+func NewInvalidSamplePoolError(err error) error {
+	return fmt.Errorf("Invalid Sample Pool: %v", err)
+}
+
 func createMissingSamplePoolJson(samplePoolPath string) {
 	jsonFile, err := os.OpenFile(samplePoolPath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		log2.Fatal(NewInvalidSamplePoolError(err))
 	}
 
-	var samplePoolSlice []types.SamplePool
-
-	// Define a common Ethereum relay payload
-	ethSamplePayload := &types.RelayPayload{
-		Data:    "0x12345678", // Dummy data
-		Method:  "eth_call",
-		Path:    "/",
-		Headers: types.RelayHeaders{},
+	// Define Ethereum sample payloads
+	ethSamplePayloads := []*types.RelayPayload{
+		{
+			Data:    "eth_sample_data_1",
+			Method:  "GET",
+			Path:    "/eth/api/v1/sample",
+			Headers: types.RelayHeaders{"Content-Type": "application/json"},
+		},
+		{
+			Data:    "eth_sample_data_2",
+			Method:  "POST",
+			Path:    "/eth/api/v1/sample",
+			Headers: types.RelayHeaders{"Content-Type": "application/json"},
+		},
 	}
 
-	// Add this payload to Ethereum's sample pool
-	ethSamplePool := types.SamplePool{
-		Blockchain: "0002", // Ethereum
-		Payloads:   []types.RelayPayload{*ethSamplePayload},
+	// Define Solana sample payloads
+	solSamplePayloads := []*types.RelayPayload{
+		{
+			Data:    "sol_sample_data_1",
+			Method:  "GET",
+			Path:    "/sol/api/v1/sample",
+			Headers: types.RelayHeaders{"Content-Type": "application/json"},
+		},
+		{
+			Data:    "sol_sample_data_2",
+			Method:  "POST",
+			Path:    "/sol/api/v1/sample",
+			Headers: types.RelayHeaders{"Content-Type": "application/json"},
+		},
 	}
 
-	samplePoolSlice = append(samplePoolSlice, ethSamplePool)
+	// Create the sample pool map with numeric identifiers as keys
+	samplePoolMap := map[string]*types.RelayPool{
+		"0002": {
+			Blockchain: "0002",
+			Payloads:   ethSamplePayloads,
+		},
+		"0003": {
+			Blockchain: "0003",
+			Payloads:   solSamplePayloads,
+		},
+	}
 
-	res, err := json.MarshalIndent(samplePoolSlice, "", "  ")
+	// Marshal the map into JSON with indentation
+	res, err := json.MarshalIndent(samplePoolMap, "", "  ")
 	if err != nil {
 		log2.Fatal(NewInvalidSamplePoolError(err))
 	}
+
+	// Write the JSON data to the file
 	_, err = jsonFile.Write(res)
 	if err != nil {
 		log2.Fatal(NewInvalidSamplePoolError(err))
 	}
-	jsonFile.Close()
-}
 
-func NewInvalidSamplePoolError(err error) error {
-	return fmt.Errorf("Invalid Sample Pool: %v", err)
+	// Close the file
+	jsonFile.Close()
 }

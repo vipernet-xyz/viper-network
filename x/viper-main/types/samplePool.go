@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	fp "path/filepath"
 	"sync"
 
@@ -66,24 +67,39 @@ var (
 	GlobalConfig     sdk.Config
 	FS               = string(fp.Separator)
 	SampleRelayPools map[string]*RelayPool
-	samplePoolPath   = GlobalConfig.ViperConfig.DataDir + FS + sdk.ConfigDirName + FS + GlobalConfig.ViperConfig.SamplePoolName
 )
 
-func LoadSampleRelayPool() error {
-	// Initialize the SampleRelayPools map
-	SampleRelayPools = make(map[string]*RelayPool)
+func LoadSampleRelayPool() (map[string]*RelayPool, error) {
+	// create the sample pool path
+	home, _ := os.UserHomeDir()
+	var samplePoolPath = home + FS + sdk.DefaultDDName + FS + sdk.ConfigDirName + FS + "samplepool.json"
+	// if file exists, open; else, create and open
+	var jsonFile *os.File
+	var bz []byte
 
-	// Read the content of the samplepool.json
-	fileContent, err := ioutil.ReadFile(samplePoolPath)
+	// reopen the file to read into the variable
+	jsonFile, err := os.OpenFile(samplePoolPath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("Error reading samplepool.json: %v", err)
+		return nil, fmt.Errorf("Error opening samplepool.json: %v", err)
 	}
 
-	// Unmarshal the file content to the SampleRelayPools
-	err = json.Unmarshal(fileContent, &SampleRelayPools)
+	bz, err = ioutil.ReadAll(jsonFile)
 	if err != nil {
-		return fmt.Errorf("Error unmarshaling samplepool.json into SampleRelayPools: %v", err)
+		return nil, fmt.Errorf("Error reading samplepool.json: %v", err)
 	}
 
-	return nil
+	// close the file
+	err = jsonFile.Close()
+	if err != nil {
+		return nil, fmt.Errorf("Error closing samplepool.json: %v", err)
+	}
+
+	// Unmarshal directly into the expected map structure
+	var resultMap map[string]*RelayPool
+	err = json.Unmarshal(bz, &resultMap)
+	if err != nil {
+		return nil, fmt.Errorf("Error unmarshaling samplepool.json: %v", err)
+	}
+
+	return resultMap, nil
 }
