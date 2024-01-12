@@ -29,7 +29,7 @@ type Validator struct {
 	GeoZone                 []string         `json:"geo_zone" yaml:"geo_zone"`                       //geo-zone of the node
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"`           // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address      `json:"output_address,omitempty" yaml:"output_address"` // the custodial output address of the validator
-	ReportCard              ReportCard       `jsom:"report_card" yaml:"report_card"`
+	ReportCard              ReportCard       `json:"report_card" yaml:"report_card"`
 }
 
 // NewValidator - initialize a new validator
@@ -288,7 +288,7 @@ type JSONValidator struct {
 	GeoZone                 []string        `json:"geo_zone" yaml:"service_url"`
 	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"geo_zone"`       // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address     `json:"output_address" yaml:"output_address"` // custodial output address of tokens
-	ReportCard              ReportCard      `jsom:"report_card" yaml:"report_card"`
+	ReportCard              ReportCard      `json:"report_card" yaml:"report_card"`
 }
 
 // Validators is a collection of Validator
