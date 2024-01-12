@@ -47,9 +47,7 @@ require (
 	github.com/tendermint/go-amino v0.15.1
 	github.com/tendermint/tendermint v0.33.7
 	github.com/tendermint/tm-db v0.5.1
-	github.com/vipernet-xyz/utils-go v0.1.0
-	github.com/vishruthsk/utils-go v0.2.0
-	github.com/vishruthsk/viper-go v0.1.1
+	github.com/vipernet-xyz/utils-go v0.0.1
 	github.com/willf/bloom v2.0.3+incompatible
 	golang.org/x/crypto v0.5.0
 	google.golang.org/genproto v0.0.0-20230202175211-008b39050e57
@@ -79,8 +77,6 @@ require (
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
-	github.com/gojektech/heimdall v5.0.2+incompatible // indirect
-	github.com/gojektech/valkyrie v0.0.0-20190210220504-8f62c1e7ba45 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect

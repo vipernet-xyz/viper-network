@@ -277,10 +277,6 @@ github.com/gogo/protobuf v1.3.1/go.mod h1:SlYgWuQ5SjCEi6WLHjHCa1yvBfUnHcTbrrZtXP
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
 github.com/gogo/protobuf v1.3.2/go.mod h1:P1XiOD3dCwIKUDQYPy72D8LYyHL2YPYrpS2s69NZV8Q=
 github.com/gogo/status v1.1.0/go.mod h1:BFv9nrluPLmrS0EmGVvLaPNmRosr9KapBYd5/hpY1WM=
-github.com/gojektech/heimdall v5.0.2+incompatible h1:mfGLnHNTKN7b1OMTO4ZvL3oT2P13kqTTV7owK7BZDck=
-github.com/gojektech/heimdall v5.0.2+incompatible/go.mod h1:8hRIZ3+Kz0r3GAFI9QrUuvZht8ypg5Rs8schCXioLOo=
-github.com/gojektech/valkyrie v0.0.0-20190210220504-8f62c1e7ba45 h1:MO2DsGCZz8phRhLnpFvHEQgTH521sVN/6F2GZTbNO3Q=
-github.com/gojektech/valkyrie v0.0.0-20190210220504-8f62c1e7ba45/go.mod h1:tDYRk1s5Pms6XJjj5m2PxAzmQvaDU8GqDf1u6x7yxKw=
 github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
@@ -758,12 +754,8 @@ github.com/vipernet-xyz/tendermint v0.34.0 h1:VehL67LFQx5PMF8FjfOpslo7TupGwmjAPQ
 github.com/vipernet-xyz/tendermint v0.34.0/go.mod h1:f4ewZSyMeiLAanDwS8PTz5S5xDo3gwzYDDxE4VgS8UI=
 github.com/vipernet-xyz/tm-db v0.1.0 h1:lzv7Zx4GZStYh4usH39kTkjyqHD7dvUWneo161LQufQ=
 github.com/vipernet-xyz/tm-db v0.1.0/go.mod h1:VrPTx04QJhQ9d8TFUTc2GpPBvBf/U9vIdBIzkjBk7Lk=
-github.com/vipernet-xyz/utils-go v0.1.0 h1:ni2GH+APyDZYonprGq1A/EkRXNRRLnQVddWKyRCSGa8=
-github.com/vipernet-xyz/utils-go v0.1.0/go.mod h1:QGaE1Kxlxcv2mwL9U9E1e/hpKJr4T0MvSCYZ0SuklQ4=
-github.com/vishruthsk/utils-go v0.2.0 h1:cUn/OUctJb5xCpeIccM/YGKZHrjCBUacCK85LfrLdRI=
-github.com/vishruthsk/utils-go v0.2.0/go.mod h1:PdiczCpFq/qKmF8Aj70ZpJCTC5VLRMDO5g7r7Njy6Uc=
-github.com/vishruthsk/viper-go v0.1.1 h1:RI0suZ2+/e7kKGXc+yOc8SHwHge6zv8hnJx+NL20Wfo=
-github.com/vishruthsk/viper-go v0.1.1/go.mod h1:yvUklCQF9LNoFh85eI0qpIk7a0GjruqaRlas2XSeNLY=
+github.com/vipernet-xyz/utils-go v0.0.1 h1:rw7fm5qJooxR4COA3OxnEjpSdT6uxRPbY5+jkBAoiY0=
+github.com/vipernet-xyz/utils-go v0.0.1/go.mod h1:PaFl5/6q1IsdBp/YSy8CRhLQcExn2mn+4pJGFzB9fBU=
 github.com/willf/bitset v1.1.10 h1:NotGKqX0KwQ72NUzqrjZq5ipPNDQex9lo3WpaS8L2sc=
 github.com/willf/bitset v1.1.10/go.mod h1:RjeCKbqT1RxIR/KWY6phxZiaY1IyutSBfGjNPySAYV4=
 github.com/willf/bloom v2.0.3+incompatible h1:QDacWdqcAUI1MPOwIQZRy9kOR7yxfyEmxX8Wdm2/JPA=
