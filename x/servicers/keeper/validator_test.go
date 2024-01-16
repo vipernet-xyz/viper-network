@@ -217,9 +217,9 @@ func TestKeeper_UpdateValidatorReportCard(t *testing.T) {
 	require.True(t, found)
 
 	// Calculate the expected updated scores based on the formula
-	expectedLatencyScore := sdk.NewDecWithPrec(583000000000000000, 18)
-	expectedAvailabilityScore := sdk.NewDecWithPrec(483000000000000000, 18)
-	expectedReliabilityScore := sdk.NewDecWithPrec(283000000000000000, 18)
+	expectedLatencyScore := sdk.NewDecWithPrec(583333000000000000, 18)
+	expectedAvailabilityScore := sdk.NewDecWithPrec(483333000000000000, 18)
+	expectedReliabilityScore := sdk.NewDecWithPrec(283333000000000000, 18)
 
 	// Check if the report card has been updated correctly
 	assert.Equal(t, existingReport.TotalSessions+1, updatedValidator.ReportCard.TotalSessions)

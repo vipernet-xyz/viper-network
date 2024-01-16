@@ -358,10 +358,10 @@ func updateScore(currentScore sdk.BigDec, newScore sdk.BigDec, totalSessions int
 	updatedScore := currentScore.Mul(sdk.OneDec().Sub(weight)).Add(newScore.Mul(weight))
 
 	// Scale the score by 1000 and round to get 3 decimal places
-	roundedScore := updatedScore.Mul(sdk.NewDec(1000)).RoundInt()
+	roundedScore := updatedScore.Mul(sdk.NewDec(1000000)).RoundInt()
 
 	// Convert the rounded score back to decimal
-	roundedDecimal := sdk.NewDecFromInt(roundedScore).Quo(sdk.NewDec(1000))
+	roundedDecimal := sdk.NewDecFromInt(roundedScore).Quo(sdk.NewDec(1000000))
 
 	// Ensure the updated score is within the range [0, 1]
 	return sdk.MinDec(roundedDecimal, sdk.OneDec())

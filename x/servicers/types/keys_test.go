@@ -349,7 +349,7 @@ func TestScoresToPower(t *testing.T) {
 			ReliabilityScore.Mul(reliabilityWeight)))
 
 	// Calculate the expected power without converting to integer
-	expectedPower := totalScore.BigInt().Int64()
+	expectedPower := totalScore.Quo(sdk.NewDecFromInt(sdk.NewInt(1000000000000))).BigInt().Int64()
 
 	// Call the function to calculate the power
 	power := ScoresToPower(reportCard)

@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/binary"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -185,9 +184,7 @@ func ScoresToPower(reportCard ReportCard) int64 {
 		AvailabilityScore.Mul(availabilityWeight).Add(
 			ReliabilityScore.Mul(reliabilityWeight)))
 
-	fmt.Println("score:", totalScore)
-	reducedPower := totalScore.BigInt().Int64()
-
+	reducedPower := totalScore.Quo(sdk.NewDecFromInt(sdk.NewInt(1000000000000))).BigInt().Int64()
 	return reducedPower
 }
 
