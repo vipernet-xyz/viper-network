@@ -105,6 +105,112 @@ func (k Keeper) HandleRelay(ctx sdk.Ctx, relay vc.Relay) (*vc.RelayResponse, sdk
 	return resp, nil
 }
 
+// HandleWebsocketRelay handles a WebSocket relay request to a non-native (external) blockchain
+func (k Keeper) HandleWebsocketRelay(ctx sdk.Ctx, relay vc.Relay) (chan *vc.RelayResponse, error) {
+	// Create a channel for sending multiple relay responses
+	resChan := make(chan *vc.RelayResponse)
+
+	// Get the latest session block height because this relay will correspond with the latest session
+	sessionBlockHeight := relay.Proof.SessionBlockHeight
+
+	// Check if the session height is within tolerance
+	if !k.IsProofSessionHeightWithinTolerance(ctx, sessionBlockHeight) {
+		// For legacy support, return the invalid block height error.
+		close(resChan) // Close the channel since there won't be any further responses
+		return nil, vc.NewInvalidBlockHeightError(vc.ModuleName)
+	}
+
+	// Initialize node and node address
+	var node *vc.ViperNode
+	var nodeAddress sdk.Address
+
+	// Determine the node based on the configuration
+	if vc.GlobalViperConfig.LeanViper {
+		// If lean viper is enabled, grab the targeted servicer through the relay proof
+		servicerRelayPublicKey, err := crypto.NewPublicKey(relay.Proof.ServicerPubKey)
+		if err != nil {
+			close(resChan) // Close the channel since there won't be any further responses
+			return nil, fmt.Errorf("Could not convert servicer hex to public key: %v", err)
+		}
+		nodeAddress = sdk.GetAddress(servicerRelayPublicKey)
+		node, err = vc.GetViperNodeByAddress(&nodeAddress)
+		if err != nil {
+			close(resChan) // Close the channel since there won't be any further responses
+			return nil, fmt.Errorf("Failed to find correct servicer PK: %v", err)
+		}
+	} else {
+		// Get self node (validator) from the current state
+		node = vc.GetViperNode()
+		nodeAddress = node.GetAddress()
+	}
+
+	// Retrieve the non-native blockchains your node is hosting
+	hostedBlockchains := k.GetHostedBlockchains()
+
+	// Ensure the relay is valid
+	maxPossibleRelays, header, err := relay.ValidateWebsocket(ctx, k.posKeeper, k.requestorKeeper, k, hostedBlockchains, sessionBlockHeight, node)
+	if err != nil {
+		// Handle invalid relay
+		// Send an error response to the WebSocket client
+		close(resChan) // Close the channel since there won't be any further responses
+		return resChan, fmt.Errorf("Error validating relay: %v", err)
+	}
+
+	// Process the relay asynchronously
+	go func() {
+		defer close(resChan)
+
+		// Execute the relay and get the channel for response payloads
+		respChan, err := relay.ExecuteWebSocket(hostedBlockchains, &nodeAddress)
+		if err != nil {
+			// Handle execution error
+			// Send an error response to the WebSocket client
+			res := &vc.RelayResponse{
+				Response: fmt.Sprintf("Error: %s", err.Error()),
+			}
+			resChan <- res
+			return
+		}
+
+		// Iterate over responses from the channel and send them to the WebSocket client
+		for resp := range respChan {
+			// Sign the response
+			sig, signErr := node.PrivateKey.Sign(resp.Hash())
+			if signErr != nil {
+				// Handle signing error
+				// Send an error response to the WebSocket client
+				resp.Response = fmt.Sprintf("Error: %s", signErr.Error())
+				respChan <- resp
+				return
+			}
+
+			// Attach the signature to the response
+			resp.Signature = hex.EncodeToString(sig)
+
+			// Store the proof
+			relay.Proof.Store(maxPossibleRelays, node.EvidenceStore)
+
+			// Check evidence, uniqueness, and relay count
+			evidence, totalRelays := vc.GetTotalProofs(header, vc.RelayEvidence, maxPossibleRelays, node.EvidenceStore)
+			if node.EvidenceStore.IsSealed(evidence) {
+				return
+			}
+			if !vc.IsUniqueProof(relay.Proof, evidence) {
+				return
+			}
+			if sdk.NewInt(totalRelays).GTE(maxPossibleRelays) {
+				return
+			}
+
+			// Send the response to the WebSocket client
+			resChan <- resp
+		}
+	}()
+
+	// Return the channel for WebSocket responses
+	return resChan, nil
+}
+
 // "HandleChallenge" - Handles a client relay response challenge request
 func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidData) (*vc.ChallengeResponse, sdk.Error) {
 

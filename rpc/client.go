@@ -7,10 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gorilla/websocket"
 
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 
@@ -450,4 +453,52 @@ func LocalRelay(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
+}
+
+type RelayWebsocketResponse struct {
+	Signature string `json:"signature"`
+	Response  string `json:"response"`
+}
+
+type RelayWebsocketErrorResponse struct {
+	Error    error                   `json:"error"`
+	Dispatch *types.DispatchResponse `json:"dispatch"`
+}
+
+func RelayWebsocket(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	var upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			return cors(&w, r)
+		},
+	}
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	var relay = types.Relay{}
+	if err := PopModel(w, r, ps, &relay); err != nil {
+		response := RelayWebsocketErrorResponse{
+			Error: err,
+		}
+		j, _ := json.Marshal(response)
+		conn.WriteMessage(websocket.TextMessage, j)
+		return
+	}
+
+	dispatch, err := app.VCA.HandleWebsocketRelay(relay, conn)
+	if err != nil {
+		response := RelayWebsocketErrorResponse{
+			Error:    err,
+			Dispatch: dispatch,
+		}
+		j, _ := json.Marshal(response)
+		conn.WriteMessage(websocket.TextMessage, j)
+		return
+	}
 }

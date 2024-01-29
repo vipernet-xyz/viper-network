@@ -104,6 +104,8 @@ func GetRoutes() Routes {
 		Route{Name: "ServiceLocalCORS", Method: "OPTIONS", Path: "/v1/client/localrelay", HandlerFunc: LocalRelay},
 		Route{Name: "Trigger", Method: "POST", Path: "/v1/client/trigger", HandlerFunc: FishermanTrigger},
 		Route{Name: "TriggerSCORS", Method: "OPTIONS", Path: "/v1/client/trigger", HandlerFunc: FishermanTrigger},
+		Route{Name: "WebSocket", Method: "POST", Path: "/v1/client/websocket", HandlerFunc: RelayWebsocket},
+		Route{Name: "WebSocketSCORS", Method: "OPTIONS", Path: "/v1/client/websocket", HandlerFunc: RelayWebsocket},
 		Route{Name: "QueryAccount", Method: "POST", Path: "/v1/query/account", HandlerFunc: Account},
 		Route{Name: "QueryAccounts", Method: "POST", Path: "/v1/query/accounts", HandlerFunc: Accounts},
 		Route{Name: "QueryAccountTxs", Method: "POST", Path: "/v1/query/accounttxs", HandlerFunc: AccountTxs},

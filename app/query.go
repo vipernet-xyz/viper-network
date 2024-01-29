@@ -4,16 +4,19 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"reflect"
 	"strconv"
 
+	"github.com/gorilla/websocket"
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/authentication/exported"
 	"github.com/vipernet-xyz/viper-network/x/authentication/util"
 	"github.com/vipernet-xyz/viper-network/x/governance/types"
+
 	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	servicersTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
@@ -548,6 +551,25 @@ func (app ViperCoreApp) HandleDispatch(header viperTypes.SessionHeader) (res *vi
 	return app.viperKeeper.HandleDispatch(ctx, header)
 }
 
+func (app ViperCoreApp) HandleLocalRelay(r viperTypes.Relay) (res *viperTypes.RelayResponse, dispatch *viperTypes.DispatchResponse, err error) {
+	ctx, err := app.NewContext(app.LastBlockHeight())
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	status, sErr := app.viperKeeper.TmNode.ConsensusReactorStatus()
+	if sErr != nil {
+		return nil, nil, fmt.Errorf("viper node is unable to retrieve synced status from tendermint node, cannot service in this state")
+	}
+
+	if status.IsCatchingUp {
+		return nil, nil, fmt.Errorf("viper node is currently syncing to the blockchain, cannot service in this state")
+	}
+	res, err = app.viperKeeper.HandleLocalRelay(ctx, r)
+	return
+}
+
 func (app ViperCoreApp) HandleRelay(r viperTypes.Relay) (res *viperTypes.RelayResponse, dispatch *viperTypes.DispatchResponse, err error) {
 	ctx, err := app.NewContext(app.LastBlockHeight())
 
@@ -574,23 +596,49 @@ func (app ViperCoreApp) HandleRelay(r viperTypes.Relay) (res *viperTypes.RelayRe
 	return
 }
 
-func (app ViperCoreApp) HandleLocalRelay(r viperTypes.Relay) (res *viperTypes.RelayResponse, dispatch *viperTypes.DispatchResponse, err error) {
+func (app *ViperCoreApp) HandleWebsocketRelay(r viperTypes.Relay, conn *websocket.Conn) (dispatch *viperTypes.DispatchResponse, err error) {
 	ctx, err := app.NewContext(app.LastBlockHeight())
-
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	status, sErr := app.viperKeeper.TmNode.ConsensusReactorStatus()
 	if sErr != nil {
-		return nil, nil, fmt.Errorf("viper node is unable to retrieve synced status from tendermint node, cannot service in this state")
+		return nil, fmt.Errorf("viper node is unable to retrieve synced status from Tendermint node, cannot service in this state")
 	}
 
 	if status.IsCatchingUp {
-		return nil, nil, fmt.Errorf("viper node is currently syncing to the blockchain, cannot service in this state")
+		return nil, fmt.Errorf("viper node is currently syncing to the blockchain, cannot service in this state")
 	}
-	res, err = app.viperKeeper.HandleLocalRelay(ctx, r)
-	return
+
+	// Assuming HandleWebsocketRelay returns a channel
+	resChan, err := app.viperKeeper.HandleWebsocketRelay(ctx, r)
+	if err != nil {
+		return dispatch, err
+	}
+
+	go func() {
+		defer close(resChan)
+
+		for res := range resChan {
+			response := viperTypes.RelayResponse{
+				Signature: res.Signature,
+				Response:  res.Response,
+			}
+			j, er := json.Marshal(response)
+			if er != nil {
+				log.Println("Failed to marshal response:", er)
+				continue
+			}
+
+			if err := conn.WriteMessage(websocket.TextMessage, j); err != nil {
+				log.Println("Failed to write message to WebSocket:", err)
+				break
+			}
+		}
+	}()
+
+	return dispatch, nil
 }
 
 func checkPagination(page, limit int) (int, int) {

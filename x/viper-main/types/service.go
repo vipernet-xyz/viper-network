@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/websocket"
+
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
@@ -114,6 +116,93 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, requestorsKeeper Requ
 		r.Payload.Method = DEFAULTHTTPMETHOD
 	}
 	return maxPossibleRelays, nil
+}
+
+// "ValidateWebsocket" - Checks the validity of a relay request using store data
+func (r *Relay) ValidateWebsocket(ctx sdk.Ctx, posKeeper PosKeeper, requestorsKeeper RequestorsKeeper, viperKeeper ViperKeeper, hb *HostedBlockchains, sessionBlockHeight int64, node *ViperNode) (maxPossibleRelays sdk.BigInt, header SessionHeader, err sdk.Error) {
+	// validate payload
+	if err := r.Payload.Validate(); err != nil {
+		return sdk.ZeroInt(), SessionHeader{}, NewEmptyPayloadDataError(ModuleName)
+	}
+	// validate the metadata
+	if err := r.Meta.Validate(ctx); err != nil {
+		return sdk.ZeroInt(), SessionHeader{}, err
+	}
+	// validate the relay merkleHash = request merkleHash
+	if r.Proof.RequestHash != r.RequestHashString() {
+		return sdk.ZeroInt(), SessionHeader{}, NewRequestHashError(ModuleName)
+	}
+	// ensure the blockchain is supported locally
+	if !hb.Contains(r.Proof.Blockchain) {
+		return sdk.ZeroInt(), SessionHeader{}, NewUnsupportedBlockchainNodeError(ModuleName)
+	}
+	// ensure session block height == one in the relay proof
+	if r.Proof.SessionBlockHeight != sessionBlockHeight {
+		return sdk.ZeroInt(), SessionHeader{}, NewInvalidBlockHeightError(ModuleName)
+	}
+	// get the session context
+	sessionCtx, er := ctx.PrevCtx(sessionBlockHeight)
+	if er != nil {
+		return sdk.ZeroInt(), SessionHeader{}, sdk.ErrInternal(er.Error())
+	}
+	// get the application that staked on behalf of the client
+	app, found := GetRequestorFromPublicKey(sessionCtx, requestorsKeeper, r.Proof.Token.RequestorPublicKey)
+	if !found {
+		return sdk.ZeroInt(), SessionHeader{}, NewRequestorNotFoundError(ModuleName)
+	}
+	// get session node count from that session height
+	sessionNodeCount := int64(r.Proof.NumServicers)
+	// get max possible relays
+	maxPossibleRelays = MaxPossibleRelays(app, sessionNodeCount)
+	// generate the session header
+	header = SessionHeader{
+		RequestorPubKey:    r.Proof.Token.RequestorPublicKey,
+		Chain:              r.Proof.Blockchain,
+		GeoZone:            r.Proof.GeoZone,
+		NumServicers:       r.Proof.NumServicers,
+		SessionBlockHeight: r.Proof.SessionBlockHeight,
+	}
+	// validate unique relay
+	evidence, totalRelays := GetTotalProofs(header, RelayEvidence, maxPossibleRelays, node.EvidenceStore)
+	if node.EvidenceStore.IsSealed(evidence) {
+		return sdk.ZeroInt(), SessionHeader{}, NewSealedEvidenceError(ModuleName)
+	}
+	// get evidence key by proof
+	if !IsUniqueProof(r.Proof, evidence) {
+		return sdk.ZeroInt(), SessionHeader{}, NewDuplicateProofError(ModuleName)
+	}
+	// validate not over service
+	if sdk.NewInt(totalRelays).GTE(maxPossibleRelays) {
+		return sdk.ZeroInt(), SessionHeader{}, NewOverServiceError(ModuleName)
+	}
+	// validate the Proof
+	nodeAddr := node.GetAddress()
+	if err := r.Proof.ValidateLocal(app.GetChains(), int(sessionNodeCount), sessionBlockHeight, nodeAddr); err != nil {
+		return sdk.ZeroInt(), SessionHeader{}, err
+	}
+	// check cache
+	session, found := GetSession(header, node.SessionStore)
+	// if not found generate the session
+	if !found {
+		bh, err := sessionCtx.BlockHash(viperKeeper.Codec(), sessionCtx.BlockHeight())
+		if err != nil {
+			return sdk.ZeroInt(), SessionHeader{}, sdk.ErrInternal(err.Error())
+		}
+		var er sdk.Error
+		session, er = NewSession(sessionCtx, ctx, posKeeper, header, hex.EncodeToString(bh))
+		if er != nil {
+			return sdk.ZeroInt(), SessionHeader{}, er
+		}
+		// add to cache
+		SetSession(session, node.SessionStore)
+	}
+	// validate the session
+	err = session.Validate(nodeAddr, app, int(sessionNodeCount))
+	if err != nil {
+		return sdk.ZeroInt(), SessionHeader{}, err
+	}
+
+	return maxPossibleRelays, SessionHeader{}, nil
 }
 
 // "Execute" - Attempts to do a request on the non-native blockchain specified
@@ -362,6 +451,112 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth BasicAuth, met
 
 	// Return the response
 	return string(body), nil
+}
+
+// ExecuteWebSocket - Attempts to do a WebSocket request on the non-native blockchain specified
+func (r Relay) ExecuteWebSocket(hostedBlockchains *HostedBlockchains, address *sdk.Address) (chan *RelayResponse, sdk.Error) {
+	// Create a channel for sending multiple relay responses
+	resChan := make(chan *RelayResponse)
+
+	// Retrieve the hosted blockchain URL requested
+	chain, err := hostedBlockchains.GetChain(r.Proof.Blockchain)
+	if err != nil {
+		// Metric track
+		addServiceMetricErrorFor(r.Proof.Blockchain, address)
+
+		// Send an error response to the WebSocket client
+		close(resChan)
+		return resChan, err
+	}
+
+	// Construct WebSocket URL
+	url := strings.Trim(chain.URL, "/")
+	if len(r.Payload.Path) > 0 {
+		url = url + "/" + strings.Trim(r.Payload.Path, "/")
+	}
+
+	// Execute the WebSocket request asynchronously
+	go func() {
+		defer close(resChan)
+
+		// Use the gorilla websocket Dialer
+		dialer := websocket.Dialer{}
+		conn, _, err := dialer.Dial(url, nil)
+		if err != nil {
+			// Metric track
+			addServiceMetricErrorFor(r.Proof.Blockchain, address)
+
+			// Send an error response to the WebSocket client
+			res := &RelayResponse{
+				Response: fmt.Sprintf("Error connecting to WebSocket: %s", err.Error()),
+			}
+			resChan <- res
+			return
+		}
+
+		// Execute the WebSocket request concurrently
+		go func() {
+			// Write the data to the WebSocket connection
+			err := conn.WriteMessage(websocket.TextMessage, []byte(r.Payload.Data))
+			if err != nil {
+				// Metric track
+				addServiceMetricErrorFor(r.Proof.Blockchain, address)
+
+				// Send an error response to the WebSocket client
+				res := &RelayResponse{
+					Response: fmt.Sprintf("Error writing to WebSocket: %s", err.Error()),
+				}
+				resChan <- res
+				return
+			}
+		}()
+
+		// Read and handle WebSocket responses
+		for {
+			_, response, err := conn.ReadMessage()
+			if err != nil {
+				// Metric track
+				addServiceMetricErrorFor(r.Proof.Blockchain, address)
+
+				// Send an error response to the WebSocket client
+				res := &RelayResponse{
+					Response: fmt.Sprintf("Error reading from WebSocket: %s", err.Error()),
+				}
+				resChan <- res
+				break
+			}
+
+			// Process the WebSocket response
+			res := &RelayResponse{
+				Response: string(response),
+			}
+			resChan <- res
+		}
+
+		// Close the WebSocket connection
+		conn.Close()
+	}()
+
+	// Return the channel for WebSocket responses
+	return resChan, nil
+}
+
+// executeWebSocketRequest - Executes a WebSocket request with the provided data
+func executeWebSocketRequest(conn *websocket.Conn, data string) error {
+	// Write the data to the WebSocket connection
+	err := conn.WriteMessage(websocket.TextMessage, []byte(data))
+	if err != nil {
+		return err
+	}
+
+	// Read the WebSocket response
+	_, response, err := conn.ReadMessage()
+	if err != nil {
+		return err
+	}
+
+	// Return the WebSocket response
+	return conn.WriteMessage(websocket.TextMessage, response)
 }
 
 // Check if the payload is compressed
