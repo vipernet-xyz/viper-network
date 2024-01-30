@@ -43,7 +43,10 @@ var chainsGenCmd = &cobra.Command{
 		c := app.NewHostedChains(true)
 		fmt.Println(app.GlobalConfig.ViperConfig.ChainsName + " contains: \n")
 		for _, chain := range c.M {
-			fmt.Println(chain.ID + " @ " + chain.URL)
+			fmt.Printf("%s @ %s\n", chain.ID, chain.HTTPURL)
+			if chain.WebSocketURL != "" {
+				fmt.Printf("WebSocket: %s\n", chain.WebSocketURL)
+			}
 		}
 		fmt.Println("If incorrect: please remove the chains.json with the " + chainsDelCmd.NameAndAliases() + " command")
 	},

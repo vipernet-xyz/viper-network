@@ -8,9 +8,10 @@ import (
 
 // HostedBlockchain" - An object that represents a local hosted non-native blockchain
 type HostedBlockchain struct {
-	ID        string    `json:"id"`         // network identifier of the hosted blockchain
-	URL       string    `json:"url"`        // url of the hosted blockchain
-	BasicAuth BasicAuth `json:"basic_auth"` // basic http authentication optinal
+	ID           string    `json:"id"`            // network identifier of the hosted blockchain
+	HTTPURL      string    `json:"url"`           // url of the hosted blockchain
+	WebSocketURL string    `json:"websocket_url"` // websocket URL for subscribing to events on the
+	BasicAuth    BasicAuth `json:"basic_auth"`    // basic http authentication optinal
 }
 
 type BasicAuth struct {
@@ -33,7 +34,6 @@ func (c *HostedBlockchains) Contains(id string) bool {
 	return found
 }
 
-// "GetChainURL" - Returns the url or error of the hosted blockchain using the hex network identifier
 func (c *HostedBlockchains) GetChain(id string) (chain HostedBlockchain, err sdk.Error) {
 	c.L.Lock()
 	defer c.L.Unlock()
@@ -45,26 +45,36 @@ func (c *HostedBlockchains) GetChain(id string) (chain HostedBlockchain, err sdk
 	return res, nil
 }
 
-// "GetChainURL" - Returns the url or error of the hosted blockchain using the hex network identifier
-func (c *HostedBlockchains) GetChainURL(id string) (url string, err sdk.Error) {
+// GetChainURL returns the URL (HTTP or WebSocket) of the hosted blockchain using the hex network identifier
+func (c *HostedBlockchains) GetChainHTTPURL(id string) (url string, err sdk.Error) {
 	chain, err := c.GetChain(id)
 	if err != nil {
 		return "", err
 	}
-	return chain.URL, nil
+	return chain.HTTPURL, nil
 }
 
-// "Validate" - Validates the hosted blockchain object
+// GetChainURL returns the URL (HTTP or WebSocket) of the hosted blockchain using the hex network identifier
+func (c *HostedBlockchains) GetChainWebsocketURL(id string) (url string, err sdk.Error) {
+	chain, err := c.GetChain(id)
+	if err != nil {
+		return "", err
+	}
+	return chain.WebSocketURL, nil
+}
+
 func (c *HostedBlockchains) Validate() error {
 	c.L.Lock()
 	defer c.L.Unlock()
-	// loop through all of the chains
+
+	// Loop through all of the chains
 	for _, chain := range c.M {
-		// validate not empty
-		if chain.ID == "" || chain.URL == "" {
+		// Validate not empty
+		if chain.ID == "" || (chain.HTTPURL == "" && chain.WebSocketURL == "") {
 			return NewInvalidHostedChainError(ModuleName)
 		}
-		// validate the merkleHash
+
+		// Validate the network identifier
 		if err := NetworkIdentifierVerification(chain.ID); err != nil {
 			return err
 		}

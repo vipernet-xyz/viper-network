@@ -23,7 +23,7 @@ func TestRelayProof_ValidateLocal(t *testing.T) {
 	ethereum := hex.EncodeToString([]byte{01})
 	US := hex.EncodeToString([]byte{01})
 	hbs := HostedBlockchains{
-		M: map[string]HostedBlockchain{ethereum: {ID: ethereum, URL: "https://www.google.com:443"}},
+		M: map[string]HostedBlockchain{ethereum: {ID: ethereum, HTTPURL: "https://www.google.com:443", WebSocketURL: "wss://www.google.com/ws"}},
 	}
 	bitcoin := hex.EncodeToString([]byte{02})
 	payload := Payload{Data: "fake"}

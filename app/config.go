@@ -725,16 +725,18 @@ func generateChainsJson(chainsPath string) *types.HostedBlockchains {
 }
 
 const (
-	enterIDPrompt     = `Enter the ID of the network identifier:`
-	enterURLPrompt    = `Enter the URL of the network identifier:`
-	addNewChainPrompt = `Would you like to enter another network identifier? (y/n)`
-	enterGZPrompt     = `Enter the geozone of the node:`
-	ReadInError       = `An error occurred reading in the information: `
+	enterIDPrompt           = `Enter the ID of the network identifier:`
+	enterHTTPURLPrompt      = `Enter the HTTP URL of the network identifier:`
+	enterWebSocketURLPrompt = `Enter the WebSocket URL of the network identifier:`
+	addNewChainPrompt       = `Would you like to enter another network identifier? (y/n)`
+	enterGZPrompt           = `Enter the geozone of the node:`
+	ReadInError             = `An error occurred reading in the information: `
 )
 
+// GenerateHostedChains generates a slice of hosted blockchains based on user input.
 func GenerateHostedChains() (chains []types.HostedBlockchain) {
 	for {
-		var ID, URL, again string
+		var ID, HTTPURL, WebSocketURL, again string
 		fmt.Println(enterIDPrompt)
 		reader := bufio.NewReader(os.Stdin)
 		ID, err := reader.ReadString('\n')
@@ -748,16 +750,24 @@ func GenerateHostedChains() (chains []types.HostedBlockchain) {
 			fmt.Println("please try again")
 			continue
 		}
-		fmt.Println(enterURLPrompt)
-		URL, err = reader.ReadString('\n')
+		fmt.Println(enterHTTPURLPrompt)
+		HTTPURL, err = reader.ReadString('\n')
 		if err != nil {
 			fmt.Println(ReadInError + err.Error())
 			os.Exit(3)
 		}
-		URL = strings.Trim(strings.TrimSpace(URL), "\n")
+		HTTPURL = strings.Trim(strings.TrimSpace(HTTPURL), "\n")
+		fmt.Println(enterWebSocketURLPrompt)
+		WebSocketURL, err = reader.ReadString('\n')
+		if err != nil {
+			fmt.Println(ReadInError + err.Error())
+			os.Exit(3)
+		}
+		WebSocketURL = strings.Trim(strings.TrimSpace(WebSocketURL), "\n")
 		chains = append(chains, types.HostedBlockchain{
-			ID:  ID,
-			URL: URL,
+			ID:           ID,
+			HTTPURL:      HTTPURL,
+			WebSocketURL: WebSocketURL,
 		})
 		fmt.Println(addNewChainPrompt)
 		for {
@@ -1026,7 +1036,7 @@ func GetAuthTokenFromFile() sdk.AuthToken {
 }
 
 func createMissingChainsJson(chainsPath string) {
-	// reopen the file to read into the variable
+	// Reopen the file to read into the variable
 	jsonFile, err := os.OpenFile(chainsPath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		log2.Fatal(NewInvalidChainsError(err))
@@ -1035,11 +1045,12 @@ func createMissingChainsJson(chainsPath string) {
 	var hostedChainsSlice []types.HostedBlockchain
 
 	hostedChainsSlice = append(hostedChainsSlice, types.HostedBlockchain{
-		ID:  "0001",
-		URL: "http://localhost:8081/",
+		ID:           "0001",
+		HTTPURL:      "http://localhost:8081/",
+		WebSocketURL: "wss://localhost:8082/ws",
 	})
 
-	// write to the file
+	// Write to the file
 	res, err := json.MarshalIndent(hostedChainsSlice, "", "  ")
 	if err != nil {
 		log2.Fatal(NewInvalidChainsError(err))
@@ -1048,7 +1059,7 @@ func createMissingChainsJson(chainsPath string) {
 	if err != nil {
 		log2.Fatal(NewInvalidChainsError(err))
 	}
-	// close the file
+	// Close the file
 	err = jsonFile.Close()
 	if err != nil {
 		log2.Fatal(NewInvalidChainsError(err))

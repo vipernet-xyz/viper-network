@@ -241,24 +241,39 @@ func SimRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	hostedChains := app.NewHostedChains(false)
 
+	hostedChains := app.NewHostedChains(false)
 	chain, err := hostedChains.GetChain(params.RelayNetworkID)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return
 	}
-	url := strings.Trim(chain.URL, `/`)
-	if len(params.Payload.Path) > 0 {
-		url = url + "/" + strings.Trim(params.Payload.Path, `/`)
+
+	if chain.WebSocketURL != "" {
+		// If WebSocket URL is provided, execute WebSocket request
+		res, er := executeWebSocketRequest(params.Payload.Data, chain.WebSocketURL)
+		if er != nil {
+			WriteErrorResponse(w, 400, er.Error())
+			return
+		}
+
+		WriteResponse(w, res, r.URL.Path, r.Host)
+	} else {
+		// If no WebSocket URL, perform basic HTTP request
+		url := strings.Trim(chain.HTTPURL, `/`)
+		if len(params.Payload.Path) > 0 {
+			url = url + "/" + strings.Trim(params.Payload.Path, `/`)
+		}
+
+		// Do basic HTTP request on the relay
+		res, er := executeHTTPRequest(params.Payload.Data, url, types.GlobalViperConfig.UserAgent, chain.BasicAuth, params.Payload.Method, params.Payload.Headers)
+		if er != nil {
+			WriteErrorResponse(w, 400, er.Error())
+			return
+		}
+
+		WriteResponse(w, string(res), r.URL.Path, r.Host)
 	}
-	// do basic http request on the relay
-	res, er := executeHTTPRequest(params.Payload.Data, url, types.GlobalViperConfig.UserAgent, chain.BasicAuth, params.Payload.Method, params.Payload.Headers)
-	if er != nil {
-		WriteErrorResponse(w, 400, er.Error())
-		return
-	}
-	WriteResponse(w, string(res), r.URL.Path, r.Host)
 }
 
 func executeHTTPRequest(payload, url, userAgent string, basicAuth types.BasicAuth, method string, headers map[string]string) (string, error) {
@@ -327,6 +342,31 @@ func executeHTTPRequest(payload, url, userAgent string, basicAuth types.BasicAut
 
 	// Return the response
 	return string(body), nil
+}
+
+func executeWebSocketRequest(payload, url string) (string, error) {
+	// Use the gorilla websocket Dialer
+	dialer := websocket.Dialer{}
+	conn, _, err := dialer.Dial(url, nil)
+	if err != nil {
+		return "", fmt.Errorf("Error connecting to WebSocket: %s", err)
+	}
+	defer conn.Close()
+
+	// Write the data to the WebSocket connection
+	err = conn.WriteMessage(websocket.TextMessage, []byte(payload))
+	if err != nil {
+		return "", fmt.Errorf("Error writing to WebSocket: %s", err)
+	}
+
+	// Read and handle WebSocket responses
+	_, response, err := conn.ReadMessage()
+	if err != nil {
+		return "", fmt.Errorf("Error reading from WebSocket: %s", err)
+	}
+
+	// Return the WebSocket response
+	return string(response), nil
 }
 
 // Check if the payload is compressed

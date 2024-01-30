@@ -13,12 +13,14 @@ func TestKeeper_GetHostedBlockchains(t *testing.T) {
 	ethereum := hex.EncodeToString([]byte{01})
 	bitcoin := hex.EncodeToString([]byte{02})
 	eth := types.HostedBlockchain{
-		ID:  ethereum,
-		URL: "https://www.google.com:443",
+		ID:           ethereum,
+		HTTPURL:      "https://www.google.com:443",
+		WebSocketURL: "wss://www.google.com:80",
 	}
 	btc := types.HostedBlockchain{
-		ID:  bitcoin,
-		URL: "https://www.google.com:443",
+		ID:           bitcoin,
+		HTTPURL:      "https://www.google.com:443",
+		WebSocketURL: "wss://www.google.com:80",
 	}
 	_, _, _, _, keeper, _, _ := createTestInput(t, false)
 	hb := keeper.GetHostedBlockchains()

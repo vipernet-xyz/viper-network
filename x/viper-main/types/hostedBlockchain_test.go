@@ -10,27 +10,33 @@ import (
 
 func TestHostedBlockchains_GetChainURL(t *testing.T) {
 	url := "https://www.google.com:443"
+	wurl := "wss://www.google.com/ws"
 	ethereum := hex.EncodeToString([]byte{01})
 	testHostedBlockchain := HostedBlockchain{
-		ID:  ethereum,
-		URL: url,
+		ID:           ethereum,
+		HTTPURL:      url,
+		WebSocketURL: wurl,
 	}
 	hb := HostedBlockchains{
 		M: map[string]HostedBlockchain{testHostedBlockchain.ID: testHostedBlockchain},
 		L: sync.Mutex{},
 	}
-	u, err := hb.GetChainURL(ethereum)
+	u, err := hb.GetChainHTTPURL(ethereum)
+	w, err := hb.GetChainWebsocketURL(ethereum)
 	assert.Nil(t, err)
 	assert.Equal(t, u, url)
+	assert.Equal(t, w, wurl)
 }
 
 func TestHostedBlockchains_ContainsFromString(t *testing.T) {
 	url := "https://www.google.com:443"
+	wurl := "wss://www.google.com/ws"
 	ethereum := hex.EncodeToString([]byte{01})
 	bitcoin := hex.EncodeToString([]byte{02})
 	testHostedBlockchain := HostedBlockchain{
-		ID:  ethereum,
-		URL: url,
+		ID:           ethereum,
+		HTTPURL:      url,
+		WebSocketURL: wurl,
 	}
 	hb := HostedBlockchains{
 		M: map[string]HostedBlockchain{testHostedBlockchain.ID: testHostedBlockchain},
@@ -42,22 +48,27 @@ func TestHostedBlockchains_ContainsFromString(t *testing.T) {
 
 func TestHostedBlockchains_Validate(t *testing.T) {
 	url := "https://www.google.com:443"
+	wurl := "wss://www.google.com/ws"
 	ethereum := hex.EncodeToString([]byte{01})
 	testHostedBlockchain := HostedBlockchain{
-		ID:  ethereum,
-		URL: url,
+		ID:           ethereum,
+		HTTPURL:      url,
+		WebSocketURL: wurl,
 	}
 	HCNoURL := HostedBlockchain{
-		ID:  ethereum,
-		URL: "",
+		ID:           ethereum,
+		HTTPURL:      "",
+		WebSocketURL: "",
 	}
 	HCNoHash := HostedBlockchain{
-		ID:  "",
-		URL: url,
+		ID:           "",
+		HTTPURL:      url,
+		WebSocketURL: wurl,
 	}
 	HCInvalidHash := HostedBlockchain{
-		ID:  hex.EncodeToString([]byte("badlksajfljasdfklj")),
-		URL: url,
+		ID:           hex.EncodeToString([]byte("badlksajfljasdfklj")),
+		HTTPURL:      url,
+		WebSocketURL: wurl,
 	}
 	tests := []struct {
 		name     string
@@ -66,17 +77,17 @@ func TestHostedBlockchains_Validate(t *testing.T) {
 	}{
 		{
 			name:     "Invalid HostedBlockchain, no URL",
-			hc:       &HostedBlockchains{M: map[string]HostedBlockchain{HCNoURL.URL: HCNoURL}, L: sync.Mutex{}},
+			hc:       &HostedBlockchains{M: map[string]HostedBlockchain{HCNoURL.HTTPURL: HCNoURL, HCNoURL.WebSocketURL: HCNoURL}, L: sync.Mutex{}},
 			hasError: true,
 		},
 		{
 			name:     "Invalid HostedBlockchain, no URL",
-			hc:       &HostedBlockchains{M: map[string]HostedBlockchain{HCNoHash.URL: HCNoHash}, L: sync.Mutex{}},
+			hc:       &HostedBlockchains{M: map[string]HostedBlockchain{HCNoHash.HTTPURL: HCNoHash, HCNoHash.WebSocketURL: HCNoHash}, L: sync.Mutex{}},
 			hasError: true,
 		},
 		{
 			name:     "Invalid HostedBlockchain, invalid ID",
-			hc:       &HostedBlockchains{M: map[string]HostedBlockchain{HCInvalidHash.URL: HCInvalidHash}, L: sync.Mutex{}},
+			hc:       &HostedBlockchains{M: map[string]HostedBlockchain{HCInvalidHash.HTTPURL: HCInvalidHash, HCInvalidHash.WebSocketURL: HCInvalidHash}, L: sync.Mutex{}},
 			hasError: true,
 		},
 		{

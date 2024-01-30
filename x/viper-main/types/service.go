@@ -214,7 +214,7 @@ func (r Relay) Execute(hostedBlockchains *HostedBlockchains, address *sdk.Addres
 		addServiceMetricErrorFor(r.Proof.Blockchain, address)
 		return "", err
 	}
-	url := strings.Trim(chain.URL, `/`)
+	url := strings.Trim(chain.HTTPURL, `/`)
 	if len(r.Payload.Path) > 0 {
 		url = url + "/" + strings.Trim(r.Payload.Path, `/`)
 	}
@@ -470,7 +470,7 @@ func (r Relay) ExecuteWebSocket(hostedBlockchains *HostedBlockchains, address *s
 	}
 
 	// Construct WebSocket URL
-	url := strings.Trim(chain.URL, "/")
+	url := strings.Trim(chain.WebSocketURL, "/")
 	if len(r.Payload.Path) > 0 {
 		url = url + "/" + strings.Trim(r.Payload.Path, "/")
 	}

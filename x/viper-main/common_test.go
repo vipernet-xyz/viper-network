@@ -117,8 +117,9 @@ func createTestInput(t *testing.T, isCheckTx bool) (sdk.Ctx, servicersKeeper.Kee
 
 	hb := types.HostedBlockchains{
 		M: map[string]types.HostedBlockchain{ethereum: {
-			ID:  ethereum,
-			URL: "https://www.google.com:443",
+			ID:           ethereum,
+			HTTPURL:      "https://www.google.com:443",
+			WebSocketURL: "wss://www.google.com/ws",
 		}},
 	}
 
