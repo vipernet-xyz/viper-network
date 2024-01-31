@@ -94,11 +94,19 @@ func LoadSampleRelayPool() (map[string]*RelayPool, error) {
 		return nil, fmt.Errorf("Error closing samplepool.json: %v", err)
 	}
 
-	// Unmarshal directly into the expected map structure
-	var resultMap map[string]*RelayPool
-	err = json.Unmarshal(bz, &resultMap)
+	// Unmarshal the JSON array into a slice of RelayPool
+	var relayPools []RelayPool
+	err = json.Unmarshal(bz, &relayPools)
 	if err != nil {
 		return nil, fmt.Errorf("Error unmarshaling samplepool.json: %v", err)
+	}
+
+	// Convert the slice of RelayPool into the required map structure
+	resultMap := make(map[string]*RelayPool)
+	for _, pool := range relayPools {
+		// Create a new variable inside the loop to take its address
+		p := pool
+		resultMap[p.Blockchain] = &p
 	}
 
 	return resultMap, nil

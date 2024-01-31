@@ -1415,7 +1415,7 @@ func HotReloadSamplePools(samplePools *types.SamplePools) {
 
 			// if file exists open, else create and open
 			if _, err := os.Stat(samplePoolPath); err != nil && os.IsNotExist(err) {
-				log2.Println(fmt.Sprintf("no samplepool.json found @ %s, defaulting to empty pool", samplePoolPath))
+				log2.Println(fmt.Sprintf("no samplepool.json found @ %s, defaulting to an empty pool", samplePoolPath))
 				createMissingSamplePoolJson(samplePoolPath)
 				continue
 			}
@@ -1432,20 +1432,15 @@ func HotReloadSamplePools(samplePools *types.SamplePools) {
 			}
 			jsonFile.Close()
 
-			// Unmarshal into structure
-			var samplePoolSlice []types.SamplePool
-			err = json.Unmarshal(bz, &samplePoolSlice)
+			// Unmarshal into a map directly
+			var samplePoolMap map[string]types.SamplePool
+			err = json.Unmarshal(bz, &samplePoolMap)
 			if err != nil {
 				log2.Fatal(NewInvalidSamplePoolError(err))
 			}
 
-			m := make(map[string]types.SamplePool)
-			for _, sp := range samplePoolSlice {
-				m[sp.Blockchain] = sp
-			}
-
 			samplePools.L.Lock()
-			samplePools.M = m
+			samplePools.M = samplePoolMap
 			samplePools.L.Unlock()
 		}
 	}()
@@ -1568,7 +1563,7 @@ func createMissingSamplePoolJson(samplePoolPath string) {
 	}
 
 	// Define Ethereum sample payloads
-	ethSamplePayloads := []*types.RelayPayload{
+	ethSamplePayloads := []types.RelayPayload{
 		{
 			Data:    "eth_sample_data_1",
 			Method:  "GET",
@@ -1584,7 +1579,7 @@ func createMissingSamplePoolJson(samplePoolPath string) {
 	}
 
 	// Define Solana sample payloads
-	solSamplePayloads := []*types.RelayPayload{
+	solSamplePayloads := []types.RelayPayload{
 		{
 			Data:    "sol_sample_data_1",
 			Method:  "GET",
@@ -1599,20 +1594,20 @@ func createMissingSamplePoolJson(samplePoolPath string) {
 		},
 	}
 
-	// Create the sample pool map with numeric identifiers as keys
-	samplePoolMap := map[string]*types.RelayPool{
-		"0002": {
+	// Create the sample pool array
+	samplePoolArray := []types.SamplePool{
+		{
 			Blockchain: "0002",
 			Payloads:   ethSamplePayloads,
 		},
-		"0003": {
+		{
 			Blockchain: "0003",
 			Payloads:   solSamplePayloads,
 		},
 	}
 
-	// Marshal the map into JSON with indentation
-	res, err := json.MarshalIndent(samplePoolMap, "", "  ")
+	// Marshal the array into JSON with indentation
+	res, err := json.MarshalIndent(samplePoolArray, "", "  ")
 	if err != nil {
 		log2.Fatal(NewInvalidSamplePoolError(err))
 	}
