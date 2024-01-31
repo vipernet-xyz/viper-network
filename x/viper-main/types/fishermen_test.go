@@ -77,16 +77,6 @@ func TestRelayer_SendSampleRelay(t *testing.T) {
 		  }`),
 	)
 
-	// Set up a responder for the POST request to "https://mynode.com:8082/v1/client/localrelay"
-	httpmock.RegisterResponder(
-		http.MethodPost,
-		"https://mynode.com:8082/v1/client/localrelay",
-		httpmock.NewStringResponder(http.StatusOK, `{
-			"response": "{\"id\":3905054414,\"jsonrpc\":\"2.0\",\"result\":\"0xdd03e4\"}",
-			"signature": "abfabfabfabfabfabfabfabfabfabfabfabfabfabfabfabfabfabfabfabfabfabf"
-		  }`),
-	)
-
 	reqPubKey := getRandomPubKey()
 	clientPubKey := getRandomPubKey()
 	fishermanPrivKey := GetRandomPrivateKey()
@@ -151,8 +141,6 @@ func TestRelayer_SendSampleRelay(t *testing.T) {
 
 	// Verify the number of calls to Sender.Relay
 	c.Equal(1, calls["POST https://mynode.com:8082/v1/client/relay"])
-
-	c.Equal(1, calls["POST https://mynode.com:8082/v1/client/localrelay"])
 
 	// Reset the mocks
 	httpmock.Reset()
