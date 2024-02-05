@@ -153,7 +153,7 @@ func (k Keeper) HandleWebsocketRelay(ctx sdk.Ctx, relay vc.Relay) (chan *vc.Rela
 		// Handle invalid relay
 		// Send an error response to the WebSocket client
 		close(resChan) // Close the channel since there won't be any further responses
-		return resChan, fmt.Errorf("Error validating relay: %v", err)
+		return nil, fmt.Errorf("Error validating relay: %v", err)
 	}
 
 	// Process the relay asynchronously
@@ -179,8 +179,10 @@ func (k Keeper) HandleWebsocketRelay(ctx sdk.Ctx, relay vc.Relay) (chan *vc.Rela
 			if signErr != nil {
 				// Handle signing error
 				// Send an error response to the WebSocket client
-				resp.Response = fmt.Sprintf("Error: %s", signErr.Error())
-				respChan <- resp
+				res := &vc.RelayResponse{
+					Response: fmt.Sprintf("Error: %s", signErr.Error()),
+				}
+				resChan <- res
 				return
 			}
 
@@ -193,12 +195,15 @@ func (k Keeper) HandleWebsocketRelay(ctx sdk.Ctx, relay vc.Relay) (chan *vc.Rela
 			// Check evidence, uniqueness, and relay count
 			evidence, totalRelays := vc.GetTotalProofs(header, vc.RelayEvidence, maxPossibleRelays, node.EvidenceStore)
 			if node.EvidenceStore.IsSealed(evidence) {
+				err = vc.NewSealedEvidenceError(vc.ModuleName)
 				return
 			}
 			if !vc.IsUniqueProof(relay.Proof, evidence) {
+				err = vc.NewDuplicateProofError(vc.ModuleName)
 				return
 			}
 			if sdk.NewInt(totalRelays).GTE(maxPossibleRelays) {
+				err = vc.NewOverServiceError(vc.ModuleName)
 				return
 			}
 
@@ -208,7 +213,7 @@ func (k Keeper) HandleWebsocketRelay(ctx sdk.Ctx, relay vc.Relay) (chan *vc.Rela
 	}()
 
 	// Return the channel for WebSocket responses
-	return resChan, nil
+	return resChan, err
 }
 
 // "HandleChallenge" - Handles a client relay response challenge request
