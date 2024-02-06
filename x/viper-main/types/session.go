@@ -38,7 +38,7 @@ func NewSession(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, sessionHeader Session
 		return Session{}, err
 	}
 	sessionFishermenCount := keeper.FishermenCount(ctx)
-	sessionFishermen, err := NewSessionFishermen(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionHeader.GeoZone, sessionKey, sessionFishermenCount)
+	sessionFishermen, err := NewSessionFishermen(sessionCtx, ctx, keeper, sessionHeader.Chain, sessionKey, sessionFishermenCount)
 	if err != nil {
 		return Session{}, err
 	}
@@ -391,22 +391,13 @@ func (sn SessionNodes) Contains(addr sdk.Address) bool {
 	return false
 }
 
-func NewSessionFishermen(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, geoZone string, sessionKey SessionKey, sessionFishermenCount int64) (sessionFishermen SessionFishermen, err sdk.Error) {
-	MaxFishermen := keeper.MaxFishermen(ctx)
-	// Get all validators
-	validators := keeper.GetStakedValidatorsLimit(sessionCtx, MaxFishermen)
-
-	// Filter validators by chain and geo zone
-	validatorsInBoth := make([]sdk.Address, 0)
-	for _, validator := range validators {
-		if NodeHasChain(chain, validator) && NodeHasGeoZone(geoZone, validator) {
-			validatorsInBoth = append(validatorsInBoth, validator.GetAddress())
-		}
-	}
+func NewSessionFishermen(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string, sessionKey SessionKey, sessionFishermenCount int64) (sessionFishermen SessionFishermen, err sdk.Error) {
+	// Get all validators for the specified chain
+	servicersByChain, _ := keeper.GetValidatorsByChain(sessionCtx, chain)
 
 	// Validate that the number of fishermen is sufficient
-	if len(validatorsInBoth) < int(sessionFishermenCount) {
-		return nil, NewInsufficientServicersError(ModuleName) // You may want to rename this error to be more general
+	if len(servicersByChain) < int(sessionFishermenCount) {
+		return nil, NewInsufficientServicersError(ModuleName)
 	}
 
 	sessionFishermen = make(SessionFishermen, sessionFishermenCount)
@@ -416,17 +407,17 @@ func NewSessionFishermen(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string
 	m := make(map[string]struct{})
 	// Only select the fishermen if not jailed and serve the chain
 	for i, numOfFishermen := 0, 0; ; i++ {
-		// If this is true we already checked all validators we got on GetValidators
-		if len(m) >= len(validatorsInBoth) {
+		// If this is true we already checked all validators we got on GetValidatorsByChain
+		if len(m) >= len(servicersByChain) {
 			return nil, NewInsufficientServicersError(ModuleName)
 		}
 
 		// Generate the random index
-		index := PseudorandomSelection(sdk.NewInt(int64(len(validatorsInBoth))), sessionKey)
+		index := PseudorandomSelection(sdk.NewInt(int64(len(servicersByChain))), sessionKey)
 		// MerkleHash the session key to provide new entropy
 		sessionKey = Hash(sessionKey)
 		// Get the fisherman from the array
-		n := validatorsInBoth[index.Int64()]
+		n := servicersByChain[index.Int64()]
 		// If we already have seen this address we continue as it's either on the list or discarded
 		if _, ok := m[n.String()]; ok {
 			continue
@@ -437,7 +428,7 @@ func NewSessionFishermen(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain string
 		// Cross check the fisherman from the `new` or `end` world state
 		fisherman = keeper.Validator(ctx, n)
 		// If not found or jailed, don't add to session and continue
-		if fisherman == nil || fisherman.IsJailed() || fisherman.IsPaused() || !NodeHasChain(chain, fisherman) || !NodeHasGeoZone(geoZone, fisherman) || sessionFishermen.Contains(fisherman.GetAddress()) || FishermanInList(fisherman.GetAddress(), sessionFishermen) {
+		if fisherman == nil || fisherman.IsJailed() || fisherman.IsPaused() || sessionFishermen.Contains(fisherman.GetAddress()) {
 			continue
 		}
 		// Else add the fisherman to the session
