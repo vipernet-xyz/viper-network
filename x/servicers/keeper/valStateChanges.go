@@ -257,7 +257,10 @@ func (k Keeper) StakeValidator(ctx sdk.Ctx, validator types.Validator, amount sd
 	k.SetValidator(ctx, validator)
 	k.SetStakedValidatorByChains(ctx, validator)
 	k.SetStakedValidatorByGeoZone(ctx, validator)
-	k.SetValidatorReportCard(ctx, validator)
+
+	// Initialize report card for the validator
+	k.InitializeReportCardForValidator(ctx, &validator)
+
 	// ensure there's a signing info entry for the validator (used in slashing)
 	_, found1 := k.GetValidatorSigningInfo(ctx, validator.GetAddress())
 	if !found1 {

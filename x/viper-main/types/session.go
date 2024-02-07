@@ -169,12 +169,7 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 	// Unique address map to avoid re-checking a pseudorandomly selected servicer
 	m := make(map[string]struct{})
 	// Only select the servicersAddrs if not jailed and contain both chain and geo zone
-	for i, numOfServicers := 0, 0; ; i++ {
-		// If this is true we already checked all servicers we got on GetValidatorsByChain
-		if len(m) >= len(validatorsInBoth) {
-			return nil, NewInsufficientServicersError(ModuleName)
-		}
-
+	for i, numOfServicers := 0, 0; i < len(validatorsInBoth) && numOfServicers < int(sessionServicersCount); i++ {
 		// Generate the random index based on report card scores
 		index := PseudorandomSelectionWithWeights(scoresMap, sessionKey)
 		// MerkleHash the session key to provide new entropy
@@ -198,10 +193,6 @@ func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZo
 		sessionServicers[numOfServicers] = n
 		// Increment the number of servicers in the sessionServicers slice
 		numOfServicers++
-		// If maxing out the session count, end the loop
-		if numOfServicers == int(sessionServicersCount) {
-			break
-		}
 	}
 
 	// Return the servicers
