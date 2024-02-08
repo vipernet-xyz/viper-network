@@ -36,7 +36,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type SessionHeader struct {
 	RequestorPubKey    string `protobuf:"bytes,1,opt,name=requestorPubKey,proto3" json:"requestor_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
-	GeoZone            string `protobuf:"bytes,3,opt,name=geo_zone,proto3" json:"geo_zone"`
+	GeoZone            string `protobuf:"bytes,3,opt,name=zone,proto3" json:"zone"`
 	NumServicers       int64  `protobuf:"varint,4,opt,name=num_servicers,proto3" json:"num_servicers"`
 	SessionBlockHeight int64  `protobuf:"varint,5,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }

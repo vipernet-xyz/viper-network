@@ -163,7 +163,7 @@ type relayProof struct {
 	Signature          string `json:"signature"`
 	Token              string `json:"token"`
 	RequestHash        string `json:"request_hash"`
-	GeoZone            string `json:"geo_zone"`
+	GeoZone            string `json:"zone"`
 	NumServicers       int64  `json:"num_servicers"`
 }
 
