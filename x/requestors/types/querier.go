@@ -40,7 +40,7 @@ type QueryRequestorsWithOpts struct {
 	Limit         int             `json:"per_page"`
 	StakingStatus sdk.StakeStatus `json:"staking_status"`
 	Blockchain    string          `json:"blockchain"`
-	GeoZone       string          `json:"geo_zone"`
+	GeoZone       string          `json:"zone"`
 }
 
 func (opts QueryRequestorsWithOpts) IsValid(requestor Requestor) bool {

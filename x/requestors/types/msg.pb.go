@@ -31,8 +31,8 @@ type MsgProtoStake struct {
 	PubKey       []byte                                             `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3" json:"pubkey" yaml:"pubkey"`
 	Chains       []string                                           `protobuf:"bytes,2,rep,name=chains,proto3" json:"chains" yaml:"chains"`
 	Value        github_com_vipernet_xyz_viper_network_types.BigInt `protobuf:"bytes,3,opt,name=value,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"value" yaml:"value"`
-	GeoZones     []string                                           `protobuf:"bytes,4,rep,name=geo_zones,json=geoZones,proto3" json:"geo_zones" yaml:"geo_zones"`
-	NumServicers int32                                              `protobuf:"varint,5,opt,name=num_servicers,json=numServicers,proto3" json:"num_servicers" yaml:"num_servicers"`
+	GeoZones     []string                                           `protobuf:"bytes,4,rep,name=geo_zone,proto3" json:"geo_zone" yaml:"geo_zone"`
+	NumServicers int64                                              `protobuf:"varint,5,opt,name=num_servicers,proto3" json:"num_servicers" yaml:"num_servicers"`
 }
 
 func (m *MsgProtoStake) Reset()      { *m = MsgProtoStake{} }
@@ -744,7 +744,7 @@ func (m *MsgProtoStake) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumServicers |= int32(b&0x7F) << shift
+				m.NumServicers |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

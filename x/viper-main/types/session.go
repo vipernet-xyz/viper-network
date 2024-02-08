@@ -129,7 +129,7 @@ type SessionServicers []sdk.Address
 type SessionFishermen []sdk.Address
 
 // NewSessionServicers - Generates servicers for the session based on both chain and geo zone
-func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZone string, sessionKey SessionKey, sessionServicersCount int32) (sessionServicers SessionServicers, err sdk.Error) {
+func NewSessionServicers(sessionCtx, ctx sdk.Ctx, keeper PosKeeper, chain, geoZone string, sessionKey SessionKey, sessionServicersCount int64) (sessionServicers SessionServicers, err sdk.Error) {
 	// all servicersAddrs at session genesis based on the chain
 	servicersByChain, _ := keeper.GetValidatorsByChain(sessionCtx, chain)
 

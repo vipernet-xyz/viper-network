@@ -14,7 +14,7 @@ import (
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
-func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, geozones []string, numServicers int32, amount sdk.BigInt, kp keys.KeyPair, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
+func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, geozones []string, numServicers int64, amount sdk.BigInt, kp keys.KeyPair, passphrase string, legacyCodec bool) (*sdk.TxResponse, error) {
 	fromAddr := kp.GetAddress()
 	msg := types.MsgStake{
 		PubKey:       kp.PublicKey,

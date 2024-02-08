@@ -24,12 +24,12 @@ type Requestor struct {
 	StakedTokens            sdk.BigInt       `json:"tokens" yaml:"tokens"`         // tokens staked in the network
 	MaxRelays               sdk.BigInt       `json:"max_relays" yaml:"max_relays"` // maximum number of relays allowed
 	GeoZones                []string         `json:"geo_zone" yaml:"geo_zone"`     //geo location
-	NumServicers            int32            `json:"num_servicers" yaml:"num_servicers"`
+	NumServicers            int64            `json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time        `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the requestor to complete unstaking
 }
 
 // NewRequestor - initialize a new instance of an requestor
-func NewRequestor(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt, geoZones []string, numServicers int32) Requestor {
+func NewRequestor(addr sdk.Address, publicKey crypto.PublicKey, chains []string, tokensToStake sdk.BigInt, geoZones []string, numServicers int64) Requestor {
 	return Requestor{
 		Address:                 addr,
 		PublicKey:               publicKey,
@@ -101,7 +101,7 @@ func (a Requestor) GetTokens() sdk.BigInt          { return a.StakedTokens }
 func (a Requestor) GetConsensusPower() int64       { return a.ConsensusPower() }
 func (a Requestor) GetMaxRelays() sdk.BigInt       { return a.MaxRelays }
 func (a Requestor) GetGeoZones() []string          { return a.GeoZones }
-func (a Requestor) GetNumServicers() int32         { return a.NumServicers }
+func (a Requestor) GetNumServicers() int64         { return a.NumServicers }
 
 var _ codec.ProtoMarshaler = &Requestor{}
 
@@ -173,6 +173,7 @@ func (ae ProtoRequestor) FromProto() (Requestor, error) {
 		StakedTokens:            ae.StakedTokens,
 		MaxRelays:               ae.MaxRelays,
 		GeoZones:                ae.GeoZones,
+		NumServicers:            ae.NumServicers,
 		UnstakingCompletionTime: ae.UnstakingCompletionTime,
 	}, nil
 }
@@ -188,9 +189,10 @@ func (a Requestors) String() (out string) {
 }
 
 // String returns a human readable string representation of a requestor.
+
 func (a Requestor) String() string {
-	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nChains:\t\t\t%v\nMaxRelays:\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\nGeoZones:\t\t\t%sUnstaking Time:\t%v\n----\n",
-		a.Address, a.PublicKey.RawString(), a.Jailed, a.Chains, a.MaxRelays, a.Status, a.StakedTokens, a.GeoZones, a.UnstakingCompletionTime,
+	return fmt.Sprintf("Address:\t\t%s\nPublic Key:\t\t%s\nJailed:\t\t\t%v\nChains:\t\t\t%v\nMaxRelays:\t\t%v\nStatus:\t\t\t%s\nTokens:\t\t\t%s\nGeoZones:\t\t\t%s\nUnstaking Time:\t%v\nNumbServicers:\t%d\n----\n",
+		a.Address, a.PublicKey.RawString(), a.Jailed, a.Chains, a.MaxRelays, a.Status, a.StakedTokens, a.GeoZones, a.UnstakingCompletionTime, a.NumServicers,
 	)
 }
 
@@ -203,8 +205,8 @@ type JSONRequestor struct {
 	MaxRelays               sdk.BigInt      `json:"max_relays" yaml:"max_relays"`       // maximum number of relays allowed for the requestor
 	Status                  sdk.StakeStatus `json:"status" yaml:"status"`               // requestor status (staked/unstaking/unstaked)
 	StakedTokens            sdk.BigInt      `json:"staked_tokens" yaml:"staked_tokens"` // how many staked tokens
-	GeoZones                []string        `json:"geo_zones" yaml:"geo_zones"`
-	NumServicers            int32           `json:"num_servicers" yaml:"num_servicers"`
+	GeoZones                []string        `json:"geo_zone" yaml:"geo_zone"`
+	NumServicers            int64           `json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the requestor to complete unstaking
 }
 
@@ -224,6 +226,7 @@ func (a Requestor) MarshalJSON() ([]byte, error) {
 		MaxRelays:               a.MaxRelays,
 		StakedTokens:            a.StakedTokens,
 		GeoZones:                a.GeoZones,
+		NumServicers:            a.NumServicers,
 		UnstakingCompletionTime: a.UnstakingCompletionTime,
 	})
 }

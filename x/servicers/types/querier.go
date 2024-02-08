@@ -33,7 +33,7 @@ type QueryValidatorsParams struct {
 	JailedStatus  int             `json:"jailed_status"`
 	PausedStatus  int             `json:"paused_status"`
 	Blockchain    string          `json:"blockchain"`
-	GeoZone       string          `json:"geo_zone"`
+	GeoZone       string          `json:"zone"`
 	Page          int             `json:"page"`
 	Limit         int             `json:"per_page"`
 }

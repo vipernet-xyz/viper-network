@@ -1387,7 +1387,7 @@ func createMissingGeoZonesJson(geoZonesPath string) {
 	var hostedGeoZonesSlice []types.GeoZone
 
 	hostedGeoZonesSlice = append(hostedGeoZonesSlice, types.GeoZone{
-		ID: "0000",
+		ID: "0001",
 	})
 
 	// write to the file

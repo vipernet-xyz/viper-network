@@ -34,10 +34,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // SessionHeader defines the header for session information
 type SessionHeader struct {
-	RequestorPubKey     string `protobuf:"bytes,1,opt,name=requestorPubKey,proto3" json:"requestor_public_key"`
+	RequestorPubKey    string `protobuf:"bytes,1,opt,name=requestorPubKey,proto3" json:"requestor_public_key"`
 	Chain              string `protobuf:"bytes,2,opt,name=chain,proto3" json:"chain"`
-	GeoZone            string `protobuf:"bytes,3,opt,name=geoZone,proto3" json:"geo_zone"`
-	NumServicers       int32  `protobuf:"varint,4,opt,name=numServicers,proto3" json:"num_servicers"`
+	GeoZone            string `protobuf:"bytes,3,opt,name=geo_zone,proto3" json:"geo_zone"`
+	NumServicers       int64  `protobuf:"varint,4,opt,name=num_servicers,proto3" json:"num_servicers"`
 	SessionBlockHeight int64  `protobuf:"varint,5,opt,name=sessionBlockHeight,proto3" json:"session_height"`
 }
 
@@ -332,8 +332,8 @@ type RelayProof struct {
 	Blockchain         string `protobuf:"bytes,5,opt,name=blockchain,proto3" json:"blockchain"`
 	Token              AAT    `protobuf:"bytes,6,opt,name=token,proto3" json:"aat"`
 	Signature          string `protobuf:"bytes,7,opt,name=signature,proto3" json:"signature"`
-	GeoZone            string `protobuf:"bytes,8,opt,name=geoZone,proto3" json:"geo_zone"`
-	NumServicers       int32  `protobuf:"varint,9,opt,name=numServicers,proto3" json:"num_servicers"`
+	GeoZone            string `protobuf:"bytes,8,opt,name=Zone,proto3" json:"zone"`
+	NumServicers       int64  `protobuf:"varint,9,opt,name=num_servicers,proto3" json:"num_servicers"`
 }
 
 func (m *RelayProof) Reset()      { *m = RelayProof{} }
@@ -3934,7 +3934,7 @@ func (m *SessionHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumServicers |= int32(b&0x7F) << shift
+				m.NumServicers |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5088,7 +5088,7 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumServicers |= int32(b&0x7F) << shift
+				m.NumServicers |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

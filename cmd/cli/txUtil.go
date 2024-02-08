@@ -269,7 +269,7 @@ func UnjailNode(operatorAddr, fromAddr, passphrase, chainID string, fees int64) 
 	}, nil
 }
 
-func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, geoZones []string, numServicers int32, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
+func StakeClient(chains []string, fromAddr, passphrase, chainID string, amount sdk.BigInt, geoZones []string, numServicers int64, fees int64, legacyCodec bool) (*rpc.SendRawTxParams, error) {
 	fa, err := sdk.AddressFromHex(fromAddr)
 	if err != nil {
 		return nil, err

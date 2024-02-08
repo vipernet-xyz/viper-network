@@ -71,7 +71,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger,
 		RequestorPubKey:    trigger.Proof.Token.RequestorPublicKey,
 		Chain:              trigger.Proof.Blockchain,
 		GeoZone:            trigger.Proof.GeoZone,
-		NumServicers:       int32(trigger.Proof.NumServicers),
+		NumServicers:       trigger.Proof.NumServicers,
 		SessionBlockHeight: trigger.Proof.SessionBlockHeight,
 	}
 

@@ -18,5 +18,5 @@ type RequestorI interface {
 	GetPublicKey() crypto.PublicKey // validation consensus pubkey
 	GetTokens() sdk.BigInt          // validation tokens
 	GetMaxRelays() sdk.BigInt       // maximum relays
-	GetNumServicers() int32
+	GetNumServicers() int64
 }

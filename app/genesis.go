@@ -57,8 +57,7 @@ func newDefaultGenesisState() []byte {
 		servicers.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		viper.AppModuleBasic{},
-	).DefaultGenesis()
-	// setup account genesis
+	).DefaultGenesis() // setup account genesis
 	rawAuth := defaultGenesis[authentication.ModuleName]
 	var accountGenesis authentication.GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(rawAuth, &accountGenesis)
@@ -79,10 +78,10 @@ func newDefaultGenesisState() []byte {
 		Jailed:                  false,
 		Status:                  2,
 		Chains:                  []string{sdk.PlaceholderHash},
-		GeoZones:                []string{sdk.PlaceholderGeoZone},
-		NumServicers:            5,
+		GeoZones:                []string{sdk.PlaceholderHash},
 		StakedTokens:            sdk.NewInt(10000000000000),
 		MaxRelays:               sdk.NewInt(10000000000000),
+		NumServicers:            5,
 		UnstakingCompletionTime: time.Time{},
 	})
 	res = Codec().MustMarshalJSON(requestorsGenesis)
@@ -104,9 +103,9 @@ func newDefaultGenesisState() []byte {
 			Paused:                  false,
 			Status:                  sdk.Staked,
 			Chains:                  []string{sdk.PlaceholderHash},
-			GeoZone:                 []string{sdk.PlaceholderGeoZone},
 			ServiceURL:              sdk.PlaceholderServiceURL,
 			StakedTokens:            sdk.NewInt(10000000000000),
+			GeoZone:                 []string{sdk.PlaceholderHash},
 			UnstakingCompletionTime: time.Time{},
 			ReportCard:              servicersTypes.ReportCard{TotalSessions: 0, TotalLatencyScore: sdk.NewDec(0), TotalAvailabilityScore: sdk.NewDec(0), TotalReliabilityScore: sdk.NewDec(0)}})
 	res = types.ModuleCdc.MustMarshalJSON(posGenesisState)

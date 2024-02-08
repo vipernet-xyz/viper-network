@@ -50,8 +50,8 @@ type ProtoRequestor struct {
 	Chains                  []string                                                `protobuf:"bytes,5,rep,name=chains,proto3" json:"chains" yaml:"chains"`
 	StakedTokens            github_com_vipernet_xyz_viper_network_types.BigInt      `protobuf:"bytes,6,opt,name=staked_tokens,json=stakedTokens,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"tokens" yaml:"tokens"`
 	MaxRelays               github_com_vipernet_xyz_viper_network_types.BigInt      `protobuf:"bytes,7,opt,name=max_relays,json=maxRelays,proto3,customtype=github.com/vipernet-xyz/viper-network/types.BigInt" json:"max_relays" yaml:"max_relays"`
-	GeoZones                []string                                                `protobuf:"bytes,8,rep,name=geo_zones,json=geoZones,proto3" json:"geo_zones" yaml:"geo_zones"`
-	NumServicers            int32                                                   `protobuf:"varint,9,opt,name=num_servicers,json=numServicers,proto3" json:"num_servicers" yaml:"num_servicers"`
+	GeoZones                []string                                                `protobuf:"bytes,8,rep,name=geo_zone,proto3" json:"geo_zone" yaml:"geo_zone"`
+	NumServicers            int64                                                   `protobuf:"varint,9,opt,name=num_servicers,proto3" json:"num_servicers" yaml:"num_servicers"`
 	UnstakingCompletionTime time.Time                                               `protobuf:"bytes,10,opt,name=unstaking_completion_time,json=unstakingCompletionTime,proto3,stdtime" json:"unstaking_time" yaml:"unstaking_time"`
 }
 
@@ -1203,7 +1203,7 @@ func (m *ProtoRequestor) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumServicers |= int32(b&0x7F) << shift
+				m.NumServicers |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

@@ -28,7 +28,7 @@ type MsgStake struct {
 	Chains       []string         `json:"chains" yaml:"chains"`
 	Value        sdk.BigInt       `json:"value" yaml:"value"`
 	GeoZones     []string         `json:"geo_zone" yaml:"geo_zone"`
-	NumServicers int32            `json:"num_servicers" yaml:"num_servicers"`
+	NumServicers int64            `json:"num_servicers" yaml:"num_servicers"`
 }
 
 // GetSigners return address(es) that must sign over msg.GetSignBytes()

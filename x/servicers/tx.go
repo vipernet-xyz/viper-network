@@ -14,7 +14,7 @@ import (
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
-func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, serviceURL string, amount sdk.BigInt, kp keys.KeyPair, output sdk.Address, passphrase string, legacyCodec bool, fromAddr sdk.Address) (*sdk.TxResponse, error) {
+func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chains []string, geoZone []string, serviceURL string, amount sdk.BigInt, kp keys.KeyPair, output sdk.Address, passphrase string, legacyCodec bool, fromAddr sdk.Address) (*sdk.TxResponse, error) {
 	var msg sdk.ProtoMsg
 	{
 		msg = &types.MsgStake{
@@ -22,6 +22,7 @@ func StakeTx(cdc *codec.Codec, tmNode client.Client, keybase keys.Keybase, chain
 			Value:      amount,
 			ServiceUrl: serviceURL, // url where viper service api is hosted
 			Chains:     chains,     // non native blockchains
+			GeoZone:    geoZone,
 		}
 	}
 	txBuilder, cliCtx, err := newTx(cdc, msg, fromAddr, tmNode, keybase, passphrase)

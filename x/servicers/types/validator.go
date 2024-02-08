@@ -122,6 +122,15 @@ func (v Validator) HasChain(netID string) bool {
 	return false
 }
 
+func (v Validator) HasGeoZone(geoZone string) bool {
+	for _, c := range v.GeoZone {
+		if c == geoZone {
+			return true
+		}
+	}
+	return false
+}
+
 // return the TM validator address
 func (v Validator) GetChains() []string            { return v.Chains }
 func (v Validator) GetServiceURL() string          { return v.ServiceURL }
@@ -228,6 +237,7 @@ func (v *Validator) UnmarshalJSON(data []byte) error {
 		Chains:                  bv.Chains,
 		ServiceURL:              bv.ServiceURL,
 		StakedTokens:            bv.StakedTokens,
+		GeoZone:                 bv.GeoZone,
 		Status:                  bv.Status,
 		UnstakingCompletionTime: bv.UnstakingCompletionTime,
 		OutputAddress:           bv.OutputAddress,
@@ -285,8 +295,8 @@ type JSONValidator struct {
 	Chains                  []string        `json:"chains" yaml:"chains"`           // validator non native blockchains
 	ServiceURL              string          `json:"service_url" yaml:"service_url"` // url where the viper service api is hosted
 	StakedTokens            sdk.BigInt      `json:"tokens" yaml:"tokens"`           // tokens staked in the network
-	GeoZone                 []string        `json:"geo_zone" yaml:"service_url"`
-	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"geo_zone"`       // if unstaking, min time for the validator to complete unstaking
+	GeoZone                 []string        `json:"geo_zone" yaml:"geo_zone"`
+	UnstakingCompletionTime time.Time       `json:"unstaking_time" yaml:"unstaking_time"` // if unstaking, min time for the validator to complete unstaking
 	OutputAddress           sdk.Address     `json:"output_address" yaml:"output_address"` // custodial output address of tokens
 	ReportCard              ReportCard      `json:"report_card" yaml:"report_card"`
 }

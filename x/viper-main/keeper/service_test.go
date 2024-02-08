@@ -24,7 +24,7 @@ func setupHandleRelayTest(t *testing.T) (
 	clientPrivateKey, appPrivateKey crypto.Ed25519PrivateKey,
 	nodePubKey crypto.PublicKey,
 	chain string,
-	geoZone string, numServicers int32,
+	geoZone string, numServicers int64,
 ) {
 	var kb keys.Keybase
 	ctx, _, _, _, keeper, kvkeys, kb = createTestInput(t, false)
@@ -65,7 +65,7 @@ func testRelayAt(
 	nodePubKey crypto.PublicKey,
 	chain string,
 	geozone string,
-	numServicers int32,
+	numServicers int64,
 ) (*types.RelayResponse, sdk.Error) {
 	clientPubKey := clientPrivateKey.PublicKey()
 	appPubKey := appPrivateKey.PublicKey()
@@ -313,7 +313,7 @@ func setupHandleWebsocketRelayTest(t *testing.T) (
 	clientPrivateKey, appPrivateKey crypto.Ed25519PrivateKey,
 	nodePubKey crypto.PublicKey,
 	chain string,
-	geoZone string, numServicers int32,
+	geoZone string, numServicers int64,
 ) {
 	var kb keys.Keybase
 	ctx, _, _, _, keeper, kvkeys, kb = createTestInput(t, false)
@@ -354,7 +354,7 @@ func testWebsocketRelayAt(
 	nodePubKey crypto.PublicKey,
 	chain string,
 	geozone string,
-	numServicers int32,
+	numServicers int64,
 ) (chan *types.RelayResponse, error) {
 	clientPubKey := clientPrivateKey.PublicKey()
 	appPubKey := appPrivateKey.PublicKey()

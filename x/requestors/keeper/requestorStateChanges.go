@@ -18,7 +18,7 @@ func (k Keeper) ValidateRequestorStaking(ctx sdk.Ctx, requestor types.Requestor,
 	if int64(len(requestor.Chains)) > k.MaxChains(ctx) {
 		return types.ErrTooManyChains(types.ModuleName)
 	}
-	if requestor.NumServicers < int32(k.MinNumServicers(ctx)) || requestor.NumServicers > int32(k.MaxNumServicers(ctx)) {
+	if requestor.NumServicers < int64(k.MinNumServicers(ctx)) || requestor.NumServicers > int64(k.MaxNumServicers(ctx)) {
 		return types.ErrNumServicers(types.ModuleName)
 	}
 	// attempt to get the requestor from the world state
