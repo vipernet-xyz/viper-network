@@ -17,7 +17,7 @@ const (
 	DefaultReplayAttackBurnMultiplier = int64(3)       // default replay attack burn multiplier
 	DefaultMinimumNumberOfProofs      = int64(1000)    // default minimum number of proofs
 	DefaultBlockByteSize              = int64(8000000) // default block size in bytes
-	DefaultMinimumSampleRelays        = int64(100)
+	DefaultMinimumSampleRelays        = int64(25)
 	DefaultReportCardSubmissionWindow = int64(2)
 )
 

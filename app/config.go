@@ -1565,15 +1565,21 @@ func createMissingSamplePoolJson(samplePoolPath string) {
 	// Define Ethereum sample payloads
 	ethSamplePayloads := []types.RelayPayload{
 		{
-			Data:    "eth_sample_data_1",
-			Method:  "GET",
-			Path:    "/eth/api/v1/sample",
+			Data:    `{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}`,
+			Method:  "POST",
+			Path:    "",
 			Headers: types.RelayHeaders{"Content-Type": "application/json"},
 		},
 		{
-			Data:    "eth_sample_data_2",
+			Data:    `{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id": 1}`,
 			Method:  "POST",
-			Path:    "/eth/api/v1/sample",
+			Path:    "",
+			Headers: types.RelayHeaders{"Content-Type": "application/json"},
+		},
+		{
+			Data:    `{"jsonrpc":"2.0","method":"eth_protocolVersion","params":[],"id":1}`,
+			Method:  "POST",
+			Path:    "",
 			Headers: types.RelayHeaders{"Content-Type": "application/json"},
 		},
 	}
@@ -1581,15 +1587,21 @@ func createMissingSamplePoolJson(samplePoolPath string) {
 	// Define Solana sample payloads
 	solSamplePayloads := []types.RelayPayload{
 		{
-			Data:    "sol_sample_data_1",
-			Method:  "GET",
-			Path:    "/sol/api/v1/sample",
+			Data:    `{"jsonrpc":"2.0","method":"getBlockHeight","params":[],"id":1}`,
+			Method:  "POST",
+			Path:    "",
 			Headers: types.RelayHeaders{"Content-Type": "application/json"},
 		},
 		{
-			Data:    "sol_sample_data_2",
+			Data:    `{"jsonrpc":"2.0","method":"getBlockTime","params":[165768577],"id":1}`,
 			Method:  "POST",
-			Path:    "/sol/api/v1/sample",
+			Path:    "",
+			Headers: types.RelayHeaders{"Content-Type": "application/json"},
+		},
+		{
+			Data:    `{"jsonrpc":"2.0","method": "getLargestAccounts","params":[],"id": 1}`,
+			Method:  "POST",
+			Path:    "",
 			Headers: types.RelayHeaders{"Content-Type": "application/json"},
 		},
 	}

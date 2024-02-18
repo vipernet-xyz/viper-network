@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/hex"
-	"fmt"
 	"math/rand"
 	"net/http"
 	"testing"
@@ -37,7 +36,6 @@ func TestCalculateQoSForServicer(t *testing.T) {
 	if err != nil {
 		t.Errorf("CalculateQoSForServicer returned an error: %v", err)
 	}
-	fmt.Println("report:", report)
 	// Test the expected QoS report fields
 	assert.Equal(t, report.BlockHeight, blockHeight)
 	assert.Equal(t, report.ServicerAddress, result.ServicerAddress)
@@ -126,7 +124,7 @@ func TestRelayer_SendSampleRelay(t *testing.T) {
 			GeoZone:      "US",
 			NumServicers: 5,
 		},
-	}, servicer, fisherman)
+	}, servicer, fisherman, &HostedBlockchains{})
 
 	// Assertions
 	c.NoError(err)

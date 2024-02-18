@@ -1,6 +1,7 @@
 package types
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -34,7 +35,7 @@ type Sender struct {
 }
 
 // NewSender returns Sender instance from input
-func NewSender(rpcURL string) *Sender {
+func NewSender(rpcURL string, dispatchers []string) *Sender {
 	return &Sender{
 		rpcURL: rpcURL,
 		client: client.NewDefaultClient(),
@@ -58,13 +59,13 @@ func (p *Sender) getFinalRPCURL(rpcURL string, route V1RPCRoute) (string, error)
 	return p.rpcURL, nil
 }
 
-func (p *Sender) doPostRequest(rpcURL string, params any, route V1RPCRoute) (*http.Response, error) {
+func (p *Sender) doPostRequest(ctx context.Context, rpcURL string, params any, route V1RPCRoute, headers http.Header) (*http.Response, error) {
 	finalRPCURL, err := p.getFinalRPCURL(rpcURL, route)
 	if err != nil {
 		return nil, err
 	}
 
-	output, err := p.client.PostWithURLJSONParams(fmt.Sprintf("%s%s", finalRPCURL, route), params, http.Header{})
+	output, err := p.client.PostWithURLJSONParamsWithCtx(ctx, fmt.Sprintf("%s%s", finalRPCURL, route), params, headers)
 	if err != nil {
 		return nil, err
 	}
@@ -112,29 +113,12 @@ func returnRPCError(route V1RPCRoute, body io.ReadCloser) error {
 
 // Relay does request to be relayed to a target blockchain
 func (p *Sender) Relay(rpcURL string, input *RelayInput) (*RelayOutput, error) {
-	rawOutput, reqErr := p.doPostRequest(rpcURL, input, ClientRelayRoute)
-
-	defer closeOrLog(rawOutput)
-
-	if reqErr != nil && !errors.Is(reqErr, errOnRelayRequest) {
-		return nil, reqErr
-	}
-
-	bodyBytes, err := ioutil.ReadAll(rawOutput.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if errors.Is(reqErr, errOnRelayRequest) {
-		return nil, parseRelayErrorOutput(bodyBytes, input.Proof.ServicerPubKey)
-	}
-
-	return parseRelaySuccesfulOutput(bodyBytes)
+	return p.RelayWithCtx(context.Background(), rpcURL, input)
 }
 
-// Relay does request to be relayed to a target blockchain
-func (p *Sender) localRelay(rpcURL string, input *RelayInput) (*RelayOutput, error) {
-	rawOutput, reqErr := p.doPostRequest(rpcURL, input, LocalRelayRoute)
+// RelayWithCtx does request to be relayed to a target blockchain
+func (p *Sender) RelayWithCtx(ctx context.Context, rpcURL string, input *RelayInput) (*RelayOutput, error) {
+	rawOutput, reqErr := p.doPostRequest(ctx, rpcURL, input, ClientRelayRoute, http.Header{})
 
 	defer closeOrLog(rawOutput)
 
@@ -235,4 +219,45 @@ type RPCError struct {
 // needed to implement error interface
 func (e *RPCError) Error() string {
 	return fmt.Sprintf("Request failed with code: %v and message: %s", e.Code, e.Message)
+}
+
+// GetServicerBlockHeight returns the blockheight reported by a specific servicer
+func (p *Sender) GetServicerBlockHeight(ctx context.Context, url string) (int, error) {
+	return p.getServicerBlockHeight(ctx, url)
+}
+
+// GetBlockHeight returns the current height
+func (p *Sender) GetBlockHeight() (int, error) {
+	return p.GetBlockHeightWithCtx(context.Background())
+}
+
+// GetBlockHeightWithCtx returns the current height
+func (p *Sender) GetBlockHeightWithCtx(ctx context.Context) (int, error) {
+	return p.getServicerBlockHeight(ctx, "")
+}
+
+func (p *Sender) getServicerBlockHeight(ctx context.Context, url string) (int, error) {
+	rawOutput, err := p.doPostRequest(ctx, url, nil, QueryHeightRoute, http.Header{})
+	defer closeOrLog(rawOutput)
+	if err != nil {
+		return 0, err
+	}
+
+	bodyBytes, err := ioutil.ReadAll(rawOutput.Body)
+	if err != nil {
+		return 0, err
+	}
+
+	output := queryHeightOutput{}
+
+	err = json.Unmarshal(bodyBytes, &output)
+	if err != nil {
+		return 0, err
+	}
+
+	return output.Height, nil
+}
+
+type queryHeightOutput struct {
+	Height int `json:"height"`
 }

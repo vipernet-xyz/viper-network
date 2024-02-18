@@ -460,41 +460,6 @@ func FishermanTrigger(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
 }
 
-func LocalRelay(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var relay = types.Relay{}
-	if cors(&w, r) {
-		return
-	}
-	if err := PopModel(w, r, ps, &relay); err != nil {
-		response := RPCRelayErrorResponse{
-			Error: err,
-		}
-		j, _ := json.Marshal(response)
-		WriteJSONResponseWithCode(w, string(j), r.URL.Path, r.Host, 400)
-		return
-	}
-	res, dispatch, err := app.VCA.HandleLocalRelay(relay)
-	if err != nil {
-		response := RPCRelayErrorResponse{
-			Error:    err,
-			Dispatch: dispatch,
-		}
-		j, _ := json.Marshal(response)
-		WriteJSONResponseWithCode(w, string(j), r.URL.Path, r.Host, 400)
-		return
-	}
-	response := RPCRelayResponse{
-		Signature: res.Signature,
-		Response:  res.Response,
-	}
-	j, er := json.Marshal(response)
-	if er != nil {
-		WriteErrorResponse(w, 400, er.Error())
-		return
-	}
-	WriteJSONResponse(w, string(j), r.URL.Path, r.Host)
-}
-
 type RelayWebsocketResponse struct {
 	Signature string `json:"signature"`
 	Response  string `json:"response"`

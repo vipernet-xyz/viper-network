@@ -16,10 +16,11 @@ import (
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
 )
 
-func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI) (*Output, error) {
+func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger FishermenTrigger, servicer exported.ValidatorI, fishermanValidator exported.ValidatorI, hostedBlockchains *HostedBlockchains) (*Output, error) {
 
 	// First, we will ensure SampleRelayPools is loaded
 	pools, err := LoadSampleRelayPool()
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to load SampleRelayPools: %v", err)
 	}
@@ -58,71 +59,60 @@ func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger 
 	signedProofBytes, err := r.getSignedProofBytes(&RelayProof{
 		RequestHash:        reqHash,
 		Entropy:            entropy.Int64(),
-		SessionBlockHeight: relayMeta.BlockHeight,
-		ServicerPubKey:     servicer.GetAddress().String(),
+		SessionBlockHeight: blockHeight,
+		ServicerPubKey:     servicer.GetPublicKey().RawString(),
 		Blockchain:         Blockchain,
-		Token:              trigger.Proof.Token,
 		GeoZone:            trigger.Proof.GeoZone,
 		NumServicers:       trigger.Proof.NumServicers,
+		Token:              trigger.Proof.Token,
+		Signature:          "",
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	//Prepare a RelayInput using the generated details
-	relay := &RelayInput{
+	relay := RelayInput{
 		Payload: samplePayload,
 		Meta:    relayMeta,
 		Proof: &RelayProof{
 			RequestHash:        reqHash,
 			Entropy:            entropy.Int64(),
-			SessionBlockHeight: relayMeta.BlockHeight,
-			ServicerPubKey:     servicer.GetAddress().String(),
+			SessionBlockHeight: blockHeight,
+			ServicerPubKey:     servicer.GetPublicKey().RawString(),
 			Blockchain:         Blockchain,
-			Token:              trigger.Proof.Token,
-			Signature:          signedProofBytes,
 			GeoZone:            trigger.Proof.GeoZone,
 			NumServicers:       trigger.Proof.NumServicers,
+			Token:              trigger.Proof.Token,
+			Signature:          signedProofBytes,
 		},
 	}
-	// Send the relay to the servicer and measure its latency
-	relayOutput, err := r.sender.Relay(servicer.GetServiceURL(), relay)
-	servicerLatency := time.Since(start)
 
+	// Send the relay to the servicer and measure its latency
+	relayOutput, err := r.sender.Relay(servicer.GetServiceURL(), &relay)
 	if err != nil {
-		return nil, err
+		fmt.Println("errorrrrrr!!", err)
+		return nil, fmt.Errorf("failed to execute relay: %s", err)
 	}
 
-	servicerReliability := true
-	var localResp *RelayOutput
+	servicerLatency := time.Since(start)
 
-	// Execute the local relay only if the request method is GET
-	if samplePayload.Method == "GET" {
-		c := make(chan struct{}, 1)
-		go func() {
-			localResp, err = r.sender.localRelay(fishermanValidator.GetServiceURL(), relay)
-			c <- struct{}{}
-		}()
+	var servicerReliability bool
+	var localResp string
 
-		select {
-		case <-c:
-			if err != nil {
-				return nil, fmt.Errorf("failed to execute relay internally within fisherman: %s", err.Error())
-			}
+	addr := fishermanValidator.GetAddress()
 
-			if relayOutput.Response != localResp.Response {
-				// This is a discrepancy. Handle accordingly.
-				servicerReliability = false // set reliability to false if there's a mismatch
-			}
-		case <-time.After(servicerLatency): // time allotted for local relay is same as the servicer's latency
-			// If the local relay takes more than the servicer's latency, continue with the process
-			servicerReliability = true // assuming the relay was reliable as it didn't return an error
-		}
+	// Create a pointer to the address
+	fishermanAddress := &addr
+
+	localResp, err = relay.ExecuteLocal(hostedBlockchains, fishermanAddress)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute relay internally within fisherman: %s", err)
+	}
+	if relayOutput.Response == "" || relayOutput.Response != localResp {
+		servicerReliability = false
 	} else {
-		// If the request method is not GET, just check the response for errors
-		if err != nil {
-			servicerReliability = false
-		}
+		servicerReliability = true
 	}
 
 	return &Output{
@@ -143,6 +133,7 @@ type V1RPCRoute string
 const (
 	ClientRelayRoute V1RPCRoute = "/v1/client/relay"
 	LocalRelayRoute  V1RPCRoute = "/v1/client/localrelay"
+	QueryHeightRoute V1RPCRoute = "/v1/query/height"
 )
 
 // "SessionHeader" - Returns the session header corresponding with the proof
@@ -192,7 +183,7 @@ type RequestHash struct {
 // Output struct for data needed as output for relay request
 type Output struct {
 	RelayOutput *RelayOutput
-	LocalResp   *RelayOutput
+	LocalResp   string
 	Proof       *RelayProof
 	Latency     time.Duration
 	Reliability bool

@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 	"golang.org/x/crypto/scrypt"
 )
 
@@ -199,12 +198,23 @@ func (ppk *PPK) Validate() bool {
 		base64Regex.MatchString(ppk.Ciphertext)
 }
 
-func NewSigner(validator exported.ValidatorI) (*Signer, error) {
-	selfValidator := GetViperNode()
+func NewSignerFromPrivateKey(privateKey string) (*Signer, error) {
+	if !ValidatePrivateKey(privateKey) {
+		return nil, ErrInvalidPrivateKey
+	}
+
+	publicKey := PublicKeyFromPrivate(privateKey)
+
+	address, err := GetAddressFromPublickey(publicKey)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &Signer{
-		address:    validator.GetAddress().String(),
-		publicKey:  validator.GetPublicKey().String(),
-		privateKey: selfValidator.PrivateKey.String(),
+		address:    address,
+		publicKey:  publicKey,
+		privateKey: privateKey,
 	}, nil
 }
 
@@ -212,6 +222,38 @@ func GetAddressFromDecodedPublickey(decodedKey []byte) (string, error) {
 	hasher := sha256.New()
 
 	_, err := hasher.Write(decodedKey)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hasher.Sum(nil))[0:40], nil
+}
+
+const (
+	privateKeyLength = 128
+)
+
+// ValidatePrivateKey returns bool identifying if private key is valid or not
+func ValidatePrivateKey(privateKey string) bool {
+	return len(privateKey) == privateKeyLength && hexRegex.MatchString(privateKey)
+}
+
+func PublicKeyFromPrivate(privateKey string) string {
+	return privateKey[64:]
+}
+
+// GetAddressFromPublickey converts an Requestor's Public key into an address
+// publicKey parameter is the requestor's public key
+// returns the requestor's address
+func GetAddressFromPublickey(publicKey string) (string, error) {
+	decodedKey, err := hex.DecodeString(publicKey)
+	if err != nil {
+		return "", err
+	}
+
+	hasher := sha256.New()
+
+	_, err = hasher.Write(decodedKey)
 	if err != nil {
 		return "", err
 	}

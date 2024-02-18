@@ -551,25 +551,6 @@ func (app ViperCoreApp) HandleDispatch(header viperTypes.SessionHeader) (res *vi
 	return app.viperKeeper.HandleDispatch(ctx, header)
 }
 
-func (app ViperCoreApp) HandleLocalRelay(r viperTypes.Relay) (res *viperTypes.RelayResponse, dispatch *viperTypes.DispatchResponse, err error) {
-	ctx, err := app.NewContext(app.LastBlockHeight())
-
-	if err != nil {
-		return nil, nil, err
-	}
-
-	status, sErr := app.viperKeeper.TmNode.ConsensusReactorStatus()
-	if sErr != nil {
-		return nil, nil, fmt.Errorf("viper node is unable to retrieve synced status from tendermint node, cannot service in this state")
-	}
-
-	if status.IsCatchingUp {
-		return nil, nil, fmt.Errorf("viper node is currently syncing to the blockchain, cannot service in this state")
-	}
-	res, err = app.viperKeeper.HandleLocalRelay(ctx, r)
-	return
-}
-
 func (app ViperCoreApp) HandleRelay(r viperTypes.Relay) (res *viperTypes.RelayResponse, dispatch *viperTypes.DispatchResponse, err error) {
 	ctx, err := app.NewContext(app.LastBlockHeight())
 

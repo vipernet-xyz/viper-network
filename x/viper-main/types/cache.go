@@ -358,14 +358,6 @@ func SetEvidence(evidence Evidence, evidenceStore *CacheStorage) {
 	evidenceStore.Set(key, evidence)
 }
 
-func SetResult(result Result, testStore *CacheStorage) {
-	key, err := result.Key()
-	if err != nil {
-		return
-	}
-	testStore.Set(key, result)
-}
-
 // "DeleteEvidence" - Remove the GOBEvidence from the store
 func DeleteEvidence(header SessionHeader, evidenceType EvidenceType, evidenceStore *CacheStorage) error {
 	// generate key for GOBEvidence
@@ -389,28 +381,6 @@ func SealEvidence(evidence Evidence, storage *CacheStorage) (Evidence, bool) {
 	return e, ok
 }
 
-func DeleteResult(header SessionHeader, evidenceType EvidenceType, testStore *CacheStorage) error {
-	// generate key for GOBEvidence
-	key, err := KeyForEvidence(header, evidenceType)
-	if err != nil {
-		return err
-	}
-	// delete from cache
-	testStore.Delete(key)
-	testStore.SealMap.Delete(header.HashString())
-	return nil
-}
-
-// "SealEvidence" - Locks/sets the evidence from the stores
-func SealResult(result Result, storage *CacheStorage) (Result, bool) {
-	co, ok := storage.Seal(result)
-	if !ok {
-		return Result{}, ok
-	}
-	e, ok := co.(Result)
-	return e, ok
-}
-
 // "ClearEvidence" - Clear stores of all evidence
 func ClearEvidence(evidenceStore *CacheStorage) {
 	if evidenceStore != nil {
@@ -419,20 +389,8 @@ func ClearEvidence(evidenceStore *CacheStorage) {
 	}
 }
 
-// "ClearEvidence" - Clear stores of all evidence
-func ClearResult(testStore *CacheStorage) {
-	if testStore != nil {
-		testStore.Clear()
-		testStore.SealMap = &sync.Map{}
-	}
-}
-
 // "EvidenceIt" - An GOBEvidence iterator instance of the globalEvidenceCache
 type EvidenceIt struct {
-	db.Iterator
-}
-
-type TestResultIt struct {
 	db.Iterator
 }
 
@@ -450,30 +408,10 @@ func (ei *EvidenceIt) Value() (evidence Evidence) {
 	return
 }
 
-func (ti *TestResultIt) Value() (result Result) {
-	// unmarshal the value (bz) into an GOBEvidence object
-	r, err := result.UnmarshalObject(ti.Iterator.Value())
-	if err != nil {
-		log.Fatal(fmt.Errorf("can't unmarshal GOBEvidence iterator value into GOBEvidence: %s", err.Error()))
-	}
-	result, ok := r.(Result)
-	if !ok {
-		log.Fatal("can't unmarshal GOBEvidence iterator value into GOBEvidence: cache object is not GOBEvidence")
-	}
-	return
-}
-
 // "EvidenceIterator" - Returns a GlobalEvidenceCache iterator instance
 func EvidenceIterator(evidenceStore *CacheStorage) EvidenceIt {
 	it, _ := evidenceStore.Iterator()
 	return EvidenceIt{
-		Iterator: it,
-	}
-}
-
-func ResultIterator(testStore *CacheStorage) TestResultIt {
-	it, _ := testStore.Iterator()
-	return TestResultIt{
 		Iterator: it,
 	}
 }
@@ -489,7 +427,7 @@ func GetProof(header SessionHeader, evidenceType EvidenceType, index int64, evid
 	if evidence.NumOfProofs-1 < index || index < 0 {
 		return nil
 	}
-	// return the propoer proof
+	// return the propßer proof
 	return evidence.Proofs[index]
 }
 
@@ -535,6 +473,7 @@ func GetResult(header SessionHeader, evidenceType EvidenceType, servicerAddr sdk
 			ServicerAddr:     servicerAddr,
 			NumOfTestResults: 0,
 			TestResults:      make([]Test, 0),
+			EvidenceType:     evidenceType,
 		}, nil
 	}
 	result, ok := val.(Result)
@@ -546,4 +485,90 @@ func GetResult(header SessionHeader, evidenceType EvidenceType, servicerAddr sdk
 		return result, nil
 	}
 	return
+}
+
+func SetResult(result Result, testStore *CacheStorage) {
+	key, err := result.Key()
+	if err != nil {
+		return
+	}
+	testStore.Set(key, result)
+}
+
+func DeleteResult(header SessionHeader, evidenceType EvidenceType, testStore *CacheStorage) error {
+	// generate key for GOBEvidence
+	key, err := KeyForEvidence(header, evidenceType)
+	if err != nil {
+		return err
+	}
+	// delete from cache
+	testStore.Delete(key)
+	testStore.SealMap.Delete(header.HashString())
+	return nil
+}
+
+// "SealEvidence" - Locks/sets the evidence from the stores
+func SealResult(result Result, storage *CacheStorage) (Result, bool) {
+	co, ok := storage.Seal(result)
+	if !ok {
+		return Result{}, ok
+	}
+	e, ok := co.(Result)
+	return e, ok
+}
+
+// "ClearEvidence" - Clear stores of all evidence
+func ClearResult(testStore *CacheStorage) {
+	if testStore != nil {
+		testStore.Clear()
+		testStore.SealMap = &sync.Map{}
+	}
+}
+
+type TestResultIt struct {
+	db.Iterator
+}
+
+func (ti *TestResultIt) Value() (result Result) {
+	// unmarshal the value (bz) into an GOBEvidence object
+	r, err := result.UnmarshalObject(ti.Iterator.Value())
+	if err != nil {
+		log.Fatal(fmt.Errorf("can't unmarshal GOBEvidence iterator value into GOBEvidence: %s", err.Error()))
+	}
+	result, ok := r.(Result)
+	if !ok {
+		log.Fatal("can't unmarshal GOBEvidence iterator value into GOBEvidence: cache object is not GOBEvidence")
+	}
+	return
+}
+
+func ResultIterator(testStore *CacheStorage) TestResultIt {
+	it, _ := testStore.Iterator()
+	return TestResultIt{
+		Iterator: it,
+	}
+}
+
+// "GetProof" - Returns the Proof object from a specific piece of GOBEvidence at a certain index
+func GetTestResult(header SessionHeader, evidenceType EvidenceType, index int64, servicerAddr sdk.Address, int64, evidenceStore *CacheStorage) Test {
+	// retrieve the GOBEvidence
+	result, err := GetResult(header, evidenceType, servicerAddr, evidenceStore)
+	if err != nil {
+		return nil
+	}
+	// check for out of bounds
+	if result.NumOfTestResults-1 < index || index < 0 {
+		return nil
+	}
+	// return the propßer proof
+	return result.TestResults[index]
+}
+
+func SetTestResult(header SessionHeader, evidenceType EvidenceType, tr TestResult, servicerAddr sdk.Address, testStore *CacheStorage) {
+	test, err := GetResult(header, evidenceType, servicerAddr, testStore)
+	if err != nil {
+		log.Fatalf("could not set test result object: %s", err.Error())
+	}
+	test.AddTestResult(tr)
+	SetResult(test, testStore)
 }

@@ -330,10 +330,10 @@ type RelayProof struct {
 	SessionBlockHeight int64  `protobuf:"varint,3,opt,name=sessionBlockHeight,proto3" json:"session_block_height"`
 	ServicerPubKey     string `protobuf:"bytes,4,opt,name=servicerPubKey,proto3" json:"servicer_pub_key"`
 	Blockchain         string `protobuf:"bytes,5,opt,name=blockchain,proto3" json:"blockchain"`
-	Token              AAT    `protobuf:"bytes,6,opt,name=token,proto3" json:"aat"`
-	Signature          string `protobuf:"bytes,7,opt,name=signature,proto3" json:"signature"`
-	GeoZone            string `protobuf:"bytes,8,opt,name=Zone,proto3" json:"zone"`
-	NumServicers       int64  `protobuf:"varint,9,opt,name=num_servicers,proto3" json:"num_servicers"`
+	GeoZone            string `protobuf:"bytes,6,opt,name=Zone,proto3" json:"zone"`
+	NumServicers       int64  `protobuf:"varint,7,opt,name=num_servicers,proto3" json:"num_servicers"`
+	Token              AAT    `protobuf:"bytes,8,opt,name=token,proto3" json:"aat"`
+	Signature          string `protobuf:"bytes,9,opt,name=signature,proto3" json:"signature"`
 }
 
 func (m *RelayProof) Reset()      { *m = RelayProof{} }
@@ -1307,16 +1307,16 @@ func (this *RelayProof) Equal(that interface{}) bool {
 	if this.Blockchain != that1.Blockchain {
 		return false
 	}
-	if !this.Token.Equal(&that1.Token) {
-		return false
-	}
-	if this.Signature != that1.Signature {
-		return false
-	}
 	if this.GeoZone != that1.GeoZone {
 		return false
 	}
 	if this.NumServicers != that1.NumServicers {
+		return false
+	}
+	if !this.Token.Equal(&that1.Token) {
+		return false
+	}
+	if this.Signature != that1.Signature {
 		return false
 	}
 	return true
@@ -1784,10 +1784,10 @@ func (this *RelayProof) GoString() string {
 	s = append(s, "SessionBlockHeight: "+fmt.Sprintf("%#v", this.SessionBlockHeight)+",\n")
 	s = append(s, "ServicerPubKey: "+fmt.Sprintf("%#v", this.ServicerPubKey)+",\n")
 	s = append(s, "Blockchain: "+fmt.Sprintf("%#v", this.Blockchain)+",\n")
-	s = append(s, "Token: "+strings.Replace(this.Token.GoString(), `&`, ``, 1)+",\n")
-	s = append(s, "Signature: "+fmt.Sprintf("%#v", this.Signature)+",\n")
 	s = append(s, "GeoZone: "+fmt.Sprintf("%#v", this.GeoZone)+",\n")
 	s = append(s, "NumServicers: "+fmt.Sprintf("%#v", this.NumServicers)+",\n")
+	s = append(s, "Token: "+strings.Replace(this.Token.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "Signature: "+fmt.Sprintf("%#v", this.Signature)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -3229,18 +3229,18 @@ func (m *RelayProof) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovVipernet(uint64(l))
 	}
-	l = m.Token.Size()
-	n += 1 + l + sovVipernet(uint64(l))
-	l = len(m.Signature)
-	if l > 0 {
-		n += 1 + l + sovVipernet(uint64(l))
-	}
 	l = len(m.GeoZone)
 	if l > 0 {
 		n += 1 + l + sovVipernet(uint64(l))
 	}
 	if m.NumServicers != 0 {
 		n += 1 + sovVipernet(uint64(m.NumServicers))
+	}
+	l = m.Token.Size()
+	n += 1 + l + sovVipernet(uint64(l))
+	l = len(m.Signature)
+	if l > 0 {
+		n += 1 + l + sovVipernet(uint64(l))
 	}
 	return n
 }
@@ -3613,10 +3613,10 @@ func (this *RelayProof) String() string {
 		`SessionBlockHeight:` + fmt.Sprintf("%v", this.SessionBlockHeight) + `,`,
 		`ServicerPubKey:` + fmt.Sprintf("%v", this.ServicerPubKey) + `,`,
 		`Blockchain:` + fmt.Sprintf("%v", this.Blockchain) + `,`,
-		`Token:` + strings.Replace(strings.Replace(this.Token.String(), "AAT", "AAT", 1), `&`, ``, 1) + `,`,
-		`Signature:` + fmt.Sprintf("%v", this.Signature) + `,`,
 		`GeoZone:` + fmt.Sprintf("%v", this.GeoZone) + `,`,
 		`NumServicers:` + fmt.Sprintf("%v", this.NumServicers) + `,`,
+		`Token:` + strings.Replace(strings.Replace(this.Token.String(), "AAT", "AAT", 1), `&`, ``, 1) + `,`,
+		`Signature:` + fmt.Sprintf("%v", this.Signature) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -4979,6 +4979,57 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZone = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumServicers", wireType)
+			}
+			m.NumServicers = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumServicers |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 			}
 			var msglen int
@@ -5010,7 +5061,7 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 7:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
 			}
@@ -5042,57 +5093,6 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 			}
 			m.Signature = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowVipernet
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthVipernet
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthVipernet
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.GeoZone = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NumServicers", wireType)
-			}
-			m.NumServicers = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowVipernet
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.NumServicers |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipVipernet(dAtA[iNdEx:])

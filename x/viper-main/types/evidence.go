@@ -6,7 +6,6 @@ import (
 
 	"github.com/vipernet-xyz/viper-network/codec"
 	"github.com/vipernet-xyz/viper-network/types"
-	sdk "github.com/vipernet-xyz/viper-network/types"
 
 	"github.com/willf/bloom"
 )
@@ -20,19 +19,7 @@ type Evidence struct {
 	EvidenceType  EvidenceType             `json:"evidence_type"`
 }
 
-type Result struct {
-	SessionHeader    `json:"evidence_header"`
-	ServicerAddr     sdk.Address  `json:"servicer_addr"`
-	NumOfTestResults int64        `json:"num_of_test_results"`
-	TestResults      Tests        `json:"tests"`
-	EvidenceType     EvidenceType `json:"evidence_type"`
-}
-
 func (e Evidence) IsSealable() bool {
-	return true
-}
-
-func (r Result) IsSealable() bool {
 	return true
 }
 
@@ -52,18 +39,6 @@ func (e *Evidence) GenerateMerkleRoot(height int64, maxRelays int64, storage *Ca
 	return
 }
 
-// "GenerateMerkleRoot" - Generates the merkle root for an GOBEvidence object
-func (r *Result) GenerateSampleMerkleRoot(height int64, storage *CacheStorage) (root HashRange) {
-	// seal the evidence in cache/db
-	re, ok := SealResult(*r, storage)
-	if !ok {
-		return HashRange{}
-	}
-	// generate the root object
-	root, _ = GenerateSampleRoot(height, re.TestResults)
-	return
-}
-
 // "AddProof" - Adds a proof obj to the GOBEvidence field
 func (e *Evidence) AddProof(p Proof) {
 	// add proof to GOBEvidence
@@ -74,13 +49,6 @@ func (e *Evidence) AddProof(p Proof) {
 	e.Bloom.Add(p.Hash())
 }
 
-func (r *Result) AddTestResult(t Test) {
-	// add proof to GOBEvidence
-	r.TestResults = append(r.TestResults, t)
-	// increment total proof count
-	r.NumOfTestResults = r.NumOfTestResults + 1
-}
-
 // "GenerateMerkleProof" - Generates the merkle Proof for an GOBEvidence
 func (e *Evidence) GenerateMerkleProof(height int64, index int, maxRelays int64) (proof MerkleProof, leaf Proof) {
 	if int64(len(e.Proofs)) > maxRelays {
@@ -89,14 +57,6 @@ func (e *Evidence) GenerateMerkleProof(height int64, index int, maxRelays int64)
 	}
 	// generate the merkle proof
 	proof, leaf = GenerateProofs(height, e.Proofs, index)
-	// set the evidence in memory
-	return
-}
-
-// "GenerateMerkleProof" - Generates the merkle Proof for an GOBEvidence
-func (r *Result) GenerateMerkleProof(height int64, index int) (test MerkleProof, leaf Test) {
-	// generate the merkle proof
-	test, leaf = GenerateTRProofs(height, r.TestResults, index)
 	// set the evidence in memory
 	return
 }
@@ -178,14 +138,6 @@ func (e *Evidence) MarshalTo(data []byte) (n int, err error) {
 	return pe.MarshalTo(data)
 }
 
-func (r *Result) MarshalTo(data []byte) (n int, err error) {
-	pr, err := r.ToProto()
-	if err != nil {
-		return 0, err
-	}
-	return pr.MarshalTo(data)
-}
-
 func (e *Evidence) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	pe, err := e.ToProto()
 	if err != nil {
@@ -226,16 +178,6 @@ func (e *Evidence) ToProto() (*ProtoEvidence, error) {
 	}, nil
 }
 
-func (r *Result) ToProto() (*ProtoResult, error) {
-	return &ProtoResult{
-		SessionHeader:    &r.SessionHeader,
-		ServicerAddr:     r.ServicerAddr,
-		NumOfTestResults: r.NumOfTestResults,
-		TestResults:      r.TestResults.ToTestI(),
-		EvidenceType:     r.EvidenceType,
-	}, nil
-}
-
 func (pe *ProtoEvidence) FromProto() (Evidence, error) {
 	bloomFilter := bloom.BloomFilter{}
 	err := bloomFilter.GobDecode(pe.BloomBytes)
@@ -250,29 +192,12 @@ func (pe *ProtoEvidence) FromProto() (Evidence, error) {
 		EvidenceType:  pe.EvidenceType}, nil
 }
 
-func (pr *ProtoResult) FromProto() (Result, error) {
-	return Result{
-		SessionHeader:    *pr.SessionHeader,
-		ServicerAddr:     pr.ServicerAddr,
-		NumOfTestResults: pr.NumOfTestResults,
-		TestResults:      pr.TestResults.FromTestI(),
-		EvidenceType:     pr.EvidenceType}, nil
-}
-
 func (e Evidence) MarshalObject() ([]byte, error) {
 	pe, err := e.ToProto()
 	if err != nil {
 		return nil, err
 	}
 	return ModuleCdc.ProtoMarshalBinaryBare(pe)
-}
-
-func (r Result) MarshalObject() ([]byte, error) {
-	pr, err := r.ToProto()
-	if err != nil {
-		return nil, err
-	}
-	return ModuleCdc.ProtoMarshalBinaryBare(pr)
 }
 
 func (e Evidence) UnmarshalObject(b []byte) (CacheObject, error) {
@@ -284,21 +209,8 @@ func (e Evidence) UnmarshalObject(b []byte) (CacheObject, error) {
 	return pe.FromProto()
 }
 
-func (r Result) UnmarshalObject(b []byte) (CacheObject, error) {
-	pr := ProtoResult{}
-	err := ModuleCdc.ProtoUnmarshalBinaryBare(b, &pr)
-	if err != nil {
-		return Result{}, fmt.Errorf("could not unmarshal into ProtoResult from cache, moduleCdc unmarshal binary bare: %s", err.Error())
-	}
-	return pr.FromProto()
-}
-
 func (e Evidence) Key() ([]byte, error) {
 	return KeyForEvidence(e.SessionHeader, e.EvidenceType)
-}
-
-func (r Result) Key() ([]byte, error) {
-	return KeyForTestResult(r.SessionHeader, r.EvidenceType, r.ServicerAddr)
 }
 
 // "EvidenceType" type to distinguish the types of GOBEvidence (relay/challenge)

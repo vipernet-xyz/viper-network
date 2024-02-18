@@ -112,10 +112,11 @@ func ActivateAdditionalParameters(ctx sdk.Ctx, am AppModule) {
 
 // EndBlock "EndBlock" - Functionality that is called at the end of (every) block
 func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	// get blocks per session
 	blocksPerSession := am.keeper.BlocksPerSession(ctx)
+
 	// run go routine because cannot access TmNode during end-block period
 	go func() {
-		endBlockSignal := make(chan struct{})
 		// use this sleep timer to bypass the beginBlock lock over transactions
 		minSleep := 2000
 		maxSleep := 5000
@@ -133,18 +134,16 @@ func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.Validat
 			ctx.Logger().Debug("tendermint is currently syncing still (cannot submit claims/proofs in this state)")
 			return
 		}
+
 		for _, node := range types.GlobalViperNodes {
 			address := node.GetAddress()
 			if (ctx.BlockHeight()+int64(address[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
-
-				am.keeper.StartServicersSampling(ctx, types.FishermenTrigger{}, endBlockSignal)
 				// auto send the proofs
 				am.keeper.SendClaimTx(ctx, am.keeper, am.keeper.TmNode, node, ClaimTx)
 				// auto claim the proofs
 				am.keeper.SendProofTx(ctx, am.keeper.TmNode, node, ProofTx)
 				// clear session cache and db
 				types.ClearSessionCache(node.SessionStore)
-
 			}
 		}
 	}()

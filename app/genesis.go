@@ -81,7 +81,7 @@ func newDefaultGenesisState() []byte {
 		GeoZones:                []string{sdk.PlaceholderHash},
 		StakedTokens:            sdk.NewInt(10000000000000),
 		MaxRelays:               sdk.NewInt(10000000000000),
-		NumServicers:            5,
+		NumServicers:            1,
 		UnstakingCompletionTime: time.Time{},
 	})
 	res = Codec().MustMarshalJSON(requestorsGenesis)

@@ -98,8 +98,22 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, requestorsKeeper Requ
 		if err != nil {
 			return sdk.ZeroInt(), sdk.ErrInternal(err.Error())
 		}
+
+		// With session rollover, the height of `ctx` may already be in the next
+		// session of the relay's session.  In such a case, we need to pass the
+		// correct context of the session end instead of `ctx`.
+		sessionEndHeight := sessionBlockHeight + posKeeper.BlocksPerSession(sessionCtx) - 1
+		var sesssionEndCtx sdk.Ctx
+		if ctx.BlockHeight() > sessionEndHeight {
+			if sesssionEndCtx, err = ctx.PrevCtx(sessionEndHeight); err != nil {
+				return sdk.ZeroInt(), sdk.ErrInternal(er.Error())
+			}
+		} else {
+			sesssionEndCtx = ctx
+		}
+
 		var er sdk.Error
-		session, er = NewSession(sessionCtx, ctx, posKeeper, header, hex.EncodeToString(bh))
+		session, er = NewSession(sessionCtx, sesssionEndCtx, posKeeper, header, hex.EncodeToString(bh))
 		if er != nil {
 			return sdk.ZeroInt(), er
 		}
@@ -218,6 +232,30 @@ func (r Relay) Execute(hostedBlockchains *HostedBlockchains, address *sdk.Addres
 	if len(r.Payload.Path) > 0 {
 		url = url + "/" + strings.Trim(r.Payload.Path, `/`)
 	}
+
+	// do basic http request on the relay
+	res, er := executeHTTPRequest(r.Payload.Data, url, GlobalViperConfig.UserAgent, chain.BasicAuth, r.Payload.Method, r.Payload.Headers)
+	if er != nil {
+		// metric track
+		addServiceMetricErrorFor(r.Proof.Blockchain, address)
+		return res, NewHTTPExecutionError(ModuleName, er)
+	}
+	return res, nil
+}
+
+func (r RelayInput) ExecuteLocal(hostedBlockchains *HostedBlockchains, address *sdk.Address) (string, sdk.Error) {
+	// retrieve the hosted blockchain url requested
+	chain, err := hostedBlockchains.GetChain(r.Proof.Blockchain)
+	if err != nil {
+		// metric track
+		addServiceMetricErrorFor(r.Proof.Blockchain, address)
+		return "", err
+	}
+	url := strings.Trim(chain.HTTPURL, `/`)
+	if len(r.Payload.Path) > 0 {
+		url = url + "/" + strings.Trim(r.Payload.Path, `/`)
+	}
+
 	// do basic http request on the relay
 	res, er := executeHTTPRequest(r.Payload.Data, url, GlobalViperConfig.UserAgent, chain.BasicAuth, r.Payload.Method, r.Payload.Headers)
 	if er != nil {

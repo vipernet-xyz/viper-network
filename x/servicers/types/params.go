@@ -29,7 +29,7 @@ const (
 	DefaultServicerCountLock    bool  = false
 	DefaultBurnActive           bool  = false
 	DefaultMinPauseTime               = 60 * 10 * time.Second
-	DefaultMaxFishermen               = int64(50)
+	DefaultMaxFishermen               = int64(5)
 	DefaultFishermenCount             = int64(1)
 )
 
