@@ -18,16 +18,7 @@ import (
 )
 
 var (
-	// cache for session objects
-	globalSessionCache *CacheStorage
-	// cache for GOBEvidence objects
-	globalEvidenceCache *CacheStorage
-	globalTestCache     *CacheStorage
 	// sync.once to perform initialization
-	cacheOnce sync.Once
-
-	globalEvidenceSealedMap sync.Map
-
 	ConfigOnce sync.Once
 )
 
@@ -95,6 +86,30 @@ func (cs *CacheStorage) GetWithoutLock(key []byte, object CacheObject) (interfac
 	return res, true
 }
 
+// "DeleteEvidence" - Remove the GOBEvidence from the store
+func DeleteEvidence(header SessionHeader, evidenceType EvidenceType, evidenceStore *CacheStorage) error {
+	// generate key for GOBEvidence
+	key, err := KeyForEvidence(header, evidenceType)
+	if err != nil {
+		return err
+	}
+	// delete from cache
+	evidenceStore.Delete(key)
+	evidenceStore.SealMap.Delete(header.HashString())
+	return nil
+}
+
+func (cs *CacheStorage) IsSealedWithoutLock(object CacheObject) bool {
+	_, ok := cs.SealMap.Load(object.HashString())
+	return ok
+}
+
+func (cs *CacheStorage) IsSealed(object CacheObject) bool {
+	cs.l.Lock()
+	defer cs.l.Unlock()
+	return cs.IsSealedWithoutLock(object)
+}
+
 // "Seal" - Seals the cache object so it is no longer writable in the cache store
 func (cs *CacheStorage) Seal(object CacheObject) (cacheObject CacheObject, isOK bool) {
 
@@ -134,8 +149,8 @@ func (cs *CacheStorage) Set(key []byte, val CacheObject) {
 			return
 		}
 		// if evidence, check sealed map
-		if ev, ok := co.(Evidence); ok {
-			if _, ok := globalEvidenceSealedMap.Load(ev.HashString()); ok {
+		if co.IsSealable() {
+			if ok := cs.IsSealedWithoutLock(co); ok {
 				return
 			}
 		}
@@ -216,23 +231,13 @@ func (cs *CacheStorage) Clear() {
 	}
 }
 
-func (cs *CacheStorage) IsSealedWithoutLock(object CacheObject) bool {
-	_, ok := cs.SealMap.Load(object.HashString())
-	return ok
-}
-
-func (cs *CacheStorage) IsSealed(object CacheObject) bool {
-	cs.l.Lock()
-	defer cs.l.Unlock()
-	return cs.IsSealedWithoutLock(object)
-}
-
 // "Iterator" - Returns an iterator for all of the items in the stores
 func (cs *CacheStorage) Iterator() (db.Iterator, error) {
 	err := cs.FlushToDB()
 	if err != nil {
 		fmt.Printf("unable to flush to db before iterator created in cacheStorage Iterator(): %s", err.Error())
 	}
+
 	return cs.DB.Iterator(nil, nil)
 }
 
@@ -358,19 +363,6 @@ func SetEvidence(evidence Evidence, evidenceStore *CacheStorage) {
 	evidenceStore.Set(key, evidence)
 }
 
-// "DeleteEvidence" - Remove the GOBEvidence from the store
-func DeleteEvidence(header SessionHeader, evidenceType EvidenceType, evidenceStore *CacheStorage) error {
-	// generate key for GOBEvidence
-	key, err := KeyForEvidence(header, evidenceType)
-	if err != nil {
-		return err
-	}
-	// delete from cache
-	evidenceStore.Delete(key)
-	evidenceStore.SealMap.Delete(header.HashString())
-	return nil
-}
-
 // "SealEvidence" - Locks/sets the evidence from the stores
 func SealEvidence(evidence Evidence, storage *CacheStorage) (Evidence, bool) {
 	co, ok := storage.Seal(evidence)
@@ -456,8 +448,19 @@ func GetTotalProofs(h SessionHeader, et EvidenceType, maxPossibleRelays sdk.BigI
 	return evidence, evidence.NumOfProofs
 }
 
+/*
+	func IsUniqueProof(p Proof, evidence Evidence) bool {
+		return !evidence.Bloom.Test(p.Hash())
+	}
+*/
 func IsUniqueProof(p Proof, evidence Evidence) bool {
-	return !evidence.Bloom.Test(p.Hash())
+	hash := p.HashString()
+	for _, existingProof := range evidence.Proofs {
+		if existingProof.HashString() == hash {
+			return false
+		}
+	}
+	return true
 }
 
 func GetResult(header SessionHeader, evidenceType EvidenceType, servicerAddr sdk.Address, storage *CacheStorage) (result Result, err error) {
@@ -495,9 +498,9 @@ func SetResult(result Result, testStore *CacheStorage) {
 	testStore.Set(key, result)
 }
 
-func DeleteResult(header SessionHeader, evidenceType EvidenceType, testStore *CacheStorage) error {
+func DeleteResult(header SessionHeader, evidenceType EvidenceType, servicerAddr sdk.Address, testStore *CacheStorage) error {
 	// generate key for GOBEvidence
-	key, err := KeyForEvidence(header, evidenceType)
+	key, err := KeyForTestResult(header, evidenceType, servicerAddr)
 	if err != nil {
 		return err
 	}
@@ -507,7 +510,7 @@ func DeleteResult(header SessionHeader, evidenceType EvidenceType, testStore *Ca
 	return nil
 }
 
-// "SealEvidence" - Locks/sets the evidence from the stores
+// "SealResult" - Locks/sets the evidence from the stores
 func SealResult(result Result, storage *CacheStorage) (Result, bool) {
 	co, ok := storage.Seal(result)
 	if !ok {
@@ -549,7 +552,7 @@ func ResultIterator(testStore *CacheStorage) TestResultIt {
 	}
 }
 
-// "GetProof" - Returns the Proof object from a specific piece of GOBEvidence at a certain index
+// "GetTestResult" - Returns the TestResult object from a specific piece of GOBEvidence at a certain index
 func GetTestResult(header SessionHeader, evidenceType EvidenceType, index int64, servicerAddr sdk.Address, int64, evidenceStore *CacheStorage) Test {
 	// retrieve the GOBEvidence
 	result, err := GetResult(header, evidenceType, servicerAddr, evidenceStore)
@@ -562,6 +565,18 @@ func GetTestResult(header SessionHeader, evidenceType EvidenceType, index int64,
 	}
 	// return the propßer proof
 	return result.TestResults[index]
+}
+
+// GetAllTestResults returns all TestResult objects from a specific piece of evidence.
+func GetTotalTestResults(header SessionHeader, evidenceType EvidenceType, servicerAddr sdk.Address, evidenceStore *CacheStorage) (Result, int64) {
+	// Retrieve the evidence
+	result, err := GetResult(header, evidenceType, servicerAddr, evidenceStore)
+	if err != nil {
+		log.Fatalf("could not get total results for GOBEvidence: %s", err.Error())
+	}
+
+	// Return all test results
+	return result, result.NumOfTestResults
 }
 
 func SetTestResult(header SessionHeader, evidenceType EvidenceType, tr TestResult, servicerAddr sdk.Address, testStore *CacheStorage) {

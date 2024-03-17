@@ -262,6 +262,8 @@ func (k Keeper) HandleChallenge(ctx sdk.Ctx, challenge vc.ChallengeProofInvalidD
 	header := vc.SessionHeader{
 		RequestorPubKey:    challenge.MinorityResponse.Proof.Token.RequestorPublicKey,
 		Chain:              challenge.MinorityResponse.Proof.Blockchain,
+		GeoZone:            challenge.MinorityResponse.Proof.GeoZone,
+		NumServicers:       challenge.MinorityResponse.Proof.NumServicers,
 		SessionBlockHeight: sessionCtx.BlockHeight(),
 	}
 	// check cache

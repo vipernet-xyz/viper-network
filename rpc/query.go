@@ -602,6 +602,8 @@ func QueryValidatorsByGeoZone(w http.ResponseWriter, r *http.Request, ps httprou
 type QueryNodeReceiptParam struct {
 	Address         string `json:"address"`
 	Blockchain      string `json:"blockchain"`
+	GeoZone         string `json:"zone"`
+	NumServicers    int64  `json:"num_servicers"`
 	RequestorPubkey string `json:"requestor_pubkey"`
 	SBlockHeight    int64  `json:"session_block_height"`
 	Height          int64  `json:"height"`
@@ -617,7 +619,7 @@ func NodeClaim(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if params.Height == 0 {
 		params.Height = app.VCA.BaseApp.LastBlockHeight()
 	}
-	res, err := app.VCA.QueryClaim(params.Address, params.RequestorPubkey, params.Blockchain, params.ReceiptType, params.SBlockHeight, params.Height)
+	res, err := app.VCA.QueryClaim(params.Address, params.RequestorPubkey, params.Blockchain, params.GeoZone, params.NumServicers, params.ReceiptType, params.SBlockHeight, params.Height)
 	if err != nil {
 		WriteErrorResponse(w, 400, err.Error())
 		return

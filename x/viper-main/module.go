@@ -97,7 +97,6 @@ func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 	ActivateAdditionalParameters(ctx, am)
 	// delete the expired claims
 	am.keeper.DeleteExpiredClaims(ctx)
-
 }
 
 // ActivateAdditionalParameters activate additional parameters on their respective upgrade heights
@@ -125,7 +124,7 @@ func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.Validat
 		// check the consensus reactor sync status
 		status, err := am.keeper.TmNode.ConsensusReactorStatus()
 		if err != nil {
-			ctx.Logger().Error(fmt.Sprintf("could not get status for tendermint node (cannot submit claims/proofs in this state): %s", err.Error()))
+			ctx.Logger().Error(fmt.Sprintf("could not get status for tendermint node (cannot submit reportcards/claims/proofs in this state): %s", err.Error()))
 			return
 		}
 
@@ -138,6 +137,8 @@ func (am AppModule) EndBlock(ctx sdk.Ctx, _ abci.RequestEndBlock) []abci.Validat
 		for _, node := range types.GlobalViperNodes {
 			address := node.GetAddress()
 			if (ctx.BlockHeight()+int64(address[0]))%blocksPerSession == 1 && ctx.BlockHeight() != 1 {
+				//auto send the reportcards
+				am.keeper.SendReportCardTx(ctx, am.keeper, am.keeper.TmNode, node, ReportCardTx)
 				// auto send the proofs
 				am.keeper.SendClaimTx(ctx, am.keeper, am.keeper.TmNode, node, ClaimTx)
 				// auto claim the proofs

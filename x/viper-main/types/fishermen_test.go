@@ -28,16 +28,13 @@ func TestCalculateQoSForServicer(t *testing.T) {
 		ServicerAddress: sdk.Address(PubKey.Address()),
 	}
 
-	// Block height for testing
-	blockHeight := int64(1000)
 	latencyScore := sdk.NewDecWithPrec(7, 1)
 	// Calculate the QoS report
-	report, err := CalculateQoSForServicer(result, blockHeight, latencyScore)
+	report, err := CalculateQoSForServicer(result, latencyScore)
 	if err != nil {
 		t.Errorf("CalculateQoSForServicer returned an error: %v", err)
 	}
 	// Test the expected QoS report fields
-	assert.Equal(t, report.BlockHeight, blockHeight)
 	assert.Equal(t, report.ServicerAddress, result.ServicerAddress)
 	assert.NotNil(t, report.FirstSampleTimestamp)
 	assert.True(t, report.AvailabilityScore.GT(sdk.ZeroDec()))

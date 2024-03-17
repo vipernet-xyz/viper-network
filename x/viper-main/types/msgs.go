@@ -10,10 +10,10 @@ import (
 
 // RouterKey is the module name router key
 const (
-	RouterKey               = ModuleName // router name is module name
-	MsgClaimName            = "claim"    // name for the claim message
-	MsgProofName            = "proof"    // name for the proof message
-	MsgSubmitReportCardName = "submitReportCard"
+	RouterKey               = ModuleName         // router name is module name
+	MsgClaimName            = "claim"            // name for the claim message
+	MsgProofName            = "proof"            // name for the proof message
+	MsgSubmitReportCardName = "submitReportCard" //name for  submit report card message
 )
 
 // "GetFee" - Returns the fee (sdk.BigInt) of the message type
@@ -32,6 +32,9 @@ func (msg MsgClaim) ValidateBasic() sdk.Error {
 	// validate a non empty chain
 	if msg.SessionHeader.Chain == "" {
 		return NewEmptyChainError(ModuleName)
+	}
+	if msg.SessionHeader.GeoZone == "" {
+		return NewEmptyGeoZoneError(ModuleName)
 	}
 	// basic validation on the session block height
 	if msg.SessionHeader.SessionBlockHeight < 1 {
@@ -97,9 +100,12 @@ func (msg MsgClaim) IsEmpty() bool {
 // ---------------------------------------------------------------------------------------------------------------------
 // "MsgProof" - Proves the previous claim by providing the merkle Proof and the leaf servicer
 type MsgProof struct {
-	MerkleProof  MerkleProof  `json:"merkle_proofs"` // the merkleProof needed to verify the proofs
-	Leaf         Proof        `json:"leaf"`          // the needed to verify the Proof
-	EvidenceType EvidenceType `json:"evidence_type"` // the type of GOBEvidence
+	ClaimMerkleProof   MerkleProof  `json:"claim_merkle_proof"`   // the merkleProof needed to verify the proofs
+	ClaimLeaf          Proof        `json:"claim_leaf"`           // the leaf needed to verify the Proof
+	ClaimEvidenceType  EvidenceType `json:"claim_evidence_type"`  // the type of GOBEvidence
+	ReportMerkleProof  MerkleProof  `json:"report_merkle_proof"`  // the merkleProof needed to verify the report
+	ReportLeaf         Test         `json:"report_leaf"`          // the leaf needed to verify the Report
+	ReportEvidenceType EvidenceType `json:"report_evidence_type"` // The type of evidence that this proof corresponds to
 }
 
 var _ codec.ProtoMarshaler = &MsgProof{}
@@ -131,9 +137,12 @@ func (msg *MsgProof) Unmarshal(data []byte) error {
 		return err
 	}
 	*msg = MsgProof{
-		MerkleProof:  m.MerkleProof,
-		Leaf:         m.Leaf.FromProto(),
-		EvidenceType: m.EvidenceType,
+		ClaimMerkleProof:   m.ClaimMerkleProof,
+		ClaimLeaf:          m.ClaimLeaf.FromProto(),
+		ClaimEvidenceType:  m.ClaimEvidenceType,
+		ReportMerkleProof:  m.ReportMerkleProof,
+		ReportLeaf:         m.ReportLeaf.FromProto(),
+		ReportEvidenceType: m.ReportEvidenceType,
 	}
 	return nil
 }
@@ -148,14 +157,17 @@ func (msg *MsgProof) ProtoMessage() {
 }
 
 func (msg MsgProof) String() string {
-	return fmt.Sprintf("MerkleProof: %s\nLeaf: %v\nEvidenceType: %d\n", msg.MerkleProof.String(), msg.Leaf, msg.EvidenceType)
+	return fmt.Sprintf("ClaimMerkleProof: %s\nClaimLeaf: %v\nClaimEvidenceType: %d\nReportMerkleProof: %s\nReportLeaf: %v\nReportEvidenceType: %d\n", msg.ClaimMerkleProof.String(), msg.ClaimLeaf, msg.ClaimEvidenceType, msg.ReportMerkleProof.String(), msg.ReportLeaf, msg.ReportEvidenceType)
 }
 
 func (msg MsgProof) ToProto() MsgProtoProof {
 	return MsgProtoProof{
-		MerkleProof:  msg.MerkleProof,
-		Leaf:         msg.Leaf.ToProto(),
-		EvidenceType: msg.EvidenceType,
+		ClaimMerkleProof:   msg.ClaimMerkleProof,
+		ClaimLeaf:          msg.ClaimLeaf.ToProto(),
+		ClaimEvidenceType:  msg.ClaimEvidenceType,
+		ReportMerkleProof:  msg.ReportMerkleProof,
+		ReportLeaf:         msg.ReportLeaf.ToProto(),
+		ReportEvidenceType: msg.ReportEvidenceType,
 	}
 }
 
@@ -173,18 +185,32 @@ func (msg MsgProof) Type() string { return MsgProofName }
 // "ValidateBasic" - Storeless validity check for proof message
 func (msg MsgProof) ValidateBasic() sdk.Error {
 	// verify valid number of levels for merkle proofs
-	if len(msg.MerkleProof.HashRanges) < 3 {
+	if len(msg.ClaimMerkleProof.HashRanges) < 3 {
 		return NewInvalidLeafCousinProofsComboError(ModuleName)
 	}
 	// validate the target range
-	if !msg.MerkleProof.Target.isValidRange() {
+	if !msg.ClaimMerkleProof.Target.isValidRange() {
 		return NewInvalidMerkleRangeError(ModuleName)
 	}
 	// validate the leaf
-	if err := msg.Leaf.ValidateBasic(); err != nil {
+	if err := msg.ClaimLeaf.ValidateBasic(); err != nil {
 		return err
 	}
-	if _, err := msg.EvidenceType.Byte(); err != nil {
+	if _, err := msg.ClaimEvidenceType.Byte(); err != nil {
+		return NewInvalidEvidenceErr(ModuleName)
+	}
+	if len(msg.ReportMerkleProof.HashRanges) < 3 {
+		return NewInvalidLeafCousinProofsComboError(ModuleName)
+	}
+	// validate the target range
+	if !msg.ReportMerkleProof.Target.isValidRange() {
+		return NewInvalidMerkleRangeError(ModuleName)
+	}
+	// validate the leaf
+	if err := msg.ReportLeaf.ValidateBasic(); err != nil {
+		return err
+	}
+	if _, err := msg.ReportEvidenceType.Byte(); err != nil {
 		return NewInvalidEvidenceErr(ModuleName)
 	}
 	return nil
@@ -197,7 +223,7 @@ func (msg MsgProof) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgProof) GetSigners() []sdk.Address {
-	return []sdk.Address{msg.Leaf.GetSigner()}
+	return []sdk.Address{msg.ClaimLeaf.GetSigner()}
 }
 
 // "GetSigners" - Defines whose signature is required
@@ -205,25 +231,29 @@ func (msg MsgProof) GetRecipient() sdk.Address {
 	return nil
 }
 
-func (msg MsgProof) GetLeaf() Proof {
-	return msg.Leaf
+func (msg MsgProof) GetClaimLeaf() Proof {
+	return msg.ClaimLeaf
+}
+
+func (msg MsgProof) GetReportLeaf() Test {
+	return msg.ReportLeaf
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// "MsgSubmitReportCard"
+// "MsgSubmitReport"
 
 // "GetFee" - Returns the fee (sdk.BigInt) of the message type
-func (msg MsgSubmitReportCard) GetFee() sdk.BigInt {
+func (msg MsgSubmitQoSReport) GetFee() sdk.BigInt {
 	return sdk.NewInt(ViperFeeMap[msg.Type()])
 }
 
 // "Route" - Returns module router key
-func (msg MsgSubmitReportCard) Route() string { return RouterKey }
+func (msg MsgSubmitQoSReport) Route() string { return RouterKey }
 
 // "Type" - Returns message name
-func (msg MsgSubmitReportCard) Type() string { return MsgClaimName }
+func (msg MsgSubmitQoSReport) Type() string { return MsgSubmitReportCardName }
 
-func (msg MsgSubmitReportCard) ValidateBasic() sdk.Error {
+func (msg MsgSubmitQoSReport) ValidateBasic() sdk.Error {
 	// Validate non-empty servicer address
 	if msg.ServicerAddress.Empty() {
 		return sdk.ErrInvalidAddress("Servicer address cannot be empty")
@@ -231,11 +261,6 @@ func (msg MsgSubmitReportCard) ValidateBasic() sdk.Error {
 
 	// Validate the report
 	report := msg.Report
-
-	// Ensure the block height is positive
-	if report.BlockHeight < 1 {
-		return sdk.ErrInvalidSequence("Block height must be positive")
-	}
 
 	// Ensure the LatencyScore, AvailabilityScore, and ReliabilityScore are within acceptable ranges
 	// You can adjust these checks based on your specific requirements
@@ -266,21 +291,21 @@ func (msg MsgSubmitReportCard) ValidateBasic() sdk.Error {
 }
 
 // "GetSignBytes" - Encodes the message for signing
-func (msg MsgSubmitReportCard) GetSignBytes() []byte {
+func (msg MsgSubmitQoSReport) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // "GetSigners" - Defines whose signature is required
-func (msg MsgSubmitReportCard) GetSigners() []sdk.Address {
+func (msg MsgSubmitQoSReport) GetSigners() []sdk.Address {
 	return []sdk.Address{msg.FishermanAddress}
 }
 
 // "GetSigners" - Defines whose signature is required
-func (msg MsgSubmitReportCard) GetRecipient() sdk.Address {
+func (msg MsgSubmitQoSReport) GetRecipient() sdk.Address {
 	return nil
 }
 
-// "IsEmpty" - Returns true if the EvidenceType == 0, this should only happen on initialization and MsgClaim{} calls
-func (msg MsgSubmitReportCard) IsEmpty() bool {
+// "IsEmpty" - Returns true if the EvidenceType == 0, this should only happen on initialization and MsgSubmitReport{} calls
+func (msg MsgSubmitQoSReport) IsEmpty() bool {
 	return msg.EvidenceType == 0
 }

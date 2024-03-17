@@ -5,13 +5,14 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
+	requestorexported "github.com/vipernet-xyz/viper-network/x/requestors/exported"
 	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
-func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitReportCard, relays sdk.BigInt, address sdk.Address, requestor requestorsTypes.Requestor) sdk.BigInt {
-	_, found := k.GetValidator(ctx, address)
+func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSReport, relays sdk.BigInt, address sdk.Address, requestor requestorsTypes.Requestor) sdk.BigInt {
+	validator, found := k.GetValidator(ctx, address)
 	if !found {
 		ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", address.String(), ctx.BlockHeight()).Error())
 		return sdk.ZeroInt()
@@ -32,12 +33,15 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 	reliabilityScore = sdk.MinDec(reliabilityScore, sdk.OneDec())
 
 	// Calculate the weighted average of scores
-	totalScore := latencyScore.Mul(k.LatencyScoreWeight(ctx)).Add(availabilityScore.Mul(k.AvailabilityScoreWeight(ctx))).Add(reliabilityScore.Mul(k.ReliabilityScoreWeight(ctx)))
+	totalScore := latencyScore.Mul(k.LatencyScoreWeight(ctx)).Add(availabilityScore.Mul(k.AvailabilityScoreWeight(ctx))).Add(reliabilityScore.Mul(k.ReliabilityScoreWeight(ctx))).RoundInt().BigInt()
 
 	// Calculate the reward coins based on the total score and relays
-	trf, _ := sdk.NewDecFromStr(k.TokenRewardFactor(ctx).String())
-	r, _ := sdk.NewDecFromStr(relays.String())
-	coins := trf.Mul(r).Mul(totalScore).RoundInt()
+	chainMultiplier := k.GetChainSpecificMultiplier(ctx, reportCard.SessionHeader.Chain)
+	geozoneMultiplier := k.GetChainSpecificMultiplier(ctx, validator.GeoZone[0])
+	tr := k.TokenRewardFactor(ctx)
+	r := relays
+	score := sdk.NewIntFromBigInt(totalScore)
+	coins := tr.Mul(chainMultiplier).Mul(geozoneMultiplier).Mul(r).Mul(score)
 
 	// Validate requestor and mint rewards accordingly
 	if !k.GovKeeper.HasDiscountKey(ctx, requestor.GetAddress()) {
@@ -49,17 +53,19 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
 		}
 		toRequestor := k.RequestorReward(ctx, coins)
+		daoAcc := k.AccountKeeper.GetModuleAccount(ctx, governanceTypes.DAOAccountName)
 		if toRequestor.IsPositive() {
-			k.mint(ctx, toRequestor, k.GovKeeper.GetDAOAccount(ctx).GetAddress())
+			k.mint(ctx, toRequestor, daoAcc.GetAddress())
 		}
 		toFishermen := k.FishermenReward(ctx, coins)
 		if toFishermen.IsPositive() {
 			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
 		}
-		maxFreeTierRelays := sdk.NewInt(k.RequestorKeeper.MaxFreeTierRelaysPerSession(ctx))
+		maxFreeTierRelays := sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
 		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
-			k.burn(ctx, coins, requestor)
+			k.burn(ctx, coins, requestor, reportCard.SessionHeader.NumServicers)
 		}
+		return toNode
 	} else {
 		toNode, toFeeCollector := k.NodeReward02(ctx, coins)
 		if toNode.IsPositive() {
@@ -76,15 +82,13 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitRepo
 		if toFishermen.IsPositive() {
 			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
 		}
-		maxFreeTierRelays := sdk.NewInt(k.RequestorKeeper.MaxFreeTierRelaysPerSession(ctx))
+		maxFreeTierRelays := sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
 
 		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
-			k.burn(ctx, coins, requestor)
+			k.burn(ctx, coins, requestor, reportCard.SessionHeader.NumServicers)
 		}
 		return toNode
 	}
-
-	return sdk.ZeroInt()
 }
 
 // blockReward - Handles distribution of the collected fees
@@ -145,7 +149,7 @@ func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Re
 // MintRate = (total supply * inflation rate) / (30 day avg. of daily relays * 365 days)
 
 // "burn" - takes an amount and burns it
-func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.Requestor) (sdk.Result, error) {
+func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.Requestor, numServicers int64) (sdk.Result, error) {
 	// Burn coins from requestor account
 	r, burnErr := requestor.RemoveStakedTokens(amount)
 	if burnErr != nil {
@@ -153,7 +157,7 @@ func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.R
 		return sdk.Result{}, burnErr
 	}
 	// Reset requestor relays
-	r.MaxRelays = k.RequestorKeeper.CalculateRequestorRelays(ctx, requestor)
+	r.MaxRelays = MaxPossibleRelays(requestor, numServicers)
 
 	// Update requestor in the store
 	k.RequestorKeeper.SetRequestor(ctx, r)
@@ -222,4 +226,27 @@ func (k Keeper) SetRequestorKey(ctx sdk.Ctx, consAddr sdk.Address) {
 		panic(err)
 	}
 	_ = store.Set(requestorsTypes.AllRequestorsKey, b)
+}
+
+func (k Keeper) GetChainSpecificMultiplier(ctx sdk.Ctx, chain string) sdk.BigInt {
+	multiplierMap := k.RelaysToTokensChainMultiplierMap(ctx)
+	if multiplier, found := multiplierMap[chain]; found {
+		return sdk.NewInt(multiplier)
+	}
+	return sdk.NewInt(1)
+}
+
+func (k Keeper) GetGeoZoneSpecificMultiplier(ctx sdk.Ctx, geoZone string) sdk.BigInt {
+	multiplierMap := k.RelaysToTokensGeoZoneMultiplierMap(ctx)
+	if multiplier, found := multiplierMap[geoZone]; found {
+		return sdk.NewInt(multiplier)
+	}
+	return sdk.NewInt(1)
+}
+
+// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an App on a sessions
+func MaxPossibleRelays(app requestorexported.RequestorI, sessionNodeCount int64) sdk.BigInt {
+	//GetMaxRelays Max value is bound to math.MaxUint64,
+	//current worse case is 1 chain and 5 nodes per session with a result of 3689348814741910323 which can be used safely as int64
+	return app.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(app.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
 }

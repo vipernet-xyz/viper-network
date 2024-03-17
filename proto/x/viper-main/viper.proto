@@ -21,10 +21,10 @@ message SessionHeader {
 message Session {
 	option (gogoproto.goproto_getters) = false;
 
-	SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "header", (gogoproto.nullable) = false];
+	SessionHeader sessionHeader = 1 [(gogoproto.jsontag) = "", (gogoproto.nullable) = false];
 	bytes sessionKey = 2 [(gogoproto.jsontag) = "key", (gogoproto.casttype) = "SessionKey"];
-	//repeated bytes sessionServicers = 3 [(gogoproto.jsontag) = "servicers", (gogoproto.castrepeated) = "SessionServicers"];
-	//repeated bytes sessionFishermen = 4 [(gogoproto.jsontag) = "fishermen", (gogoproto.castrepeated) = "SessionFishermen"];
+	repeated bytes sessionServicers = 3 [(gogoproto.jsontag) = "servicers", (gogoproto.castrepeated) = "SessionServicers"];
+	repeated bytes sessionFishermen = 4 [(gogoproto.jsontag) = "fishermen", (gogoproto.castrepeated) = "SessionFishermen"];
 }
 
 message MsgClaim {
@@ -166,7 +166,7 @@ message ViperQoSReport {
     google.protobuf.Timestamp FirstSampleTimestamp = 1 [(gogoproto.jsontag) = "first_sample_timestamp",
                                                        (gogoproto.stdtime) = true,
                                                        (gogoproto.nullable) = false];
-    int64 BlockHeight = 2 [(gogoproto.jsontag) = "block_height"];
+	SessionHeader sessionHeader = 2 [(gogoproto.jsontag) = "", (gogoproto.nullable) = false];
 	bytes servicer_address = 3 [(gogoproto.jsontag) = "servicer_addr", (gogoproto.casttype) = "github.com/vipernet-xyz/viper-network/types.Address"];
     bytes LatencyScore = 4 [(gogoproto.customtype) = "github.com/vipernet-xyz/viper-network/types.BigDec", 
                              (gogoproto.jsontag) = "latency_score", 
@@ -183,8 +183,8 @@ message ViperQoSReport {
     string Signature = 9 [(gogoproto.jsontag) = "signature"];
 }
 
-// MsgSubmitReportCard defines a message to submit a QoS report card.
-message MsgSubmitReportCard {
+// MsgSubmitQoSReport defines a message to submit a QoS report card.
+message MsgSubmitQoSReport {
     option (gogoproto.messagename) = true;
     option (gogoproto.goproto_getters) = false;
 

@@ -306,7 +306,6 @@ func DefaultTxDecoder(cdc *codec.Codec) sdk.TxDecoder {
 		// ProtoStdTx.ProtoMsg is an interface. The concrete types
 		// are registered by MakeTxCodec
 		err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)
-
 		if err != nil {
 			return nil, sdk.ErrTxDecode("error decoding transaction: " + err.Error()).TraceSDK(err.Error())
 		}

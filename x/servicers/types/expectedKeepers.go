@@ -44,6 +44,8 @@ type AuthKeeper interface {
 	SendCoins(ctx sdk.Ctx, fromAddr sdk.Address, toAddr sdk.Address, amt sdk.Coins) sdk.Error
 	// get account
 	GetAccount(ctx sdk.Ctx, addr sdk.Address) authexported.Account
+	//get fee
+	GetFee(ctx sdk.Ctx, msg sdk.Msg) sdk.BigInt
 }
 
 type ViperKeeper interface {
@@ -85,7 +87,6 @@ type RequestorsKeeper interface {
 	SetRequestor(ctx sdk.Ctx, requestor requestorsType.Requestor)
 	GetRequestor(ctx sdk.Ctx, addr sdk.Address) (requestor requestorsType.Requestor, found bool)
 	BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64)
-	MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64)
 }
 
 type GovernanceKeeper interface {

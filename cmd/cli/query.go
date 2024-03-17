@@ -649,24 +649,29 @@ var queryServicerClaims = &cobra.Command{
 }
 
 var queryServicerClaim = &cobra.Command{
-	Use:   "servicer-claim <address> <requestorPubKey> <claimType=(relay | challenge)> <relayChainID> <sessionHeight> [<height>]`",
+	Use:   "servicer-claim <address> <requestorPubKey> <claimType=(relay | challenge)> <relayChainID> <geoZoneID> <numOfServicers> <sessionHeight> [<height>]`",
 	Short: "Gets servicer pending claim for work completed",
 	Long:  `Gets servicer pending claim for verified proof of work submitted for a specific session`,
-	Args:  cobra.MinimumNArgs(5),
+	Args:  cobra.MinimumNArgs(7),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)
 		var height int
-		if len(args) == 5 {
+		if len(args) == 7 {
 			height = 0 // latest
 		} else {
 			var err error
-			height, err = strconv.Atoi(args[5])
+			height, err = strconv.Atoi(args[7])
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 		}
-		sessionheight, err := strconv.Atoi(args[4])
+		sessionheight, err := strconv.Atoi(args[6])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		numServicers, err := strconv.Atoi(args[5])
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -674,6 +679,8 @@ var queryServicerClaim = &cobra.Command{
 		params := rpc.QueryNodeReceiptParam{
 			Address:         args[0],
 			Blockchain:      args[3],
+			GeoZone:         args[4],
+			NumServicers:    int64(numServicers),
 			RequestorPubkey: args[1],
 			SBlockHeight:    int64(sessionheight),
 			Height:          int64(height),

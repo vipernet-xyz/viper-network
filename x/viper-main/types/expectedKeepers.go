@@ -13,7 +13,7 @@ import (
 )
 
 type PosKeeper interface {
-	RewardForRelays(ctx sdk.Ctx, reportCard MsgSubmitReportCard, relays sdk.BigInt, address sdk.Address, requestor requestorsTypes.Requestor) sdk.BigInt
+	RewardForRelays(ctx sdk.Ctx, reportCard MsgSubmitQoSReport, relays sdk.BigInt, address sdk.Address, requestor requestorsTypes.Requestor) sdk.BigInt
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
 	Validator(ctx sdk.Ctx, addr sdk.Address) servicersexported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
@@ -33,7 +33,7 @@ type PosKeeper interface {
 	BurnforNoActivity(ctx sdk.Ctx, height int64, addr sdk.Address)
 	GetHistoricalInfo(ctx sdk.Ctx, height int64) (servicersTypes.HistoricalInfo, bool)
 	UnbondingTime(ctx sdk.Ctx) time.Duration
-	UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, sessionReport ViperQoSReport)
+	UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, sessionReport ViperQoSReport) servicersTypes.ReportCard
 	SlashFisherman(ctx sdk.Ctx, height int64, address sdk.Address)
 }
 

@@ -13,47 +13,44 @@ import (
 // POS params default values
 const (
 	// DefaultParamspace for params keeper
-	DefaultParamspace                        = ModuleName
-	DefaultUnstakingTime                     = time.Hour * 24 * 7 * 3
-	DefaultMaxRequestors               int64 = math.MaxInt64
-	DefaultMinStake                    int64 = 10000
-	DefaultBaseRelaysPerVIPR           int64 = 200000
-	DefaultStabilityModulation         int64 = 0
-	DefaultParticipationRateOn         bool  = false
-	DefaultMaxChains                   int64 = 15
-	DefaultMinNumServicers                   = int32(3)
-	DefaultMaxNumServicers                   = int32(25)
-	DefaultMaxFreeTierRelaysPerSession       = int64(5000)
+	DefaultParamspace                = ModuleName
+	DefaultUnstakingTime             = time.Hour * 24 * 7 * 3
+	DefaultMaxRequestors       int64 = math.MaxInt64
+	DefaultMinStake            int64 = 10000
+	DefaultBaseRelaysPerVIPR   int64 = 200000
+	DefaultStabilityModulation int64 = 0
+	DefaultParticipationRateOn bool  = false
+	DefaultMaxChains           int64 = 15
+	DefaultMinNumServicers           = int32(3)
+	DefaultMaxNumServicers           = int32(25)
 )
 
 // Keys for parameter access
 var (
-	KeyUnstakingTime               = []byte("RequestorUnstakingTime")
-	KeyMaxRequestors               = []byte("MaxRequestors")
-	KeyMinRequestorStake           = []byte("MinimumRequestorStake")
-	BaseRelaysPerVIPR              = []byte("BaseRelaysPerVIPR")
-	StabilityModulation            = []byte("StabilityModulation")
-	ParticipationRate              = []byte("ParticipationRate")
-	KeyMaximumChains               = []byte("MaximumChains")
-	KeyMinNumServicers             = []byte("MinNumServicers")
-	KeyMaxNumServicers             = []byte("MaxNumServicers")
-	KeyMaxFreeTierRelaysPerSession = []byte("MaxFreeTierRelaysPerSession")
+	KeyUnstakingTime     = []byte("RequestorUnstakingTime")
+	KeyMaxRequestors     = []byte("MaxRequestors")
+	KeyMinRequestorStake = []byte("MinimumRequestorStake")
+	BaseRelaysPerVIPR    = []byte("BaseRelaysPerVIPR")
+	StabilityModulation  = []byte("StabilityModulation")
+	ParticipationRate    = []byte("ParticipationRate")
+	KeyMaximumChains     = []byte("MaximumChains")
+	KeyMinNumServicers   = []byte("MinNumServicers")
+	KeyMaxNumServicers   = []byte("MaxNumServicers")
 )
 
 var _ types.ParamSet = (*Params)(nil)
 
 // Params defines the high level settings for pos module
 type Params struct {
-	UnstakingTime               time.Duration `json:"unstaking_time" yaml:"unstaking_time"`                   // duration of unstaking
-	MaxRequestors               int64         `json:"max_requestors" yaml:"max_requestors"`                   // maximum number of requestors
-	MinRequestorStake           int64         `json:"minimum_requestor_stake" yaml:"minimum_requestor_stake"` // minimum amount needed to stake as an requestor
-	BaseRelaysPerVIPR           int64         `json:"base_relays_per_vip" yaml:"base_relays_per_vip"`         // base relays per VIPR coin staked
-	StabilityModulation         int64         `json:"stability_modulation" yaml:"stability_modulation"`       // the stability adjustment from the governance
-	ParticipationRate           bool          `json:"participation_rate_on" yaml:"participation_rate_on"`     // the participation rate affects the amount minted based on staked ratio
-	MaxChains                   int64         `json:"maximum_chains" yaml:"maximum_chains"`                   // the maximum number of chains an requestor can stake for
-	MinNumServicers             int32         `json:"minimum_number_servicers"`
-	MaxNumServicers             int32         `json:"maximum_number_servicers"`
-	MaxFreeTierRelaysPerSession int64         `json:"maximum_free_tier_relays_per_session"`
+	UnstakingTime       time.Duration `json:"unstaking_time" yaml:"unstaking_time"`                   // duration of unstaking
+	MaxRequestors       int64         `json:"max_requestors" yaml:"max_requestors"`                   // maximum number of requestors
+	MinRequestorStake   int64         `json:"minimum_requestor_stake" yaml:"minimum_requestor_stake"` // minimum amount needed to stake as an requestor
+	BaseRelaysPerVIPR   int64         `json:"base_relays_per_vip" yaml:"base_relays_per_vip"`         // base relays per VIPR coin staked
+	StabilityModulation int64         `json:"stability_modulation" yaml:"stability_modulation"`       // the stability adjustment from the governance
+	ParticipationRate   bool          `json:"participation_rate_on" yaml:"participation_rate_on"`     // the participation rate affects the amount minted based on staked ratio
+	MaxChains           int64         `json:"maximum_chains" yaml:"maximum_chains"`                   // the maximum number of chains an requestor can stake for
+	MinNumServicers     int32         `json:"minimum_number_servicers"`
+	MaxNumServicers     int32         `json:"maximum_number_servicers"`
 }
 
 // Implements params.ParamSet
@@ -68,23 +65,21 @@ func (p *Params) ParamSetPairs() types.ParamSetPairs {
 		{Key: KeyMaximumChains, Value: &p.MaxChains},
 		{Key: KeyMinNumServicers, Value: p.MinNumServicers},
 		{Key: KeyMaxNumServicers, Value: p.MaxNumServicers},
-		{Key: KeyMaxFreeTierRelaysPerSession, Value: p.MaxFreeTierRelaysPerSession},
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		UnstakingTime:               DefaultUnstakingTime,
-		MaxRequestors:               DefaultMaxRequestors,
-		MinRequestorStake:           DefaultMinStake,
-		BaseRelaysPerVIPR:           DefaultBaseRelaysPerVIPR,
-		StabilityModulation:         DefaultStabilityModulation,
-		ParticipationRate:           DefaultParticipationRateOn,
-		MaxChains:                   DefaultMaxChains,
-		MinNumServicers:             DefaultMinNumServicers,
-		MaxNumServicers:             DefaultMaxNumServicers,
-		MaxFreeTierRelaysPerSession: DefaultMaxFreeTierRelaysPerSession,
+		UnstakingTime:       DefaultUnstakingTime,
+		MaxRequestors:       DefaultMaxRequestors,
+		MinRequestorStake:   DefaultMinStake,
+		BaseRelaysPerVIPR:   DefaultBaseRelaysPerVIPR,
+		StabilityModulation: DefaultStabilityModulation,
+		ParticipationRate:   DefaultParticipationRateOn,
+		MaxChains:           DefaultMaxChains,
+		MinNumServicers:     DefaultMinNumServicers,
+		MaxNumServicers:     DefaultMaxNumServicers,
 	}
 }
 
@@ -98,9 +93,6 @@ func (p Params) Validate() error {
 	}
 	if p.BaseRelaysPerVIPR < 0 {
 		return fmt.Errorf("invalid baseline throughput stake rate, must be above 0")
-	}
-	if p.MaxFreeTierRelaysPerSession < 0 {
-		return fmt.Errorf("invalid max free tier relays per session, must be above 0")
 	}
 	// session count constraints
 	if p.MaxNumServicers > 100 || p.MaxNumServicers < 1 {
@@ -129,8 +121,7 @@ func (p Params) String() string {
   Participation Rate On        %v
   MaxChains                    %d
   MinNumServicers              %d
-  MaxNumServicers              %d
-  MaxFreeTierRelaysPerSession  %d,`,
+  MaxNumServicers              %d,`,
 		p.UnstakingTime,
 		p.MaxRequestors,
 		p.MinRequestorStake,
@@ -140,5 +131,5 @@ func (p Params) String() string {
 		p.MaxChains,
 		p.MinNumServicers,
 		p.MaxNumServicers,
-		p.MaxFreeTierRelaysPerSession)
+	)
 }

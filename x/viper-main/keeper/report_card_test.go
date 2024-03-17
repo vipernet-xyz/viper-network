@@ -17,14 +17,14 @@ func TestKeeper_GetSetReportCard(t *testing.T) {
 	result, err := types.GetResult(header, types.FishermanTestEvidence, sdk.Address(npk.Address()), types.GlobalTestCache)
 	assert.Nil(t, err)
 
-	// Create a MsgSubmitReportCard with sample data
-	reportCard := types.MsgSubmitReportCard{
+	// Create a MsgSubmitReport with sample data
+	reportCard := types.MsgSubmitQoSReport{
 		SessionHeader:    header,
 		ServicerAddress:  sdk.Address(npk.Address()),
 		FishermanAddress: sdk.Address(fpk.Address()),
 		Report: types.ViperQoSReport{
 			FirstSampleTimestamp: time.Now().UTC(),
-			BlockHeight:          1000,
+			BlockHeight:          100,
 			ServicerAddress:      sdk.Address(npk.Address()),
 			LatencyScore:         sdk.NewDecWithPrec(123, 2),
 			AvailabilityScore:    sdk.NewDecWithPrec(456, 2),
@@ -33,7 +33,7 @@ func TestKeeper_GetSetReportCard(t *testing.T) {
 			Nonce:                42,
 			Signature:            "signature",
 		},
-		EvidenceType: types.RelayEvidence,
+		EvidenceType: types.FishermanTestEvidence,
 	}
 
 	// Mock the context for testing
@@ -49,7 +49,7 @@ func TestKeeper_GetSetReportCard(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Get the report card
-	queriedReportCard, found := keeper.GetReportCard(mockCtx, reportCard.ServicerAddress, header)
+	queriedReportCard, found := keeper.GetReportCard(mockCtx, reportCard.ServicerAddress, header, types.FishermanTestEvidence)
 	assert.True(t, found)
 
 	// Assertions to check the retrieved report card matches the original one
@@ -66,20 +66,19 @@ func TestKeeper_GetSetReportCard(t *testing.T) {
 
 func TestKeeper_GetSetDeleteReportCards(t *testing.T) {
 	ctx, _, _, _, keeper, _, _ := createTestInput(t, false)
-	var reportCards []types.MsgSubmitReportCard
+	var reportCards []types.MsgSubmitQoSReport
 	var servicerAddrs []sdk.Address
 	var fishermanAddrs []sdk.Address
 
 	for i := 0; i < 2; i++ {
 		npk, fpk, header, _ := simulateTestRelays(t, keeper, &ctx, 5)
 		result, _ := types.GetResult(header, types.FishermanTestEvidence, sdk.Address(npk.Address()), types.GlobalTestCache)
-		reportCard := types.MsgSubmitReportCard{
+		reportCard := types.MsgSubmitQoSReport{
 			SessionHeader:    header,
 			ServicerAddress:  sdk.Address(sdk.Address(npk.Address())),
 			FishermanAddress: sdk.Address(sdk.Address(fpk.Address())),
 			Report: types.ViperQoSReport{
 				FirstSampleTimestamp: time.Now(),
-				BlockHeight:          int64(i),
 				ServicerAddress:      sdk.Address(sdk.Address(npk.Address())),
 				LatencyScore:         sdk.NewDecWithPrec(12345, 6),
 				AvailabilityScore:    sdk.NewDecWithPrec(67890, 6),
@@ -103,7 +102,7 @@ func TestKeeper_GetSetDeleteReportCards(t *testing.T) {
 	rc := keeper.GetAllReportCards(mockCtx)
 	assert.Len(t, rc, 2)
 
-	_ = keeper.DeleteReportCard(mockCtx, servicerAddrs[0], fishermanAddrs[0], reportCards[0].SessionHeader)
-	_, err := keeper.GetReportCard(ctx, servicerAddrs[0], reportCards[0].SessionHeader)
+	_ = keeper.DeleteReportCard(mockCtx, servicerAddrs[0], fishermanAddrs[0], reportCards[0].SessionHeader, types.FishermanTestEvidence)
+	_, err := keeper.GetReportCard(ctx, servicerAddrs[0], reportCards[0].SessionHeader, types.FishermanTestEvidence)
 	assert.NotNil(t, err)
 }

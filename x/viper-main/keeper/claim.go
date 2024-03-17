@@ -57,7 +57,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, node *v
 			}
 			continue
 		}
-		if !k.IsViperSupportedGeoZone(sessionCtx.WithBlockHeight(evidence.SessionHeader.SessionBlockHeight), evidence.SessionHeader.Chain) {
+		if !k.IsViperSupportedGeoZone(sessionCtx.WithBlockHeight(evidence.SessionHeader.SessionBlockHeight), evidence.SessionHeader.GeoZone) {
 			ctx.Logger().Info(fmt.Sprintf("claim for %s Geozone isn't viper supported, so will not send. Deleting evidence\n", evidence.SessionHeader.GeoZone))
 			if err := vc.DeleteEvidence(evidence.SessionHeader, evidenceType, node.EvidenceStore); err != nil {
 				ctx.Logger().Debug(err.Error())
@@ -311,6 +311,8 @@ func (k Keeper) GetMatureClaims(ctx sdk.Ctx, address sdk.Address) (matureProofs 
 		if err != nil {
 			panic(err)
 		}
+		matureProofs = append(matureProofs, msg)
+
 		// if the claim is mature, add it to the list
 		if k.ClaimIsMature(ctx, msg.SessionHeader.SessionBlockHeight) {
 			matureProofs = append(matureProofs, msg)

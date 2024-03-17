@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"encoding/hex"
-	"fmt"
 	"math/rand"
 	"testing"
 
@@ -159,7 +158,6 @@ func TestKeeper_HandleRelay(t *testing.T) {
 		mockCtx.On("PrevCtx", nodeBlockHeight-i).Return(ctx, nil)
 		mockCtx.On("PrevCtx", nodeBlockHeight+i).Return(ctx, nil)
 	}
-	fmt.Println("node bh:", nodeBlockHeight)
 
 	// Client is synced with Node --> Success
 	resp, err := testRelayAt(
@@ -444,7 +442,6 @@ func TestKeeper_HandleWebsocketRelay(t *testing.T) {
 		mockCtx.On("PrevCtx", nodeBlockHeight-i).Return(ctx, nil)
 		mockCtx.On("PrevCtx", nodeBlockHeight+i).Return(ctx, nil)
 	}
-	fmt.Println("node bh:", nodeBlockHeight)
 
 	// Case 1: Client is synced with Node --> Success
 	resChan, err := testWebsocketRelayAt(

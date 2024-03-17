@@ -158,9 +158,12 @@ func (*MsgClaim) XXX_MessageName() string {
 }
 
 type MsgProtoProof struct {
-	MerkleProof  MerkleProof  `protobuf:"bytes,1,opt,name=merkleProof,proto3" json:"merkle_proofs"`
-	Leaf         ProofI       `protobuf:"bytes,2,opt,name=leaf,proto3" json:"leaf"`
-	EvidenceType EvidenceType `protobuf:"varint,3,opt,name=evidenceType,proto3,casttype=EvidenceType" json:"evidence_type"`
+	ClaimMerkleProof   MerkleProof  `protobuf:"bytes,1,opt,name=claimMerkleProof,proto3" json:"claim_merkle_proof"`
+	ClaimLeaf          ProofI       `protobuf:"bytes,2,opt,name=claimLeaf,proto3" json:"claim_leaf"`
+	ClaimEvidenceType  EvidenceType `protobuf:"varint,3,opt,name=claimEvidenceType,proto3,casttype=EvidenceType" json:"claim_evidence_type"`
+	ReportMerkleProof  MerkleProof  `protobuf:"bytes,4,opt,name=reportMerkleProof,proto3" json:"report_merkle_proof"`
+	ReportLeaf         TestI        `protobuf:"bytes,5,opt,name=reportLeaf,proto3" json:"report_leaf"`
+	ReportEvidenceType EvidenceType `protobuf:"varint,6,opt,name=reportEvidenceType,proto3,casttype=EvidenceType" json:"report_evidence_type"`
 }
 
 func (m *MsgProtoProof) Reset()      { *m = MsgProtoProof{} }
@@ -207,6 +210,7 @@ type ProofI struct {
 }
 
 func (m *ProofI) Reset()      { *m = ProofI{} }
+func (m *ProofI) String() string { return proto.CompactTextString(m) }
 func (*ProofI) ProtoMessage() {}
 func (*ProofI) Descriptor() ([]byte, []int) {
 	return fileDescriptor_fa955d7377574a13, []int{4}
@@ -288,7 +292,7 @@ type ProtoEvidence struct {
 	BloomBytes    []byte         `protobuf:"bytes,1,opt,name=bloomBytes,proto3" json:"bloom_bytes"`
 	SessionHeader *SessionHeader `protobuf:"bytes,2,opt,name=sessionHeader,proto3" json:"evidence_header"`
 	NumOfProofs   int64          `protobuf:"varint,3,opt,name=numOfProofs,proto3" json:"num_of_proofs"`
-	Proofs        ProofIs       `protobuf:"bytes,4,rep,name=proofs,proto3" json:"proofs"`
+	Proofs        ProofIs       `protobuf:"bytes,4,rep,name=proofs,proto3,castrepeated=ProofIs" json:"proofs"`
 	EvidenceType  EvidenceType   `protobuf:"varint,5,opt,name=evidenceType,proto3,casttype=EvidenceType" json:"evidence_type"`
 }
 
@@ -330,10 +334,10 @@ type RelayProof struct {
 	SessionBlockHeight int64  `protobuf:"varint,3,opt,name=sessionBlockHeight,proto3" json:"session_block_height"`
 	ServicerPubKey     string `protobuf:"bytes,4,opt,name=servicerPubKey,proto3" json:"servicer_pub_key"`
 	Blockchain         string `protobuf:"bytes,5,opt,name=blockchain,proto3" json:"blockchain"`
-	GeoZone            string `protobuf:"bytes,6,opt,name=Zone,proto3" json:"zone"`
-	NumServicers       int64  `protobuf:"varint,7,opt,name=num_servicers,proto3" json:"num_servicers"`
-	Token              AAT    `protobuf:"bytes,8,opt,name=token,proto3" json:"aat"`
-	Signature          string `protobuf:"bytes,9,opt,name=signature,proto3" json:"signature"`
+	Token              AAT    `protobuf:"bytes,6,opt,name=token,proto3" json:"aat"`
+	Signature          string `protobuf:"bytes,7,opt,name=signature,proto3" json:"signature"`
+	GeoZone            string `protobuf:"bytes,8,opt,name=Zone,proto3" json:"zone"`
+	NumServicers       int64  `protobuf:"varint,9,opt,name=num_servicers,proto3" json:"num_servicers"`
 }
 
 func (m *RelayProof) Reset()      { *m = RelayProof{} }
@@ -815,26 +819,29 @@ func (*ViperQoSReport) XXX_MessageName() string {
 	return "x.vipernet.ViperQoSReport"
 }
 
-// MsgSubmitReportCard defines a message to submit a QoS report card.
-type MsgSubmitReportCard struct {
-	SessionHeader    SessionHeader                                       `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
-	ServicerAddress  github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,2,opt,name=servicer_address,json=servicerAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"servicer_addr"`
-	FishermanAddress github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,3,opt,name=fisherman_address,json=fishermanAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"fisherman_addr"`
-	Report           ViperQoSReport                                      `protobuf:"bytes,4,opt,name=report,proto3" json:"report"`
-	EvidenceType     EvidenceType                                        `protobuf:"varint,5,opt,name=evidenceType,proto3,casttype=EvidenceType" json:"evidence_type"`
+// MsgSubmitQoSReport defines a message to submit a QoS report card.
+type MsgSubmitQoSReport struct {
+	SessionHeader      SessionHeader                                       `protobuf:"bytes,1,opt,name=sessionHeader,proto3" json:"header"`
+	ServicerAddress    github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,2,opt,name=servicer_address,json=servicerAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"servicer_addr"`
+	FishermanAddress   github_com_vipernet_xyz_viper_network_types.Address `protobuf:"bytes,3,opt,name=fisherman_address,json=fishermanAddress,proto3,casttype=github.com/vipernet-xyz/viper-network/types.Address" json:"fisherman_addr"`
+	Report             ViperQoSReport                                      `protobuf:"bytes,4,opt,name=report,proto3" json:"report"`
+	EvidenceType       EvidenceType                                        `protobuf:"varint,5,opt,name=evidenceType,proto3,casttype=EvidenceType" json:"evidence_type"`
+    MerkleProof        MerkleProof                                         `protobuf:"bytes,6,opt,name=merkleProof,proto3" json:"merkle_proof"`
+	Leaf               TestI                                               `protobuf:"bytes,7,opt,name=leaf,proto3" json:"leaf"`
+	NumOfTestResults   int64                                               `protobuf:"varint,8,opt,name=numOfTestResults,proto3" json:"num_of_test_results"`
 }
 
-func (m *MsgSubmitReportCard) Reset()      { *m = MsgSubmitReportCard{} }
-func (*MsgSubmitReportCard) ProtoMessage() {}
-func (*MsgSubmitReportCard) Descriptor() ([]byte, []int) {
+func (m *MsgSubmitQoSReport) Reset()      { *m = MsgSubmitQoSReport{} }
+func (*MsgSubmitQoSReport) ProtoMessage() {}
+func (*MsgSubmitQoSReport) Descriptor() ([]byte, []int) {
 	return fileDescriptor_fa955d7377574a13, []int{17}
 }
-func (m *MsgSubmitReportCard) XXX_Unmarshal(b []byte) error {
+func (m *MsgSubmitQoSReport) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgSubmitReportCard) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgSubmitQoSReport) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgSubmitReportCard.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgSubmitQoSReportCard.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -844,20 +851,20 @@ func (m *MsgSubmitReportCard) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *MsgSubmitReportCard) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSubmitReportCard.Merge(m, src)
+func (m *MsgSubmitQoSReport) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSubmitQoSReportCard.Merge(m, src)
 }
-func (m *MsgSubmitReportCard) XXX_Size() int {
+func (m *MsgSubmitQoSReport) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgSubmitReportCard) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSubmitReportCard.DiscardUnknown(m)
+func (m *MsgSubmitQoSReport) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSubmitQoSReportCard.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgSubmitReportCard proto.InternalMessageInfo
+var xxx_messageInfo_MsgSubmitQoSReportCard proto.InternalMessageInfo
 
-func (*MsgSubmitReportCard) XXX_MessageName() string {
-	return "x.vipernet.MsgSubmitReportCard"
+func (*MsgSubmitQoSReport) XXX_MessageName() string {
+	return "x.vipernet.MsgSubmitQoSReport"
 }
 
 func init() {
@@ -878,7 +885,7 @@ func init() {
 	proto.RegisterType((*TestI)(nil), "x.vipernet.TestI")
 	proto.RegisterType((*ProtoResult)(nil), "x.vipernet.ProtoResult")
 	proto.RegisterType((*ViperQoSReport)(nil), "x.vipernet.ViperQoSReport")
-	proto.RegisterType((*MsgSubmitReportCard)(nil), "x.vipernet.MsgSubmitReportCard")
+	proto.RegisterType((*MsgSubmitQoSReport)(nil), "x.vipernet.MsgSubmitQoSReport")
 }
 
 func init() { proto.RegisterFile("vipernet.proto", fileDescriptor_fa955d7377574a13) }
@@ -1143,13 +1150,22 @@ func (this *MsgProtoProof) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if !this.MerkleProof.Equal(&that1.MerkleProof) {
+	if !this.ClaimMerkleProof.Equal(&that1.ClaimMerkleProof) {
 		return false
 	}
-	if !this.Leaf.Equal(&that1.Leaf) {
+	if !this.ClaimLeaf.Equal(&that1.ClaimLeaf) {
 		return false
 	}
-	if this.EvidenceType != that1.EvidenceType {
+	if this.ClaimEvidenceType != that1.ClaimEvidenceType {
+		return false
+	}
+	if !this.ReportMerkleProof.Equal(&that1.ReportMerkleProof) {
+		return false
+	}
+	if !this.ReportLeaf.Equal(&that1.ReportLeaf) {
+		return false
+	}
+	if this.ReportEvidenceType != that1.ReportEvidenceType {
 		return false
 	}
 	return true
@@ -1633,14 +1649,14 @@ func (this *ViperQoSReport) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *MsgSubmitReportCard) Equal(that interface{}) bool {
+func (this *MsgSubmitQoSReport) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*MsgSubmitReportCard)
+	that1, ok := that.(*MsgSubmitQoSReport)
 	if !ok {
-		that2, ok := that.(MsgSubmitReportCard)
+		that2, ok := that.(MsgSubmitQoSReport)
 		if ok {
 			that1 = &that2
 		} else {
@@ -1665,6 +1681,15 @@ func (this *MsgSubmitReportCard) Equal(that interface{}) bool {
 		return false
 	}
 	if this.EvidenceType != that1.EvidenceType {
+		return false
+	}
+	if !this.MerkleProof.Equal(&that1.MerkleProof) {
+		return false
+	}
+	if !this.Leaf.Equal(&that1.Leaf) {
+		return false
+	}
+	if this.NumOfTestResults != that1.NumOfTestResults {
 		return false
 	}
 	return true
@@ -1717,9 +1742,12 @@ func (this *MsgProtoProof) GoString() string {
 	}
 	s := make([]string, 0, 7)
 	s = append(s, "&types.MsgProtoProof{")
-	s = append(s, "MerkleProof: "+strings.Replace(this.MerkleProof.GoString(), `&`, ``, 1)+",\n")
-	s = append(s, "Leaf: "+strings.Replace(this.Leaf.GoString(), `&`, ``, 1)+",\n")
-	s = append(s, "EvidenceType: "+fmt.Sprintf("%#v", this.EvidenceType)+",\n")
+	s = append(s, "ClaimMerkleProof: "+strings.Replace(this.ClaimMerkleProof.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "ClaimLeaf: "+strings.Replace(this.ClaimLeaf.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "ClaimEvidenceType: "+fmt.Sprintf("%#v", this.ClaimEvidenceType)+",\n")
+	s = append(s, "ReportMerkleProof: "+strings.Replace(this.ReportMerkleProof.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "ReportLeaf: "+strings.Replace(this.ReportLeaf.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "ReportEvidenceType: "+fmt.Sprintf("%#v", this.ReportEvidenceType)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -1944,17 +1972,20 @@ func (this *ViperQoSReport) GoString() string {
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
-func (this *MsgSubmitReportCard) GoString() string {
+func (this *MsgSubmitQoSReport) GoString() string {
 	if this == nil {
 		return "nil"
 	}
 	s := make([]string, 0, 9)
-	s = append(s, "&types.MsgSubmitReportCard{")
+	s = append(s, "&types.MsgSubmitQoSReport{")
 	s = append(s, "SessionHeader: "+strings.Replace(this.SessionHeader.GoString(), `&`, ``, 1)+",\n")
 	s = append(s, "ServicerAddress: "+fmt.Sprintf("%#v", this.ServicerAddress)+",\n")
 	s = append(s, "FishermanAddress: "+fmt.Sprintf("%#v", this.FishermanAddress)+",\n")
 	s = append(s, "Report: "+strings.Replace(this.Report.GoString(), `&`, ``, 1)+",\n")
 	s = append(s, "EvidenceType: "+fmt.Sprintf("%#v", this.EvidenceType)+",\n")
+	s = append(s, "ReportMerkleProof: "+strings.Replace(this.MerkleProof.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "ReportLeaf: "+strings.Replace(this.Leaf.GoString(), `&`, ``, 1)+",\n")
+	s = append(s, "NumOfTestResults: "+fmt.Sprintf("%#v", this.NumOfTestResults)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -2159,36 +2190,61 @@ func (m *MsgProtoProof) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *MsgProtoProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.EvidenceType != 0 {
-		i = encodeVarintVipernet(dAtA, i, uint64(m.EvidenceType))
-		i--
-		dAtA[i] = 0x18
-	}
-	{
-		size, err := m.Leaf.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintVipernet(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x12
-	{
-		size, err := m.MerkleProof.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintVipernet(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
+    i := len(dAtA)
+    _ = i
+    var l int
+    _ = l
+    if m.ReportEvidenceType != 0 {
+        i = encodeVarintVipernet(dAtA, i, uint64(m.ReportEvidenceType))
+        i--
+        dAtA[i] = 0x30
+    }
+    {
+        size, err := m.ReportLeaf.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
+    dAtA[i] = 0x2a
+    {
+        size, err := m.ReportMerkleProof.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
+    dAtA[i] = 0x22
+    if m.ClaimEvidenceType != 0 {
+        i = encodeVarintVipernet(dAtA, i, uint64(m.ClaimEvidenceType))
+        i--
+        dAtA[i] = 0x18
+    }
+    {
+        size, err := m.ClaimLeaf.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
+    dAtA[i] = 0x12
+    {
+        size, err := m.ClaimMerkleProof.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
+    dAtA[i] = 0xa
+    return len(dAtA) - i, nil
 }
 
 func (m *ProofI) Marshal() (dAtA []byte, err error) {
@@ -2971,7 +3027,7 @@ func (m *ViperQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgSubmitReportCard) Marshal() (dAtA []byte, err error) {
+func (m *MsgSubmitQoSReport) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -2981,56 +3037,81 @@ func (m *MsgSubmitReportCard) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgSubmitReportCard) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgSubmitQoSReport) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgSubmitReportCard) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgSubmitQoSReport) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.EvidenceType != 0 {
-		i = encodeVarintVipernet(dAtA, i, uint64(m.EvidenceType))
+    _ = i
+    var l int
+    _ = l
+	if m.NumOfTestResults != 0 {
+		i = encodeVarintVipernet(dAtA, i, uint64(m.NumOfTestResults))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x40
 	}
 	{
-		size, err := m.Report.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintVipernet(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x22
-	if len(m.FishermanAddress) > 0 {
-		i -= len(m.FishermanAddress)
-		copy(dAtA[i:], m.FishermanAddress)
-		i = encodeVarintVipernet(dAtA, i, uint64(len(m.FishermanAddress)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.ServicerAddress) > 0 {
-		i -= len(m.ServicerAddress)
-		copy(dAtA[i:], m.ServicerAddress)
-		i = encodeVarintVipernet(dAtA, i, uint64(len(m.ServicerAddress)))
-		i--
-		dAtA[i] = 0x12
-	}
-	{
-		size, err := m.SessionHeader.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintVipernet(dAtA, i, uint64(size))
-	}
-	i--
+        size, err := m.Leaf.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
+    dAtA[i] = 0x3a
+    {
+        size, err := m.MerkleProof.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
+    dAtA[i] = 0x32
+    if m.EvidenceType != 0 {
+        i = encodeVarintVipernet(dAtA, i, uint64(m.EvidenceType))
+        i--
+        dAtA[i] = 0x28
+    }
+    {
+        size, err := m.Report.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
+    dAtA[i] = 0x22
+    if len(m.FishermanAddress) > 0 {
+        i -= len(m.FishermanAddress)
+        copy(dAtA[i:], m.FishermanAddress)
+        i = encodeVarintVipernet(dAtA, i, uint64(len(m.FishermanAddress)))
+        i--
+        dAtA[i] = 0x1a
+    }
+    if len(m.ServicerAddress) > 0 {
+        i -= len(m.ServicerAddress)
+        copy(dAtA[i:], m.ServicerAddress)
+        i = encodeVarintVipernet(dAtA, i, uint64(len(m.ServicerAddress)))
+        i--
+        dAtA[i] = 0x12
+    }
+    {
+        size, err := m.SessionHeader.MarshalToSizedBuffer(dAtA[:i])
+        if err != nil {
+            return 0, err
+        }
+        i -= size
+        i = encodeVarintVipernet(dAtA, i, uint64(size))
+    }
+    i--
 	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
+    return len(dAtA) - i, nil
 }
 
 func encodeVarintVipernet(dAtA []byte, offset int, v uint64) int {
@@ -3130,12 +3211,19 @@ func (m *MsgProtoProof) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = m.MerkleProof.Size()
+	l = m.ClaimMerkleProof.Size()
 	n += 1 + l + sovVipernet(uint64(l))
-	l = m.Leaf.Size()
+	l = m.ClaimLeaf.Size()
 	n += 1 + l + sovVipernet(uint64(l))
-	if m.EvidenceType != 0 {
-		n += 1 + sovVipernet(uint64(m.EvidenceType))
+	if m.ClaimEvidenceType != 0 {
+		n += 1 + sovVipernet(uint64(m.ClaimEvidenceType))
+	}
+	l = m.ReportMerkleProof.Size()
+	n += 1 + l + sovVipernet(uint64(l))
+	l = m.ReportLeaf.Size()
+	n += 1 + l + sovVipernet(uint64(l))
+	if m.ReportEvidenceType != 0 {
+		n += 1 + sovVipernet(uint64(m.ReportEvidenceType))
 	}
 	return n
 }
@@ -3470,7 +3558,7 @@ func (m *ViperQoSReport) Size() (n int) {
 }
 
 
-func (m *MsgSubmitReportCard) Size() (n int) {
+func (m *MsgSubmitQoSReport) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -3490,6 +3578,13 @@ func (m *MsgSubmitReportCard) Size() (n int) {
 	n += 1 + l + sovVipernet(uint64(l))
 	if m.EvidenceType != 0 {
 		n += 1 + sovVipernet(uint64(m.EvidenceType))
+	}
+	l = m.MerkleProof.Size()
+	n += 1 + l + sovVipernet(uint64(l))
+	l = m.Leaf.Size()
+	n += 1 + l + sovVipernet(uint64(l))
+	if m.NumOfTestResults != 0 {
+		n += 1 + sovVipernet(uint64(m.NumOfTestResults))
 	}
 	return n
 }
@@ -3547,19 +3642,12 @@ func (this *MsgProtoProof) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&MsgProtoProof{`,
-		`MerkleProof:` + strings.Replace(strings.Replace(this.MerkleProof.String(), "MerkleProof", "MerkleProof", 1), `&`, ``, 1) + `,`,
-		`Leaf:` + strings.Replace(strings.Replace(this.Leaf.String(), "ProofI", "ProofI", 1), `&`, ``, 1) + `,`,
-		`EvidenceType:` + fmt.Sprintf("%v", this.EvidenceType) + `,`,
-		`}`,
-	}, "")
-	return s
-}
-func (this *ProofI) String() string {
-	if this == nil {
-		return "nil"
-	}
-	s := strings.Join([]string{`&ProofI{`,
-		`Proof:` + fmt.Sprintf("%v", this.Proof) + `,`,
+		`ClaimMerkleProof:` + strings.Replace(strings.Replace(this.ClaimMerkleProof.String(), "MerkleProof", "MerkleProof", 1), `&`, ``, 1) + `,`,
+		`ClaimLeaf:` + strings.Replace(strings.Replace(this.ClaimLeaf.String(), "ProofI", "ProofI", 1), `&`, ``, 1) + `,`,
+		`ClaimEvidenceType:` + fmt.Sprintf("%v", this.ClaimEvidenceType) + `,`,
+		`ReportMerkleProof:` + strings.Replace(strings.Replace(this.ReportMerkleProof.String(), "MerkleProof", "MerkleProof", 1), `&`, ``, 1) + `,`,
+		`ReportLeaf:` + strings.Replace(strings.Replace(this.ReportLeaf.String(), "TestI", "TestI", 1), `&`, ``, 1) + `,`,
+		`ReportEvidenceType:` + fmt.Sprintf("%v", this.ReportEvidenceType) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -3613,10 +3701,10 @@ func (this *RelayProof) String() string {
 		`SessionBlockHeight:` + fmt.Sprintf("%v", this.SessionBlockHeight) + `,`,
 		`ServicerPubKey:` + fmt.Sprintf("%v", this.ServicerPubKey) + `,`,
 		`Blockchain:` + fmt.Sprintf("%v", this.Blockchain) + `,`,
-		`GeoZone:` + fmt.Sprintf("%v", this.GeoZone) + `,`,
-		`NumServicers:` + fmt.Sprintf("%v", this.NumServicers) + `,`,
 		`Token:` + strings.Replace(strings.Replace(this.Token.String(), "AAT", "AAT", 1), `&`, ``, 1) + `,`,
 		`Signature:` + fmt.Sprintf("%v", this.Signature) + `,`,
+		`GeoZone:` + fmt.Sprintf("%v", this.GeoZone) + `,`,
+		`NumServicers:` + fmt.Sprintf("%v", this.NumServicers) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -3773,16 +3861,19 @@ func (this *ViperQoSReport) String() string {
 	}, "")
 	return s
 }
-func (this *MsgSubmitReportCard) String() string {
+func (this *MsgSubmitQoSReport) String() string {
 	if this == nil {
 		return "nil"
 	}
-	s := strings.Join([]string{`&MsgSubmitReportCard{`,
+	s := strings.Join([]string{`&MsgSubmitQoSReport{`,
 		`SessionHeader:` + strings.Replace(strings.Replace(this.SessionHeader.String(), "SessionHeader", "SessionHeader", 1), `&`, ``, 1) + `,`,
 		`ServicerAddress:` + fmt.Sprintf("%v", this.ServicerAddress) + `,`,
 		`FishermanAddress:` + fmt.Sprintf("%v", this.FishermanAddress) + `,`,
 		`Report:` + strings.Replace(strings.Replace(this.Report.String(), "ViperQoSReport", "ViperQoSReport", 1), `&`, ``, 1) + `,`,
 		`EvidenceType:` + fmt.Sprintf("%v", this.EvidenceType) + `,`,
+		`ReportMerkleProof:` + strings.Replace(strings.Replace(this.MerkleProof.String(), "MerkleProof", "MerkleProof", 1), `&`, ``, 1) + `,`,
+		`ReportLeaf:` + strings.Replace(strings.Replace(this.Leaf.String(), "TestI", "TestI", 1), `&`, ``, 1) + `,`,
+		`NumOfTestResults:` + fmt.Sprintf("%v", this.NumOfTestResults) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -4398,7 +4489,7 @@ func (m *MsgProtoProof) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MerkleProof", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ClaimMerkleProof", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -4425,13 +4516,13 @@ func (m *MsgProtoProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.MerkleProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.ClaimMerkleProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Leaf", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ClaimLeaf", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -4458,15 +4549,15 @@ func (m *MsgProtoProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Leaf.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.ClaimLeaf.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 3:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field EvidenceType", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ClaimEvidenceType", wireType)
 			}
-			m.EvidenceType = 0
+			m.ClaimEvidenceType = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowVipernet
@@ -4476,7 +4567,92 @@ func (m *MsgProtoProof) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EvidenceType |= EvidenceType(b&0x7F) << shift
+				m.ClaimEvidenceType |= EvidenceType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReportMerkleProof", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ReportMerkleProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReportLeaf", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ReportLeaf.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReportEvidenceType", wireType)
+			}
+			m.ReportEvidenceType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ReportEvidenceType |= EvidenceType(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -4979,57 +5155,6 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowVipernet
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthVipernet
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthVipernet
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.GeoZone = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 7:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NumServicers", wireType)
-			}
-			m.NumServicers = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowVipernet
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.NumServicers |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 8:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 			}
 			var msglen int
@@ -5061,7 +5186,7 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 9:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
 			}
@@ -5093,6 +5218,57 @@ func (m *RelayProof) Unmarshal(dAtA []byte) error {
 			}
 			m.Signature = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GeoZone", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GeoZone = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumServicers", wireType)
+			}
+			m.NumServicers = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumServicers |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipVipernet(dAtA[iNdEx:])
@@ -6796,7 +6972,7 @@ func skipVipernet(dAtA []byte) (n int, err error) {
 	return 0, io.ErrUnexpectedEOF
 }
 
-func (m *MsgSubmitReportCard) Unmarshal(dAtA []byte) error {
+func (m *MsgSubmitQoSReport) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -6819,10 +6995,10 @@ func (m *MsgSubmitReportCard) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSubmitReportCard: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgSubmitQoSReport: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSubmitReportCard: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgSubmitQoSReport: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -6974,6 +7150,91 @@ func (m *MsgSubmitReportCard) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.EvidenceType |= EvidenceType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReportMerkleProof", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MerkleProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReportLeaf", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthVipernet
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Leaf.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumOfTestResults", wireType)
+			}
+			m.NumOfTestResults = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowVipernet
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumOfTestResults |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

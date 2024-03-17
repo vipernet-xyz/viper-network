@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"time"
 
+	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/exported"
 	servicerTypes "github.com/vipernet-xyz/viper-network/x/servicers/types"
@@ -89,39 +90,97 @@ func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger 
 	}
 
 	// Send the relay to the servicer and measure its latency
-	relayOutput, err := r.sender.Relay(servicer.GetServiceURL(), &relay)
-	if err != nil {
-		fmt.Println("errorrrrrr!!", err)
-		return nil, fmt.Errorf("failed to execute relay: %s", err)
-	}
+	relayOutput, _ := r.sender.Relay(servicer.GetServiceURL(), &relay)
 
 	servicerLatency := time.Since(start)
 
-	var servicerReliability bool
+	servicerReliability := false
+
+	sevicerAvailability := false
+
 	var localResp string
 
-	addr := fishermanValidator.GetAddress()
-
-	// Create a pointer to the address
-	fishermanAddress := &addr
-
-	localResp, err = relay.ExecuteLocal(hostedBlockchains, fishermanAddress)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute relay internally within fisherman: %s", err)
-	}
-	if relayOutput.Response == "" || relayOutput.Response != localResp {
-		servicerReliability = false
+	if relayOutput.Response == "" {
+		// If no response received, mark latency as timeout latency and availability as false
+		servicerLatency = DefaultRPCTimeout * time.Millisecond
 	} else {
-		servicerReliability = true
+		// Perform local relay only if we receive a non-empty response
+		addr := fishermanValidator.GetAddress()
+		fishermanAddress := &addr
+
+		localResp, err = relay.ExecuteLocal(hostedBlockchains, fishermanAddress)
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute relay internally within fisherman: %s", err)
+		}
+
+		sevicerAvailability = true
+		// Check if the response from the servicer matches the local response
+		servicerReliability = (relayOutput.Response == localResp)
 	}
 
 	return &Output{
-		RelayOutput: relayOutput,
-		LocalResp:   localResp,
-		Proof:       relay.Proof,
-		Latency:     servicerLatency,
-		Reliability: servicerReliability,
+		RelayOutput:  relayOutput,
+		LocalResp:    localResp,
+		Proof:        relay.Proof,
+		Latency:      servicerLatency,
+		Availability: sevicerAvailability,
+		Reliability:  servicerReliability,
 	}, nil
+}
+
+func (tr *TestResult) Validate(resp Output, sessionHeader SessionHeader, node *ViperNode) error {
+	// Retrieve the public key of the servicer from the relay proof
+	servicerPubKey := resp.Proof.ServicerPubKey
+
+	pk, err := crypto.NewPublicKey(servicerPubKey)
+	if err != nil {
+		return NewPubKeyDecodeError(ModuleName)
+	}
+	servicerAddr := pk.Address().Bytes()
+	err = tr.ValidateLocal(servicerAddr)
+	if err != nil {
+		return err
+	}
+	resp.RelayOutput.Proof = *resp.Proof
+	if err := SignatureVerification(servicerPubKey, resp.RelayOutput.HashString(), resp.RelayOutput.Signature); err != nil {
+		return err
+	}
+	testResults, _ := GetTotalTestResults(resp.Proof.SessionHeader(), FishermanTestEvidence, tr.ServicerAddress, node.SessionStore)
+	if !IsUniqueResult(tr, testResults) {
+		return NewDuplicateTestResultError(ModuleName)
+	}
+	return nil
+}
+
+func (ro RelayOutput) HashString() string {
+	return hex.EncodeToString(ro.Hash())
+}
+
+func (ro RelayOutput) Hash() []byte {
+	res := ro.Bytes()
+	return Hash(res)
+}
+
+func (ro RelayOutput) Bytes() []byte {
+	res, err := json.Marshal(relayResponse{
+		Signature: "",
+		Response:  ro.Response,
+		Proof:     ro.Proof.HashString(),
+	})
+	if err != nil {
+		log.Fatal(fmt.Errorf("an error occured converting the relay RelayProof to bytes:\n%v", err).Error())
+	}
+	return res
+}
+
+func IsUniqueResult(t Test, result Result) bool {
+	hash := t.HashString()
+	for _, existingResults := range result.TestResults {
+		if existingResults.HashString() == hash {
+			return false
+		}
+	}
+	return true
 }
 
 type FishermenTrigger struct {
@@ -141,6 +200,8 @@ func (ft FishermenTrigger) SessionHeader() SessionHeader {
 	return SessionHeader{
 		RequestorPubKey:    ft.Proof.Token.RequestorPublicKey,
 		Chain:              ft.Proof.Blockchain,
+		GeoZone:            ft.Proof.GeoZone,
+		NumServicers:       ft.Proof.NumServicers,
 		SessionBlockHeight: ft.Proof.SessionBlockHeight,
 	}
 }
@@ -182,16 +243,18 @@ type RequestHash struct {
 
 // Output struct for data needed as output for relay request
 type Output struct {
-	RelayOutput *RelayOutput
-	LocalResp   string
-	Proof       *RelayProof
-	Latency     time.Duration
-	Reliability bool
+	RelayOutput  *RelayOutput
+	LocalResp    string
+	Proof        *RelayProof
+	Latency      time.Duration
+	Availability bool
+	Reliability  bool
 }
 
 type RelayOutput struct {
-	Response  string `json:"response"`
-	Signature string `json:"signature"`
+	Signature string     `json:"signature"`
+	Response  string     `json:"response"`
+	Proof     RelayProof `json:"proof"`
 }
 
 // Order of fields matters for signature
@@ -203,6 +266,8 @@ type relayProofForSignature struct {
 	Signature          string `json:"signature"`
 	Token              string `json:"token"`
 	RequestHash        string `json:"request_hash"`
+	GeoZone            string `json:"zone"`
+	NumServicers       int64  `json:"num_servicers"`
 }
 
 // RelayInput represents input needed to do a Relay to Viper
@@ -220,7 +285,7 @@ func Shuffle(proofs []Test, rng *rand.Rand) {
 	}
 }
 
-func CalculateQoSForServicer(result *ServicerResults, blockHeight int64, latencyScore sdk.BigDec) (*ViperQoSReport, error) {
+func CalculateQoSForServicer(result *ServicerResults, latencyScore sdk.BigDec) (*ViperQoSReport, error) {
 	firstSampleTimestamp := time.Time{}
 	if len(result.Timestamps) > 0 {
 		firstSampleTimestamp = result.Timestamps[0]
@@ -234,13 +299,10 @@ func CalculateQoSForServicer(result *ServicerResults, blockHeight int64, latency
 
 	report := &ViperQoSReport{
 		FirstSampleTimestamp: firstSampleTimestamp,
-		BlockHeight:          blockHeight,
-		ServicerAddress:      result.ServicerAddress,
 		AvailabilityScore:    scaledAvailabilityScore,
 		ReliabilityScore:     reliabilityScore,
-		LatencyScore:         latencyScore, // Set the latency score
+		LatencyScore:         latencyScore,
 	}
-
 	return report, nil
 }
 
@@ -298,4 +360,41 @@ func (ft FishermenTrigger) RequestHash() []byte {
 // "RequestHashString" - The hex string representation of the request merkleHash
 func (ft FishermenTrigger) RequestHashString() string {
 	return hex.EncodeToString(ft.RequestHash())
+}
+
+type report struct {
+	FirstSampleTimestamp time.Time   `json:"first_sample_timestamp"`
+	ServicerAddress      sdk.Address `json:"servicer_addr"`
+	LatencyScore         sdk.BigDec  `json:"latency_score"`
+	AvailabilityScore    sdk.BigDec  `json:"availability_score"`
+	ReliabilityScore     sdk.BigDec  `json:"reliability_score"`
+	SampleRoot           HashRange   `json:"sample_root"`
+	Nonce                int64       `json:"nonce"`
+	Signature            string      `json:"signature"`
+}
+
+func (vr ViperQoSReport) HashString() string {
+	return hex.EncodeToString(vr.Hash())
+}
+
+func (vr ViperQoSReport) Hash() []byte {
+	res := vr.Bytes()
+	return Hash(res)
+}
+
+func (vr ViperQoSReport) Bytes() []byte {
+	res, err := json.Marshal(report{
+		FirstSampleTimestamp: vr.FirstSampleTimestamp,
+		ServicerAddress:      vr.ServicerAddress,
+		LatencyScore:         vr.LatencyScore,
+		AvailabilityScore:    vr.AvailabilityScore,
+		ReliabilityScore:     vr.ReliabilityScore,
+		SampleRoot:           vr.SampleRoot,
+		Nonce:                vr.Nonce,
+		Signature:            "",
+	})
+	if err != nil {
+		log.Fatal(fmt.Errorf("an error occured converting the report to bytes:\n%v", err).Error())
+	}
+	return res
 }

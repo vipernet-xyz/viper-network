@@ -7,7 +7,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/privval"
 	crypto "github.com/vipernet-xyz/viper-network/crypto/codec"
-	"github.com/vipernet-xyz/viper-network/types"
 	sdk "github.com/vipernet-xyz/viper-network/types"
 )
 
@@ -54,7 +53,7 @@ func AddViperNodeByFilePVKey(fpvKey privval.FilePVKey, logger log.Logger) {
 }
 
 // InitViperNodeCache adds a ViperNode with its SessionStore and EvidenceStore initialized
-func InitViperNodeCache(node *ViperNode, c types.Config, logger log.Logger) {
+func InitViperNodeCache(node *ViperNode, c sdk.Config, logger log.Logger) {
 	node.DoCacheInitOnce.Do(func() {
 		evidenceDbName := c.ViperConfig.EvidenceDBName
 		resultDbName := c.ViperConfig.ResultDBName
@@ -81,7 +80,7 @@ func InitViperNodeCache(node *ViperNode, c types.Config, logger log.Logger) {
 	})
 }
 
-func InitViperNodeCaches(c types.Config, logger log.Logger) {
+func InitViperNodeCaches(c sdk.Config, logger log.Logger) {
 	for _, node := range GlobalViperNodes {
 		InitViperNodeCache(node, c, logger)
 	}

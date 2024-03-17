@@ -143,10 +143,6 @@ func (k Keeper) IterateAndExecuteOverRequestors(
 }
 
 func (k Keeper) CalculateRequestorRelays(ctx sdk.Ctx, requestor types.Requestor) sdk.BigInt {
-	// If the stake is 0, return max relays from MaxFreeTierRelaysPerSession()
-	if requestor.StakedTokens.IsZero() {
-		return sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
-	}
 	stakingAdjustment := sdk.NewDec(k.StakingAdjustment(ctx))
 	participationRate := sdk.NewDec(1)
 	baseRate := sdk.NewInt(k.BaselineThroughputStakeRate(ctx))
@@ -159,9 +155,9 @@ func (k Keeper) CalculateRequestorRelays(ctx sdk.Ctx, requestor types.Requestor)
 	basePercentage := baseRate.ToDec().Quo(sdk.NewDec(100))
 	baselineThroughput := basePercentage.Mul(requestor.StakedTokens.ToDec().Quo(sdk.NewDec(1000000)))
 	result := participationRate.Mul(baselineThroughput).Add(stakingAdjustment).TruncateInt()
-
+	freeRelays := sdk.NewIntFromBigInt(Int64ToBigInt(k.POSKeeper.MaxFreeTierRelaysPerSession(ctx)))
 	// Max Amount of relays Value
-	maxRelays := sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64))
+	maxRelays := sdk.NewIntFromBigInt(new(big.Int).SetUint64(math.MaxUint64)).Add(freeRelays)
 	if result.GTE(maxRelays) {
 		result = maxRelays
 	}
@@ -170,3 +166,9 @@ func (k Keeper) CalculateRequestorRelays(ctx sdk.Ctx, requestor types.Requestor)
 }
 
 // RelaysPerStakedVIPR = VIPR price(30 day avg.) / (USD relay target * Sessions/Day * Average days per month * ROI target)
+
+func Int64ToBigInt(n int64) *big.Int {
+	result := new(big.Int)
+	result.SetInt64(n)
+	return result
+}

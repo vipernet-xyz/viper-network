@@ -8,12 +8,16 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
+	"time"
 
+	sdk "github.com/vipernet-xyz/viper-network/types"
 	"golang.org/x/crypto/scrypt"
+	"golang.org/x/crypto/sha3"
 )
 
 const (
@@ -64,6 +68,7 @@ func getAESGCMValues(password, saltBytes []byte) ([]byte, cipher.AEAD, error) {
 
 // Sign returns a signed request as encoded hex string
 func (s *Signer) Sign(payload []byte) (string, error) {
+
 	decodedKey, err := hex.DecodeString(s.privateKey)
 	if err != nil {
 		return "", fmt.Errorf("error decoding private key: %v", err)
@@ -259,4 +264,53 @@ func GetAddressFromPublickey(publicKey string) (string, error) {
 	}
 
 	return hex.EncodeToString(hasher.Sum(nil))[0:40], nil
+}
+
+type reportForSignature struct {
+	FirstSampleTimestamp time.Time   `json:"first_sample_timestamp"`
+	ServicerAddress      sdk.Address `json:"servicer_addr"`
+	LatencyScore         sdk.BigDec  `json:"latency_score"`
+	AvailabilityScore    sdk.BigDec  `json:"availability_score"`
+	ReliabilityScore     sdk.BigDec  `json:"reliability_score"`
+	SampleRoot           HashRange   `json:"sample_root"`
+	Nonce                int64       `json:"nonce"`
+	Signature            string      `json:"signature"`
+}
+
+func (s Signer) GetSignedReportBytes(report *ViperQoSReport) (string, error) {
+
+	reportBytes, err := GenerateReportBytes(report)
+	if err != nil {
+		return "", err
+	}
+
+	return s.Sign(reportBytes)
+}
+
+// GenerateProofBytes returns relay proof as encoded bytes
+func GenerateReportBytes(report *ViperQoSReport) ([]byte, error) {
+
+	reportMap := &reportForSignature{
+		FirstSampleTimestamp: report.FirstSampleTimestamp,
+		ServicerAddress:      report.ServicerAddress,
+		LatencyScore:         report.LatencyScore,
+		AvailabilityScore:    report.AvailabilityScore,
+		ReliabilityScore:     report.ReliabilityScore,
+		SampleRoot:           report.SampleRoot,
+		Nonce:                report.Nonce,
+		Signature:            "",
+	}
+	marshaledReport, err := json.Marshal(reportMap)
+	if err != nil {
+		return nil, err
+	}
+
+	hasher := sha3.New256()
+
+	_, err = hasher.Write(marshaledReport)
+	if err != nil {
+		return nil, err
+	}
+
+	return hasher.Sum(nil), nil
 }

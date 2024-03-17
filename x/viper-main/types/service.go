@@ -61,7 +61,7 @@ func (r *Relay) Validate(ctx sdk.Ctx, posKeeper PosKeeper, requestorsKeeper Requ
 		return sdk.ZeroInt(), NewRequestorNotFoundError(ModuleName)
 	}
 	// get session node count from that session height
-	sessionNodeCount := int64(r.Proof.NumServicers)
+	sessionNodeCount := r.Proof.NumServicers
 	// get max possible relays
 	maxPossibleRelays = MaxPossibleRelays(app, sessionNodeCount)
 	// generate the session header

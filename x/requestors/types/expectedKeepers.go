@@ -10,6 +10,7 @@ type PosKeeper interface {
 	StakeDenom(ctx sdk.Ctx) (res string)
 	// GetStakedTokens total staking tokens supply which is staked
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
+	MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64)
 }
 
 type ViperKeeper interface {

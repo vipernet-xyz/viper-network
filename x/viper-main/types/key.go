@@ -14,6 +14,7 @@ const (
 var (
 	ClaimLen      = len(ClaimKey)
 	ClaimKey      = []byte{0x02} // key for pending claims
+	ReportCardLen = len(ReportCardKey)
 	ReportCardKey = []byte{0x03}
 )
 
@@ -76,7 +77,7 @@ func KeyForTestResult(header SessionHeader, evidenceType EvidenceType, servicerA
 }
 
 // "KeyForReportCard" - Generates the key for the ViperQoSReport object for the state store
-func KeyForReportCard(ctx sdk.Ctx, servicerAddress sdk.Address, header SessionHeader) ([]byte, error) {
+func KeyForReportCard(ctx sdk.Ctx, servicerAddress sdk.Address, header SessionHeader, evidenceType EvidenceType) ([]byte, error) {
 	// Validate the servicer's address
 	if err := AddressVerification(servicerAddress.String()); err != nil {
 		return nil, err
@@ -87,8 +88,13 @@ func KeyForReportCard(ctx sdk.Ctx, servicerAddress sdk.Address, header SessionHe
 		return nil, err
 	}
 
+	et, err := evidenceType.Byte()
+	if err != nil {
+		return nil, err
+	}
+
 	// Construct the key by appending servicer's address and header's hash.
-	return append(append(ReportCardKey, servicerAddress.Bytes()...), header.Hash()...), nil
+	return append(append(append(ReportCardKey, servicerAddress.Bytes()...), header.Hash()...), et), nil
 }
 
 func KeyForReportCards(servicerAddress sdk.Address) ([]byte, error) {

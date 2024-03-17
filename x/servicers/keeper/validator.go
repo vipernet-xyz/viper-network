@@ -330,11 +330,10 @@ func (k Keeper) GetValidatorReportCard(ctx sdk.Ctx, validator types.Validator) (
 	return validator.ReportCard, true
 }
 
-func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, qosReport viperTypes.ViperQoSReport) {
+func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, qosReport viperTypes.ViperQoSReport) types.ReportCard {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
 		ctx.Logger().Error(fmt.Sprintf("validator not found for address: %X\n", addr))
-		return
 	}
 
 	// Increase the total sessions count
@@ -350,6 +349,8 @@ func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, qosRepo
 
 	// Set the new report card
 	k.SetValidatorReportCard(ctx, validator)
+
+	return validator.ReportCard
 }
 
 func updateScore(currentScore sdk.BigDec, newScore sdk.BigDec, totalSessions int64) sdk.BigDec {

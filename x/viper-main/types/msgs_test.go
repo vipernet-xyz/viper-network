@@ -165,8 +165,8 @@ func TestMsgProof_GetSigners(t *testing.T) {
 	pk := getRandomPubKey()
 	addr := types.Address(pk.Address())
 	signers := MsgProof{
-		MerkleProof: MerkleProof{},
-		Leaf: RelayProof{
+		ClaimMerkleProof: MerkleProof{},
+		ClaimLeaf: RelayProof{
 			Entropy:            0,
 			RequestHash:        pk.RawString(), // fake
 			SessionBlockHeight: 0,
@@ -192,7 +192,7 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 	hash3 := merkleHash([]byte("fake3"))
 	hash4 := merkleHash([]byte("fake4"))
 	validProofMessage := MsgProof{
-		MerkleProof: MerkleProof{
+		ClaimMerkleProof: MerkleProof{
 			TargetIndex: 0,
 			HashRanges: []HashRange{
 				{
@@ -210,7 +210,7 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 			},
 			Target: HashRange{Hash: hash4, Range: Range{3, 4}},
 		},
-		Leaf: RelayProof{
+		ClaimLeaf: RelayProof{
 			Entropy:            1,
 			SessionBlockHeight: 1,
 			ServicerPubKey:     servicerPubKey,
@@ -226,48 +226,48 @@ func TestMsgProof_ValidateBasic(t *testing.T) {
 			GeoZone:      US,
 			NumServicers: 5,
 		},
-		EvidenceType: RelayEvidence,
+		ClaimEvidenceType: RelayEvidence,
 	}
-	vprLeaf := validProofMessage.Leaf.(RelayProof)
+	vprLeaf := validProofMessage.ClaimLeaf.(RelayProof)
 	signature, er := requestorPrivKey.Sign(vprLeaf.Token.Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
 	vprLeaf.Token.RequestorSignature = hex.EncodeToString(signature)
-	clientSig, er := clientPrivKey.Sign(validProofMessage.Leaf.(RelayProof).Hash())
+	clientSig, er := clientPrivKey.Sign(validProofMessage.ClaimLeaf.(RelayProof).Hash())
 	if er != nil {
 		t.Fatalf(er.Error())
 	}
 	vprLeaf.Signature = hex.EncodeToString(clientSig)
-	validProofMessage.Leaf = vprLeaf
+	validProofMessage.ClaimLeaf = vprLeaf
 	// invalid entropy
 	invalidProofMsgIndex := validProofMessage
 	//vprLeaf = validProofMessage.Leaf.LegacyFromProto().(*RelayProof)
 	vprLeaf.Entropy = 0
-	invalidProofMsgIndex.Leaf = vprLeaf
+	invalidProofMsgIndex.ClaimLeaf = vprLeaf
 	// invalid merkleHash sum
 	invalidProofMsgHashes := validProofMessage
-	invalidProofMsgHashes.MerkleProof.HashRanges = []HashRange{}
+	invalidProofMsgHashes.ClaimMerkleProof.HashRanges = []HashRange{}
 	// invalid session block height
 	invalidProofMsgSessionBlkHeight := validProofMessage
 	//vprLeaf = validProofMessage.Leaf.LegacyFromProto().(*RelayProof)
 	vprLeaf.SessionBlockHeight = -1
-	invalidProofMsgSessionBlkHeight.Leaf = vprLeaf
+	invalidProofMsgSessionBlkHeight.ClaimLeaf = vprLeaf
 	// invalid token
 	invalidProofMsgToken := validProofMessage
 	//vprLeaf = validProofMessage.Leaf.LegacyFromProto().(*RelayProof)
 	vprLeaf.Token.RequestorSignature = ""
-	invalidProofMsgToken.Leaf = vprLeaf
+	invalidProofMsgToken.ClaimLeaf = vprLeaf
 	// invalid blockchain
 	invalidProofMsgBlkchn := validProofMessage
 	//vprLeaf = validProofMessage.Leaf.LegacyFromProto().(*RelayProof)
 	vprLeaf.Blockchain = ""
-	invalidProofMsgBlkchn.Leaf = vprLeaf
+	invalidProofMsgBlkchn.ClaimLeaf = vprLeaf
 	// invalid signature
 	invalidProofMsgSignature := validProofMessage
 	//vprLeaf = validProofMessage.Leaf.LegacyFromProto().(*RelayProof)
 	vprLeaf.Signature = hex.EncodeToString([]byte("foobar"))
-	invalidProofMsgSignature.Leaf = vprLeaf
+	invalidProofMsgSignature.ClaimLeaf = vprLeaf
 	tests := []struct {
 		name     string
 		msg      MsgProof
@@ -324,23 +324,23 @@ func TestMsgProof_GetSignBytes(t *testing.T) {
 }
 
 func TestMsgSubmitReportCard_Route(t *testing.T) {
-	assert.Equal(t, MsgSubmitReportCard{}.Route(), RouterKey)
+	assert.Equal(t, MsgSubmitQoSReport{}.Route(), RouterKey)
 }
 
 func TestMsgSubmitReportCard_Type(t *testing.T) {
-	assert.Equal(t, MsgSubmitReportCard{}.Type(), MsgClaimName)
+	assert.Equal(t, MsgSubmitQoSReport{}.Type(), MsgClaimName)
 }
 
 func TestMsgSubmitReportCard_GetSigners(t *testing.T) {
 	addr := getRandomValidatorAddress()
 	faddr := getRandomValidatorAddress()
-	signers := MsgSubmitReportCard{
+	signers := MsgSubmitQoSReport{
 		SessionHeader:    SessionHeader{},
 		ServicerAddress:  addr,
 		FishermanAddress: faddr,
 		Report: ViperQoSReport{
 			FirstSampleTimestamp: time.Now(),
-			BlockHeight:          int64(1),
+			BlockHeight:          1,
 			ServicerAddress:      addr,
 			LatencyScore:         types.NewDecWithPrec(12345, 6),
 			AvailabilityScore:    types.NewDecWithPrec(67890, 6),
@@ -362,7 +362,7 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 	reliabilityScore := types.NewDecWithPrec(54321, 6)
 	sampleRoot := HashRange{Hash: Hash([]byte("sampleRoot")), Range: Range{Upper: 100}}
 
-	invalidReportMissingServicerAddress := MsgSubmitReportCard{
+	invalidReportMissingServicerAddress := MsgSubmitQoSReport{
 		SessionHeader: SessionHeader{
 			RequestorPubKey:    "",
 			Chain:              "ethereum",
@@ -384,11 +384,11 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 		EvidenceType: FishermanTestEvidence,
 	}
 
-	invalidReportNegativeBlockHeight := MsgSubmitReportCard{
+	invalidReportNegativeBlockHeight := MsgSubmitQoSReport{
 		SessionHeader: SessionHeader{
 			RequestorPubKey:    "",
 			Chain:              "ethereum",
-			SessionBlockHeight: 1,
+			SessionBlockHeight: -1,
 		},
 		ServicerAddress:  servicerAddress,
 		FishermanAddress: fishermanAddress,
@@ -406,7 +406,7 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 		EvidenceType: FishermanTestEvidence,
 	}
 
-	invalidReportNegativeScores := MsgSubmitReportCard{
+	invalidReportNegativeScores := MsgSubmitQoSReport{
 		SessionHeader: SessionHeader{
 			RequestorPubKey:    "",
 			Chain:              "ethereum",
@@ -428,7 +428,7 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 		EvidenceType: FishermanTestEvidence,
 	}
 
-	invalidReportInvalidSampleRoot := MsgSubmitReportCard{
+	invalidReportInvalidSampleRoot := MsgSubmitQoSReport{
 		SessionHeader: SessionHeader{
 			RequestorPubKey:    "",
 			Chain:              "ethereum",
@@ -450,7 +450,7 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 		EvidenceType: FishermanTestEvidence,
 	}
 
-	invalidReportNegativeNonce := MsgSubmitReportCard{
+	invalidReportNegativeNonce := MsgSubmitQoSReport{
 		SessionHeader: SessionHeader{
 			RequestorPubKey:    "",
 			Chain:              "ethereum",
@@ -472,7 +472,7 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 		EvidenceType: FishermanTestEvidence,
 	}
 
-	invalidReportMissingSignature := MsgSubmitReportCard{
+	invalidReportMissingSignature := MsgSubmitQoSReport{
 		SessionHeader: SessionHeader{
 			RequestorPubKey:    "",
 			Chain:              "ethereum",
@@ -494,7 +494,7 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 		EvidenceType: FishermanTestEvidence,
 	}
 
-	validReport := MsgSubmitReportCard{
+	validReport := MsgSubmitQoSReport{
 		SessionHeader: SessionHeader{
 			RequestorPubKey:    "",
 			Chain:              "ethereum",
@@ -518,7 +518,7 @@ func TestMsgSubmitReportCard_ValidateBasic(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		msg      MsgSubmitReportCard
+		msg      MsgSubmitQoSReport
 		hasError bool
 	}{
 		{

@@ -174,7 +174,6 @@ var exportGenesisForReset = &cobra.Command{
 var convertViperEvidenceDB = &cobra.Command{
 	Use:   "convert-viper-evidence-db",
 	Short: "convert viper evidence db to proto from amino",
-	Long:  `Before upgrading with 6.0, convert the viper evidence db from amino to proto for a cohesive`,
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		app.InitConfig(datadir, tmNode, persistentPeers, seeds, remoteCLIURL)

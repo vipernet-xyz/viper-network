@@ -56,7 +56,7 @@ func (ps ProofIs) FromProofI() (res Proofs) {
 var _ Proof = RelayProof{} // ensure implements interface at compile time
 
 // "ValidateLocal" - Validates the proof object, where the owner of the proof is the local node
-func (rp RelayProof) ValidateLocal(appSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64, verifyAddr sdk.Address) sdk.Error {
+func (rp RelayProof) ValidateLocal(requestorSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64, verifyAddr sdk.Address) sdk.Error {
 	//Basic Validations
 	err := rp.ValidateBasic()
 	if err != nil {
@@ -70,7 +70,7 @@ func (rp RelayProof) ValidateLocal(appSupportedBlockchains []string, sessionNode
 	if !sdk.Address(servicerPublicKey.Address()).Equals(verifyAddr) {
 		return NewInvalidNodePubKeyError(ModuleName) // the public key is not this nodes, so they would not get paid
 	}
-	err = rp.Validate(appSupportedBlockchains, sessionNodeCount, sessionBlockHeight)
+	err = rp.Validate(requestorSupportedBlockchains, sessionNodeCount, sessionBlockHeight)
 	if err != nil {
 		return err
 	}
@@ -173,14 +173,14 @@ type relayProof struct {
 func (rp RelayProof) Bytes() []byte {
 	res, err := json.Marshal(relayProof{
 		Entropy:            rp.Entropy,
-		RequestHash:        rp.RequestHash,
+		SessionBlockHeight: rp.SessionBlockHeight,
 		ServicerPubKey:     rp.ServicerPubKey,
 		Blockchain:         rp.Blockchain,
-		SessionBlockHeight: rp.SessionBlockHeight,
-		GeoZone:            rp.GeoZone,
-		NumServicers:       rp.NumServicers,
 		Signature:          "", // omit the signature
 		Token:              rp.Token.HashString(),
+		RequestHash:        rp.RequestHash,
+		GeoZone:            rp.GeoZone,
+		NumServicers:       rp.NumServicers,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("an error occured converting the relay RelayProof to bytes:\n%v", err).Error())
@@ -413,6 +413,8 @@ func (c ChallengeProofInvalidData) SessionHeader() SessionHeader {
 	return SessionHeader{
 		RequestorPubKey:    c.MinorityResponse.Proof.Token.RequestorPublicKey,
 		Chain:              c.MinorityResponse.Proof.Blockchain,
+		GeoZone:            c.MinorityResponse.Proof.GeoZone,
+		NumServicers:       c.MinorityResponse.Proof.NumServicers,
 		SessionBlockHeight: c.MinorityResponse.Proof.SessionBlockHeight,
 	}
 }

@@ -50,7 +50,7 @@ func (ts TestIs) FromTestI() (res Tests) {
 var _ Test = TestResult{}
 
 // "ValidateLocal" - Validates the proof object, where the owner of the proof is the local node
-func (tr TestResult) ValidateLocal(appSupportedBlockchains []string, sessionNodeCount int, sessionBlockHeight int64, verifyAddr sdk.Address) sdk.Error {
+func (tr TestResult) ValidateLocal(verifyAddr sdk.Address) sdk.Error {
 	//Basic Validations
 	err := tr.ValidateBasic()
 	if err != nil {
@@ -60,15 +60,6 @@ func (tr TestResult) ValidateLocal(appSupportedBlockchains []string, sessionNode
 	if !(tr.ServicerAddress).Equals(verifyAddr) {
 		return NewInvalidNodePubKeyError(ModuleName) // the public key is not this nodes, so they would not get paid
 	}
-	err = tr.Validate()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// "Validate" - Validates the relay proof object
-func (tr TestResult) Validate() sdk.Error {
 	return nil
 }
 
@@ -79,12 +70,12 @@ func (tr TestResult) ValidateBasic() sdk.Error {
 	}
 
 	// Validate the Timestamp. You can decide the range of acceptable timestamps if needed.
-	if tr.Timestamp.IsZero() {
+	if tr.IsAvailable && tr.Timestamp.IsZero() {
 		return NewZeroTimeError(ModuleName)
 	}
 
 	// If the minimum latency is a non-zero duration, validate that the Latency is positive and within acceptable range.
-	if tr.Latency <= 0 {
+	if tr.IsAvailable && tr.Latency <= 0 {
 		return NewNegativeLatency(ModuleName)
 	}
 

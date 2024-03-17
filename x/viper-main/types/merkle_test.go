@@ -709,3 +709,78 @@ func Test_sortAndStructureResult(t *testing.T) {
 		})
 	}
 }
+
+func TestResult_GeneratTRProofs(t *testing.T) {
+	requestorPrivateKey := GetRandomPrivateKey()
+	requestorPubKey := requestorPrivateKey.PublicKey().RawString()
+	clientPrivateKey := GetRandomPrivateKey()
+	clientPublicKey := clientPrivateKey.PublicKey().RawString()
+	servicerPubKey := getRandomPubKey()
+	ethereum := hex.EncodeToString([]byte{01})
+	validAAT := AAT{
+		Version:            "0.0.1",
+		RequestorPublicKey: requestorPubKey,
+		ClientPublicKey:    clientPublicKey,
+		RequestorSignature: "",
+	}
+	requestorSig, er := requestorPrivateKey.Sign(validAAT.Hash())
+	if er != nil {
+		t.Fatalf(er.Error())
+	}
+	validAAT.RequestorSignature = hex.EncodeToString(requestorSig)
+	testResults := Tests{
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 150,
+			IsAvailable:     true,
+			IsReliable:      false,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 80,
+			IsAvailable:     false,
+			IsReliable:      true,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 220,
+			IsAvailable:     true,
+			IsReliable:      true,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 300,
+			IsAvailable:     false,
+			IsReliable:      false,
+		},
+		&TestResult{
+			ServicerAddress: servicerPubKey.Address().Bytes(),
+			Timestamp:       time.Now().UTC(),
+			Latency:         time.Millisecond * 90,
+			IsAvailable:     true,
+			IsReliable:      true,
+		},
+	}
+	result := Result{
+		SessionHeader: SessionHeader{
+			RequestorPubKey:    requestorPubKey,
+			Chain:              ethereum,
+			SessionBlockHeight: 1,
+			GeoZone:            "0001",
+			NumServicers:       1,
+		},
+		ServicerAddr:     types.Address(servicerPubKey.Address()), // Set the servicer address
+		NumOfTestResults: int64(len(testResults)),                 // Set the number of test results
+		TestResults:      testResults,                             // Set the test results
+		EvidenceType:     FishermanTestEvidence,                   // Set the evidence type
+	}
+	index := 4
+	proof, leaf := result.GenerateMerkleProof(0, index)
+	assert.Len(t, proof.HashRanges, 3)
+	assert.Contains(t, result.TestResults, leaf)
+	assert.Equal(t, proof.Target.Hash, merkleHash(leaf.Bytes()))
+}

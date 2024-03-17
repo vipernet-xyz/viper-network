@@ -28,7 +28,6 @@ func CompleteAndBroadcastTxCLI(txBldr authentication.TxBuilder, cliCtx CLIContex
 		if err != nil {
 			return nil, err
 		}
-
 		return &tx, nil
 	} else {
 		txBytes, err := txBldr.BuildAndSignWithKeyBase(cliCtx.FromAddress, cliCtx.Passphrase, msgs, legacyCodec)

@@ -158,7 +158,6 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("requestor/StabilityModulation", addr)
 	acl.SetOwner("requestor/MinNumServicers", addr)
 	acl.SetOwner("requestor/MaxNumServicers", addr)
-	acl.SetOwner("requestor/MaxFreeTierRelaysPerSession", addr)
 	acl.SetOwner("authentication/MaxMemoCharacters", addr)
 	acl.SetOwner("authentication/TxSigLimit", addr)
 	acl.SetOwner("authentication/FeeMultipliers", addr)
@@ -201,5 +200,8 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("pos/LatencyScoreWeight", addr)
 	acl.SetOwner("pos/AvailabilityScoreWeight", addr)
 	acl.SetOwner("pos/ReliabilityScoreWeight", addr)
+	acl.SetOwner("pos/RelaysToTokensChainMultiplierMap", addr)
+	acl.SetOwner("pos/RelaysToTokensGeoZoneMultiplierMap", addr)
+	acl.SetOwner("pos/MaxFreeTierRelaysPerSession", addr)
 	return acl
 }

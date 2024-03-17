@@ -84,6 +84,7 @@ func FlushSessionCache() {
 		}
 	}
 }
+
 func GetRPCTimeout() time.Duration {
 	return globalRPCTimeout
 }

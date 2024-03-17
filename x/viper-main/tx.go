@@ -22,25 +22,42 @@ func ClaimTx(pk crypto.PrivateKey, cliCtx util.CLIContext, txBuilder authenticat
 	if err != nil {
 		return nil, err
 	}
-	var legacyCodec bool
 
-	legacyCodec = false
-	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, legacyCodec)
+	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, false)
 }
 
 // "ProofTx" - A transaction to prove the claim that was previously sent (Merkle Proofs and leaf/cousin)
-func ProofTx(cliCtx util.CLIContext, txBuilder authentication.TxBuilder, merkleProof types.MerkleProof, leafNode types.Proof, evidenceType types.EvidenceType) (*sdk.TxResponse, error) {
+func ProofTx(cliCtx util.CLIContext, txBuilder authentication.TxBuilder, claimMerkleProof types.MerkleProof, claimLeafNode types.Proof, claimEvidenceType types.EvidenceType, reportMerkleProof types.MerkleProof, reportLeafNode types.Test, reportEvidenceType types.EvidenceType) (*sdk.TxResponse, error) {
 	msg := types.MsgProof{
-		MerkleProof:  merkleProof,
-		Leaf:         leafNode,
-		EvidenceType: evidenceType,
+		ClaimMerkleProof:   claimMerkleProof,
+		ClaimLeaf:          claimLeafNode,
+		ClaimEvidenceType:  claimEvidenceType,
+		ReportMerkleProof:  reportMerkleProof,
+		ReportLeaf:         reportLeafNode,
+		ReportEvidenceType: reportEvidenceType,
 	}
 	err := msg.ValidateBasic()
 	if err != nil {
 		return nil, err
 	}
-	var legacyCodec bool
-	legacyCodec = false
+	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, false)
+}
 
-	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, legacyCodec)
+func ReportCardTx(pk crypto.PrivateKey, cliCtx util.CLIContext, txBuilder authentication.TxBuilder, header types.SessionHeader, servicerAddr sdk.Address, reportCard types.ViperQoSReport, merkleProof types.MerkleProof, leafNode types.TestI, numOfTestResults int64, evidenceType types.EvidenceType) (*sdk.TxResponse, error) {
+	msg := types.MsgSubmitQoSReport{
+		SessionHeader:    header,
+		ServicerAddress:  servicerAddr,
+		FishermanAddress: sdk.Address(pk.PublicKey().Address()),
+		Report:           reportCard,
+		EvidenceType:     evidenceType,
+		MerkleProof:      merkleProof,
+		Leaf:             leafNode,
+		NumOfTestResults: numOfTestResults,
+	}
+	err := msg.ValidateBasic()
+	if err != nil {
+		return nil, err
+	}
+
+	return util.CompleteAndBroadcastTxCLI(txBuilder, cliCtx, &msg, false)
 }

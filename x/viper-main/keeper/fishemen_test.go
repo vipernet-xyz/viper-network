@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -108,5 +107,4 @@ func TestCalculateLatencyScores(t *testing.T) {
 	assert.True(t, exists)                  // Check if "servicerD" key exists
 	assert.True(t, servicerXScore.IsZero()) // Expecting a score of 0 for "servicerD"
 
-	fmt.Println(latencyScores)
 }

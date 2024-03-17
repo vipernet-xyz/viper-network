@@ -1,13 +1,9 @@
 package keeper
 
 import (
-	"bytes"
-	rand1 "crypto/rand"
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
-	"math"
-	"math/big"
 	"math/rand"
 	"sort"
 	"time"
@@ -25,6 +21,11 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 		}
 		return resp, nil
 	}
+
+	// Introduce a longer delay before triggering sampling.
+	minDelay := 5000
+	maxDelay := 8000
+	time.Sleep(time.Duration(rand.Intn(maxDelay-minDelay)+minDelay) * time.Millisecond)
 
 	// Start by creating the response.
 	resp := &vc.RelayResponse{
@@ -45,12 +46,6 @@ func (k Keeper) HandleFishermanTrigger(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 	// Attach the signature in hex to the response.
 	resp.Signature = hex.EncodeToString(sig)
 	resp.Proof = trigger.Proof
-
-	// Introduce a longer delay before triggering sampling.
-	minDelay := 5000
-	maxDelay := 8000
-	delay := time.Duration(rand.Intn(maxDelay-minDelay) + minDelay)
-	time.Sleep(delay * time.Millisecond)
 
 	// If everything has gone well so far, call StartServicersSampling.
 	err := k.StartServicersSampling(ctx, trigger)
@@ -101,7 +96,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 
 	hostedBlockchains := k.GetHostedBlockchains()
 	fishermanValidator, _ := k.GetNode(ctx, fishermanAddr)
-	results := make(map[string]*vc.ServicerResults)
+	availabilityScore := make(map[string][]bool)
 
 	rpcURL := fishermanValidator.GetServiceURL()
 
@@ -112,30 +107,22 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 		return sdk.ErrInternal("Error creating signer")
 	}
 
-	for _, servicer := range actualServicers {
-		servicerAddrStr := servicer.GetAddress().String()
-		results[servicerAddrStr] = &vc.ServicerResults{}
-	}
-
 	// Function to send sample relays
-	sendSampleRelays := func() {
+	SendSampleRelays := func() {
+
 		for _, servicer := range actualServicers {
 			relayer := vc.NewRelayer(*signer, *sender)
 			startTime := time.Now()
 			Blockchain := trigger.Proof.Blockchain
-
-			resp, err := relayer.SendSampleRelay(sessionHeader.SessionBlockHeight, Blockchain, trigger, servicer, fishermanValidator, hostedBlockchains)
+			resp, _ := relayer.SendSampleRelay(sessionHeader.SessionBlockHeight, Blockchain, trigger, servicer, fishermanValidator, hostedBlockchains)
+			isAvailable := resp.Availability
 			latency := resp.Latency
-			isAvailable := err == nil && resp.Proof.Signature != ""
 			isReliable := resp.Reliability
+			// Store availability metric for the servicer
+			availabilityScore[servicer.GetAddress().String()] = append(availabilityScore[servicer.GetAddress().String()], isAvailable)
 
-			servicerResult := results[servicer.GetAddress().String()]
-			servicerResult.Timestamps = append(servicerResult.Timestamps, startTime)
-			servicerResult.Latencies = append(servicerResult.Latencies, latency)
-			servicerResult.Availabilities = append(servicerResult.Availabilities, isAvailable)
-			servicerResult.Reliabilities = append(servicerResult.Reliabilities, isReliable)
-
-			if len(servicerResult.Availabilities) >= 5 && !anyTrue(servicerResult.Availabilities[len(servicerResult.Availabilities)-5:]) {
+			// Check if servicer has been consistently unavailable and pause if needed
+			if len(availabilityScore[servicer.GetAddress().String()]) >= 5 && !anyTrue(availabilityScore[servicer.GetAddress().String()][len(availabilityScore[servicer.GetAddress().String()])-5:]) {
 				k.posKeeper.BurnforNoActivity(ctx, ctx.BlockHeight(), servicer.GetAddress())
 				k.posKeeper.PauseNode(ctx, servicer.GetAddress())
 			}
@@ -147,71 +134,35 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 				IsAvailable:     isAvailable,
 				IsReliable:      isReliable,
 			}
-			testResult.Store(sessionHeader, fisherman.TestStore)
-		}
-	}
 
-	// Function to send report card tx
-	sendReportCardTx := func() {
-		latencyScores := CalculateLatencyScores(results)
-		for _, servicer := range actualServicers {
-			servicerResult := results[servicer.GetAddress().String()]
-			proofs, err := k.GetProofsForServicer(ctx, sessionHeader, servicer.GetAddress(), fisherman.TestStore)
-			if err != nil {
-				fmt.Errorf("Sample Relay Proofs could not be fetched for %s", servicer)
-			}
-
-			seed := time.Now().UnixNano() + int64(ctx.BlockHeight())
-			rng := rand.New(rand.NewSource(seed))
-			subsetSize := int(float64(len(proofs)) * 0.20)
-			if len(proofs) > int(subsetSize) {
-				vc.Shuffle(proofs, rng)
-				proofs = proofs[:subsetSize]
-			}
-
-			resultForMerkle := &vc.Result{
-				SessionHeader:    sessionHeader,
-				ServicerAddr:     servicer.GetAddress(),
-				NumOfTestResults: int64(len(proofs)),
-				TestResults:      proofs,
-				EvidenceType:     vc.FishermanTestEvidence,
-			}
-
-			merkleRoot := resultForMerkle.GenerateSampleMerkleRoot(sessionHeader.SessionBlockHeight, fisherman.TestStore)
-			qos, err := vc.CalculateQoSForServicer(servicerResult, sessionHeader.SessionBlockHeight, latencyScores[servicer.GetAddress().String()])
-			if err != nil {
-				fmt.Errorf("QoS Report could not be created for %s", servicer)
-			}
-
-			qos.SampleRoot = merkleRoot
-
-			nonce, err := rand1.Int(rand1.Reader, big.NewInt(math.MaxInt64))
-			if err != nil {
-				return
-			}
-			qos.Nonce = nonce.Int64()
-			qos.Signature, err = k.SignQoSReport(signer, qos)
-			if err != nil {
-				fmt.Errorf("QoS Report could not be signed")
-			}
-
-			k.SendReportCardTx(ctx, k, k.TmNode, fisherman, qos.ServicerAddress, sessionHeader, resultForMerkle.EvidenceType, *qos, vc.SendReportCardTx)
-		}
-	}
-
-	// Loop to send sample relays based on time triggers
-	go func() {
-		ticker := time.NewTicker(time.Duration(10+rand.Intn(20)) * time.Second)
-		defer ticker.Stop()
-
-		for range ticker.C {
-			blockHeight, _ := sender.GetBlockHeight()
-			if int64(blockHeight) >= (trigger.Proof.SessionBlockHeight + k.posKeeper.BlocksPerSession(ctx)) {
-				sendReportCardTx()
-				return
+			// Validate the test result before storing
+			if err := testResult.Validate(*resp, sessionHeader, fisherman); err != nil {
+				ctx.Logger().Error(fmt.Sprintf("invalid test result: %s", err.Error()))
+				continue
 			} else {
-				sendSampleRelays()
+				testResult.Store(sessionHeader, fisherman.TestStore)
 			}
+
+		}
+	}
+
+	// Start a goroutine to listen for the signal and send Sample Relays at random intervals
+	go func() {
+		for {
+			blocksPerSession := k.BlocksPerSession(sessionCtx)
+			minSleep := 1000
+			maxSleep := 3000
+			time.Sleep(time.Duration(rand.Intn(maxSleep-minSleep)+minSleep) * time.Millisecond)
+			blockHeight, _ := sender.GetBlockHeight()
+
+			if int64(blockHeight) <= sessionHeader.SessionBlockHeight+blocksPerSession-1 {
+				SendSampleRelays()
+			} else {
+				return // Session has ended
+			}
+
+			// Sleep for a random interval before sending the next sample relays
+			time.Sleep(time.Duration(15+rand.Intn(20)) * time.Second)
 		}
 	}()
 
@@ -228,42 +179,8 @@ func anyTrue(booleans []bool) bool {
 	return false
 }
 
-func (k Keeper) GetProofsForServicer(ctx sdk.Ctx, header vc.SessionHeader, servicerAddr sdk.Address, testStore *vc.CacheStorage) ([]vc.Test, error) {
-	var proofs []vc.Test
-	fisherman := vc.GetViperNode()
-	iter := vc.ResultIterator(fisherman.TestStore)
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		result := iter.Value()
-		fmt.Println("result:", result)
-
-		// Check if the result belongs to the current servicer and session
-		if result.ServicerAddr.Equals(servicerAddr) && result.SessionHeader == header {
-			proofs = append(proofs, result.TestResults...)
-		}
-	}
-	return proofs, nil
-}
-
 func init() {
 	gob.Register(vc.ViperQoSReport{})
-}
-
-func (k Keeper) SignQoSReport(signer *vc.Signer, report *vc.ViperQoSReport) (string, error) {
-
-	// Create a bytes.Buffer to hold our encoded data
-	var buf bytes.Buffer
-	// Create a new GOB encoder that writes to the buffer
-	enc := gob.NewEncoder(&buf)
-
-	// Encode the report
-	err := enc.Encode(report)
-	if err != nil {
-		return "", err
-	}
-
-	return signer.Sign(buf.Bytes())
 }
 
 func CalculateLatencyScores(results map[string]*vc.ServicerResults) map[string]sdk.BigDec {

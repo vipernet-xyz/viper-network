@@ -14,16 +14,15 @@ func TestDefaultParams(t *testing.T) {
 	}{
 		{"Default Test",
 			Params{
-				UnstakingTime:               DefaultUnstakingTime,
-				MaxRequestors:               DefaultMaxRequestors,
-				MinRequestorStake:           DefaultMinStake,
-				BaseRelaysPerVIPR:           DefaultBaseRelaysPerVIPR,
-				StabilityModulation:         DefaultStabilityModulation,
-				ParticipationRate:           DefaultParticipationRateOn,
-				MaxChains:                   DefaultMaxChains,
-				MinNumServicers:             DefaultMinNumServicers,
-				MaxNumServicers:             DefaultMaxNumServicers,
-				MaxFreeTierRelaysPerSession: DefaultMaxFreeTierRelaysPerSession,
+				UnstakingTime:       DefaultUnstakingTime,
+				MaxRequestors:       DefaultMaxRequestors,
+				MinRequestorStake:   DefaultMinStake,
+				BaseRelaysPerVIPR:   DefaultBaseRelaysPerVIPR,
+				StabilityModulation: DefaultStabilityModulation,
+				ParticipationRate:   DefaultParticipationRateOn,
+				MaxChains:           DefaultMaxChains,
+				MinNumServicers:     DefaultMinNumServicers,
+				MaxNumServicers:     DefaultMaxNumServicers,
 			},
 		}}
 	for _, tt := range tests {

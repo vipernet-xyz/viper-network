@@ -28,7 +28,7 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 		// handle legacy proof message
 		case types.MsgProof:
 			return handleProofMsg(ctx, keeper, msg)
-		case types.MsgSubmitReportCard:
+		case types.MsgSubmitQoSReport:
 			return handleSubmitReportCardMsg(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized vipernet ProtoMsg type: %v", msg.Type())
@@ -62,11 +62,10 @@ func handleClaimMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgClaim) sdk.Result
 // "handleProofMsg" - General handler for the proof message
 func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Result {
 	defer sdk.TimeTrack(time.Now())
-
-	// validate the claim claim
-	addr, reportCard, claim, err := k.ValidateProof(ctx, proof)
-	if err != nil {
-		if err.Code() == types.CodeInvalidMerkleVerifyError && !claim.IsEmpty() {
+	// validate the proof
+	addr, reportCard, claim, err, errorType := k.ValidateProof(ctx, proof)
+	if err != nil && errorType == 1 {
+		if err.Code() == types.CodeInvalidClaimMerkleVerifyError && !claim.IsEmpty() {
 			// delete local evidence
 			processSelf(ctx, proof.GetSigners()[0], claim.SessionHeader, claim.EvidenceType, sdk.ZeroInt())
 			return err.Result()
@@ -80,14 +79,46 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 			if err != nil {
 				ctx.Logger().Error("Could not delete claim from world state after replay attack detected", "Address", claim.FromAddress)
 			}
+			err = k.DeleteReportCard(ctx, addr, reportCard.FishermanAddress, reportCard.SessionHeader, reportCard.EvidenceType)
+			if err != nil {
+				ctx.Logger().Error("Could not delete report card from world state after replay attack detected", "Address", reportCard.ServicerAddress)
+			}
 		}
 		return err.Result()
 	}
+	if err != nil && errorType == 2 {
+		k.HandleFishermanSlash(ctx, claim.SessionHeader, ctx.BlockHeight())
+		var report types.ViperQoSReport
+		report.LatencyScore = sdk.NewDec(1)
+		report.AvailabilityScore = sdk.NewDec(1)
+		report.ReliabilityScore = sdk.NewDec(1)
+
+		var qos types.MsgSubmitQoSReport
+		qos.SessionHeader = claim.SessionHeader
+		qos.ServicerAddress = claim.FromAddress
+		qos.Report = report
+		qos.EvidenceType = types.FishermanTestEvidence
+		// Set report card with max score of 1
+		k.SetReportCard(ctx, qos)
+		tokens, _, err := k.ExecuteProof(ctx, proof, reportCard, claim)
+		if err != nil {
+			return err.Result()
+		}
+		processSelf(ctx, proof.GetSigners()[0], claim.SessionHeader, claim.EvidenceType, tokens)
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeProof,
+				sdk.NewAttribute(types.AttributeKeyValidator, addr.String()),
+			),
+		})
+		return sdk.Result{Events: ctx.EventManager().Events()}
+	}
 	// valid claim message so execute according to type
-	tokens, err := k.ExecuteProof(ctx, proof, reportCard, claim)
+	tokens, _, err := k.ExecuteProof(ctx, proof, reportCard, claim)
 	if err != nil {
 		return err.Result()
 	}
+
 	// delete local evidence
 	processSelf(ctx, proof.GetSigners()[0], claim.SessionHeader, claim.EvidenceType, tokens)
 	// create the event
@@ -100,39 +131,11 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }
 
-// "handleSubmitReportCardMsg" - General handler for the MsgSubmitReportCard message
-func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmitReportCard) sdk.Result {
+// "handleSubmitReportCardMsg" - General handler for the MsgSubmitReport message
+func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmitQoSReport) sdk.Result {
 	defer sdk.TimeTrack(time.Now())
-
 	// validate the report card submission message
 	if err := k.ValidateSumbitReportCard(ctx, msg); err != nil {
-		if err.Code() == types.CodeInvalidRCMerkleVerifyError && !msg.IsEmpty() {
-			// Process self and set report card with max score of 1
-			processResult(ctx, msg.FishermanAddress, msg.SessionHeader, msg.EvidenceType, msg.Report)
-			var report types.ViperQoSReport
-			report.LatencyScore = sdk.NewDec(1)
-			report.AvailabilityScore = sdk.NewDec(1)
-			report.ReliabilityScore = sdk.NewDec(1)
-
-			var qos types.MsgSubmitReportCard
-			qos.SessionHeader = msg.SessionHeader
-			qos.ServicerAddress = msg.ServicerAddress
-			qos.FishermanAddress = msg.FishermanAddress
-			qos.Report = report
-			qos.EvidenceType = msg.EvidenceType
-			// Set report card with max score of 1
-			k.SetReportCard(ctx, qos)
-			if err != nil {
-				return sdk.ErrInternal(err.Error()).Result()
-			}
-			// Execute the report card
-			k.ExecuteReportCard(ctx, msg.ServicerAddress, qos)
-			// Slash the fisherman for the invalid report card
-			k.HandleFishermanSlash(ctx, ctx.BlockHeight(), msg.FishermanAddress)
-			// Process self
-			processResult(ctx, msg.FishermanAddress, msg.SessionHeader, msg.EvidenceType, msg.Report)
-
-		}
 		return err.Result()
 	}
 
@@ -142,12 +145,7 @@ func handleSubmitReportCardMsg(ctx sdk.Ctx, k keeper.Keeper, msg types.MsgSubmit
 		return sdk.ErrInternal(err.Error()).Result()
 	}
 
-	// Execute the report card
-	k.ExecuteReportCard(ctx, msg.ServicerAddress, msg)
-
-	// Process self
 	processResult(ctx, msg.FishermanAddress, msg.SessionHeader, msg.EvidenceType, msg.Report)
-
 	// create the event
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -184,7 +182,7 @@ func processResult(ctx sdk.Ctx, signer sdk.Address, header types.SessionHeader, 
 		return
 	}
 	testStore := node.TestStore
-	err := types.DeleteResult(header, evidenceType, testStore)
+	err := types.DeleteResult(header, evidenceType, reportCard.ServicerAddress, testStore)
 	if err != nil {
 		ctx.Logger().Error("Unable to delete result: " + err.Error())
 	}

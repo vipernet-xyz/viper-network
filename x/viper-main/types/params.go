@@ -18,11 +18,12 @@ const (
 	DefaultMinimumNumberOfProofs      = int64(1000)    // default minimum number of proofs
 	DefaultBlockByteSize              = int64(8000000) // default block size in bytes
 	DefaultMinimumSampleRelays        = int64(25)
-	DefaultReportCardSubmissionWindow = int64(2)
+	DefaultReportCardSubmissionWindow = int64(3)
 )
 
 var (
 	DefaultSupportedBlockchains   = []string{"0001"}
+	DefaultSupportedGeoZones      = []string{""}
 	KeyClaimSubmissionWindow      = []byte("ClaimSubmissionWindow")
 	KeySupportedBlockchains       = []byte("SupportedBlockchains")
 	KeyClaimExpiration            = []byte("ClaimExpiration")
@@ -75,7 +76,7 @@ func DefaultParams() Params {
 		MinimumNumberOfProofs:      DefaultMinimumNumberOfProofs,
 		MinimumSampleRelays:        DefaultMinimumSampleRelays,
 		BlockByteSize:              DefaultBlockByteSize,
-		SupportedGeoZones:          nil,
+		SupportedGeoZones:          DefaultSupportedGeoZones,
 		ReportCardSubmissionWindow: DefaultReportCardSubmissionWindow,
 	}
 }

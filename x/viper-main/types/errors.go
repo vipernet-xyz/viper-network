@@ -69,7 +69,7 @@ const (
 	CodeInvalidLeafCousinProofsCombo        = 63
 	CodeEmptyAddressError                   = 64
 	CodeClaimNotFoundError                  = 65
-	CodeInvalidMerkleVerifyError            = 66
+	CodeInvalidClaimMerkleVerifyError       = 66
 	CodeEmptyMerkleTreeError                = 67
 	CodeMerkleNodeNotFoundError             = 68
 	CodeExpiredProofsSubmissionError        = 69
@@ -105,6 +105,9 @@ const (
 	CodeGeoZoneNotSupportedErr              = 99
 	CodeReportCardNotFoundError             = 100
 	CodeInvalidRCMerkleVerifyError          = 101
+	CodeDuplicateTestResultError            = 102
+	CodeInvalidReportMerkleVerifyError      = 103
+	CodeNoReportCardError                   = 104
 )
 
 var (
@@ -120,6 +123,7 @@ var (
 	InvalidTokenError                   = errors.New("the requestor authentication token is invalid")
 	EmptyProofsError                    = errors.New("the service proofs object is empty")
 	DuplicateProofError                 = errors.New("the Proof with specific merkleHash already found, check entropy")
+	DuplicateTestResultError            = errors.New("the Test Result with specific merkleHash already found, check entropy")
 	InvalidEntropyError                 = errors.New("the entropy included in the relay request is invalid")
 	EmptyResponseError                  = errors.New("the relay response payload is empty")
 	ResponseSignatureError              = errors.New("response signing errored out: ")
@@ -178,7 +182,8 @@ var (
 	InvalidLeafCousinProofsCombo        = errors.New("the merkle relayProof combo for the cousin and leaf is invalid")
 	EmptyAddressError                   = errors.New("the address provided is empty")
 	ClaimNotFoundError                  = errors.New("the claim was not found for the key given")
-	InvalidMerkleVerifyError            = errors.New("claim resulted in an invalid merkle Proof")
+	InvalidClaimMerkleVerifyError       = errors.New("claim resulted in an invalid merkle Proof")
+	InvalidReportMerkleVerifyError      = errors.New("report card resulted in an invalid merkle Proof")
 	EmptyMerkleTreeError                = errors.New("the merkle tree is empty")
 	NodeNotFoundError                   = errors.New("the servicer of the merkle tree requested is not found")
 	ExpiredProofsSubmissionError        = errors.New("the opportunity of window to submit the Proof has closed because the secret has been revealed")
@@ -211,6 +216,7 @@ var (
 	GeoZoneNotSupportedErr              = errors.New("the geozone is not viper supported")
 	ReportCardNotFoundError             = errors.New("the report card for the servicer could not be found")
 	InvalidRCMerkleVerifyError          = errors.New("report card resulted in an invalid merkle Proof")
+	NoReportCardError                   = errors.New("no report card for the servicer submitted by the fisherman")
 )
 
 func NewSealedEvidenceError(codespace sdk.CodespaceType) sdk.Error {
@@ -248,8 +254,12 @@ func NewEmptyMerkleTreeError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeEmptyMerkleTreeError, EmptyMerkleTreeError.Error())
 }
 
-func NewInvalidMerkleVerifyError(codespace sdk.CodespaceType) sdk.Error {
-	return sdk.NewError(codespace, CodeInvalidMerkleVerifyError, InvalidMerkleVerifyError.Error())
+func NewInvalidClaimMerkleVerifyError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidClaimMerkleVerifyError, InvalidReportMerkleVerifyError.Error())
+}
+
+func NewInvalidReportMerkleVerifyError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidReportMerkleVerifyError, InvalidReportMerkleVerifyError.Error())
 }
 
 func NewReplayAttackError(codespace sdk.CodespaceType) sdk.Error {
@@ -434,6 +444,10 @@ func NewDuplicateProofError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeDuplicateProofError, DuplicateProofError.Error())
 }
 
+func NewDuplicateTestResultError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeDuplicateTestResultError, DuplicateTestResultError.Error())
+}
+
 func NewInvalidNodePubKeyError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidNodePubKeyError, InvalidNodePubKeyError.Error())
 }
@@ -551,6 +565,10 @@ func NewSampleNotHostedError(codespace sdk.CodespaceType) sdk.Error {
 
 func NewReportCardNotFoundError(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeReportCardNotFoundError, ReportCardNotFoundError.Error())
+}
+
+func NewNoReportCardError(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeNoReportCardError, NoReportCardError.Error())
 }
 
 func NewInvalidRCMerkleVerifyError(codespace sdk.CodespaceType) sdk.Error {

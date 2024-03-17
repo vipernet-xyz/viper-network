@@ -34,7 +34,7 @@ func (k Keeper) SlashFisherman(ctx sdk.Ctx, height int64, address sdk.Address) {
 	k.slash(ctx, address, height, val.ConsensusPower(), fraction)
 
 	// Jail the fisherman
-	k.JailValidator(ctx, address)
+	//k.JailValidator(ctx, address)
 
 	// Log the slashing event
 	ctx.Logger().Info(fmt.Sprintf("Fisherman %s slashed for submitting invalid report card. Burned and jailed.", address.String()))

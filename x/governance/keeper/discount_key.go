@@ -9,7 +9,7 @@ import (
 // HasDiscountKey checks if a discount key already exists for the given address
 func (k Keeper) HasDiscountKey(ctx sdk.Ctx, addr sdk.Address) bool {
 	if k.discountStoreKey == nil {
-		k.Logger(ctx).Error("discountStoreKey is nil")
+		k.Logger(ctx).Info("discountStoreKey is nil")
 		return false
 	}
 	store := ctx.KVStore(k.discountStoreKey) // use the discountStoreKey

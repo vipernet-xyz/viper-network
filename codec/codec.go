@@ -83,11 +83,7 @@ func (cdc *Codec) MarshalBinaryBare(o interface{}) ([]byte, error) {
 	if !ok {
 		return cdc.legacyCdc.MarshalBinaryBare(o)
 	}
-	res, err := cdc.protoCdc.MarshalBinaryBare(p)
-	if err == nil {
-		return res, err
-	}
-	return cdc.legacyCdc.MarshalBinaryBare(p)
+	return cdc.protoCdc.MarshalBinaryBare(p)
 
 }
 
@@ -96,23 +92,16 @@ func (cdc *Codec) MarshalBinaryLengthPrefixed(o interface{}) ([]byte, error) {
 	if !ok {
 		return cdc.legacyCdc.MarshalBinaryLengthPrefixed(o)
 	}
-	res, err := cdc.protoCdc.MarshalBinaryLengthPrefixed(p)
-	if err == nil {
-		return res, err
-	}
-	return cdc.legacyCdc.MarshalBinaryLengthPrefixed(p)
+	return cdc.protoCdc.MarshalBinaryLengthPrefixed(p)
+
 }
 
 func (cdc *Codec) UnmarshalBinaryBare(bz []byte, ptr interface{}) error {
 	p, ok := ptr.(ProtoMarshaler)
 	if !ok {
-		return cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
+		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
 	}
-	err := cdc.protoCdc.UnmarshalBinaryBare(bz, p)
-	if err != nil {
-		return cdc.legacyCdc.UnmarshalBinaryBare(bz, ptr)
-	}
-	return nil
+	return cdc.protoCdc.UnmarshalBinaryBare(bz, p)
 }
 
 func (cdc *Codec) UnmarshalBinaryLengthPrefixed(bz []byte, ptr interface{}) error {
@@ -120,11 +109,7 @@ func (cdc *Codec) UnmarshalBinaryLengthPrefixed(bz []byte, ptr interface{}) erro
 	if !ok {
 		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
 	}
-	err := cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
-	if err != nil {
-		return cdc.legacyCdc.UnmarshalBinaryLengthPrefixed(bz, ptr)
-	}
-	return nil
+	return cdc.protoCdc.UnmarshalBinaryLengthPrefixed(bz, p)
 }
 
 func (cdc *Codec) ProtoMarshalBinaryBare(o ProtoMarshaler) ([]byte, error) {

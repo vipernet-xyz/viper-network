@@ -193,6 +193,23 @@ func (k Keeper) BlocksPerSession(ctx sdk.Ctx) (res int64) {
 	k.Paramstore.Get(ctx, types.KeySessionBlock, &res)
 	return
 }
+
+func (k Keeper) RelaysToTokensChainMultiplierMap(ctx sdk.Ctx) (res map[string]int64) {
+	k.Paramstore.Get(ctx, types.KeyRelaysToTokensChainMultiplierMap, &res)
+	if res == nil {
+		res = types.DefaultRelaysToTokensChainMultiplierMap
+	}
+	return
+}
+
+func (k Keeper) RelaysToTokensGeoZoneMultiplierMap(ctx sdk.Ctx) (res map[string]int64) {
+	k.Paramstore.Get(ctx, types.KeyRelaysToTokensGeoZoneMultiplierMap, &res)
+	if res == nil {
+		res = types.DefaultRelaysToTokensGeoZoneMultiplierMap
+	}
+	return
+}
+
 func (k Keeper) MaxChains(ctx sdk.Ctx) (res int64) {
 	k.Paramstore.Get(ctx, types.KeyMaxChains, &res)
 	return
@@ -242,37 +259,45 @@ func (k Keeper) SlashFractionFisherman(ctx sdk.Ctx) (res sdk.BigDec) {
 	return
 }
 
+func (k Keeper) MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMaxFreeTierRelaysPerSession, &res)
+	return
+}
+
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
-		TokenRewardFactor:       k.TokenRewardFactor(ctx).Int64(),
-		UnstakingTime:           k.UnStakingTime(ctx),
-		MaxValidators:           k.MaxValidators(ctx),
-		StakeDenom:              k.StakeDenom(ctx),
-		StakeMinimum:            k.MinimumStake(ctx),
-		SessionBlockFrequency:   k.BlocksPerSession(ctx),
-		DAOAllocation:           k.DAOAllocation(ctx),
-		RequestorAllocation:     k.RequestorAllocation(ctx),
-		ProposerAllocation:      k.ProposerAllocation(ctx),
-		FishermenAllocation:     k.FishermenAllocation(ctx),
-		MaximumChains:           k.MaxChains(ctx),
-		MaxJailedBlocks:         k.MaxJailedBlocks(ctx),
-		MaxEvidenceAge:          k.MaxEvidenceAge(ctx),
-		SignedBlocksWindow:      k.SignedBlocksWindow(ctx),
-		MinSignedPerWindow:      sdk.NewDec(k.MinSignedPerWindow(ctx)),
-		DowntimeJailDuration:    k.DowntimeJailDuration(ctx),
-		SlashFractionDoubleSign: k.SlashFractionDoubleSign(ctx),
-		SlashFractionDowntime:   k.SlashFractionDowntime(ctx),
-		ServicerCountLock:       k.ServicerCountLock(ctx),
-		BurnActive:              k.BurnActive(ctx),
-		MinPauseTime:            k.MinPauseTime(ctx),
-		MaxFishermen:            k.MaxFishermen(ctx),
-		FishermenCount:          k.FishermenCount(ctx),
-		SlashFractionNoActivity: k.SlashFractionNoActivity(ctx),
-		LatencyScoreWeight:      k.LatencyScoreWeight(ctx),
-		AvailabilityScoreWeight: k.AvailabilityScoreWeight(ctx),
-		ReliabilityScoreWeight:  k.ReliabilityScoreWeight(ctx),
-		SlashFractionFisherman:  k.SlashFractionFisherman(ctx),
+		TokenRewardFactor:                  k.TokenRewardFactor(ctx).Int64(),
+		UnstakingTime:                      k.UnStakingTime(ctx),
+		MaxValidators:                      k.MaxValidators(ctx),
+		StakeDenom:                         k.StakeDenom(ctx),
+		StakeMinimum:                       k.MinimumStake(ctx),
+		SessionBlockFrequency:              k.BlocksPerSession(ctx),
+		DAOAllocation:                      k.DAOAllocation(ctx),
+		RequestorAllocation:                k.RequestorAllocation(ctx),
+		ProposerAllocation:                 k.ProposerAllocation(ctx),
+		FishermenAllocation:                k.FishermenAllocation(ctx),
+		MaximumChains:                      k.MaxChains(ctx),
+		MaxJailedBlocks:                    k.MaxJailedBlocks(ctx),
+		MaxEvidenceAge:                     k.MaxEvidenceAge(ctx),
+		SignedBlocksWindow:                 k.SignedBlocksWindow(ctx),
+		MinSignedPerWindow:                 sdk.NewDec(k.MinSignedPerWindow(ctx)),
+		DowntimeJailDuration:               k.DowntimeJailDuration(ctx),
+		SlashFractionDoubleSign:            k.SlashFractionDoubleSign(ctx),
+		SlashFractionDowntime:              k.SlashFractionDowntime(ctx),
+		ServicerCountLock:                  k.ServicerCountLock(ctx),
+		BurnActive:                         k.BurnActive(ctx),
+		MinPauseTime:                       k.MinPauseTime(ctx),
+		MaxFishermen:                       k.MaxFishermen(ctx),
+		FishermenCount:                     k.FishermenCount(ctx),
+		SlashFractionNoActivity:            k.SlashFractionNoActivity(ctx),
+		LatencyScoreWeight:                 k.LatencyScoreWeight(ctx),
+		AvailabilityScoreWeight:            k.AvailabilityScoreWeight(ctx),
+		ReliabilityScoreWeight:             k.ReliabilityScoreWeight(ctx),
+		SlashFractionFisherman:             k.SlashFractionFisherman(ctx),
+		MaxFreeTierRelaysPerSession:        k.MaxFreeTierRelaysPerSession(ctx),
+		RelaysToTokensChainMultiplierMap:   k.RelaysToTokensChainMultiplierMap(ctx),
+		RelaysToTokensGeoZoneMultiplierMap: k.RelaysToTokensGeoZoneMultiplierMap(ctx),
 	}
 }
 

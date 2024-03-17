@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -71,7 +72,7 @@ type evidence struct {
 }
 
 func (e Evidence) LegacyAminoMarshal() ([]byte, error) {
-	encodedBloom, err := e.Bloom.GobEncode()
+	encodedBloom, err := json.Marshal(e.Bloom)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +93,7 @@ func (e Evidence) LegacyAminoUnmarshal(b []byte) (CacheObject, error) {
 		return Evidence{}, fmt.Errorf("could not unmarshal into evidence from cache, moduleCdc unmarshal binary bare: %s", err.Error())
 	}
 	bloomFilter := bloom.BloomFilter{}
-	err = bloomFilter.GobDecode(ep.BloomBytes)
+	err = json.Unmarshal(ep.BloomBytes, &bloomFilter)
 	if err != nil {
 		return Evidence{}, fmt.Errorf("could not unmarshal into evidence from cache, bloom bytes gob decode: %s", err.Error())
 	}
@@ -165,7 +166,7 @@ func (e *Evidence) Unmarshal(data []byte) error {
 }
 
 func (e *Evidence) ToProto() (*ProtoEvidence, error) {
-	encodedBloom, err := e.Bloom.GobEncode()
+	encodedBloom, err := json.Marshal(e.Bloom)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +181,7 @@ func (e *Evidence) ToProto() (*ProtoEvidence, error) {
 
 func (pe *ProtoEvidence) FromProto() (Evidence, error) {
 	bloomFilter := bloom.BloomFilter{}
-	err := bloomFilter.GobDecode(pe.BloomBytes)
+	err := json.Unmarshal(pe.BloomBytes, &bloomFilter)
 	if err != nil {
 		return Evidence{}, fmt.Errorf("could not unmarshal into ProtoEvidence from cache, bloom bytes gob decode: %s", err.Error())
 	}

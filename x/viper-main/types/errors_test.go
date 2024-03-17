@@ -21,7 +21,7 @@ func TestNewEmptyMerkleTreeError(t *testing.T) {
 }
 
 func TestNewInvalidMerkleVerifyError(t *testing.T) {
-	assert.Equal(t, NewInvalidMerkleVerifyError(ModuleName), sdk.NewError(ModuleName, CodeInvalidMerkleVerifyError, InvalidMerkleVerifyError.Error()))
+	assert.Equal(t, NewInvalidClaimMerkleVerifyError(ModuleName), sdk.NewError(ModuleName, CodeInvalidClaimMerkleVerifyError, InvalidClaimMerkleVerifyError.Error()))
 }
 
 func TestClaimNotFoundError(t *testing.T) {

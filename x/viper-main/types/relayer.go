@@ -95,6 +95,8 @@ func GenerateProofBytes(proof *RelayProof) ([]byte, error) {
 		Blockchain:         proof.Blockchain,
 		Token:              token,
 		Signature:          "",
+		GeoZone:            proof.GeoZone,
+		NumServicers:       proof.NumServicers,
 	}
 
 	marshaledProof, err := json.Marshal(proofMap)

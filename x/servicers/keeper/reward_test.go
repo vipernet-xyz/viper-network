@@ -157,9 +157,9 @@ func TestBurn(t *testing.T) {
 						assert.Contains(t, err.Error(), test.expected, "error does not match")
 					}
 				}()
-				_, _ = keeper.burn(ctx, test.amount, test.requestor)
+				_, _ = keeper.burn(ctx, test.amount, test.requestor, 5)
 			default:
-				result, err := keeper.burn(ctx, test.amount, test.requestor)
+				result, err := keeper.burn(ctx, test.amount, test.requestor, 5)
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
@@ -278,7 +278,7 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 	availabilityScore := sdk.NewDecWithPrec(7, 1)
 	reliabilityScore := sdk.NewDecWithPrec(9, 1)
 
-	reportCard := viperTypes.MsgSubmitReportCard{
+	reportCard := viperTypes.MsgSubmitQoSReport{
 		Report: viperTypes.ViperQoSReport{
 			LatencyScore:      latencyScore,
 			AvailabilityScore: availabilityScore,
@@ -311,7 +311,6 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 			// Reward for relays with output
 			relays := sdk.NewInt(10000)
 			k.RewardForRelays(ctx, reportCard, relays, tt.args.validator, p)
-
 			// Check the rewards
 			acc := k.GetAccount(ctx, tt.args.Output)
 			assert.False(t, acc.Coins.IsZero())

@@ -470,7 +470,7 @@ func (app ViperCoreApp) QueryViperSupportedGeoZones(height int64) (res []string,
 	return sb, nil
 }
 
-func (app ViperCoreApp) QueryClaim(address, requestorPubkey, chain, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
+func (app ViperCoreApp) QueryClaim(address, requestorPubkey, chain string, geoZone string, numServicers int64, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgClaim, err error) {
 	a, err := sdk.AddressFromHex(address)
 	if err != nil {
 		return nil, err
@@ -478,6 +478,8 @@ func (app ViperCoreApp) QueryClaim(address, requestorPubkey, chain, evidenceType
 	header := viperTypes.SessionHeader{
 		RequestorPubKey:    requestorPubkey,
 		Chain:              chain,
+		GeoZone:            geoZone,
+		NumServicers:       numServicers,
 		SessionBlockHeight: sessionBlockHeight,
 	}
 	err = header.ValidateHeader()
@@ -520,6 +522,64 @@ func (app ViperCoreApp) QueryClaims(address string, height int64, page, perPage 
 		claims = app.viperKeeper.GetAllClaims(ctx)
 	}
 	p, err := paginate(page, perPage, claims, 10000)
+	if err != nil {
+		return Page{}, err
+	}
+	return p, nil
+}
+
+func (app ViperCoreApp) QueryReportCard(address, requestorPubkey, chain string, geoZone string, numServicers int64, evidenceType string, sessionBlockHeight int64, height int64) (res *viperTypes.MsgSubmitQoSReport, err error) {
+	a, err := sdk.AddressFromHex(address)
+	if err != nil {
+		return nil, err
+	}
+	header := viperTypes.SessionHeader{
+		RequestorPubKey:    requestorPubkey,
+		Chain:              chain,
+		GeoZone:            geoZone,
+		NumServicers:       numServicers,
+		SessionBlockHeight: sessionBlockHeight,
+	}
+	err = header.ValidateHeader()
+	if err != nil {
+		return nil, err
+	}
+	et, err := viperTypes.EvidenceTypeFromString(evidenceType)
+	if err != nil {
+		return nil, err
+	}
+	ctx, err := app.NewContext(height)
+	if err != nil {
+		return
+	}
+	report, found := app.viperKeeper.GetReportCard(ctx, a, header, et)
+	if !found {
+		return nil, viperTypes.NewReportCardNotFoundError(viperTypes.ModuleName)
+	}
+	return &report, nil
+}
+
+func (app ViperCoreApp) QueryReportCards(address string, height int64, page, perPage int) (res Page, err error) {
+	var a sdk.Address
+	var reports []viperTypes.MsgSubmitQoSReport
+	ctx, err := app.NewContext(height)
+	page, perPage = checkPagination(page, perPage)
+	if err != nil {
+		return
+	}
+	if address != "" {
+		a, err = sdk.AddressFromHex(address)
+		if err != nil {
+			return Page{}, err
+		}
+		reports, err = app.viperKeeper.GetReportCards(ctx, a)
+		if err != nil {
+			return Page{}, err
+		}
+	} else {
+		reports = app.viperKeeper.GetAllReportCards(ctx)
+	}
+	p, err := paginate(page, perPage, reports, 10000)
 	if err != nil {
 		return Page{}, err
 	}

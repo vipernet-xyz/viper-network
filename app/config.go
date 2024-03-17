@@ -125,7 +125,7 @@ func InitApp(datadir, tmNode, persistentPeers, seeds, remoteCLIURL string, keyba
 	}
 	// init key files
 	InitKeyfiles(logger)
-	// init configs & evidence/session caches
+	// init configs & evidence/result/session caches
 	InitViperCoreConfig(chains, geoZone, logger)
 	// init genesis
 	InitGenesis(genesisType, logger)
