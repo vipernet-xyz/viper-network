@@ -33,11 +33,8 @@ func (k Keeper) SlashFisherman(ctx sdk.Ctx, height int64, address sdk.Address) {
 	// Burn the calculated amount from the fisherman's stake
 	k.slash(ctx, address, height, val.ConsensusPower(), fraction)
 
-	// Jail the fisherman
-	//k.JailValidator(ctx, address)
-
 	// Log the slashing event
-	ctx.Logger().Info(fmt.Sprintf("Fisherman %s slashed for submitting invalid report card. Burned and jailed.", address.String()))
+	ctx.Logger().Info(fmt.Sprintf("Fisherman %s slashed for submitting invalid report card, Burned.", address.String()))
 }
 
 func (k Keeper) BurnforNoActivity(ctx sdk.Ctx, height int64, addr sdk.Address) {
@@ -306,6 +303,17 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 
 	if validator.Paused {
 		signInfo.PausedUntil = ctx.BlockHeader().Time.Add(MinPauseDuration)
+	}
+	maxMissedReportCards := k.MaxMissedReportCards(ctx)
+	if signInfo.MissedReportCardCounter > maxMissedReportCards {
+		// reset the missed report card
+		signInfo.ResetMissedReportCard()
+		// clear the reportcard missed at
+		k.ClearReportCardMissed(ctx, addr)
+		// Jail the validator
+		k.JailValidator(ctx, addr)
+		// set the jail time duration
+		signInfo.JailedUntil = ctx.BlockHeader().Time.Add(downtimeJailDuration)
 	}
 	// Set the updated signing info
 	k.SetValidatorSigningInfo(ctx, addr, signInfo)

@@ -109,7 +109,7 @@ func (a AAT) ValidateSignature() error {
 	// check for valid signature
 	messageHash := a.HashString()
 	// verifies the signature with the message of the AAT
-	if err := SignatureVerification(a.RequestorPublicKey, messageHash, a.RequestorSignature); err != nil {
+	if err := SignatureVerification(a.ClientPublicKey, messageHash, a.RequestorSignature); err != nil {
 		return InvalidTokenSignatureErorr
 	}
 	return nil

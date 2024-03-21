@@ -71,12 +71,16 @@ func (r *Relayer) validateRelayRequest(input *Input) error {
 	return nil
 }
 
-func (r *Relayer) getSignedProofBytes(proof *RelayProof) (string, error) {
+func (r *Relayer) getSignedProofBytes(proof *RelayProof, acc Account) (string, error) {
 	proofBytes, err := GenerateProofBytes(proof)
 	if err != nil {
 		return "", err
 	}
-
+	r.signer = Signer{
+		address:    acc.Address,
+		publicKey:  acc.PublicKey,
+		privateKey: acc.PrivateKey,
+	}
 	return r.signer.Sign(proofBytes)
 }
 

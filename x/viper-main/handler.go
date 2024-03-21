@@ -87,7 +87,6 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 		return err.Result()
 	}
 	if err != nil && errorType == 2 {
-		k.HandleFishermanSlash(ctx, claim.SessionHeader, ctx.BlockHeight())
 		var report types.ViperQoSReport
 		report.LatencyScore = sdk.NewDec(1)
 		report.AvailabilityScore = sdk.NewDec(1)
@@ -99,11 +98,13 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 		qos.Report = report
 		qos.EvidenceType = types.FishermanTestEvidence
 		// Set report card with max score of 1
+
 		k.SetReportCard(ctx, qos)
-		tokens, _, err := k.ExecuteProof(ctx, proof, reportCard, claim)
+		tokens, _, err := k.ExecuteProof(ctx, proof, qos, claim)
 		if err != nil {
 			return err.Result()
 		}
+		k.HandleFishermanSlash(ctx, claim.SessionHeader, ctx.BlockHeight())
 		processSelf(ctx, proof.GetSigners()[0], claim.SessionHeader, claim.EvidenceType, tokens)
 		ctx.EventManager().EmitEvents(sdk.Events{
 			sdk.NewEvent(
@@ -121,6 +122,7 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 
 	// delete local evidence
 	processSelf(ctx, proof.GetSigners()[0], claim.SessionHeader, claim.EvidenceType, tokens)
+
 	// create the event
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(

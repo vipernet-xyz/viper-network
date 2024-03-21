@@ -19,7 +19,7 @@ const (
 	DefaultMaxEvidenceAge                    = 60 * 2 * time.Second
 	DefaultSignedBlocksWindow                = int64(10)
 	DefaultDowntimeJailDuration              = 60 * 60 * time.Second
-	DefaultSessionBlocktime                  = 4
+	DefaultSessionBlocktime                  = 2 //change back
 	DefaultProposerAllocation                = 5
 	DefaultDAOAllocation                     = 10
 	DefaultRequestorAllocation               = 5
@@ -32,6 +32,7 @@ const (
 	DefaultMaxFishermen                      = int64(5)
 	DefaultFishermenCount                    = int64(1)
 	DefaultMaxFreeTierRelaysPerSession       = int64(5000)
+	DefaultMaxMissedReportCards              = int64(3)
 )
 
 // POS params non-const default values
@@ -82,6 +83,7 @@ var (
 	KeySlashFractionFisherman             = []byte("SlashFractionFisherman")
 	DefaultSlashFractionFisherman         = sdk.NewDec(2).Quo(sdk.NewDec(100))
 	KeyMaxFreeTierRelaysPerSession        = []byte("MaxFreeTierRelaysPerSession")
+	KeyMaxMissedReportCards               = []byte("MaxMissedReportCards")
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -119,6 +121,7 @@ type Params struct {
 	ReliabilityScoreWeight             sdk.BigDec       `json:"reliability_score_weight" yaml:"reliability_score_weight"`
 	SlashFractionFisherman             sdk.BigDec       `json:"slash_fraction_fisherman" yaml:"slash_fraction_fisherman"`
 	MaxFreeTierRelaysPerSession        int64            `json:"maximum_free_tier_relays_per_session"`
+	MaxMissedReportCards               int64            `json:"maximum_missed_report_cards" yaml:"maximum_missed_report_cards"`
 }
 
 // Implements sdk.ParamSet
@@ -154,7 +157,8 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeySlashFractionFisherman, Value: &p.SlashFractionFisherman},
 		{Key: KeyRelaysToTokensChainMultiplierMap, Value: &p.RelaysToTokensChainMultiplierMap},
 		{Key: KeyRelaysToTokensGeoZoneMultiplierMap, Value: &p.RelaysToTokensGeoZoneMultiplierMap},
-		{Key: KeyMaxFreeTierRelaysPerSession, Value: p.MaxFreeTierRelaysPerSession},
+		{Key: KeyMaxFreeTierRelaysPerSession, Value: &p.MaxFreeTierRelaysPerSession},
+		{Key: KeyMaxMissedReportCards, Value: &p.MaxMissedReportCards},
 	}
 }
 
@@ -191,6 +195,7 @@ func DefaultParams() Params {
 		RelaysToTokensChainMultiplierMap:   DefaultRelaysToTokensChainMultiplierMap,
 		RelaysToTokensGeoZoneMultiplierMap: DefaultRelaysToTokensGeoZoneMultiplierMap,
 		MaxFreeTierRelaysPerSession:        DefaultMaxFreeTierRelaysPerSession,
+		MaxMissedReportCards:               DefaultMaxMissedReportCards,
 	}
 }
 
@@ -235,6 +240,9 @@ func (p Params) Validate() error {
 	if p.MaxFreeTierRelaysPerSession < 0 {
 		return fmt.Errorf("invalid max free tier relays per session, must be above 0")
 	}
+	if p.MaxMissedReportCards < 0 {
+		return fmt.Errorf("invalid max missed report cards, must be above 0")
+	}
 	return nil
 }
 
@@ -273,7 +281,8 @@ func (p Params) String() string {
   AvailabilityScoreWeight  %s
   ReliabilityScoreWeight   %s
   SlashFractionFisherman   %s
-  MaxFreeTierRelaysPerSession  %d`,
+  MaxFreeTierRelaysPerSession  %d
+  MaxMissedReportCards      %d`,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -301,5 +310,6 @@ func (p Params) String() string {
 		p.AvailabilityScoreWeight,
 		p.ReliabilityScoreWeight,
 		p.SlashFractionFisherman,
-		p.MaxFreeTierRelaysPerSession)
+		p.MaxFreeTierRelaysPerSession,
+		p.MaxMissedReportCards)
 }

@@ -15,3 +15,7 @@ func (i *ValidatorSigningInfo) ResetSigningInfo() {
 	i.MissedBlocksCounter = 0
 	i.Index = 0
 }
+
+func (i *ValidatorSigningInfo) ResetMissedReportCard() {
+	i.MissedReportCardCounter = 0
+}

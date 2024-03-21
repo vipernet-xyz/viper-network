@@ -264,6 +264,11 @@ func (k Keeper) MaxFreeTierRelaysPerSession(ctx sdk.Ctx) (res int64) {
 	return
 }
 
+func (k Keeper) MaxMissedReportCards(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMaxMissedReportCards, &res)
+	return
+}
+
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -298,6 +303,7 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		MaxFreeTierRelaysPerSession:        k.MaxFreeTierRelaysPerSession(ctx),
 		RelaysToTokensChainMultiplierMap:   k.RelaysToTokensChainMultiplierMap(ctx),
 		RelaysToTokensGeoZoneMultiplierMap: k.RelaysToTokensGeoZoneMultiplierMap(ctx),
+		MaxMissedReportCards:               k.MaxMissedReportCards(ctx),
 	}
 }
 

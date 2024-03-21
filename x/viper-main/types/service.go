@@ -516,7 +516,6 @@ func (r Relay) ExecuteWebSocket(hostedBlockchains *HostedBlockchains, address *s
 	// Execute the WebSocket request asynchronously
 	go func() {
 		defer close(resChan)
-
 		// Use the gorilla websocket Dialer
 		dialer := websocket.Dialer{}
 		conn, _, err := dialer.Dial(url, nil)

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"math/big"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
@@ -11,13 +12,13 @@ import (
 	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
-func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSReport, relays sdk.BigInt, address sdk.Address, requestor requestorsTypes.Requestor) sdk.BigInt {
-	validator, found := k.GetValidator(ctx, address)
+func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSReport, relays sdk.BigInt, requestor requestorsTypes.Requestor) sdk.BigInt {
+	validator, found := k.GetValidator(ctx, reportCard.ServicerAddress)
 	if !found {
-		ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", address.String(), ctx.BlockHeight()).Error())
+		ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", reportCard.ServicerAddress.String(), ctx.BlockHeight()).Error())
 		return sdk.ZeroInt()
 	}
-	address, found = k.GetValidatorOutputAddress(ctx, address)
+	address, found := k.GetValidatorOutputAddress(ctx, reportCard.ServicerAddress)
 	if !found {
 		k.Logger(ctx).Error(fmt.Sprintf("no validator found for address %s; unable to mint the relay reward...", address.String()))
 		return sdk.ZeroInt()
@@ -39,7 +40,7 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSR
 	chainMultiplier := k.GetChainSpecificMultiplier(ctx, reportCard.SessionHeader.Chain)
 	geozoneMultiplier := k.GetChainSpecificMultiplier(ctx, validator.GeoZone[0])
 	tr := k.TokenRewardFactor(ctx)
-	r := relays
+	r := relays.Sub(sdk.NewIntFromBigInt(Int64ToBigInt(reportCard.NumOfTestResults)))
 	score := sdk.NewIntFromBigInt(totalScore)
 	coins := tr.Mul(chainMultiplier).Mul(geozoneMultiplier).Mul(r).Mul(score)
 
@@ -57,10 +58,18 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSR
 		if toRequestor.IsPositive() {
 			k.mint(ctx, toRequestor, daoAcc.GetAddress())
 		}
-		toFishermen := k.FishermenReward(ctx, coins)
-		if toFishermen.IsPositive() {
-			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
+		if reportCard.FishermanAddress != nil {
+			toFishermen := k.FishermenReward(ctx, coins)
+			if toFishermen.IsPositive() {
+				k.mint(ctx, toFishermen, reportCard.FishermanAddress)
+			}
+		} else {
+			toFishermen := k.FishermenReward(ctx, coins)
+			if toFishermen.IsPositive() {
+				k.mint(ctx, toFishermen, daoAcc.GetAddress())
+			}
 		}
+
 		maxFreeTierRelays := sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
 		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
 			k.burn(ctx, coins, requestor, reportCard.SessionHeader.NumServicers)
@@ -78,9 +87,17 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSR
 		if toRequestor.IsPositive() {
 			k.mint(ctx, toRequestor, requestor.Address)
 		}
-		toFishermen := k.FishermenReward(ctx, coins)
-		if toFishermen.IsPositive() {
-			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
+		daoAcc := k.AccountKeeper.GetModuleAccount(ctx, governanceTypes.DAOAccountName)
+		if reportCard.FishermanAddress != nil {
+			toFishermen := k.FishermenReward(ctx, coins)
+			if toFishermen.IsPositive() {
+				k.mint(ctx, toFishermen, reportCard.FishermanAddress)
+			}
+		} else {
+			toFishermen := k.FishermenReward(ctx, coins)
+			if toFishermen.IsPositive() {
+				k.mint(ctx, toFishermen, daoAcc.GetAddress())
+			}
 		}
 		maxFreeTierRelays := sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
 
@@ -249,4 +266,10 @@ func MaxPossibleRelays(app requestorexported.RequestorI, sessionNodeCount int64)
 	//GetMaxRelays Max value is bound to math.MaxUint64,
 	//current worse case is 1 chain and 5 nodes per session with a result of 3689348814741910323 which can be used safely as int64
 	return app.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(app.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
+}
+
+func Int64ToBigInt(n int64) *big.Int {
+	result := new(big.Int)
+	result.SetInt64(n)
+	return result
 }

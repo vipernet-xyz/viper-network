@@ -310,7 +310,7 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 
 			// Reward for relays with output
 			relays := sdk.NewInt(10000)
-			k.RewardForRelays(ctx, reportCard, relays, tt.args.validator, p)
+			k.RewardForRelays(ctx, reportCard, relays, p)
 			// Check the rewards
 			acc := k.GetAccount(ctx, tt.args.Output)
 			assert.False(t, acc.Coins.IsZero())
@@ -321,7 +321,7 @@ func TestKeeper_rewardFromRelays(t *testing.T) {
 			assert.True(t, acc.Coins.IsZero())
 
 			// Reward for relays without output
-			k.RewardForRelays(ctx, reportCard, relays, tt.args.validatorNoOutput, p)
+			k.RewardForRelays(ctx, reportCard, relays, p)
 
 			// Check the rewards
 			acc = k.GetAccount(ctx, tt.args.OutputNoOutput)

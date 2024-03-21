@@ -77,7 +77,7 @@ func newDefaultGenesisState() []byte {
 		PublicKey:               cb.PublicKey,
 		Jailed:                  false,
 		Status:                  2,
-		Chains:                  []string{sdk.PlaceholderHash},
+		Chains:                  []string{sdk.PlaceholderHash, "0002"}, //change back
 		GeoZones:                []string{sdk.PlaceholderHash},
 		StakedTokens:            sdk.NewInt(10000000000000),
 		MaxRelays:               sdk.NewInt(10000000000000),
@@ -102,8 +102,8 @@ func newDefaultGenesisState() []byte {
 			Jailed:                  false,
 			Paused:                  false,
 			Status:                  sdk.Staked,
-			Chains:                  []string{sdk.PlaceholderHash},
-			ServiceURL:              sdk.PlaceholderServiceURL,
+			Chains:                  []string{sdk.PlaceholderHash, "0002"}, //change back
+			ServiceURL:              sdk.PlaceholderURL,
 			StakedTokens:            sdk.NewInt(10000000000000),
 			GeoZone:                 []string{sdk.PlaceholderHash},
 			UnstakingCompletionTime: time.Time{},

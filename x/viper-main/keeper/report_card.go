@@ -27,6 +27,8 @@ func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, no
 	sessionServicerResults := make(map[vc.SessionHeader]map[string]*vc.ServicerResults)
 	// Map to store merkle roots for each servicer
 	merkleroot := make(map[string]vc.HashRange)
+
+	mProof_Leaf := make(map[string]vc.MProof_Leaf)
 	// Iterate over test results and group them by session header and servicer address
 	for ; iter.Valid(); iter.Next() {
 		// Get the result
@@ -62,6 +64,23 @@ func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, no
 			}
 			continue
 		}
+
+		// Get the Merkle proof object for the report card
+		index, err := k.getPseudorandomIndexForRC(ctx, result.NumOfTestResults, sessionHeader, sessionCtx)
+		if err != nil {
+			ctx.Logger().Error(err.Error())
+			continue
+		}
+		// Generate the Merkle proof object for the index
+		mProof, leaf := result.GenerateMerkleProof(sessionHeader.SessionBlockHeight, int(index))
+
+		mProofLeaf := vc.MProof_Leaf{
+			MerkleProof: mProof,
+			Leaf:        leaf.ToProto(),
+			NumOfTests:  result.NumOfTestResults,
+		}
+
+		mProof_Leaf[servicerAddr] = mProofLeaf
 
 		// Check the current state to see if the report card has already been sent and processed (if so, then return)
 		if _, found := k.GetReportCard(ctx, result.ServicerAddr, result.SessionHeader, result.EvidenceType); found {
@@ -144,18 +163,15 @@ func (k Keeper) SendReportCardTx(ctx sdk.Ctx, keeper Keeper, n client.Client, no
 			}
 			qosReport.Signature = signature
 
-			// Get the Merkle proof object for the report card
-			reportMProof, reportLeaf, numOfTestResults, err := k.validateReportCardAgainstRoot(ctx, *qosReport, sessionHeader)
-			if err != nil {
-				ctx.Logger().Error(fmt.Sprintf("could not validate reportcard againts root:%s", err))
-			}
-
 			// Generate the auto tx builder and cli ctx
 			txBuilder, cliCtx, err := newTxBuilderAndCliCtx(ctx, &vc.MsgSubmitQoSReport{}, n, node.PrivateKey, k)
 			if err != nil {
 				ctx.Logger().Error(fmt.Sprintf("An error occurred creating the tx builder for the report card tx:\n%s", err.Error()))
 				continue
 			}
+			reportMProof := mProof_Leaf[servicerAddr].MerkleProof
+			reportLeaf := mProof_Leaf[servicerAddr].Leaf
+			numOfTestResults := mProof_Leaf[servicerAddr].NumOfTests
 
 			// Send in the report card
 			if _, err := reportCardTx(node.PrivateKey, cliCtx, txBuilder, sessionHeader, sr.ServicerAddress, *qosReport, reportMProof, reportLeaf, numOfTestResults, vc.FishermanTestEvidence); err != nil {
@@ -180,13 +196,7 @@ func (k Keeper) ValidateSumbitReportCard(ctx sdk.Ctx, submitReportcard vc.MsgSub
 	if ctx.BlockHeight() <= sessionEndHeight {
 		return vc.NewInvalidBlockHeightError(vc.ModuleName)
 	}
-	node := vc.GetViperNode()
-	result, er := vc.GetResult(submitReportcard.SessionHeader, submitReportcard.EvidenceType, submitReportcard.ServicerAddress, node.TestStore)
-	if er != nil {
-		ctx.Logger().Error(fmt.Sprintf("An error occurred retrieving the result: \n%s", err.Error()))
-		return
-	}
-	if result.NumOfTestResults < k.MinimumSampleRelays(sessionContext) {
+	if submitReportcard.NumOfTestResults < k.MinimumSampleRelays(sessionContext) {
 		return vc.NewInvalidTestsError(vc.ModuleName)
 	}
 	// if is not a viper supported blockchain then return not supported error
@@ -226,7 +236,7 @@ func (k Keeper) ValidateSumbitReportCard(ctx sdk.Ctx, submitReportcard vc.MsgSub
 		// create a new session to validate
 		session, err = vc.NewSession(sessionContext, sessionEndCtx, k.posKeeper, submitReportcard.SessionHeader, hex.EncodeToString(hash))
 		if err != nil {
-			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %s", app.GetPublicKey().RawString(), &submitReportcard.SessionHeader.Chain).Error())
+			ctx.Logger().Error(fmt.Errorf("could not generate session with public key: %s, for chain: %d", app.GetPublicKey().RawString(), &submitReportcard.SessionHeader.Chain).Error())
 			return err
 		}
 	}
@@ -368,39 +378,6 @@ func (k Keeper) ReportCardIsExpired(ctx sdk.Ctx, sessionBlockHeight int64) bool 
 	return ctx.BlockHeight() > expirationWindowInBlocks+sessionBlockHeight
 }
 
-// Function to validate the report card against the root
-func (k Keeper) validateReportCardAgainstRoot(ctx sdk.Ctx, reportCard vc.ViperQoSReport, sessionHeader vc.SessionHeader) (vc.MerkleProof, vc.TestI, int64, error) {
-
-	node := vc.GetViperNode()
-
-	sessionCtx, _ := ctx.PrevCtx(sessionHeader.SessionBlockHeight)
-	// Retrieve the evidence object
-	result, err := vc.GetResult(sessionHeader, vc.FishermanTestEvidence, reportCard.ServicerAddress, node.TestStore)
-	if err != nil {
-		return vc.MerkleProof{}, vc.TestI{}, 0, err
-	}
-	// Get the Merkle proof object for the report card
-	index, err := k.getPseudorandomIndexForRC(ctx, result.NumOfTestResults, sessionHeader, sessionCtx)
-	if err != nil {
-		return vc.MerkleProof{}, vc.TestI{}, 0, err
-	}
-
-	// Generate the Merkle proof object for the index
-	mProof, leaf := result.GenerateMerkleProof(sessionHeader.SessionBlockHeight, int(index))
-
-	// Validate the Merkle proof
-	levelCount := len(mProof.HashRanges)
-	if levelCount != int(math.Ceil(math.Log2(float64(result.NumOfTestResults)))) {
-
-		return vc.MerkleProof{}, vc.TestI{}, 0, err
-	}
-	if isValid, _ := mProof.ValidateTR(sessionHeader.SessionBlockHeight, reportCard.SampleRoot, leaf, levelCount); !isValid {
-		return vc.MerkleProof{}, vc.TestI{}, 0, err
-	}
-
-	return mProof, leaf.ToProto(), result.NumOfTestResults, nil
-}
-
 func (k Keeper) HandleFishermanSlash(ctx sdk.Ctx, sessionHeader vc.SessionHeader, height int64) {
 	node := vc.GetViperNode()
 	session, found := vc.GetSession(sessionHeader, node.SessionStore)
@@ -421,13 +398,20 @@ func (k Keeper) HandleFishermanSlash(ctx sdk.Ctx, sessionHeader vc.SessionHeader
 			return
 		}
 		k.posKeeper.SlashFisherman(ctx, height, session.SessionFishermen[0])
+		signInfo, _ := k.posKeeper.GetValidatorSigningInfo(ctx, session.SessionFishermen[0])
+		signInfo.MissedReportCardCounter++
+		k.posKeeper.SetReportCardMissedAt(ctx, session.SessionFishermen[0], signInfo.Index, true)
 	}
 	k.posKeeper.SlashFisherman(ctx, height, session.SessionFishermen[0])
+	signInfo, _ := k.posKeeper.GetValidatorSigningInfo(ctx, session.SessionFishermen[0])
+	signInfo.MissedReportCardCounter++
+	k.posKeeper.SetReportCardMissedAt(ctx, session.SessionFishermen[0], signInfo.Index, true)
 }
 
-func (k Keeper) GetMatureReportCards(ctx sdk.Ctx, address sdk.Address) (matureReportCards []vc.MsgSubmitQoSReport, err error) {
+func (k Keeper) GetSubmittedReportCards(ctx sdk.Ctx, address sdk.Address) (submittedReportCards []vc.MsgSubmitQoSReport, err error) {
 	// retrieve the store
 	store := ctx.KVStore(k.storeKey)
+
 	// generate the key for the claim
 	key, err := vc.KeyForReportCards(address)
 	if err != nil {
@@ -441,17 +425,10 @@ func (k Keeper) GetMatureReportCards(ctx sdk.Ctx, address sdk.Address) (matureRe
 		if err != nil {
 			panic(err)
 		}
-		matureReportCards = append(matureReportCards, msg)
-		if k.ReportCardIsMature(ctx, msg.SessionHeader.SessionBlockHeight) {
-			matureReportCards = append(matureReportCards, msg)
-		}
+		submittedReportCards = append(submittedReportCards, msg)
+
 	}
 	return
-}
-
-func (k Keeper) ReportCardIsMature(ctx sdk.Ctx, sessionBlockHeight int64) bool {
-	waitingPeriodInBlocks := k.ReportCardSubmissionWindow(ctx) * k.BlocksPerSession(ctx)
-	return ctx.BlockHeight() > waitingPeriodInBlocks+sessionBlockHeight
 }
 
 // generates the required pseudorandom index for the zero knowledge proof

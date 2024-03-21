@@ -67,7 +67,7 @@ func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger 
 		NumServicers:       trigger.Proof.NumServicers,
 		Token:              trigger.Proof.Token,
 		Signature:          "",
-	})
+	}, trigger.Account)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger 
 	}
 
 	// Send the relay to the servicer and measure its latency
-	relayOutput, _ := r.sender.Relay(servicer.GetServiceURL(), &relay)
+	relayOutput, err := r.sender.Relay(servicer.GetServiceURL(), &relay)
 
 	servicerLatency := time.Since(start)
 
@@ -100,9 +100,17 @@ func (r *Relayer) SendSampleRelay(blockHeight int64, Blockchain string, trigger 
 
 	var localResp string
 
-	if relayOutput.Response == "" {
+	if err != nil {
 		// If no response received, mark latency as timeout latency and availability as false
-		servicerLatency = DefaultRPCTimeout * time.Millisecond
+		servicerLatency = 0
+		return &Output{
+			RelayOutput:  relayOutput,
+			LocalResp:    localResp,
+			Proof:        relay.Proof,
+			Latency:      servicerLatency,
+			Availability: sevicerAvailability,
+			Reliability:  servicerReliability,
+		}, err
 	} else {
 		// Perform local relay only if we receive a non-empty response
 		addr := fishermanValidator.GetAddress()
@@ -184,14 +192,14 @@ func IsUniqueResult(t Test, result Result) bool {
 }
 
 type FishermenTrigger struct {
-	Proof RelayProof
+	Proof   RelayProof
+	Account Account
 }
 
 type V1RPCRoute string
 
 const (
 	ClientRelayRoute V1RPCRoute = "/v1/client/relay"
-	LocalRelayRoute  V1RPCRoute = "/v1/client/localrelay"
 	QueryHeightRoute V1RPCRoute = "/v1/query/height"
 )
 
@@ -213,6 +221,12 @@ type ServicerResults struct {
 	Latencies       []time.Duration
 	Availabilities  []bool
 	Reliabilities   []bool
+}
+
+type MProof_Leaf struct {
+	MerkleProof MerkleProof
+	Leaf        TestI
+	NumOfTests  int64
 }
 
 type RelayHeaders map[string]string

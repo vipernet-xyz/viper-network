@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/rand"
-	"sort"
 	"time"
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
@@ -114,7 +113,7 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 			relayer := vc.NewRelayer(*signer, *sender)
 			startTime := time.Now()
 			Blockchain := trigger.Proof.Blockchain
-			resp, _ := relayer.SendSampleRelay(sessionHeader.SessionBlockHeight, Blockchain, trigger, servicer, fishermanValidator, hostedBlockchains)
+			resp, er := relayer.SendSampleRelay(sessionHeader.SessionBlockHeight, Blockchain, trigger, servicer, fishermanValidator, hostedBlockchains)
 			isAvailable := resp.Availability
 			latency := resp.Latency
 			isReliable := resp.Reliability
@@ -135,6 +134,10 @@ func (k Keeper) StartServicersSampling(ctx sdk.Ctx, trigger vc.FishermenTrigger)
 				IsReliable:      isReliable,
 			}
 
+			if er != nil {
+				testResult.Store(sessionHeader, fisherman.TestStore)
+				break
+			}
 			// Validate the test result before storing
 			if err := testResult.Validate(*resp, sessionHeader, fisherman); err != nil {
 				ctx.Logger().Error(fmt.Sprintf("invalid test result: %s", err.Error()))
@@ -190,21 +193,24 @@ func CalculateLatencyScores(results map[string]*vc.ServicerResults) map[string]s
 	var latencies []sdk.BigDec
 	var servicerAddresses []string
 
+	// Calculate fastest latency
+	var fastestLatency time.Duration
+	var fastestLatencyDec sdk.BigDec
+
 	for servicerAddr, result := range results {
 		if len(result.Latencies) > 0 {
-			// Check if any latency value is nil or zero
-			if hasNilOrZeroValue(result.Latencies) {
-				latencies = append(latencies, sdk.ZeroDec())
-			} else {
-				// Calculate the average latency for each servicer
-				totalLatency := sdk.ZeroDec()
+			// Calculate the average latency for each servicer
+			totalLatency := sdk.ZeroDec()
 
-				for _, latency := range result.Latencies {
-					totalLatency = totalLatency.Add(sdk.NewDec(int64(latency.Milliseconds())))
-				}
+			for _, latency := range result.Latencies {
+				totalLatency = totalLatency.Add(sdk.NewDec(int64(latency.Milliseconds())))
+			}
 
-				averageLatency := totalLatency.Quo(sdk.NewDec(int64(len(result.Latencies))))
-				latencies = append(latencies, averageLatency)
+			averageLatency := totalLatency.Quo(sdk.NewDec(int64(len(result.Latencies))))
+			latencies = append(latencies, averageLatency)
+
+			if fastestLatency == 0 || averageLatency.LT(sdk.NewDec(int64(fastestLatency.Milliseconds()))) {
+				fastestLatencyDec = averageLatency
 			}
 
 			servicerAddresses = append(servicerAddresses, servicerAddr)
@@ -213,61 +219,24 @@ func CalculateLatencyScores(results map[string]*vc.ServicerResults) map[string]s
 		}
 	}
 
-	// Rank servicers by latency (lower latency gets a higher rank)
-	rankedLatencies := rankLatencies(latencies, servicerAddresses)
-
-	// Assign scores based on rankings
-	maxRank := len(rankedLatencies)
-
-	for servicerAddr, rank := range rankedLatencies {
-		if maxRank == 0 {
-			latencyScores[servicerAddr] = sdk.ZeroDec()
-		} else {
-			// Assign scores inversely proportional to rank
-			score := sdk.NewDec(int64(maxRank - rank + 1)).Quo(sdk.NewDec(int64(maxRank)))
-			latencyScores[servicerAddr] = score
-		}
+	// Assign scores based on latency comparison
+	for i, servicerAddr := range servicerAddresses {
+		score := calculateScore(latencies[i], fastestLatencyDec)
+		latencyScores[servicerAddr] = score
 	}
 
 	return latencyScores
 }
 
-// Function to check if Latencies contain a nil or zero value
-func hasNilOrZeroValue(latencies []time.Duration) bool {
-	for _, latency := range latencies {
-		if latency == 0 || latency == 0*time.Second || latencies == nil {
-			return true
-		}
-	}
-	return false
-}
-
-func rankLatencies(latencies []sdk.BigDec, servicerNames []string) map[string]int {
-	ranks := make(map[string]int)
-	servicerRanks := make(map[string]int)
-
-	for i, servicerName := range servicerNames {
-		servicerRanks[servicerName] = i
+// Function to calculate score based on latency comparison
+func calculateScore(avgLatency, fastestLatency sdk.BigDec) sdk.BigDec {
+	// Ensure fastestLatency is non-zero
+	if fastestLatency.IsZero() {
+		return sdk.ZeroDec()
 	}
 
-	sort.Slice(servicerNames, func(i, j int) bool {
-		nameI := servicerNames[i]
-		nameJ := servicerNames[j]
-		rankI, okI := servicerRanks[nameI]
-		rankJ, okJ := servicerRanks[nameJ]
+	// Calculate score based on latency comparison
+	score := fastestLatency.Quo(avgLatency)
 
-		if okI && okJ {
-			return latencies[rankI].LT(latencies[rankJ])
-		} else if okI {
-			return true
-		} else {
-			return false
-		}
-	})
-
-	for i, servicerName := range servicerNames {
-		ranks[servicerName] = i + 1
-	}
-
-	return ranks
+	return score
 }

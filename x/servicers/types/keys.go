@@ -19,22 +19,23 @@ const (
 )
 
 var ( // Keys for store prefixes
-	ProposerKey                     = []byte{0x01} // key for the proposer address used for rewards
-	ValidatorSigningInfoKey         = []byte{0x11} // Prefix for signing info used in slashing
-	ValidatorMissedBlockBitArrayKey = []byte{0x12} // Prefix for missed block bit array used in slashing
-	AllValidatorsKey                = []byte{0x21} // prefix for each key to a validator
-	StakedValidatorsByNetIDKey      = []byte{0x22} // prefix for validators staked by networkID
-	StakedValidatorsByGeoZoneKey    = []byte{0x23} // prefix for validators staked by geoZone
-	StakedValidatorsKey             = []byte{0x24} // prefix for each key to a staked validator index, sorted by power
-	PrevStateValidatorsPowerKey     = []byte{0x31} // prefix for the key to the validators of the prevState state
-	PrevStateTotalPowerKey          = []byte{0x32} // prefix for the total power of the prevState state
-	UnstakingValidatorsKey          = []byte{0x41} // prefix for unstaking validator
-	AwardValidatorKey               = []byte{0x51} // prefix for awarding validators
-	BurnValidatorKey                = []byte{0x52} // prefix for burning validators
-	WaitingToBeginUnstakingKey      = []byte{0x43} // prefix for waiting validators
-	HistoricalInfoKey               = []byte{0x50} // prefix for the historical info
-	LastValidatorPowerKey           = []byte{0x11} // prefix for each key to a validator index, for bonded validators
-	ReportCardKey                   = []byte{0x70}
+	ProposerKey                          = []byte{0x01} // key for the proposer address used for rewards
+	ValidatorSigningInfoKey              = []byte{0x11} // Prefix for signing info used in slashing
+	ValidatorMissedBlockBitArrayKey      = []byte{0x12} // Prefix for missed block bit array used in slashing
+	ValidatorMissedReportCardBitArrayKey = []byte{0x13}
+	AllValidatorsKey                     = []byte{0x21} // prefix for each key to a validator
+	StakedValidatorsByNetIDKey           = []byte{0x22} // prefix for validators staked by networkID
+	StakedValidatorsByGeoZoneKey         = []byte{0x23} // prefix for validators staked by geoZone
+	StakedValidatorsKey                  = []byte{0x24} // prefix for each key to a staked validator index, sorted by power
+	PrevStateValidatorsPowerKey          = []byte{0x31} // prefix for the key to the validators of the prevState state
+	PrevStateTotalPowerKey               = []byte{0x32} // prefix for the total power of the prevState state
+	UnstakingValidatorsKey               = []byte{0x41} // prefix for unstaking validator
+	AwardValidatorKey                    = []byte{0x51} // prefix for awarding validators
+	BurnValidatorKey                     = []byte{0x52} // prefix for burning validators
+	WaitingToBeginUnstakingKey           = []byte{0x43} // prefix for waiting validators
+	HistoricalInfoKey                    = []byte{0x50} // prefix for the historical info
+	LastValidatorPowerKey                = []byte{0x11} // prefix for each key to a validator index, for bonded validators
+	ReportCardKey                        = []byte{0x70}
 )
 
 func KeyForValidatorByNetworkID(addr sdk.Address, networkID []byte) []byte {
@@ -153,6 +154,16 @@ func GetValMissedBlockKey(v sdk.Address, i int64) []byte {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, uint64(i))
 	return append(GetValMissedBlockPrefixKey(v), b...)
+}
+
+func GetValMissedReportCardPrefixKey(v sdk.Address) []byte {
+	return append(ValidatorMissedReportCardBitArrayKey, v.Bytes()...)
+}
+
+func GetValMissedReportCardKey(v sdk.Address, i int64) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(i))
+	return append(GetValMissedReportCardPrefixKey(v), b...)
 }
 
 // GetHistoricalInfoKey returns a key prefix for indexing HistoricalInfo objects.

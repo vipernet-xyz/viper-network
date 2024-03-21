@@ -149,3 +149,31 @@ func (k Keeper) IterateAndExecuteOverMissedArray(ctx sdk.Ctx,
 		}
 	}
 }
+
+func (k Keeper) ReportCardMissedAt(ctx sdk.Ctx, addr sdk.Address, index int64) (missed bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz, _ := store.Get(types.GetValMissedReportCardKey(addr, index))
+	if bz == nil { // lazy: treat empty key as not missed
+		missed = false
+		return
+	}
+	b := sdk.Bool(missed)
+	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &b)
+	return bool(b)
+}
+
+func (k Keeper) SetReportCardMissedAt(ctx sdk.Ctx, addr sdk.Address, index int64, missed bool) {
+	store := ctx.KVStore(k.storeKey)
+	b := sdk.Bool(missed)
+	bz, _ := k.Cdc.MarshalBinaryLengthPrefixed(&b)
+	_ = store.Set(types.GetValMissedReportCardKey(addr, index), bz)
+}
+
+func (k Keeper) ClearReportCardMissed(ctx sdk.Ctx, addr sdk.Address) {
+	store := ctx.KVStore(k.storeKey)
+	iter, _ := sdk.KVStorePrefixIterator(store, types.GetValMissedReportCardPrefixKey(addr))
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		_ = store.Delete(iter.Key())
+	}
+}

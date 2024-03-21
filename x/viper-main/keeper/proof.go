@@ -30,26 +30,30 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 		return
 	}
 	// Get all mature report cards for the address
-	reportCards, err := k.GetMatureReportCards(ctx, addr)
+	reportCards, err := k.GetSubmittedReportCards(ctx, addr)
 	if err != nil {
-		ctx.Logger().Error(fmt.Sprintf("an error occurred getting the mature report cards in the Proof Transaction:\n%v", err))
+		ctx.Logger().Error(fmt.Sprintf("an error occurred getting the submitted report cards in the Proof Transaction:\n%v", err))
 		return
 	}
+
 	// Map to store claims and report cards for each session header
 	sessionClaimsReportCards := make(map[vc.SessionHeader][]struct {
 		claim      vc.MsgClaim
 		reportCard vc.MsgSubmitQoSReport
+		found      bool
 	})
 
 	// Group claims and report cards by session header
 	for _, claim := range claims {
+
 		found := false
 		for _, reportCard := range reportCards {
 			if reportCard.SessionHeader.Equal(claim.SessionHeader) {
 				sessionClaimsReportCards[claim.SessionHeader] = append(sessionClaimsReportCards[claim.SessionHeader], struct {
 					claim      vc.MsgClaim
 					reportCard vc.MsgSubmitQoSReport
-				}{claim: claim, reportCard: reportCard})
+					found      bool
+				}{claim: claim, reportCard: reportCard, found: true})
 				found = true
 			}
 		}
@@ -58,7 +62,8 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 			sessionClaimsReportCards[claim.SessionHeader] = append(sessionClaimsReportCards[claim.SessionHeader], struct {
 				claim      vc.MsgClaim
 				reportCard vc.MsgSubmitQoSReport
-			}{claim: claim, reportCard: vc.MsgSubmitQoSReport{}})
+				found      bool
+			}{claim: claim, reportCard: vc.MsgSubmitQoSReport{}, found: false})
 		}
 	}
 
@@ -67,8 +72,8 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 		for _, claimReportCard := range claimsReportCards {
 			claim := claimReportCard.claim
 			reportCard := claimReportCard.reportCard
+			reportFound := claimReportCard.found
 
-			// Retrieve evidence object
 			evidence, err := vc.GetEvidence(sessionHeader, claim.EvidenceType, sdk.ZeroInt(), node.EvidenceStore)
 			if err != nil || evidence.Proofs == nil || len(evidence.Proofs) == 0 {
 				ctx.Logger().Info(fmt.Sprintf("the evidence object for evidence is not found, ignoring pending claim for req: %s, at sessionHeight: %d", claim.SessionHeader.RequestorPubKey, claim.SessionHeader.SessionBlockHeight))
@@ -83,22 +88,22 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 				}
 				continue
 			}
-
-			if !node.EvidenceStore.IsSealed(evidence) {
-				err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType, node.EvidenceStore)
-				ctx.Logger().Error(fmt.Sprintf("evidence is not sealed, could cause a relay leak:"))
-				if err != nil {
-					ctx.Logger().Error(fmt.Sprintf("could not delete evidence is not sealed, could cause a relay leak: %s", err.Error()))
+			/*
+				if !node.EvidenceStore.IsSealed(evidence) {
+					err := vc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType, node.EvidenceStore)
+					ctx.Logger().Error(fmt.Sprintf("evidence is not sealed, could cause a relay leak:"))
+					if err != nil {
+						ctx.Logger().Error(fmt.Sprintf("could not delete evidence is not sealed, could cause a relay leak: %s", err.Error()))
+					}
 				}
-			}
 
-			if evidence.NumOfProofs != claim.TotalProofs {
-				err := vc.DeleteEvidence(sessionHeader, claim.EvidenceType, node.EvidenceStore)
-				ctx.Logger().Error(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak"))
-				if err != nil {
-					ctx.Logger().Error(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak: %s", err.Error()))
-				}
-			}
+				if evidence.NumOfProofs != claim.TotalProofs {
+					err := vc.DeleteEvidence(sessionHeader, claim.EvidenceType, node.EvidenceStore)
+					ctx.Logger().Error(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak"))
+					if err != nil {
+						ctx.Logger().Error(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak: %s", err.Error()))
+					}
+				}*/
 
 			// Validate session context
 			sessionCtx, err := ctx.PrevCtx(sessionHeader.SessionBlockHeight)
@@ -119,9 +124,17 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, node *vc.ViperNode, pr
 			}
 			// Get the Merkle proof object for the claim
 			claimMProof, claimLeaf := evidence.GenerateMerkleProof(sessionHeader.SessionBlockHeight, int(index), vc.MaxPossibleRelays(app, int64(app.GetNumServicers())).Int64())
-			reportMProof := reportCard.MerkleProof
-			reportLeaf := reportCard.Leaf.FromProto()
 
+			var reportMProof vc.MerkleProof
+			var reportLeaf vc.Test
+			if reportFound {
+				reportMProof = reportCard.MerkleProof
+				reportLeaf = reportCard.Leaf.FromProto()
+			} else {
+				// Provide empty structs
+				reportMProof = vc.MerkleProof{}
+				reportLeaf = vc.TestResult{}
+			}
 			// If prevalidation is enabled, validate the Merkle proofs
 			if vc.GlobalViperConfig.ProofPrevalidation {
 				//claim
@@ -289,7 +302,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, reportCard vc.MsgSu
 	switch l.(type) {
 	case vc.RelayProof:
 		ctx.Logger().Info(fmt.Sprintf("reward coins to %s, for %d relays", claim.FromAddress.String(), claim.TotalProofs))
-		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs, claim.FromAddress, requestor)
+		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs, requestor)
 		err := k.DeleteClaim(ctx, claim.FromAddress, claim.SessionHeader, vc.RelayEvidence)
 		updatedReportCard = k.UpdateReportCard(ctx, reportCard.ServicerAddress, reportCard, vc.FishermanTestEvidence)
 		if err != nil {
@@ -312,7 +325,7 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, reportCard vc.MsgSu
 			return sdk.ZeroInt(), servicersTypes.ReportCard{}, sdk.ErrInternal(err.Error())
 		}
 		// small reward for the challenge proof invalid data
-		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs/100, claim.FromAddress, requestor)
+		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs/100, requestor)
 	}
 	return tokens, updatedReportCard, nil
 }

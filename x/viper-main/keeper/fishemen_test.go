@@ -73,13 +73,13 @@ func TestCalculateLatencyScores(t *testing.T) {
 	// Create a sample dataset of servicer results
 	results := map[string]*vc.ServicerResults{
 		"servicerA": {
-			Latencies: []time.Duration{time.Millisecond * 100, time.Millisecond * 200},
+			Latencies: []time.Duration{time.Millisecond * 700, time.Millisecond * 320},
 		},
 		"servicerB": {
-			Latencies: []time.Duration{time.Millisecond * 50, time.Millisecond * 150},
+			Latencies: []time.Duration{time.Millisecond * 90, time.Millisecond * 130},
 		},
 		"servicerC": {
-			Latencies: []time.Duration{time.Millisecond * 10, time.Millisecond * 20},
+			Latencies: []time.Duration{time.Millisecond * 80, time.Millisecond * 110},
 		},
 		"servicerD": {
 			Latencies: []time.Duration{},
@@ -88,7 +88,6 @@ func TestCalculateLatencyScores(t *testing.T) {
 
 	// Calculate latency scores
 	latencyScores := CalculateLatencyScores(results)
-
 	// Assert that the map contains the correct number of scores
 	assert.Equal(t, 4, len(latencyScores))
 	// Test specific scores for each servicer

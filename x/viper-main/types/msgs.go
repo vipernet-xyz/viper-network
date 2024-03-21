@@ -199,20 +199,6 @@ func (msg MsgProof) ValidateBasic() sdk.Error {
 	if _, err := msg.ClaimEvidenceType.Byte(); err != nil {
 		return NewInvalidEvidenceErr(ModuleName)
 	}
-	if len(msg.ReportMerkleProof.HashRanges) < 3 {
-		return NewInvalidLeafCousinProofsComboError(ModuleName)
-	}
-	// validate the target range
-	if !msg.ReportMerkleProof.Target.isValidRange() {
-		return NewInvalidMerkleRangeError(ModuleName)
-	}
-	// validate the leaf
-	if err := msg.ReportLeaf.ValidateBasic(); err != nil {
-		return err
-	}
-	if _, err := msg.ReportEvidenceType.Byte(); err != nil {
-		return NewInvalidEvidenceErr(ModuleName)
-	}
 	return nil
 }
 

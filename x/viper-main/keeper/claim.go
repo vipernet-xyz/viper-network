@@ -91,6 +91,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, node *v
 			ctx.Logger().Error(fmt.Sprintf("an error occured creating the tx builder for the claim tx:\n%s", err.Error()))
 			return
 		}
+
 		// send in the evidence header, the total relays completed, and the merkle root (ensures data integrity)
 		if _, err := claimTx(node.PrivateKey, cliCtx, txBuilder, evidence.SessionHeader, evidence.NumOfProofs, root, evidenceType); err != nil {
 			ctx.Logger().Error(fmt.Sprintf("an error occured executing the claim transaciton: \n%s", err.Error()))
@@ -311,7 +312,6 @@ func (k Keeper) GetMatureClaims(ctx sdk.Ctx, address sdk.Address) (matureProofs 
 		if err != nil {
 			panic(err)
 		}
-		matureProofs = append(matureProofs, msg)
 
 		// if the claim is mature, add it to the list
 		if k.ClaimIsMature(ctx, msg.SessionHeader.SessionBlockHeight) {

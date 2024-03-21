@@ -160,7 +160,6 @@ func (k Keeper) HandleWebsocketRelay(ctx sdk.Ctx, relay vc.Relay) (chan *vc.Rela
 	// Process the relay asynchronously
 	go func() {
 		defer close(resChan)
-
 		// Execute the relay and get the channel for response payloads
 		respChan, err := relay.ExecuteWebSocket(hostedBlockchains, &nodeAddress)
 		if err != nil {
@@ -189,7 +188,7 @@ func (k Keeper) HandleWebsocketRelay(ctx sdk.Ctx, relay vc.Relay) (chan *vc.Rela
 
 			// Attach the signature to the response
 			resp.Signature = hex.EncodeToString(sig)
-
+			relay.Proof.RequestHash = string(resp.Hash())
 			// Store the proof
 			relay.Proof.Store(maxPossibleRelays, node.EvidenceStore)
 
