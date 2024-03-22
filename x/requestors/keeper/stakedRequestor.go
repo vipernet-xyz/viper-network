@@ -15,7 +15,6 @@ func (k Keeper) SetStakedRequestor(ctx sdk.Ctx, requestor types.Requestor) {
 	}
 	store := ctx.KVStore(k.storeKey)
 	_ = store.Set(types.KeyForRequestorInStakingSet(requestor), requestor.Address)
-	ctx.Logger().Info("Setting Requestor on Staking Set " + requestor.Address.String())
 }
 
 // StakeDenom - Retrieve the denomination of coins.
@@ -27,18 +26,19 @@ func (k Keeper) StakeDenom(ctx sdk.Ctx) string {
 func (k Keeper) deleteRequestorFromStakingSet(ctx sdk.Ctx, requestor types.Requestor) {
 	store := ctx.KVStore(k.storeKey)
 	_ = store.Delete(types.KeyForRequestorInStakingSet(requestor))
-	ctx.Logger().Info("Removing Requestor From Staking Set " + requestor.Address.String())
 }
 
-// removeRequestorTokens - Update the staked tokens of an existing requestor, update the requestors power index key
+// RemoveRequestorTokens - Update the staked tokens of an existing requestor, update the requestors power index key
 func (k Keeper) removeRequestorTokens(ctx sdk.Ctx, requestor types.Requestor, tokensToRemove sdk.BigInt) (types.Requestor, error) {
-	ctx.Logger().Info("Removing Requestor Tokens, tokensToRemove: " + tokensToRemove.String() + " Requestor Address: " + requestor.Address.String())
 	k.deleteRequestorFromStakingSet(ctx, requestor)
+	//fmt.Println("deleted")
 	requestor, err := requestor.RemoveStakedTokens(tokensToRemove)
 	if err != nil {
 		return types.Requestor{}, err
 	}
+	requestor.MaxRelays = k.CalculateRequestorRelays(ctx, requestor)
 	k.SetRequestor(ctx, requestor)
+	k.SetStakedRequestor(ctx, requestor)
 	return requestor, nil
 }
 

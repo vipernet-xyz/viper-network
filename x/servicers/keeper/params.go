@@ -116,7 +116,7 @@ func (k Keeper) TokenRewardFactor(ctx sdk.Ctx) sdk.BigInt {
 	return sdk.NewInt(multiplier)
 }
 
-func (k Keeper) NodeReward01(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk.BigInt, feesCollected sdk.BigInt) {
+func (k Keeper) ServicerReward(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk.BigInt, feesCollected sdk.BigInt) {
 	// convert reward to dec
 	r := reward.ToDec()
 	// get the dao, proposer, and fishermen % ex DAO .05 or 5% Proposer .01 or 1%  App .05 or 5% Fishermen .02 or 2%
@@ -125,35 +125,14 @@ func (k Keeper) NodeReward01(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk
 	requestorAllocationPercentage := sdk.NewDec(k.RequestorAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
 	fishermenAllocationPercentage := sdk.NewDec(k.FishermenAllocation(ctx)).QuoInt64(int64(100))
 	// the dao, proposer, and fishermen allocations go to the fee collector
-	daoAllocation := r.Mul(daoAllocationPercentage.Add(requestorAllocationPercentage))
+	daoAllocation := r.Mul(daoAllocationPercentage)
 	proposerAllocation := r.Mul(proposerAllocationPercentage)
+	requestorAllocation := r.Mul(requestorAllocationPercentage).TruncateInt()
 	fishermenAllocation := r.Mul(fishermenAllocationPercentage).TruncateInt()
 	// truncate int ex 1.99 uvipr goes to 1 uvipr
 	feesCollected = daoAllocation.Add(proposerAllocation).TruncateInt()
 	// the rest goes to the servicer
-	servicerReward = reward.Sub(feesCollected).Sub(fishermenAllocation)
-	return
-}
-
-func (k Keeper) NodeReward02(ctx sdk.Ctx, reward sdk.BigInt) (servicerReward sdk.BigInt, feesCollected sdk.BigInt) {
-	// convert reward to dec
-	r := reward.ToDec()
-	// get the dao, proposer, and fishermen % ex DAO .08 or 8% Proposer .01 or 1%  App .02 or 2% Fishermen .01 or 1%
-	daoAllocationPercentage := sdk.NewDec(k.DAOAllocation(ctx)).QuoInt64(int64(100))             // dec percentage
-	proposerAllocationPercentage := sdk.NewDec(k.ProposerAllocation(ctx)).QuoInt64(int64(100))   // dec percentage
-	requestorAllocationPercentage := sdk.NewDec(k.RequestorAllocation(ctx)).QuoInt64(int64(100)) // dec percentage
-	fishermenAllocationPercentage := sdk.NewDec(k.FishermenAllocation(ctx)).QuoInt64(int64(100))
-	// the dao, proposer, and fishermen allocations go to the fee collector
-	daoAllocation := r.Mul(daoAllocationPercentage)
-	proposerAllocation := r.Mul(proposerAllocationPercentage)
-	fishermenAllocation := r.Mul(fishermenAllocationPercentage)
-	// truncate int ex 1.99 uvipr goes to 1 uvipr
-	feesCollected = daoAllocation.Add(proposerAllocation).TruncateInt()
-	//requestorAllocation go to the requestor
-	requestorAllocation := r.Mul(requestorAllocationPercentage)
-	ProvAndFish := requestorAllocation.Add(fishermenAllocation).TruncateInt()
-	// the rest goes to the servicer
-	servicerReward = reward.Sub(feesCollected).Sub(ProvAndFish)
+	servicerReward = reward.Sub(feesCollected).Sub(fishermenAllocation).Sub(requestorAllocation)
 	return
 }
 

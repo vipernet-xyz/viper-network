@@ -13,7 +13,7 @@ import (
 )
 
 type PosKeeper interface {
-	RewardForRelays(ctx sdk.Ctx, reportCard MsgSubmitQoSReport, relays sdk.BigInt, requestor requestorsTypes.Requestor) sdk.BigInt
+	RewardForRelays(ctx sdk.Ctx, reportCard MsgSubmitQoSReport, relays sdk.BigInt, requestor requestorsTypes.Requestor) (sdk.BigInt, sdk.BigInt)
 	GetStakedTokens(ctx sdk.Ctx) sdk.BigInt
 	Validator(ctx sdk.Ctx, addr sdk.Address) servicersexported.ValidatorI
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
@@ -29,6 +29,8 @@ type PosKeeper interface {
 	GetStakedValidatorsLimit(ctx sdk.Ctx, maxRetrieve int64) (validators []servicersexported.ValidatorI)
 	MaxFishermen(ctx sdk.Ctx) (res int64)
 	FishermenCount(ctx sdk.Ctx) (res int64)
+	BurnActive(ctx sdk.Ctx) bool
+	MaxFreeTierRelaysPerSession(ctx sdk.Ctx) int64
 	PauseNode(ctx sdk.Ctx, addr sdk.Address) sdk.Error
 	BurnforNoActivity(ctx sdk.Ctx, height int64, addr sdk.Address)
 	GetHistoricalInfo(ctx sdk.Ctx, height int64) (servicersTypes.HistoricalInfo, bool)
@@ -45,6 +47,7 @@ type RequestorsKeeper interface {
 	AllRequestors(ctx sdk.Ctx) (requestors []requestorexported.RequestorI)
 	TotalTokens(ctx sdk.Ctx) sdk.BigInt
 	JailRequestor(ctx sdk.Ctx, addr sdk.Address)
+	BurnRequestorStake(ctx sdk.Ctx, requestor requestorsTypes.Requestor, amount sdk.BigInt)
 }
 
 type ViperKeeper interface {

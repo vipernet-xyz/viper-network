@@ -100,7 +100,7 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 		// Set report card with max score of 1
 
 		k.SetReportCard(ctx, qos)
-		tokens, _, err := k.ExecuteProof(ctx, proof, qos, claim)
+		tokens, _, _, err := k.ExecuteProof(ctx, proof, qos, claim)
 		if err != nil {
 			return err.Result()
 		}
@@ -115,7 +115,7 @@ func handleProofMsg(ctx sdk.Ctx, k keeper.Keeper, proof types.MsgProof) sdk.Resu
 		return sdk.Result{Events: ctx.EventManager().Events()}
 	}
 	// valid claim message so execute according to type
-	tokens, _, err := k.ExecuteProof(ctx, proof, reportCard, claim)
+	tokens, _, _, err := k.ExecuteProof(ctx, proof, reportCard, claim)
 	if err != nil {
 		return err.Result()
 	}

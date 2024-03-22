@@ -6,22 +6,21 @@ import (
 
 	sdk "github.com/vipernet-xyz/viper-network/types"
 	governanceTypes "github.com/vipernet-xyz/viper-network/x/governance/types"
-	requestorexported "github.com/vipernet-xyz/viper-network/x/requestors/exported"
 	requestorsTypes "github.com/vipernet-xyz/viper-network/x/requestors/types"
 	"github.com/vipernet-xyz/viper-network/x/servicers/types"
 	viperTypes "github.com/vipernet-xyz/viper-network/x/viper-main/types"
 )
 
-func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSReport, relays sdk.BigInt, requestor requestorsTypes.Requestor) sdk.BigInt {
+func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSReport, relays sdk.BigInt, requestor requestorsTypes.Requestor) (sdk.BigInt, sdk.BigInt) {
 	validator, found := k.GetValidator(ctx, reportCard.ServicerAddress)
 	if !found {
 		ctx.Logger().Error(fmt.Errorf("no validator found for address %s; at height %d\n", reportCard.ServicerAddress.String(), ctx.BlockHeight()).Error())
-		return sdk.ZeroInt()
+		return sdk.ZeroInt(), sdk.ZeroInt()
 	}
 	address, found := k.GetValidatorOutputAddress(ctx, reportCard.ServicerAddress)
 	if !found {
 		k.Logger(ctx).Error(fmt.Sprintf("no validator found for address %s; unable to mint the relay reward...", address.String()))
-		return sdk.ZeroInt()
+		return sdk.ZeroInt(), sdk.ZeroInt()
 	}
 
 	latencyScore := reportCard.Report.LatencyScore
@@ -44,68 +43,45 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSR
 	score := sdk.NewIntFromBigInt(totalScore)
 	coins := tr.Mul(chainMultiplier).Mul(geozoneMultiplier).Mul(r).Mul(score)
 
+	//k.burn(ctx, coins, requestor) //change back
 	// Validate requestor and mint rewards accordingly
-	if !k.GovKeeper.HasDiscountKey(ctx, requestor.GetAddress()) {
-		toNode, toFeeCollector := k.NodeReward01(ctx, coins)
-		if toNode.IsPositive() {
-			k.mint(ctx, toNode, address)
-		}
-		if toFeeCollector.IsPositive() {
-			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
-		}
-		toRequestor := k.RequestorReward(ctx, coins)
-		daoAcc := k.AccountKeeper.GetModuleAccount(ctx, governanceTypes.DAOAccountName)
-		if toRequestor.IsPositive() {
-			k.mint(ctx, toRequestor, daoAcc.GetAddress())
-		}
-		if reportCard.FishermanAddress != nil {
-			toFishermen := k.FishermenReward(ctx, coins)
-			if toFishermen.IsPositive() {
-				k.mint(ctx, toFishermen, reportCard.FishermanAddress)
-			}
-		} else {
-			toFishermen := k.FishermenReward(ctx, coins)
-			if toFishermen.IsPositive() {
-				k.mint(ctx, toFishermen, daoAcc.GetAddress())
-			}
-		}
+	toNode, toFeeCollector := k.ServicerReward(ctx, coins)
+	if toNode.IsPositive() {
+		k.mint(ctx, toNode, address)
+	}
+	if toFeeCollector.IsPositive() {
+		k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
+	}
+	toRequestor := k.RequestorReward(ctx, coins)
+	daoAcc := k.AccountKeeper.GetModuleAccount(ctx, governanceTypes.DAOAccountName)
 
-		maxFreeTierRelays := sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
-		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
-			k.burn(ctx, coins, requestor, reportCard.SessionHeader.NumServicers)
-		}
-		return toNode
-	} else {
-		toNode, toFeeCollector := k.NodeReward02(ctx, coins)
-		if toNode.IsPositive() {
-			k.mint(ctx, toNode, address)
-		}
-		if toFeeCollector.IsPositive() {
-			k.mint(ctx, toFeeCollector, k.getFeePool(ctx).GetAddress())
-		}
-		toRequestor := k.RequestorReward(ctx, coins)
+	if k.GovKeeper.HasDiscountKey(ctx, requestor.GetAddress()) {
 		if toRequestor.IsPositive() {
 			k.mint(ctx, toRequestor, requestor.Address)
 		}
-		daoAcc := k.AccountKeeper.GetModuleAccount(ctx, governanceTypes.DAOAccountName)
-		if reportCard.FishermanAddress != nil {
-			toFishermen := k.FishermenReward(ctx, coins)
-			if toFishermen.IsPositive() {
-				k.mint(ctx, toFishermen, reportCard.FishermanAddress)
-			}
-		} else {
-			toFishermen := k.FishermenReward(ctx, coins)
-			if toFishermen.IsPositive() {
-				k.mint(ctx, toFishermen, daoAcc.GetAddress())
-			}
+	} else {
+		if toRequestor.IsPositive() {
+			k.mint(ctx, toRequestor, daoAcc.GetAddress())
 		}
-		maxFreeTierRelays := sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
-
-		if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
-			k.burn(ctx, coins, requestor, reportCard.SessionHeader.NumServicers)
-		}
-		return toNode
 	}
+
+	if reportCard.FishermanAddress != nil {
+		toFishermen := k.FishermenReward(ctx, coins)
+		if toFishermen.IsPositive() {
+			k.mint(ctx, toFishermen, reportCard.FishermanAddress)
+		}
+	} else {
+		toFishermen := k.FishermenReward(ctx, coins)
+		if toFishermen.IsPositive() {
+			k.mint(ctx, toFishermen, daoAcc.GetAddress())
+		}
+	}
+
+	//maxFreeTierRelays := sdk.NewInt(k.MaxFreeTierRelaysPerSession(ctx))
+	//if k.BurnActive(ctx) && relays.GT(maxFreeTierRelays) {
+	//	k.burn(ctx, coins, requestor)
+	//}
+	return toNode, coins
 }
 
 // blockReward - Handles distribution of the collected fees
@@ -164,38 +140,6 @@ func (k Keeper) mint(ctx sdk.Ctx, amount sdk.BigInt, address sdk.Address) sdk.Re
 }
 
 // MintRate = (total supply * inflation rate) / (30 day avg. of daily relays * 365 days)
-
-// "burn" - takes an amount and burns it
-func (k Keeper) burn(ctx sdk.Ctx, amount sdk.BigInt, requestor requestorsTypes.Requestor, numServicers int64) (sdk.Result, error) {
-	// Burn coins from requestor account
-	r, burnErr := requestor.RemoveStakedTokens(amount)
-	if burnErr != nil {
-		ctx.Logger().Error(fmt.Sprintf("unable to burn tokens, at height %d: %s", ctx.BlockHeight(), burnErr.Error()))
-		return sdk.Result{}, burnErr
-	}
-	// Reset requestor relays
-	r.MaxRelays = MaxPossibleRelays(requestor, numServicers)
-
-	// Update requestor in the store
-	k.RequestorKeeper.SetRequestor(ctx, r)
-
-	// If falls below minimum, force unstake
-	if requestor.GetTokens().LT(sdk.NewInt(k.RequestorKeeper.MinimumStake(ctx))) {
-		if err := k.RequestorKeeper.ForceRequestorUnstake(ctx, requestor); err != nil {
-			logString := fmt.Sprintf("could not force unstake: %s for requestor %s", err.Error(), requestor.Address.String())
-			k.Logger(ctx).Error(logString)
-			return sdk.Result{}, sdk.ErrInternal(logString)
-		}
-	}
-
-	// Log the amount of tokens burned and requestor's address
-	logString := fmt.Sprintf("an amount of %s tokens was burned from %s", amount.String(), requestor.Address.String())
-	k.Logger(ctx).Info(logString)
-
-	return sdk.Result{
-		Log: logString,
-	}, nil
-}
 
 // GetPreviousProposer - Retrieve the proposer public key for this block
 func (k Keeper) GetPreviousProposer(ctx sdk.Ctx) (addr sdk.Address) {
@@ -259,13 +203,6 @@ func (k Keeper) GetGeoZoneSpecificMultiplier(ctx sdk.Ctx, geoZone string) sdk.Bi
 		return sdk.NewInt(multiplier)
 	}
 	return sdk.NewInt(1)
-}
-
-// "MaxPossibleRelays" - Returns the maximum possible amount of relays for an App on a sessions
-func MaxPossibleRelays(app requestorexported.RequestorI, sessionNodeCount int64) sdk.BigInt {
-	//GetMaxRelays Max value is bound to math.MaxUint64,
-	//current worse case is 1 chain and 5 nodes per session with a result of 3689348814741910323 which can be used safely as int64
-	return app.GetMaxRelays().ToDec().Quo(sdk.NewDec(int64(len(app.GetChains())))).Quo(sdk.NewDec(sessionNodeCount)).RoundInt()
 }
 
 func Int64ToBigInt(n int64) *big.Int {

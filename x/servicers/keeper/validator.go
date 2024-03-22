@@ -336,6 +336,7 @@ func (k Keeper) UpdateValidatorReportCard(ctx sdk.Ctx, addr sdk.Address, qosRepo
 		ctx.Logger().Error(fmt.Sprintf("validator not found for address: %X\n", addr))
 	}
 
+	k.deleteValidatorReportCard(ctx, validator)
 	// Increase the total sessions count
 	validator.ReportCard.TotalSessions++
 

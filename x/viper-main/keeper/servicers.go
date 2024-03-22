@@ -17,9 +17,9 @@ func (k Keeper) GetNode(ctx sdk.Ctx, address sdk.Address) (n exported.ValidatorI
 }
 
 // "AwardCoinsForRelays" - Award coins to servicers for relays completed using the servicers keeper
-func (k Keeper) AwardCoinsForRelays(ctx sdk.Ctx, reportCard vc.MsgSubmitQoSReport, relays int64, requestor requestorsTypes.Requestor) sdk.BigInt {
-	tokens := k.posKeeper.RewardForRelays(ctx, reportCard, sdk.NewInt(relays), requestor)
-	return tokens
+func (k Keeper) AwardCoinsForRelays(ctx sdk.Ctx, reportCard vc.MsgSubmitQoSReport, relays int64, requestor requestorsTypes.Requestor) (sdk.BigInt, sdk.BigInt) {
+	tokensMinted, tokensToBurn := k.posKeeper.RewardForRelays(ctx, reportCard, sdk.NewInt(relays), requestor)
+	return tokensMinted, tokensToBurn
 }
 
 // "BurnCoinsForChallenges" - Executes the burn for challenge function in the servicers module

@@ -359,3 +359,31 @@ func (k Keeper) UnjailRequestor(ctx sdk.Ctx, addr sdk.Address) {
 	logger := k.Logger(ctx)
 	logger.Info(fmt.Sprintf("requestor %s unjailed", addr))
 }
+
+func (k Keeper) BurnRequestorStake(ctx sdk.Ctx, requestor types.Requestor, amount sdk.BigInt) {
+	logger := k.Logger(ctx)
+	tokensToBurn := sdk.MinInt(amount, requestor.StakedTokens)
+	tokensToBurn = sdk.MaxInt(tokensToBurn, sdk.ZeroInt())
+	requestor, err := k.removeRequestorTokens(ctx, requestor, amount)
+	if err != nil {
+		k.Logger(ctx).Error("could not remove staked tokens: " + err.Error() + "\nfor requestor " + requestor.Address.String())
+		return
+	}
+	err = k.burnStakedTokens(ctx, tokensToBurn)
+	if err != nil {
+		k.Logger(ctx).Error("could not burn staked tokens in burn: " + err.Error() + "\nfor requestor " + requestor.Address.String())
+		return
+	}
+	// if falls below minimum force burn all of the stake
+	if requestor.GetTokens().LT(sdk.NewInt(k.MinimumStake(ctx))) {
+		err = k.ForceRequestorUnstake(ctx, requestor)
+
+		if err != nil {
+			k.Logger(ctx).Error("could not force unstake in burn: " + err.Error() + "\nfor requestor " + requestor.Address.String())
+			return
+		}
+	}
+	// Log that burn occured
+	logger.Info(fmt.Sprintf("requestor %s burned by amount of %s; burned %v tokens",
+		requestor.GetAddress(), amount.String(), tokensToBurn))
+}

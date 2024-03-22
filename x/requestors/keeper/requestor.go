@@ -39,7 +39,6 @@ func (k Keeper) SetRequestor(ctx sdk.Ctx, requestor types.Requestor) {
 		os.Exit(1)
 	}
 	_ = store.Set(types.KeyForRequestorByAllRequestors(requestor.Address), bz)
-	ctx.Logger().Info("Setting Requestor on Main Store " + requestor.Address.String())
 	if requestor.IsUnstaking() {
 		k.SetUnstakingRequestor(ctx, requestor)
 	}

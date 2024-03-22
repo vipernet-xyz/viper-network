@@ -87,6 +87,7 @@ type RequestorsKeeper interface {
 	SetRequestor(ctx sdk.Ctx, requestor requestorsType.Requestor)
 	GetRequestor(ctx sdk.Ctx, addr sdk.Address) (requestor requestorsType.Requestor, found bool)
 	BaselineThroughputStakeRate(ctx sdk.Ctx) (base int64)
+	BurnRequestorStake(ctx sdk.Ctx, requestor requestorsType.Requestor, amount sdk.BigInt)
 }
 
 type GovernanceKeeper interface {

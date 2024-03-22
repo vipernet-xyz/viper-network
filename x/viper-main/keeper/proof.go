@@ -288,7 +288,7 @@ func (k Keeper) ValidateProof(ctx sdk.Ctx, proof vc.MsgProof) (servicerAddr sdk.
 	return servicerAddr, reportCard, claim, nil, 0
 }
 
-func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, reportCard vc.MsgSubmitQoSReport, claim vc.MsgClaim) (tokens sdk.BigInt, updatedReportCard servicersTypes.ReportCard, err sdk.Error) {
+func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, reportCard vc.MsgSubmitQoSReport, claim vc.MsgClaim) (tokensMinted sdk.BigInt, tokensToBurn sdk.BigInt, updatedReportCard servicersTypes.ReportCard, err sdk.Error) {
 	//requestor address
 	pk, _ := crypto.NewPublicKey(claim.SessionHeader.RequestorPubKey)
 	requestorAddress := pk.Address().Bytes()
@@ -302,32 +302,36 @@ func (k Keeper) ExecuteProof(ctx sdk.Ctx, proof vc.MsgProof, reportCard vc.MsgSu
 	switch l.(type) {
 	case vc.RelayProof:
 		ctx.Logger().Info(fmt.Sprintf("reward coins to %s, for %d relays", claim.FromAddress.String(), claim.TotalProofs))
-		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs, requestor)
+		tokensMinted, tokensToBurn = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs, requestor)
+		maxFreeTierRelays := sdk.NewInt(k.posKeeper.MaxFreeTierRelaysPerSession(ctx))
+		if k.posKeeper.BurnActive(ctx) && sdk.NewInt(claim.TotalProofs).GT(maxFreeTierRelays) {
+			k.requestorKeeper.BurnRequestorStake(ctx, requestor, tokensToBurn)
+		}
 		err := k.DeleteClaim(ctx, claim.FromAddress, claim.SessionHeader, vc.RelayEvidence)
 		updatedReportCard = k.UpdateReportCard(ctx, reportCard.ServicerAddress, reportCard, vc.FishermanTestEvidence)
 		if err != nil {
-			return tokens, updatedReportCard, sdk.ErrInternal(err.Error())
+			return tokensMinted, tokensToBurn, updatedReportCard, sdk.ErrInternal(err.Error())
 		}
 	case vc.ChallengeProofInvalidData:
 		ctx.Logger().Info(fmt.Sprintf("burning coins from %s, for %d valid challenges", claim.FromAddress.String(), claim.TotalProofs))
 		proof, ok := proof.GetClaimLeaf().(vc.ChallengeProofInvalidData)
 		if !ok {
-			return sdk.ZeroInt(), servicersTypes.ReportCard{}, vc.NewInvalidProofsError(vc.ModuleName)
+			return sdk.ZeroInt(), sdk.ZeroInt(), servicersTypes.ReportCard{}, vc.NewInvalidProofsError(vc.ModuleName)
 		}
 		pk := proof.MinorityResponse.Proof.ServicerPubKey
 		pubKey, err := crypto.NewPublicKey(pk)
 		if err != nil {
-			return sdk.ZeroInt(), servicersTypes.ReportCard{}, sdk.ErrInvalidPubKey(err.Error())
+			return sdk.ZeroInt(), sdk.ZeroInt(), servicersTypes.ReportCard{}, sdk.ErrInvalidPubKey(err.Error())
 		}
 		k.BurnCoinsForChallenges(ctx, claim.TotalProofs, sdk.Address(pubKey.Address()))
 		err = k.DeleteClaim(ctx, claim.FromAddress, claim.SessionHeader, vc.ChallengeEvidence)
 		if err != nil {
-			return sdk.ZeroInt(), servicersTypes.ReportCard{}, sdk.ErrInternal(err.Error())
+			return sdk.ZeroInt(), sdk.ZeroInt(), servicersTypes.ReportCard{}, sdk.ErrInternal(err.Error())
 		}
 		// small reward for the challenge proof invalid data
-		tokens = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs/100, requestor)
+		tokensMinted, tokensToBurn = k.AwardCoinsForRelays(ctx, reportCard, claim.TotalProofs/100, requestor)
 	}
-	return tokens, updatedReportCard, nil
+	return tokensMinted, tokensToBurn, updatedReportCard, nil
 }
 
 // struct used for creating the psuedorandom index
