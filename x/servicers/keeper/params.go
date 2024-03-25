@@ -248,6 +248,21 @@ func (k Keeper) MaxMissedReportCards(ctx sdk.Ctx) (res int64) {
 	return
 }
 
+func (k Keeper) MaxNonPerformantBlocks(ctx sdk.Ctx) (res int64) {
+	k.Paramstore.Get(ctx, types.KeyMaxNonPerformantBlocks, &res)
+	return
+}
+
+func (k Keeper) MinScore(ctx sdk.Ctx) (res sdk.BigDec) {
+	k.Paramstore.Get(ctx, types.KeyMinScore, &res)
+	return
+}
+
+func (k Keeper) SlashFractionBadPerformance(ctx sdk.Ctx) (res sdk.BigDec) {
+	k.Paramstore.Get(ctx, types.KeySlashFractionBadPerformance, &res)
+	return
+}
+
 // GetParams - Retrieve all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 	return types.Params{
@@ -283,6 +298,9 @@ func (k Keeper) GetParams(ctx sdk.Ctx) types.Params {
 		RelaysToTokensChainMultiplierMap:   k.RelaysToTokensChainMultiplierMap(ctx),
 		RelaysToTokensGeoZoneMultiplierMap: k.RelaysToTokensGeoZoneMultiplierMap(ctx),
 		MaxMissedReportCards:               k.MaxMissedReportCards(ctx),
+		MaxNonPerformantBlocks:             k.MaxNonPerformantBlocks(ctx),
+		MinScore:                           k.MinScore(ctx),
+		SlashFractionBadPerformance:        k.SlashFractionBadPerformance(ctx),
 	}
 }
 

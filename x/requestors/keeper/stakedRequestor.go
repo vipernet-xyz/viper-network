@@ -31,7 +31,6 @@ func (k Keeper) deleteRequestorFromStakingSet(ctx sdk.Ctx, requestor types.Reque
 // RemoveRequestorTokens - Update the staked tokens of an existing requestor, update the requestors power index key
 func (k Keeper) removeRequestorTokens(ctx sdk.Ctx, requestor types.Requestor, tokensToRemove sdk.BigInt) (types.Requestor, error) {
 	k.deleteRequestorFromStakingSet(ctx, requestor)
-	//fmt.Println("deleted")
 	requestor, err := requestor.RemoveStakedTokens(tokensToRemove)
 	if err != nil {
 		return types.Requestor{}, err

@@ -380,3 +380,28 @@ func (k Keeper) deleteValidatorReportCard(ctx sdk.Ctx, validator types.Validator
 
 	return nil
 }
+
+// DeleteReportCard deletes the report card of a servicer when they are unstaked
+func (k Keeper) ResetValidatorReportCard(ctx sdk.Ctx, addr sdk.Address) error {
+	validator, found := k.GetValidator(ctx, addr)
+	if !found {
+		ctx.Logger().Error(fmt.Sprintf("validator not found for address: %X\n", addr))
+	}
+
+	k.deleteValidatorReportCard(ctx, validator)
+	// Increase the total sessions count
+	validator.ReportCard.TotalSessions = 0
+
+	// Update the total scores with the session scores
+	validator.ReportCard.TotalLatencyScore = sdk.ZeroDec()
+	validator.ReportCard.TotalAvailabilityScore = sdk.ZeroDec()
+	validator.ReportCard.TotalReliabilityScore = sdk.ZeroDec()
+
+	// Save the updated validator data
+	k.SetValidator(ctx, validator)
+
+	// Set the new report card
+	k.SetValidatorReportCard(ctx, validator)
+
+	return nil
+}

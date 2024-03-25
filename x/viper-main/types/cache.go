@@ -504,7 +504,6 @@ func DeleteResult(header SessionHeader, evidenceType EvidenceType, servicerAddr 
 	if err != nil {
 		return err
 	}
-	fmt.Println("result key:", key) //change back
 	// delete from cache
 	testStore.Delete(key)
 	testStore.SealMap.Delete(header.HashString())

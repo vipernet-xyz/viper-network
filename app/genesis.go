@@ -77,7 +77,7 @@ func newDefaultGenesisState() []byte {
 		PublicKey:               cb.PublicKey,
 		Jailed:                  false,
 		Status:                  2,
-		Chains:                  []string{sdk.PlaceholderHash, "0002"}, //change back
+		Chains:                  []string{sdk.PlaceholderHash},
 		GeoZones:                []string{sdk.PlaceholderHash},
 		StakedTokens:            sdk.NewInt(10000000000000),
 		MaxRelays:               sdk.NewInt(10000000000000),
@@ -102,7 +102,7 @@ func newDefaultGenesisState() []byte {
 			Jailed:                  false,
 			Paused:                  false,
 			Status:                  sdk.Staked,
-			Chains:                  []string{sdk.PlaceholderHash, "0002"}, //change back
+			Chains:                  []string{sdk.PlaceholderHash},
 			ServiceURL:              sdk.PlaceholderURL,
 			StakedTokens:            sdk.NewInt(10000000000000),
 			GeoZone:                 []string{sdk.PlaceholderHash},
@@ -203,5 +203,8 @@ func createDummyACL(kp crypto.PublicKey) governanceTypes.ACL {
 	acl.SetOwner("pos/RelaysToTokensChainMultiplierMap", addr)
 	acl.SetOwner("pos/RelaysToTokensGeoZoneMultiplierMap", addr)
 	acl.SetOwner("pos/MaxFreeTierRelaysPerSession", addr)
+	acl.SetOwner("pos/MaxNonPerformantBlocks", addr)
+	acl.SetOwner("pos/MinScore", addr)
+	acl.SetOwner("pos/SlashFractionBadPerformance", addr)
 	return acl
 }

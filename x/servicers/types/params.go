@@ -19,7 +19,7 @@ const (
 	DefaultMaxEvidenceAge                    = 60 * 2 * time.Second
 	DefaultSignedBlocksWindow                = int64(10)
 	DefaultDowntimeJailDuration              = 60 * 60 * time.Second
-	DefaultSessionBlocktime                  = 2 //change back
+	DefaultSessionBlocktime                  = 4
 	DefaultProposerAllocation                = 5
 	DefaultDAOAllocation                     = 10
 	DefaultRequestorAllocation               = 5
@@ -33,6 +33,7 @@ const (
 	DefaultFishermenCount                    = int64(1)
 	DefaultMaxFreeTierRelaysPerSession       = int64(5000)
 	DefaultMaxMissedReportCards              = int64(3)
+	DefaultMaxNonPerformantBlocks            = int64(25)
 )
 
 // POS params non-const default values
@@ -84,6 +85,11 @@ var (
 	DefaultSlashFractionFisherman         = sdk.NewDec(2).Quo(sdk.NewDec(100))
 	KeyMaxFreeTierRelaysPerSession        = []byte("MaxFreeTierRelaysPerSession")
 	KeyMaxMissedReportCards               = []byte("MaxMissedReportCards")
+	KeyMaxNonPerformantBlocks             = []byte("MaxNonPerformantBlocks")
+	DefaultMinScore                       = sdk.NewDecWithPrec(4, 1)
+	KeyMinScore                           = []byte("MinScore")
+	DefaultSlashFractionBadPerformance    = sdk.NewDec(2).Quo(sdk.NewDec(100))
+	KeySlashFractionBadPerformance        = []byte("SlashFractionBadPerformance")
 )
 
 var _ sdk.ParamSet = (*Params)(nil)
@@ -122,6 +128,9 @@ type Params struct {
 	SlashFractionFisherman             sdk.BigDec       `json:"slash_fraction_fisherman" yaml:"slash_fraction_fisherman"`
 	MaxFreeTierRelaysPerSession        int64            `json:"maximum_free_tier_relays_per_session"`
 	MaxMissedReportCards               int64            `json:"maximum_missed_report_cards" yaml:"maximum_missed_report_cards"`
+	MaxNonPerformantBlocks             int64            `json:"maximum_non_performant_blocks" yaml:"maximum_non_performant_blocks"`
+	MinScore                           sdk.BigDec       `json:"minimum_score" yaml:"minimum_score"`
+	SlashFractionBadPerformance        sdk.BigDec       `json:"slash_fraction_bad_performance" yaml:"slash_fraction_bad_performance"`
 }
 
 // Implements sdk.ParamSet
@@ -159,6 +168,9 @@ func (p *Params) ParamSetPairs() sdk.ParamSetPairs {
 		{Key: KeyRelaysToTokensGeoZoneMultiplierMap, Value: &p.RelaysToTokensGeoZoneMultiplierMap},
 		{Key: KeyMaxFreeTierRelaysPerSession, Value: &p.MaxFreeTierRelaysPerSession},
 		{Key: KeyMaxMissedReportCards, Value: &p.MaxMissedReportCards},
+		{Key: KeyMaxNonPerformantBlocks, Value: &p.MaxNonPerformantBlocks},
+		{Key: KeyMinScore, Value: &p.MinScore},
+		{Key: KeySlashFractionBadPerformance, Value: &p.SlashFractionBadPerformance},
 	}
 }
 
@@ -196,6 +208,9 @@ func DefaultParams() Params {
 		RelaysToTokensGeoZoneMultiplierMap: DefaultRelaysToTokensGeoZoneMultiplierMap,
 		MaxFreeTierRelaysPerSession:        DefaultMaxFreeTierRelaysPerSession,
 		MaxMissedReportCards:               DefaultMaxMissedReportCards,
+		MaxNonPerformantBlocks:             DefaultMaxNonPerformantBlocks,
+		MinScore:                           DefaultMinScore,
+		SlashFractionBadPerformance:        DefaultSlashFractionBadPerformance,
 	}
 }
 
@@ -243,6 +258,12 @@ func (p Params) Validate() error {
 	if p.MaxMissedReportCards < 0 {
 		return fmt.Errorf("invalid max missed report cards, must be above 0")
 	}
+	if p.MaxNonPerformantBlocks < 0 {
+		return fmt.Errorf("invalid max non-performant blocks, must be above 0")
+	}
+	if p.MinScore.LT(sdk.ZeroDec()) {
+		return fmt.Errorf("invalid min score, must be above 0")
+	}
 	return nil
 }
 
@@ -282,7 +303,10 @@ func (p Params) String() string {
   ReliabilityScoreWeight   %s
   SlashFractionFisherman   %s
   MaxFreeTierRelaysPerSession  %d
-  MaxMissedReportCards      %d`,
+  MaxMissedReportCards      %d
+  MaxNonPerformantBlocks    %d
+  MinScore                  %s
+  SlashFractionDowntime:    %s`,
 		p.UnstakingTime,
 		p.MaxValidators,
 		p.StakeDenom,
@@ -311,5 +335,8 @@ func (p Params) String() string {
 		p.ReliabilityScoreWeight,
 		p.SlashFractionFisherman,
 		p.MaxFreeTierRelaysPerSession,
-		p.MaxMissedReportCards)
+		p.MaxMissedReportCards,
+		p.MaxNonPerformantBlocks,
+		p.MinScore,
+		p.SlashFractionBadPerformance)
 }

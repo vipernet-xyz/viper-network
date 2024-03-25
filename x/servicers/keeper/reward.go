@@ -42,8 +42,6 @@ func (k Keeper) RewardForRelays(ctx sdk.Ctx, reportCard viperTypes.MsgSubmitQoSR
 	r := relays.Sub(sdk.NewIntFromBigInt(Int64ToBigInt(reportCard.NumOfTestResults)))
 	score := sdk.NewIntFromBigInt(totalScore)
 	coins := tr.Mul(chainMultiplier).Mul(geozoneMultiplier).Mul(r).Mul(score)
-
-	//k.burn(ctx, coins, requestor) //change back
 	// Validate requestor and mint rewards accordingly
 	toNode, toFeeCollector := k.ServicerReward(ctx, coins)
 	if toNode.IsPositive() {

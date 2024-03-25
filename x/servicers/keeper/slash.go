@@ -243,7 +243,7 @@ func (k Keeper) validateDoubleSign(ctx sdk.Ctx, addr crypto.Address, infractionH
 }
 
 // handleValidatorSignature - Handle a validator signature, must be called once per validator per block
-func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power int64, signed bool, signedBlocksWindow, minSignedPerWindow int64, downtimeJailDuration time.Duration, MinPauseDuration time.Duration, slashFractionDowtime sdk.BigDec) {
+func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power int64, signed bool, signedBlocksWindow, minSignedPerWindow int64, downtimeJailDuration time.Duration, MinPauseDuration time.Duration, slashFractionDowtime sdk.BigDec, maxNonPerformantBlocks int64, minScore sdk.BigDec, slashFractionBadPerformance sdk.BigDec) {
 	validator, found := k.GetValidator(ctx, addr)
 	if !found {
 		ctx.Logger().Info(fmt.Sprintf("in handleValidatorSignature: validator with addr %s not found, "+
@@ -301,9 +301,28 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 		}
 	}
 
-	if validator.Paused {
-		signInfo.PausedUntil = ctx.BlockHeader().Time.Add(MinPauseDuration)
+	// Check if the total sessions completed by the validator is more than maxNonPerformantBlocks
+	if validator.ReportCard.TotalSessions > maxNonPerformantBlocks {
+		// Check if the availability, reliability, and latency scores are below 0.5
+		if validator.ReportCard.TotalAvailabilityScore.LT(minScore) &&
+			validator.ReportCard.TotalReliabilityScore.LT(minScore) &&
+			validator.ReportCard.TotalLatencyScore.LT(minScore) {
+			// Slash and jail the validator
+			slashHeight := ctx.BlockHeight() - sdk.ValidatorUpdateDelay - 1
+			k.slash(ctx, addr, slashHeight, power, slashFractionBadPerformance)
+			// reset the signing info
+			signInfo.ResetSigningInfo()
+			// clear the validator missed at
+			k.clearValidatorMissed(ctx, addr)
+			// reset the validators report card
+			k.ResetValidatorReportCard(ctx, addr)
+			// jail the validator to prevent consensus problems
+			k.JailValidator(ctx, addr)
+			// set the jail time duration
+			signInfo.JailedUntil = ctx.BlockHeader().Time.Add(downtimeJailDuration)
+		}
 	}
+
 	maxMissedReportCards := k.MaxMissedReportCards(ctx)
 	if signInfo.MissedReportCardCounter > maxMissedReportCards {
 		// reset the missed report card

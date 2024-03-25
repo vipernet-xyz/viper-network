@@ -268,6 +268,7 @@ func (k Keeper) StakeValidator(ctx sdk.Ctx, validator types.Validator, amount sd
 			Address:     validator.GetAddress(),
 			StartHeight: ctx.BlockHeight(),
 			JailedUntil: time.Unix(0, 0),
+			PausedUntil: time.Unix(0, 0),
 		}
 		k.SetValidatorSigningInfo(ctx, validator.GetAddress(), signingInfo)
 	}
@@ -654,15 +655,22 @@ func (k Keeper) PauseNode(ctx sdk.Ctx, addr sdk.Address) sdk.Error {
 		return types.ErrValidatorUnstaked(k.Codespace())
 	}
 
+	signInfo, isFound := k.GetValidatorSigningInfo(ctx, addr)
+	if !isFound {
+		ctx.Logger().Error(fmt.Sprintf("error in handleValidatorSignature: signing info for validator with addr %s not found, at height %d", addr, ctx.BlockHeight()))
+		k.ResetValidatorSigningInfo(ctx, addr)
+	}
+
 	// Clear caching for sessions
 	k.ClearSessionCache()
 
 	// Remove the validator from the staking set
 	k.deleteValidatorFromStakingSet(ctx, validator)
-
 	// Pause the validator
 	validator.Paused = true
+	signInfo.PausedUntil = ctx.BlockHeader().Time.Add(k.MinPauseTime(ctx))
 	k.SetValidator(ctx, validator)
+	k.SetValidatorSigningInfo(ctx, addr, signInfo)
 
 	// Emit a pause event
 	ctx.EventManager().EmitEvent(
@@ -715,23 +723,8 @@ func (k Keeper) UnpauseNode(ctx sdk.Ctx, addr sdk.Address) {
 		k.Logger(ctx).Error(fmt.Sprintf("cannot unpause already unpaused validator, validator: %v at height %d", validator, ctx.BlockHeight()))
 		return
 	}
-	info, found := k.GetValidatorSigningInfo(ctx, addr)
-	if !found {
-		k.Logger(ctx).Error("that address is not associated with any known validator")
-		return
-	}
-	if info.PausedUntil.After(time.Now()) {
-		k.Logger(ctx).Error("validator paused")
-		return
-	}
-	// cannot be unjailed until out of jail
-	if ctx.BlockHeader().Time.Before(info.PausedUntil) {
-		k.Logger(ctx).Error("validator paused")
-		return
-	}
 	validator.Paused = false
 	k.SetValidator(ctx, validator)
-	k.ResetValidatorSigningInfo(ctx, addr)
 	k.Logger(ctx).Info(fmt.Sprintf("validator %s unpaused", addr))
 }
 
